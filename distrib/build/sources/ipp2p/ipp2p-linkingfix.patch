@@ -1,0 +1,11 @@
+--- ipp2p-0.8.2/Makefile	2006-09-27 11:03:41.000000000 +0100
++++ ipp2p-0.8.2.new/Makefile	2007-03-13 17:14:36.982139888 +0000
+@@ -64,7 +64,7 @@
+ 
+ libipt_ipp2p.so: libipt_ipp2p.c ipt_ipp2p.h
+ 	$(CC) $(CFLAGS) $(IPTABLES_OPTION) $(IPTABLES_INCLUDE) -fPIC -c libipt_ipp2p.c
+-	ld -shared -o libipt_ipp2p.so libipt_ipp2p.o
++	gcc -shared -o libipt_ipp2p.so libipt_ipp2p.o
+ 
+ clean:
+ 	-rm -f *.o *.so *.ko .*.cmd *.mod.c

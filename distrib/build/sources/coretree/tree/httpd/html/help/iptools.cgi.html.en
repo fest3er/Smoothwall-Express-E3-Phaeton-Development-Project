@@ -1,0 +1,22 @@
+<P><FONT SIZE='3'><STRONG><U>Network Utilities</U></STRONG></FONT></P>
+
+<P>From the <STRONG>Tool</STRONG> drop-down list box select either Ping or Traceroute. 
+Enter the IP address or hostname into <STRONG>IP addresses or hostnames</STRONG> text
+box and click the <STRONG>Run</STRONG> button.  Ping establishes basic connectivity to
+a host.  Use it to prove that SmoothWall can communicate with PCs, Web
+and mail servers located on its local (GREEN) network.  Ping can
+also be used for external Internet hosts.  Traceroute is used to reveal the
+routing to Internet hosts, where the more hops, the slower the connection is
+likely to be.</P>
+
+<P>Note that trace-routing takes a while, depending on the connectivity
+between the machine being traced and the SmoothWall host.</P>
+
+<P>The results of the Ping and Traceroute commands are displayed in the
+panel below the user input controls.  The output is as it would be if the
+commands were run directly by the root user from the console of the
+SmoothWall system.  It is, of course, generally far more convenient to
+run them from this configuration procedure.</P>
+
+<P>It is possible to ping or trace-route to multiple hosts.  Separate each one
+by a comma.</P>

@@ -1,0 +1,25 @@
+<P><FONT SIZE='3'><STRONG><U>Interfaces</U></STRONG></FONT></P>
+
+<p>This page is used to configure the IP addresses of the various internal
+interfaces, and to configure the external (RED) interface.</p>
+
+<p>The network interfaces displayed will vary depending on which interfaces
+have been inserted in the computer running SmoothWall Express, and the
+Configuration Type selected in the Setup program's Networking section.</p>
+
+<p>For each of the internal interfaces presented (GREEN, PURPLE and ORANGE),
+the <strong>IP address</strong> and <strong>Netmask</strong> can be
+configured.  In addition, to aid in NIC identification, the NIC type (make
+and model) as well as the MAC address is displayed.</p>
+
+<p>For the external interface, assuming it is configured for Ethernet, you can
+set what <strong>Connection method</strong> it should use.  You have a choice
+of Static, DHCP or PPPoE.  If you are using DHCP, you can also specify the
+DHCP hostname to send when obtaining an IP address from your ISP.</p>
+
+<p>Finally, when configuring RED you can also configure the <strong>Default
+gateway</strong>, <strong>Primary DNS</strong> and <strong>Secondary
+DNS</strong>.</p>
+
+<p><strong>Please note:</strong> This page supplements the functionality
+provided by the Setup program.</p>

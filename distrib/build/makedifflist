@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+my $baseurl = 'https://smoothwall.svn.sourceforge.net/svnroot/smoothwall/';
+my $differ = '/usr/src/expresscore/distrib/build/differ';
+
+my $rev = $ARGV[0];
+my $dir = $ARGV[1];
+
+if ($rev eq '')
+{
+	print "Usage: makedifflist REV DIR\n";
+	print "Ex: makedifflist tags/update2 coretree/tree\n";
+	print "NOTE! DOES NOT COPE WITH *NEW* FILES\n";
+	
+	exit;
+}
+
+my @output = `svn diff --diff-cmd=$differ $baseurl/trunk/distrib/build/sources/$dir $baseurl/$rev/distrib/build/sources/$dir`;
+
+foreach (@output)
+{
+	if (/^FILE:(.*)$/)
+	{
+		print "./$1\n";
+	}
+}

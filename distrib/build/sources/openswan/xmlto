@@ -1,0 +1,4 @@
+#! /bin/sh
+
+echo "Cheating xmlto with copy..."
+cp -v "$2" "${2/.xml/}"

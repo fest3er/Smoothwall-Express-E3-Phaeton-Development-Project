@@ -1,0 +1,15 @@
+pidfile = /var/run/p3scan.pid
+user = clam
+notifydir = /var/avirus/p3scan/notify
+virusdir = /var/avirus/p3scan
+justdelete
+virusregexp = .*: (.*) (FOUND|ERROR)
+broken
+template = /usr/lib/smoothwall/p3scan.mail
+notify = The email has been removed.
+subject = SmoothWall detected a virus: 
+viruscode = 2,1
+demime
+scannertype = basic
+scanner = /usr/bin/clamdscan --config-file /usr/lib/smoothwall/clamdscan.conf
+enabletop

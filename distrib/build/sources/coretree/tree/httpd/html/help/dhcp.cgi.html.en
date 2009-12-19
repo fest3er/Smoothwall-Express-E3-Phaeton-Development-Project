@@ -1,0 +1,79 @@
+<P><FONT SIZE='3'><STRONG><U>DHCP</U></STRONG></FONT></P>
+
+<P>SmoothWall may optionally run a DHCP server, and this is where it is
+configured.</P>
+
+<P>Both the GREEN and PURPLE interfaces can have DHCP service.  Select
+the <B>Interface</B> you wish to configure and then press <B>Select</B>.
+
+<P>A feature that is applied globally is network booting.  This requires
+a compatible target PC or other device.  Configure the <B>Boot server</B> to
+the IP address of the server running TFTP.  Next, choose the <B>Boot filename</B>
+and <B>Root path</B> of the file that the PC or other device should boot.  This
+feature is intended to be used by diskless workstations, and similar.</P>
+
+<P><STRONG>Start Address</STRONG> and <STRONG>End Address</STRONG> set the range over which you wish the DHCP
+server to supply dynamic addresses. This address range should not contain
+the IPs of other machines on your LAN with static IP assignments. Suppose
+you had a network in the 192.168.0.0 range. Assuming all your statically
+assigned IP address were all lower then 192.168.0.100, you could use the
+upper portion of the address range for the dynamic addresses. In this case,
+your start address would be 192.168.0.100 and the end address could be
+192.168.0.254.</P>
+
+<P>The two DNS servers' addresses specify what the DHCP server should tell
+its clients to use for their DNS server. Because SmoothWall runs a DNS
+proxy, you will probably want to leave the default alone and set the Primary
+DNS server to the SmoothWall box's IP address. If you run a local DNS server
+and want your desktops to use it, set the Secondary DNS to its address.</P>
+
+<P>The two NTP servers' addresses specify which NTP servers the
+SmoothWall DHCP server should tell its clients to use. This can be used
+to configure the network hosts to time-sync with the SmoothWall's (or other
+server's) system time.</P>
+
+<P>The two WINS servers' addresses, likewise, specify what WINS servers the
+SmoothWall DHCP server should tell its clients to use. This is often not
+required on very small Windows networks. You can assign primary and
+secondary servers.</P>
+
+<P>The <STRONG>Default</STRONG> and <STRONG>Maximum lease times</STRONG> can be left at their
+default values unless you have specific needs.</P>
+
+<P>The <STRONG>Domain name suffix</STRONG> sets the domain name that the DHCP server
+will give to the client.  There should not be a leading period in this
+box.</P>
+
+<P>The <STRONG>NIS domain</STRONG> sets the NIS domain that the server will
+give to the clients. This should not be confused with the <STRONG>
+Domain name suffix</STRONG>, described above.</P>
+
+<P>The two NIS servers' addresses, likewise, specify what NIS servers the
+SmoothWall DHCP server should tell its clients to use. This is useful
+in UNIX environments which are utilising NIS.</P>
+
+<P>The <STRONG>Add a new static assignment</STRONG> section is used to allocate a
+fixed IP addresses for nominated clients.  It does this by reference to the
+client NIC's (LAN Card) MAC (Media Access Control) address.  Use this
+facility if you want a certain PC or Apple Macintosh to always get the same
+IP address, as if it was configured with a static IP address.  The contents
+of the <STRONG>Description</STRONG> text box are not used by the system, they are
+there to help you identify the IP assignments with a human intelligible
+string, such as Reception PC, Mark's MAC etc.</P>
+
+<P>Note the MAC address must be entered as six pairs of hexadecimal numbers,
+with a space, colon or other separator character between each pair, e.g. 
+<code>12 34 56 78 9A BC</code> or 
+<code>12:34:56:78:9A:BC</code>.  Click the <STRONG>Add</STRONG> button and the MAC
+and IP Address pair will be displayed in the Current static assignments
+section below.  In order to edit an existing static IP address assignment,
+click or select the Mark checkbox alongside the required MAC and IP Address
+pair, then press Remove to delete the assignment or <STRONG>Edit</STRONG> to move the
+MAC and IP Address pairing back to the new static assignment section above. 
+In the case of pressing Edit, change the MAC or IP address as required then
+press the Add button again to return the revised assignment to the Current
+static assignments section below.</P>
+
+<P>Enable the DHCP server by checking the <STRONG>Enable</STRONG> checkbox. 
+This will enable DHCP service for the selected interface. When you
+press <STRONG>Save</STRONG>, the change is acted upon.</P>

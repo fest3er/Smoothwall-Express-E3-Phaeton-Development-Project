@@ -1,0 +1,10 @@
+<P><FONT SIZE='3'><B><U>Instant Messenger Proxy Logs</U></B></FONT></P>
+
+<p>Unlike the other log viewers, this log viewer shows information in realtime.</p>
+
+<p>On the left of the page is a tree-listing of IM protocols, IM users, and
+dates.</p>Select the date of the log you are interested in reading.</p>
+
+<p>The right hand portion of the screen will then update to show the chat
+transcript. It will also periodically refresh, enabling you to view the selected
+conversation in near-realtime.</p>

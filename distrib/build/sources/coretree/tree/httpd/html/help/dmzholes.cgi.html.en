@@ -1,0 +1,29 @@
+<P><FONT SIZE='3'><B><U>Internal Pinhole Configuration</U></B></FONT></P>
+
+<P>This page is for advanced users with multi-NIC setups without multiple
+internal networks.</P>
+
+<P>With this page, the administrator can configure "holes" between the various
+local networks.  The standard configuration, without any pinholes setup, is as
+follows:</P>
+
+<UL>
+<LI>GREEN can talk to PURPLE, ORANGE</LI>
+<LI>PURPLE can talk to ORANGE</LI>
+<LI>ORANGE can talk to nothing</LI>
+</UL>
+
+<P>In order to allow communcations in the reverse direction (for example
+ORANGE talking to GREEN) a pinhole most be created.</P>
+
+<P>The protocol can be set, although it is not recommended to use
+UDP for pinholing.  <B>Source IP (or network)</B> is a machine or network on the ORANGE or PURPLE interface,
+<B>Destination IP (or network)</B> is usually a host or network on the GREEN interface, and <B>Destination port</B> is
+the port on the Destination machine that you want to allow the Source machine to
+connect to.</P>
+
+<P>Typically this would be used to allow a web server on ORANGE to connect to
+a mail server on GREEN for web mail purposes. Another scenario is to allow all
+wireless hosts on the PURPLE network to access a webserver on the GREEN network.
+This would involve using a subnet that covers the PURPLE network for the Source
+IP.</P>

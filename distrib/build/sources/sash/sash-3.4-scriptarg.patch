@@ -1,0 +1,60 @@
+--- sash-3.4/sash.c.oot	Mon Jan 10 10:31:43 2000
++++ sash-3.4/sash.c	Mon Jan 10 10:34:52 2000
+@@ -452,6 +452,24 @@
+ 		}
+ 	}
+ 
++	/* A single argument is allowed, and it must be a filename which
++	   provides stdin. This allows #! usage. */
++	if (argc) {
++		int fd;
++
++		fd = open(argv[0], O_RDONLY);
++		if (fd < 0) {
++			fprintf(stderr, "Error opening %s: %s\n", argv[0],
++				strerror(errno));
++			return 1;
++		}
++
++		dup2(fd, 0);
++		close(fd);
++
++		argc--, argv++;
++	}
++
+ 	/*
+ 	 * No more arguments are allowed.
+ 	 */
+@@ -1241,7 +1259,7 @@
+ {
+ 	fprintf(stderr, "Stand-alone shell (version %s)\n", version);
+ 	fprintf(stderr, "\n");
+-	fprintf(stderr, "Usage: sash [-a] [-q] [-c command] [-p prompt]\n");
++	fprintf(stderr, "Usage: sash [-a] [-q] [-c command] [-p prompt] [script]\n");
+ 
+ 	exit(1);
+ }
+--- sash-3.4/sash.1.oot	Mon Jan 10 10:34:58 2000
++++ sash-3.4/sash.1	Mon Jan 10 10:37:22 2000
+@@ -2,7 +2,7 @@
+ .SH NAME
+ sash \- stand-alone shell with built-in commands
+ .SH SYNOPSYS
+-.B sash [-c command] [-p prompt] [-q] [-a]
++.B sash [-c command] [-p prompt] [-q] [-a] [script]
+ .SH DESCRIPTION
+ The
+ .B sash
+@@ -469,6 +469,12 @@
+ The -a option creates aliases for the built-in commands so
+ that they replace the corresponding standard commands.
+ This is the same result as if the 'aliasall' command was used.
++
++A file name may be provided as the last argument to sash, in which case
++sash's standard input is read from that file. This allows #! scripts
++to use sash as their script interpretor. Be aware that sash does not provide
++most normal bourne-shell programming features, however.
++
+ .SH SYSTEM RECOVERY
+ This section contains some useful information about using
+ .B sash

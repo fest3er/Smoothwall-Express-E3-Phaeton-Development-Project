@@ -1,0 +1,14 @@
+<P><FONT SIZE='3'><B><U>Web Proxy Logs</U></B></FONT></P>
+
+<P>Here you can view the usage logs of your web proxy server. You can select
+what you want to view with the options at the top of the page. You may
+select the day, month and the source IP (the machine within your network) to
+view the logs for. As well as this, you may also use regular expressions
+to filter certain lines from the log. The default has been set to strip all
+images, etc. and should normally be sufficient.</P>
+
+<P>You must use the <B>Update</B> button to activate any choices.  Note, you
+may also need to use the "Smooth" links at the top of the page to navigate
+if there is more than one page meeting the current criteria. You may press
+the <B>Export</B> button to download the log file from your SmoothWall to
+your local machine.</P>

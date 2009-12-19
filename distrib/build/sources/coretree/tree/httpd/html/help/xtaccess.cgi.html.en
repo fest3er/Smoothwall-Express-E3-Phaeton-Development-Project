@@ -1,0 +1,25 @@
+<P><FONT SIZE='3'><B><U>External Service Access</U></B></FONT></P>
+
+<P>This page is used for setting up allowed connections from external
+machines to a given port on the SmoothWall, provided that the connection is
+made directly to the SmoothWall host.  Ports opened for forwarding are not
+affected by the settings on this page.  <B>Note:</B> This is a subtle change
+from previous versions of SmoothWall where a port forward was created on the
+port forward page, and opened on the External access page.</P>
+
+<P>Set the protocol (TCP or UDP) using the drop-down box.</P>
+
+<P><B>Source IP</B> sets the allowed IP that you want to be able to connect
+to the <B>Destination port</B>.  If this is empty, which is usually the
+case, all external hosts are allowed to connect.  The Source IP can be
+either a host or a network, and is specified as 192.168.0.1 (a host),
+192.168.0.0/24 (a network), or 192.168.0.0/255.255.255.0 (also a network).
+You are able to specify multiple Source IPs, so you can easily allow certain
+IPs and combinations of networks to connect to a single port on the
+SmoothWall.</P>
+
+<P><B>Note:</B> SmoothWall comes with one "built in" rule. It will allow
+Auth (port 113) packets.  This is only to stop Auth requests from being logged in
+the firewall; there is no Auth service running on SmoothWall. If you
+have reason to log these requests, simply disable (or remove) the entry in
+the External access configuration.</P>

@@ -1,0 +1,61 @@
+include ../../Makefile
+
+include ../../Makefile.conf
+
+TARGET_DIR = /build/target
+
+OUTPUT_FILENAME = $(BASENAME)-$(UPDATE_NAME)-$(ARCH).tar.gz
+
+all: clean $(OUTPUT_FILENAME) updateinfo
+
+patch.tar.gz:
+	@mkdir distrib
+	@(for I in \
+		$(UPDATE_PACKAGES) \
+	; do \
+		make -C ../../$$I clean all; \
+		if [ $$? -ne 0 ]; then \
+			echo "$$I FAILED"; \
+			exit 1; \
+		fi; \
+ 		echo "Unpacking $$I ..."; \
+		if [ "$$I" = "coretree" ]; then \
+			tar -zxvf /$(TARGET_DIR)/smoothwall-$$I.tar.gz -C distrib -T coretree.list; \
+		else \
+			tar -zxf /$(TARGET_DIR)/smoothwall-$$I.tar.gz -C distrib; \
+		fi; \
+	done; \
+	);
+
+	@(if [ "$(KERNEL)" != "" ]; then \
+		tar -zxf /$(TARGET_DIR)/smoothwall-coretree.tar.gz -C distrib ./var/smoothwall/main/kernel; \
+	fi;)
+
+	@(if [ "$(CLAMAV)" != "" ]; then \
+		rm -f distrib/var/clamav/*; \
+	fi;)
+
+	@echo "Cleaning tree ..."
+	@/build/striptree distrib/$(UPDATE_DIR)
+
+	@echo "Building patch.tar.gz, stand by ..."
+	@tar -zcf patch.tar.gz -C distrib .
+
+updateinfo:
+	@echo "Building update information file ..."	
+	@echo "$(UPDATE_ID)|$(UPDATE_NAME)-$(ARCH)" >information
+
+$(OUTPUT_FILENAME): patch.tar.gz updateinfo
+	@echo "Making update file ..."
+	@tar -zcf $(OUTPUT_FILENAME) patch.tar.gz setup information $(EXTRA_UPDATE_FILES)
+
+clean:
+	@rm -rf distrib
+
+	@rm -f patch.tar.gz
+	@rm -f $(OUTPUT_FILENAME)
+	@rm -f updateinfo
+	@rm -f information
+
+download:
+	@true

@@ -1,0 +1,20 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+
+# run-parts
+*/5 * * * * root /usr/bin/smoothwall/run-parts /etc/cron.often >/dev/null
+01 * * * * root /usr/bin/smoothwall/run-parts /etc/cron.hourly >/dev/null
+02 4 * * * root /usr/bin/smoothwall/run-parts /etc/cron.daily >/dev/null
+22 4 * * 0 root /usr/bin/smoothwall/run-parts /etc/cron.weekly >/dev/null
+42 4 1 * * root /usr/bin/smoothwall/run-parts /etc/cron.monthly >/dev/null
+
+# Update time
+30 * * * * root /usr/bin/smoothwall/gettime.pl >/dev/null
+
+# watcher
+* * * * * nobody /usr/bin/smoothwall/stayup.pl >/dev/null
+
+# Make some nice graphs
+*/5 * * * * root /usr/bin/smoothwall/rrdtool.pl >/dev/null

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+. /var/smoothwall/clamav/settings
+
+if [ "$ENABLE_ZAP" == "on" -o "$ENABLE_GUARDIAN" == "on" ]; then
+	/usr/bin/freshclam --config-file=/usr/lib/smoothwall/freshclam.conf \
+		--daemon-notify=/usr/lib/smoothwall/clamd.conf
+	rm -rf /var/clamav/clamav-*
+fi

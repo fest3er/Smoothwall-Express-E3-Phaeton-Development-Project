@@ -1,0 +1,94 @@
+#!/bin/sh
+. /var/smoothwall/ethernet/settings
+
+echo "Setting up ISDN"
+. /etc/rc.d/rc.isdn
+echo "Setting up ADSL"
+. /etc/rc.d/rc.adsl
+
+/sbin/modprobe ppp_synctty
+/sbin/modprobe ppp_async
+
+echo "Setting up loopback"
+ifconfig lo localhost up
+
+echo "Loading QOS modules"
+/sbin/modprobe sch_sfq
+/sbin/modprobe sch_htb
+
+echo "Loading SPI modules"
+/sbin/modprobe ip_tables
+/sbin/modprobe iptable_filter
+/sbin/modprobe iptable_nat
+/sbin/modprobe iptable_mangle
+/sbin/modprobe ipt_LOG
+/sbin/modprobe ipt_REJECT
+/sbin/modprobe ipt_REDIRECT
+/sbin/modprobe ipt_MASQUERADE
+/sbin/modprobe ipt_ACCOUNT
+/sbin/modprobe ipt_CLASSIFY
+/sbin/modprobe ipt_TOS
+/sbin/modprobe ipt_state
+/sbin/modprobe ipt_multiport
+/sbin/modprobe ipt_connmark
+/sbin/modprobe ipt_ipp2p
+/sbin/modprobe ipt_dscp
+/sbin/modprobe xt_mark
+/sbin/modprobe xt_tcpudp
+/sbin/modprobe xt_length
+/sbin/modprobe xt_MARK
+/sbin/modprobe xt_CONNMARK
+
+echo "Loading MASQ helper modules"
+/sbin/modprobe ip_conntrack_irc
+/sbin/modprobe ip_nat_irc
+/sbin/modprobe ip_conntrack_ftp
+/sbin/modprobe ip_nat_ftp
+#/sbin/modprobe ip_conntrack_mms
+#/sbin/modprobe ip_nat_mms
+/sbin/modprobe ip_conntrack_pptp
+/sbin/modprobe ip_nat_pptp
+
+# Remove possible leftover files
+rm -f /var/smoothwall/red/*
+
+for NIC in 0 1 2 3; do
+	ETHX="eth${NIC}"
+	if [ "$GREEN_DEV" = "$ETHX" ]; then
+		if [ "$GREEN_DRIVER" != "" ]; then
+			/sbin/modprobe $GREEN_DRIVER $GREEN_DRIVER_OPTIONS
+		fi
+	fi
+	if [ "$ORANGE_DEV" = "$ETHX" ]; then
+		if [ "$ORANGE_DRIVER" != "" ]; then
+			/sbin/modprobe $ORANGE_DRIVER $ORANGE_DRIVER_OPTIONS
+		fi
+	fi
+	if [ "$RED_DEV" = "$ETHX" ]; then
+		if [ "$RED_DRIVER" != "" ]; then
+			/sbin/modprobe $RED_DRIVER $RED_DRIVER_OPTIONS
+		fi
+	fi
+	if [ "$PURPLE_DEV" = "$ETHX" ]; then
+		if [ "$PURPLE_DRIVER" != "" ]; then
+			/sbin/modprobe $PURPLE_DRIVER $PURPLE_DRIVER_OPTIONS
+		fi
+	fi
+done
+
+# Forwarding.  This is set here to shutup warnings from ipchains.
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo 1 > /proc/sys/net/ipv4/ip_dynaddr
+echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+echo 1 > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+echo 1 > /proc/sys/net/ipv4/tcp_syncookies
+echo 0 > /proc/sys/net/ipv4/tcp_ecn
+
+echo "Bringing network up"
+. /etc/rc.d/rc.netaddress.up
+
+. /var/smoothwall/ppp/settings
+if [ "$AUTOCONNECT" = "on" ]; then
+	echo "Bringing up modem/ISDN link"
+	/usr/bin/smoothcom updown UP
+fi

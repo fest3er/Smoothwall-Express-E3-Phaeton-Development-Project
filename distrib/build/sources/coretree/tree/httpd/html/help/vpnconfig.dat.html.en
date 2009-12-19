@@ -1,0 +1,53 @@
+<P><FONT SIZE='3'><B><U>VPN Connections</U></B></FONT></P>
+
+<P>This page is used to do basic VPN configuration. To find out more about
+VPNs, please visit the FreeSWAN web site <A
+HREF='http://www.freeswan.org'>here</A>.</P> Although primarily intended to
+VPN multiple SmoothWalls together, it is possible for SmoothWall to
+inter-operate with any VPN product that supports IPSec and standard encryption
+techniques such as 3DES.</P>
+
+<P><B>Add a New Connection</B>: To add a new connection, you must fill out
+all the boxes in this form and the details filled into the form on the other
+end must match <B>EXACTLY</B> with yours. This is why the Import and Export
+features are useful. Fields are as follows:</P>
+
+<P><B>Name:</B> A simple name to reference this connection.  Use lower case
+letters only.</P>
+
+<P><B>Left/Right:</B> The internet IP address of the Left/Right side of the
+connection.</P>
+
+<P><B>Left/Right subnet:</B> The network of the left/right hand side (e.g.
+192.168.0.0/24 would include 192.168.0.*).</P>
+
+<P><B>Secret:</B> The password for the connection.
+Re-enter the secret into the <B>Again</B> box.</P>
+
+<P><B>Compression:</B> Check this to enable compression on the link.  This
+can enhance the performance of the link for certain kinds of traffic.  Note
+that both ends of the VPN tunnel must agree on whether to use compression or
+not.</P>
+
+<p><b>Comment:</b> Optionally you may enter a description or comment for the
+tunnel.</p>
+
+<P>To add the connection, fill in all fields and click the <B>Add</B>
+button. If you wish to add the connection without enabling it, please
+uncheck the <B>Enabled</B> box.</P>
+
+<P><B>Current Connections:</B> This list displays current connections and
+their information. To remove a connection, check its checkbox and click the
+<B>Remove</B> button. To edit (including enable/disable functions), check the
+connections checkbox and then click the <B>Edit</B> button.</P>
+
+<P><B>Import/Export:</B> To export settings, simply click the <B>Export</B> button.
+These can then be imported to SmoothWall by using the <B>Browse</B> button to find
+the saved file on your hard rive and uploading it using the form by using the
+<B>Import</B> button to upload them to your SmoothWall.  This is best used by
+exporting your settings and sending them to the person at the other end of
+your VPN connection to import to ensure all settings match.  Note that the
+export file contains the VPN secret information, so you must ensure that the
+file is transfered securely!  Either put it on a floppy disk and mail it, or
+use a secure Internet link such as a PGP encrypted mail or https to the
+other SmoothWall.</P>

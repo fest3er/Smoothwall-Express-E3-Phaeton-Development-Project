@@ -1,0 +1,106 @@
+#!/usr/bin/perl
+#
+# SmoothWall CGIs
+#
+# This code is distributed under the terms of the GPL
+#
+# (c) The SmoothWall Team
+
+use lib "/usr/lib/smoothwall";
+use header qw( :standard );
+
+my @temp;
+my %cgiparams;
+my $count; my $command;
+my @selectedui; my @selectedsetup; my @selectedmodules;
+
+$cgiparams{'ACTION'} = '';
+$cgiparams{'VALID'} = '';
+
+&getcgihash(\%cgiparams);
+
+my $errormessage = '';
+my $extramessage = '';
+
+if ($cgiparams{'ACTION'} eq $tr{'create backup floppy disk'} || 
+	$cgiparams{'ACTION'} eq $tr{'create backup floppy image file'})
+{ 
+	unless ($errormessage)
+	{
+		system('/etc/rc.d/backupscript');
+
+		if ($cgiparams{'ACTION'} eq $tr{'create backup floppy disk'})
+		{
+			if (system('/usr/bin/tar', '-C', "${swroot}/backup", '-cWf', '/dev/fd0', '.')) {
+				$errormessage = $tr{'unable to create backup floppy'}; }
+			else {
+				$extramessage = $tr{'backup disk created successfully'}; }
+		}
+		else
+		{
+			if (system('/usr/bin/tar', '-C', "${swroot}/backup", '-cf', "${swroot}/tmp/backup.img", '.')) {
+				$errormessage = $tr{'unable to create floppy image file'}; }
+			else
+			{
+				print "Content-type: application/octect-stream\n";
+				print "Content-length: " . 1440 * 1024 . "\n\n";
+
+				undef $/;
+				open (FILE, "${swroot}/tmp/backup.img");
+				$_= <FILE>;
+				print $_;
+				$l = length;
+				
+				close (FILE);
+
+				print '\0' x ((1440 * 1024) - $l);
+
+				unlink "${swroot}/tmp/backup.img";
+
+				exit;
+			}
+		}		
+	}
+}
+
+my %checked;
+
+&showhttpheaders();
+
+&openpage($tr{'backup configuration'}, 1, '', 'maintenance');
+
+&openbigbox('100%', 'LEFT');
+
+&alertbox($errormessage);
+
+print "<FORM METHOD='POST'>\n";
+
+&openbox($tr{'backup floppy instructions'});
+print <<END
+$tr{'backup floppy instructions long'}
+END
+;
+
+print "<FONT SIZE='5' CLASS='base'><DIV ALIGN='center'>$extramessage</DIV></FONT>\n";
+
+&closebox();
+
+print <<END
+<DIV ALIGN='CENTER'>
+<TABLE WIDTH='80%'>
+<TR>
+	<TD ALIGN='CENTER'><INPUT TYPE='submit' NAME='ACTION' VALUE='$tr{'create backup floppy disk'}'></TD>
+	<TD ALIGN='CENTER'><INPUT TYPE='submit' NAME='ACTION' VALUE='$tr{'create backup floppy image file'}'></TD>
+</TR>
+</TABLE>
+</DIV>
+END
+;
+
+print "</FORM>\n";
+
+&alertbox('add', 'add');
+
+&closebigbox();
+
+&closepage($errormessage);

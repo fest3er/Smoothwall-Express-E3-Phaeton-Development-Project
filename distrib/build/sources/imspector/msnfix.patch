@@ -1,0 +1,30 @@
+--- imspector-0.3/msnprotocolplugin.cpp	2007-03-28 16:50:01.000000000 +0100
++++ imspector-0.3.new/msnprotocolplugin.cpp	2007-05-27 18:44:00.000000000 +0100
+@@ -154,6 +154,27 @@
+ 		*replybufferlength += lengthint;
+ 	}
+ 	
++	if ((command == "ADL" || command == "RML" || command == "UUN" ||
++		command == "UBN" || command == "GCF" ||
++		command == "UUX" || command == "UBX") && argc > 1)
++	{
++		int lengthint = 0;
++		
++		lengthint = atol(args[(argc - 1)].c_str());
++			
++		debugprint(localdebugmode, PROTOCOL_NAME ": %d bytes of %s data\n",
++			lengthint, command.c_str());
++
++		char databuffer[BUFFER_SIZE];
++			
++		memset(databuffer, 0, BUFFER_SIZE);
++	
++		if (!(incomingsock.recvalldata(databuffer, lengthint))) return 1;
++					
++		memcpy(replybuffer + headerlength, databuffer, lengthint);
++		*replybufferlength += lengthint;
++	}
++	
+ 	if (tracing)
+ 	{
+ 		char filename[STRING_SIZE];

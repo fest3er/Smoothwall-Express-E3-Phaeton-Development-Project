@@ -1,0 +1,21 @@
+--- ppp-2.4.4/pppstats/Makefile.linux	2009-08-25 01:04:21.000000000 -0400
++++ ppp-2.4.4/pppstats/a	2009-08-25 01:05:12.000000000 -0400
+@@ -9,7 +9,7 @@
+ PPPSTATSRCS = pppstats.c
+ PPPSTATOBJS = pppstats.o
+ 
+-#CC = gcc
++CC = gcc
+ COPTS = -O
+ COMPILE_FLAGS = -I../include
+ LIBS =
+@@ -26,7 +26,8 @@
+ 	$(INSTALL) -c -m 444 pppstats.8 $(MANDIR)
+ 
+ pppstats: $(PPPSTATSRCS)
+-	$(CC) $(CFLAGS) -o pppstats pppstats.c $(LIBS)
++	cat Makefile; pwd
++	$(CC) -O -I../include -o pppstats pppstats.c $(LIBS)
+ 
+ clean:
+ 	rm -f pppstats *~ #* core

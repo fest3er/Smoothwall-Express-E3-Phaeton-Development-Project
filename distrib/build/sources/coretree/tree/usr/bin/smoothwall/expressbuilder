@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo "=== BUILD START ==="
+date
+
+cd /usr/src
+
+cd expresscore/distrib/build
+
+make predownload
+make build
+
+echo "=== BUILD END ==="
+date

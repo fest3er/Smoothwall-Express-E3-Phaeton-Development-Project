@@ -1,0 +1,23 @@
+<P><FONT SIZE='3'><STRONG><U>IP Block Configuration</U></STRONG></FONT></P>
+
+<P>This page enables the administrator to selectively block external IP
+addresses from accessing the SmoothWall and any machines behind it.</P>
+
+<P>Enter the remote <STRONG>Source IP</STRONG> for the machine you want to
+block.  There are several different ways to block:</P>
+
+<UL>
+<LI><STRONG>Drop packet:</STRONG> this will cause any request
+from the given IP to be completely ignored.  The effect is similar to
+if the SmoothWall was unplugged from its network.
+<LI><STRONG>Reject packet:</STRONG> in this mode, an ICMP
+Connection Refused message will be sent back to the originating IP, but
+no connection will be possible.
+</UL>
+
+<P>Additionally, it is possible to log the packet, or not.</P>
+
+<P>Please note that this functionality is intended for the
+external (RED) network only.</P>
+
+

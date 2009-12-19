@@ -1,0 +1,38 @@
+<P><FONT SIZE='3'><STRONG><U>Advanced Networking Features</U></STRONG></FONT></P>
+
+<P><STRONG>Block ICMP Ping</STRONG> stops Express responding to PING messages,
+from either the Internet or from the  local (GREEN) network.  Like SYN attacks
+described below, it is possible to perform a Denial of Service attack by 
+flooding a box with PING messages.</P>
+
+<P><STRONG>Block and ignore IGMP packets</STRONG> blocks and ignores IGMP packets. 
+If your log files contain lots of spurious  messages referring to IGMP packets,
+then enabling this option will cause these packets to be ignored and not to  be
+logged. This problem is typically seen with cable modems.</P>
+
+<P><STRONG>Enable SYN cookies</STRONG> defends Express against SYN Flood
+attacks.  A SYN Flood attack is where  somebody sends a huge number of
+connection requests (SYN packets) to a machine in the hope that it will be 
+overwhelmed trying to make so many connections.  SYN cookies is a standard
+defence mechanism against this  sort of attack, the aim being to avoid a Denial
+of Service (DOS) situation where the machine is too busy to do any  real
+work.</P>
+
+<P>Some ISPs configure their users to receive multi-cast messages on network
+address 224.0.0.0.  Enabling the <STRONG>Block and ignore multicast traffic</STRONG>
+option will block such multi-cast messages and stop them being logged which
+can otherwise fill the log files with useless entries.</P>
+
+<P><STRONG>Enable UPnP (Universal Plug and Play) support</STRONG> will
+enable support for UPnP clients. UPnP will be available on both the GREEN
+and the PURPLE networks, if a PURPLE network has been configured.</P>
+
+<P>The <STRONG>Action to perform on bad external traffic</STRONG> drop-down
+is used to put the SmoothWall Express into a kind of "stealth mode".
+In the <B>Reject</B> mode, traffic that is not forwarded on to a machine
+behind the SmoothWall will be replied to with a "port unreachable" ICMP
+message.  This will make it easier for an attacker to determine what ports
+the SmoothWall has open.  In <B>Drop</B> mode, this ICMP message is not sent
+so the attacker will have a harder time finding open ports on the
+SmoothWall. For maximum "stealth ability", combine <B>Drop</B> mode with
+<B>Block ICMP ping</B>.</P>

@@ -1,0 +1,18 @@
+AuthName "Restricted"
+AuthType Basic
+AuthUserFile /var/smoothwall/auth/users
+
+<Files dial.cgi>
+require user admin dial
+</Files>
+<Files trafficmon.cgi>
+require valid-user
+</Files>
+<Files index.cgi>
+require valid-user
+</Files>
+<Files credits.cgi>
+require valid-user
+</Files>
+
+require user admin

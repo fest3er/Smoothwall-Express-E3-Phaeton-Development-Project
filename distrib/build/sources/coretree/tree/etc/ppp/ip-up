@@ -1,0 +1,63 @@
+#!/usr/bin/perl
+#
+# SmoothWall CGIs
+#
+# This code is distributed under the terms of the GPL
+#
+# (c) The SmoothWall Team
+
+use lib "/usr/lib/smoothwall";
+use header qw( :standard );
+use smoothd qw( message );
+
+&log("PPP has gone up on $ARGV[0]");
+
+if (-e "${swroot}/red/active") {
+	exit; }
+
+umask 022;
+
+my %pppsettings;
+
+# read vars back from file.
+&readhash("${swroot}/ppp/settings", \%pppsettings);
+
+my $dns = $pppsettings{'DNS'};
+my $primarydns = $pppsettings{'DNS1'};
+my $secondarydns = $pppsettings{'DNS2'};
+
+if ($dns eq 'Automatic') 
+{
+	if (!($pppsettings{'COMPORT'} =~ /^isdn/))
+	{
+		$primarydns = $ENV{'DNS1'};
+		$secondarydns = $ENV{'DNS2'};
+	}
+	else
+	{
+		$primarydns = $ENV{'MS_DNS1'};
+		$secondarydns = $ENV{'MS_DNS2'};
+	}
+}
+
+if (open(FILE, ">${swroot}/red/iface")) { print FILE $ARGV[0]; close (FILE); }
+if (open(FILE, ">${swroot}/red/local-ipaddress"))  { print FILE $ARGV[3]; close (FILE); }
+if (open(FILE, ">${swroot}/red/remote-ipaddress")) { print FILE $ARGV[4]; close (FILE); }
+if (open(FILE, ">${swroot}/red/dns1")) { print FILE $primarydns; close FILE; }
+if (open(FILE, ">${swroot}/red/dns2")) { print FILE $secondarydns; close FILE; }
+
+system('/bin/touch', "${swroot}/red/active");
+
+system('/usr/bin/sounds/onlinesound');
+
+message('dnsproxyrestart', $primarydns, $secondarydns);
+message('setincoming');
+message('snortrestart');
+message('upnpdrestart');
+message('trafficrestart');
+
+system('/etc/rc.d/rc.machineregister');
+system('/etc/rc.d/rc.vpn.up');
+system('/etc/rc.d/rc.gettime');
+system('/usr/bin/smoothwall/updatelists.pl');
+system('/usr/bin/smoothwall/setddns.pl');

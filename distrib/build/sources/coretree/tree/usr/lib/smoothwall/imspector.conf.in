@@ -1,0 +1,14 @@
+# The listening port
+#port=16667
+
+# This is the default location of protocol and logging plugins.
+#plugin_dir=/usr/lib/imspector
+
+# For dropping privs - you probably want to do this.
+user=imspector
+group=imspector
+
+# Location where the file logging plugin will start from.
+file_logging_dir=/var/log/imspector
+
+# Generated stuff from here

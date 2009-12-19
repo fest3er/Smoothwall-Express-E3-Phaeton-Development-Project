@@ -1,0 +1,10 @@
+--- imspector-0.4/icqprotocolplugin.cpp	2008-01-04 14:03:59.000000000 +0000
++++ imspector-0.4.new/icqprotocolplugin.cpp	2008-03-05 11:41:54.000000000 +0000
+@@ -706,6 +706,7 @@
+ 									
+ 	imevent.timestamp = time(NULL);
+ 	imevent.protocolname = PROTOCOL_NAME;
++	imevent.outgoing = outgoing;
+ 	imevent.type = type;
+ 	imevent.localid = localid;
+ 	imevent.remoteid = remoteid;

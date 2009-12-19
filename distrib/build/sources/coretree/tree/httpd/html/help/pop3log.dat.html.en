@@ -1,0 +1,8 @@
+<P><FONT SIZE='3'><B><U>POP3 Email Log Viewer</U></B></FONT></P>
+
+<p>This page shows a log of all emails passing though the POP3 proxy
+and Anti Virus engine.</p>
+
+<p>Navigate the log using the standard log-viewing controls. Viruses will be
+shown in highlighted text.  You can also export the logs to a text
+file for further analysis.</p>

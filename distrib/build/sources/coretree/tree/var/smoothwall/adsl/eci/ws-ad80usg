@@ -1,0 +1,7 @@
+FULLNAME="Wisecom ws-ad80usg"
+VID1=0x0915
+PID1=0x0001
+VID2=0x0915
+PID2=0x0002
+FIRM1=firmware00.bin
+FIRM2=synch01.bin

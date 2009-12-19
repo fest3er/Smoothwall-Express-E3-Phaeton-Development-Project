@@ -1,0 +1,11 @@
+LIBS = -ldl /usr/lib/libsmoothd.so
+
+MODFLAGS = $(CFLAGS) -fPIC -Wall -shared -Wl,-soname,$@.so -o $@.so $@.cpp $(LIBS)
+
+all: $(PLUGINS)
+
+$(PLUGINS):
+	$(CXX) $(MODFLAGS)
+
+clean:
+	rm -f *.o *.so

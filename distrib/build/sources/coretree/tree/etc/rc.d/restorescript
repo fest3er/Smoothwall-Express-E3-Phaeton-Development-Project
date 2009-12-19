@@ -1,0 +1,114 @@
+#!/usr/bin/perl
+
+use lib "/usr/lib/smoothwall";
+use header qw( :standard );
+
+chdir "/var/smoothwall";
+
+if (open (FILE, 'restore/version'))
+{
+	$backupversion = <FILE>;
+	chomp $backupversion;
+	close (FILE);
+}
+else
+{
+	print "This is not a backup disk!\n";
+	exit 0;
+}
+
+if ($backupversion =~ /^3.0/)
+{
+	&cleanup('adsl', 'advnet', 'auth',
+		'ddns', 'dhcp', 'dmzholes', 'ethernet', 'ipblock', 'isdn',
+		'modem', 'portfw', 'ppp', 'proxy', 'remote', 'snort',
+		'time', 'vpn', 'xtaccess', 'clamav', 'hosts', 'im', 'outgoing',
+		'p3scan', 'sipproxy', 'timedaccess', 'traffic');
+	system('/usr/bin/tar', '-zxf', 'restore/backup.dat');
+}
+elsif ($backupversion =~ /^2.0/)
+{
+	&cleanup('adsl', 'advnet', 'auth', 'ddns', 'dhcp', 'dmzholes',
+		'ethernet', 'ipblock', 'isdn', 'modem', 'portfw',
+		'ppp', 'proxy', 'remote', 'snort', 'time' ,'vpn', 'xtaccess');
+	system('/usr/bin/tar', '-zxf', 'restore/backup.dat');
+	
+	&migratedhcp();
+	&migrateids();
+	&migrateproxy();
+	&migrateremote();
+	&fixpermissions();
+}
+else
+{
+	print "Unknown backup version $backupversion.\n";
+}
+
+unlink 'restore/backup.dat';
+unlink 'restore/version';
+
+exit;
+
+sub cleanup
+{
+	my $dir;
+
+	while ($dir = pop) 
+	{
+		system('/bin/rm', '-rf', "${dir}.old");
+		system('/bin/mv', $dir, "${dir}.old");
+	}
+}
+
+# This is more complicated. Removes some now unneeded junk and tranposes
+# The old settings onto GREEN.
+sub migratedhcp
+{
+	foreach my $file ('dhcpd.conf', 'green', 'settings-green',
+		'staticconfig-green', 'global', 'purple', 'settings-purple',
+		'staticconfig-purple')
+	{
+		system('/bin/touch', "${swroot}/dhcp/$file");
+	}
+	
+	system('/bin/mv', '-f', "${swroot}/dhcp/settings", "${swroot}/dhcp/settings-green");
+	system('/bin/mv', '-f', "${swroot}/dhcp/staticconfig", "${swroot}/dhcp/staticconfig-green");
+	
+	unlink("${swroot}/dhcp/uptodate");
+	unlink("${swroot}/dhcp/enable");
+	
+	system('/usr/bin/smoothwall/writedhcp.pl');
+}
+
+# Can't migrate IDS settings cos of the oink code and the fact that we
+# have no rules. So we will disable IDS by truncating the settings file.
+sub migrateids
+{
+	truncate("${swroot}/snort/settings", 0);
+
+	unlink("${swroot}/snort/enable");
+}
+
+# Remove some unneeded stuff and rewrite the config.
+sub migrateproxy
+{
+	unlink("${swroot}/proxy/transparent");
+	unlink("${swroot}/proxy/enable");
+	
+	system('/usr/bin/smoothwall/writeproxy.pl');
+}
+
+# Removes inetd.conf (WTF?!) and the usual.
+sub migrateremote
+{
+	unlink("${swroot}/remote/inetd.conf");
+	unlink("${swroot}/remote/enablessh");
+}
+
+# Fixes perms so files are owned by nobody.
+sub fixpermissions
+{
+	system('/bin/chown', 'nobody:nobody', '-R', "${swroot}/isdn",
+		"${swroot}/dhcp", "${swroot}/adsl", "${swroot}/ethernet",
+		"${swroot}/main");
+}

@@ -1,0 +1,30 @@
+diff -Nurb imspector-0.3.orig/Makefile imspector-0.3/Makefile
+--- imspector-0.3.orig/Makefile	2006-12-05 20:20:22.000000000 +0000
++++ imspector-0.3/Makefile	2006-12-20 10:16:09.000000000 +0000
+@@ -92,16 +92,18 @@
+ 	$(CXX) $(CXXFLAGS) badwordscontentplugin.cpp -c
+ 
+ install: imspector libimspector.so $(PLUGINS)
+-	-install imspector $(PREFIX)/sbin/imspector
+-	-install libimspector.so $(PREFIX)/lib/libimspector.so
+-	-mkdir -p $(PREFIX)/lib/imspector
+-	-(for PLUGIN in $(PLUGINS); do \
++	@mkdir -p $(PREFIX)/sbin
++	@install imspector $(PREFIX)/sbin/imspector
++	@mkdir -p $(PREFIX)/lib/imspector
++	@install libimspector.so $(PREFIX)/lib/libimspector.so
++	@mkdir -p $(PREFIX)/lib/imspector
++	@(for PLUGIN in $(PLUGINS); do \
+ 		install $$PLUGIN $(PREFIX)/lib/imspector/$$PLUGIN; \
+ 	done);
+-	-mkdir -p $(PREFIX)/etc/imspector
+-	-install imspector.conf $(PREFIX)/etc/imspector/imspector.conf
+-	-install badwords.txt $(PREFIX)/etc/imspector/badwords.txt
+-	-mkdir -p /var/log/imspector
++	@mkdir -p $(PREFIX)/etc/imspector
++	@install imspector.conf $(PREFIX)/etc/imspector/imspector.conf
++	@install badwords.txt $(PREFIX)/etc/imspector/badwords.txt
++	@mkdir -p /var/log/imspector
+ 
+ uninstall:
+ 	-rm -f $(PREFIX)/sbin/imspector

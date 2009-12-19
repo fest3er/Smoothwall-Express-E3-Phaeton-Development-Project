@@ -1,0 +1,35 @@
+#!/bin/sh
+
+. /var/smoothwall/ethernet/settings
+
+if [ "$RED_TYPE" = "DHCP" ]; then
+	DNSMASQ_DNS1=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 1`
+	DNSMASQ_DNS2=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 2`
+	. /var/lib/dhcpc/dhcpcd-${RED_DEV}.info
+	echo "$IPADDR" >/var/smoothwall/red/local-ipaddress
+	echo "$GATEWAY" >/var/smoothwall/red/remote-ipaddress
+elif [ "$RED_TYPE" = "STATIC" ]; then
+	DNSMASQ_DNS1=$DNS1
+	DNSMASQ_DNS2=$DNS2
+	echo "$RED_ADDRESS" >/var/smoothwall/red/local-ipaddress
+	echo "$DEFAULT_GATEWAY" >/var/smoothwall/red/remote-ipaddress
+fi
+
+echo -n "$RED_DEV" >/var/smoothwall/red/iface
+touch /var/smoothwall/red/active
+echo "$DNSMASQ_DNS1" >/var/smoothwall/red/dns1
+echo "$DNSMASQ_DNS2" >/var/smoothwall/red/dns2
+
+/usr/bin/smoothcom dnsproxyrestart $DNSMASQ_DNS1 $DNSMASQ_DNS2
+
+/usr/bin/smoothcom setxtaccess
+/usr/bin/smoothcom setincoming
+/usr/bin/smoothcom snortrestart
+/usr/bin/smoothcom upnpdrestart
+/usr/bin/smoothcom trafficrestart
+
+/usr/bin/smoothwall/setddns.pl
+/usr/bin/smoothwall/updatelists.pl
+
+/etc/rc.d/rc.vpn.up
+/etc/rc.d/rc.machineregister

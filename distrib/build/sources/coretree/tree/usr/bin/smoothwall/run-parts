@@ -1,0 +1,60 @@
+#!/usr/bin/perl
+
+# Reimplementation of run-parts in perl.
+#
+# (c) SmoothWall Ltd, 2005.
+#
+# Released under the GPL v2.
+
+my @dirnamescripts;
+my @dirnamescriptsunsorted;
+my $dirname;
+
+$arg = shift(@ARGV);
+
+$dirname = $arg;
+
+unless ($dirname)
+{
+	print STDERR "Usage: run-parts <dirname> [args]\n";
+	exit 1;
+}
+
+print "Running dirname: $dirname args: @ARGV\n";
+
+@temp = ();
+
+if (opendir(DIR, "${dirname}"))
+{
+	@temp = readdir(DIR);
+	closedir(DIR);
+}
+
+foreach $dirnamescript (@temp)
+{
+	unless ($dirnamescript =~ /^\./) {
+		push (@dirnamescriptsunsorted, "${dirname}/${dirnamescript}"); }
+}
+
+@dirnamescripts = sort sortdirname @dirnamescriptsunsorted;
+
+foreach $dirnamescript (@dirnamescripts) {
+	system($dirnamescript, @ARGV); }
+	
+sub sortdirname
+{
+	my $tempa = $a;
+	my $tempb = $b;
+
+	$tempa =~ s/^.*\///;
+	$tempb =~ s/^.*\///;
+
+	unless ($down) {
+		return $tempa <=> $tempb; }
+	else {
+		return $tempb <=> $tempa; }
+}
+
+print "Finished running dirname: $dirname\n";
+
+exit 0;

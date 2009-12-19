@@ -1,0 +1,9 @@
+diff -Nurb patch-o-matic-ng-20040621/pptp-conntrack-nat/linux/net/ipv4/netfilter/Config.in.ladd_2 patch-o-matic-ng-20040621.new/pptp-conntrack-nat/linux/net/ipv4/netfilter/Config.in.ladd_2
+--- patch-o-matic-ng-20040621/pptp-conntrack-nat/linux/net/ipv4/netfilter/Config.in.ladd_2	2004-03-05 09:30:28.000000000 +0000
++++ patch-o-matic-ng-20040621.new/pptp-conntrack-nat/linux/net/ipv4/netfilter/Config.in.ladd_2	2005-01-23 16:05:44.000000000 +0000
+@@ -1,4 +1,4 @@
+-      bool '    NAT of local connections (READ HELP)' CONFIG_IP_NF_NAT_LOCAL
++      dep_tristate '    REDIRECT target support' CONFIG_IP_NF_TARGET_REDIRECT $CONFIG_IP_NF_NAT
+       if [ "$CONFIG_IP_NF_PPTP" = "m" ]; then
+         define_tristate CONFIG_IP_NF_NAT_PPTP m
+       else

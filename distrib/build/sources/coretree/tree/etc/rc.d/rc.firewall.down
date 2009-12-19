@@ -1,0 +1,18 @@
+#!/bin/sh
+
+/sbin/iptables -F
+/sbin/iptables -X
+
+/sbin/iptables -P INPUT DROP
+/sbin/iptables -P FORWARD DROP
+/sbin/iptables -P OUTPUT DROP
+
+/sbin/iptables -A INPUT -j LOG
+/sbin/iptables -A FORWARD -j LOG
+/sbin/iptables -A OUTPUT -j LOG
+
+/sbin/iptables -t nat -F
+/sbin/iptables -t nat -X
+
+/sbin/iptables -t mangle -F
+/sbin/iptables -t mangle -X

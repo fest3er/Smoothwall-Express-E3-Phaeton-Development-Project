@@ -1,0 +1,17 @@
+<P><FONT SIZE='3'><B><U>Remote Access</U></B></FONT></P>
+
+<P>This page enables the user to enable the SSH (Secure Shell) service.
+This enables remote console access to the SmoothWall machine.  For various
+reasons, the SSH service listens on a non-standard port 222.</P>
+
+<P>Enable or disable this service using the checkbox, and then click
+<B>Save</B>.</P>
+
+<P>In order to be certain that the request for an admin function is from the
+SmoothWall server and not some third party web page, a referral check is
+done. Enabling this feature means it is only possible to administer the
+SmoothWall if the URL you visit contains either the local GREEN IP, the
+local hostname, or the RED IP address. It will not be possible to administer
+the SmoothWall if you connect via a DNS or Dynamic DNS name. The checkbox
+labeled <STRONG>Allow admin access only from valid referral URLs</STRONG>
+activates this feature.  By default it is switched off.</P>

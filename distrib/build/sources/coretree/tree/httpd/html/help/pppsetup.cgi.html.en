@@ -1,0 +1,90 @@
+<P><FONT SIZE='3'><B><U>PPP Settings</U></B></FONT></P>
+
+<P>This page is used to setup PPP for dialing to the Internet. Up to 5 profiles
+can be created to store dialup details.</P>
+
+<P><B>Profiles:</B> Profiles can either be 'Empty' or can contain dialup
+details. Pressing the <B>Save</B> button stores the settings in the current
+profile. To create a profile, give it a name and after entering the details,
+click Save. You can create additional profiles by choosing an empty profile
+from the list and entering the new details, before pressing Save. Use
+<B>Select</B> to make a profile the current one for dialing from the main
+page. You cannot select an empty profile; instead, simply choose it from the
+list and save your new details to it. You can delete a profile with the
+<B>Delete</B> button; this will make the previously selected profile the new
+currently selected one.</P>
+
+<P><B>Telephony:</B> A drop-down box sets the modem COM port. COM1 through to
+COM4 are available. Depending on the computer and BIOS setup, you should set
+this to the COM port that is connected to the modem. Enter your ISP's dial-in
+access modem number into the number box. It should contain only digits, no
+hyphens.</P>
+
+<P>If you are connecting by ISDN, PPPoE or USB ADSL, you should choose the
+relevant method as your connection <B>Interface</B>.</P>
+
+<P><B>The Computer to modem rate</B> drop-down box sets the baud rate between the
+computer and the modem. Usually, the second highest setting, 115200, will
+suffice and give the highest available download speed from your ISP, but on
+very old computers with old serial controllers, you may need to select a
+slower speed.  If you are using dual channel ISDN on an external ISDN TA,
+you may choose to use the highest setting, although you should be aware that
+this requires a powerful CPU in your SmoothWall.</P>
+
+<P>The <B>Persistent Connection</B> checkbox is used to instruct SmoothWall
+to try to re-dial the line if the link fails for some reason. Use this with
+caution.  If you have metered charges, you probably not want to use this.
+However, if you have unlimited service time with your ISP, you will probably
+want to use this in order to keep the link connected as much as
+possible.</P>
+
+<P>Whether or not <B>Persistent</B> is enabled, if more then the <B>Maximum
+Retries</B> number of dial attempts fail in a row, SmoothWall will give up
+until you try to dial the link again by pressing the <B>Dial</B> button.</P>
+
+<P>You can choose Tone or Pulse dialing using the drop-down box. A checkbox
+is also provided for enabling or disabling the modem's speaker during
+dialing.</P>
+
+<P>The <B>Idle timeout</B> setting, when used in non-persistent connections,
+sets a time of inactivity, after which the line will automatically be
+dropped. Setting this to 0 disables this timeout.</P>
+
+<P><B>Dial on Demand</B> is available by clicking the relevant checkboxes. After
+enabling Dial on Demand, you still have to click the <B>Connect</B> button
+on the home page to start SmoothWall waiting for an outgoing request.  The
+<B>Dial on Demand for DNS</B> option will make SmoothWall dial for DNS
+requests, which is usually what you want.</P>
+
+<P><B>Connect on SmoothWall Restart</B> will make SmoothWall connect after booting.
+This is especially useful in Dial on Demand mode, because it will
+automatically put the system into Dial on Demand waiting mode each time the
+SmoothWall machine is switched on.</P>
+
+<P><B>ISP Requires Carriage Return:</B> Most ISP require that the modem send a carriage
+return to signal it has finished sending.  Default is unchecked.</P>
+
+<P><B>Authentication:</B> <B>Username</B> and <B>Password</B> are the
+username and password that your ISP should have supplied to you when you
+joined.</P>
+
+<P>There are several ways in which ISPs use this username and password to login
+to their systems. The most common methods are PAP or CHAP. Select this if
+your ISP uses either of those two. If your ISP uses a text-based login
+script, choose standard login script. For people in the UK who use Demon
+Internet as their ISP, a special script has been created for them to use.
+The "Other" login script option has been provided for people who have ISPs
+with special needs. If you need to do this, you will need to login to the
+SmoothWall box and create a file in /etc/ppp. This filename (without the
+/etc/ppp component) should be entered into the Script name box. The file
+contains 'expect send' pairs, separated by a tab. <B>USERNAME</B> will be
+substituted for the username and <B>PASSWORD</B> for the password. Examine the file
+demonloginscript in /etc/ppp, and use it as an example of what should be in
+this file.</P>
+
+<P><B>DNS:</B> Here you can either enter the IP addresses of your ISP's DNS
+servers, or select <B>Automatic</B> if your ISP supports automatic DNS server
+configuration, which nearly all ISPs do.</P>
+
+<P>Click <B>Save</B> to save the settings. If there are errors, you will be
+informed in the Error messages box.</P>

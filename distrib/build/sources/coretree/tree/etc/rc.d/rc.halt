@@ -1,0 +1,28 @@
+#!/bin/sh
+echo "Shutting down..."
+sleep 3
+echo "Sending all processes the TERM signal..." 
+/sbin/killall5 -15
+sleep 3
+echo "Sending all processes the KILL signal..."
+/sbin/killall5 -9
+sleep 3
+
+echo "Turning off swap"
+/sbin/swapoff -a
+echo "Unmounting /proc"
+umount /proc
+echo "Unmounting others"
+umount -a
+echo "Unmounting root"
+mount -n -o remount,ro /
+
+echo -ne \\a >/dev/console 
+
+/usr/bin/sounds/haltsound
+
+if [ "$1" = "halt" ]; then
+	/sbin/halt -i -d -p
+else
+	/sbin/reboot -i -d
+fi

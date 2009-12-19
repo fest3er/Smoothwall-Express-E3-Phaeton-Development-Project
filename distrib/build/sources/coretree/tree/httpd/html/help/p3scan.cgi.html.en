@@ -1,0 +1,15 @@
+<P><FONT SIZE='3'><B><U>POP3 AV Proxy</U></B></FONT></P>
+
+<p>SmoothWall is able to Anti-Virus (AV) scan POP3 emails as they are downloaded
+from external mail servers to clients running on the GREEN and PURPLE network.</p>
+
+<p>No configuration is needed - simply <strong>Enable</strong> the service.
+Clients which download mail using POP3, on port 110, will then have all of their
+emails AV scanned by SmoothWall's in-built ClamAV engine.  Emails which 
+contain a virus will be replaced with an explanation email containing details
+of the email including the name of the detected virus.</p>
+
+<p>AV signatures are automatically updated daily.</p>
+
+<p><strong>Please note:</strong> POP3 over SSL, on port 995, is not currently
+supported by this service.</p>

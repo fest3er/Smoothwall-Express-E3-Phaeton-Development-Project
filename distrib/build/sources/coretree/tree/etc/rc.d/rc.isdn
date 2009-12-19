@@ -1,0 +1,14 @@
+#!/bin/sh
+
+. /var/smoothwall/isdn/settings
+
+if [ "$ENABLED" = "on" ]; then
+	if [ "$TYPE" = "100" ]; then
+		modprobe hisax
+		modprobe hisax_st5481
+	else
+		modprobe hisax protocol=$PROTOCOL type=$TYPE $MODULE_PARAMS
+	fi
+else
+	echo "No ISDN enabled"
+fi

@@ -1,0 +1,7 @@
+FULLNAME="Eicon Diva"
+VID1=0x071d
+PID1=0xac81
+VID2=0x0915
+PID2=0xac82
+FIRM1=firmware00.bin
+FIRM2=synch01.bin

@@ -1,0 +1,86 @@
+<!-- //
+
+.base {
+	font-size : 10;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight : normal;
+	color : #c0c0c0;
+	text-decoration : underlined
+}
+
+.base:link {
+	color: #c0c0c0;
+}
+
+.base:hover {
+	color: #ffffff;
+}
+
+.boldbase {
+	font-size : 11;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight : bold;
+	color : #c0c0c0;
+	text-decoration : underlined;
+}
+
+.boldbase:link {
+	color: #c0c0c0;
+}
+
+.boldbase:hover {
+	color: #ffffff;
+}
+
+input.base
+{
+	border: solid black 1px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10;
+}
+
+body {
+	font-size : 12;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight : normal;
+	color : #ffffff;
+	text-decoration : none;
+}
+
+P {
+	font-size : 12;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight : normal;
+	color : #ffffff;
+	text-decoration : none;
+}
+
+TD {
+        font-size : 12;
+	font-family: Arial, Helvetica, sans-serif;
+        font-weight : normal;
+        color : #ffffff;
+        text-decoration : none;
+}
+
+A {
+        font-size : 12;
+	font-family: Arial, Helvetica, sans-serif;
+        font-weight : bold;
+        color : #ffffff;
+        text-decoration : none;
+}
+
+A:hover {
+	color : #c0c0c0;
+}
+
+PRE {
+	font-size : 10; 
+	color : #ffffff; }
+
+TT {
+	font-size : 10; 
+	color : #ffffff; }
+
+// -->

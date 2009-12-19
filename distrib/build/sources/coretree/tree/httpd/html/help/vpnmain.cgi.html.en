@@ -1,0 +1,23 @@
+<P><FONT SIZE='3'><B><U>VPN Control and Status</U></B></FONT></P>
+
+<p>Although primarily intended to VPN multiple SmoothWalls together, it is
+possible for SmoothWall to inter-operate with any VPN product that supports
+IPSec and standard encryption techniques such as 3DES.</P>
+
+<P>The <B>Manual Control and Status</B> section will show the current status
+of any VPN tunnels. To stop all VPN tunnels click the <B>Stop</B> button. To
+restart (in case of failure) please click the <B>Restart</B> button.</P>
+
+<P><B>Local VPN IP:</B> Under this option, you may specify your local VPN
+IP address to listen on. Most people will not want to enable this. If left
+untouched, your VPN IP will be set to that of your RED interface, which is
+what almost all people will want.</P>
+
+<P>This IP address is used if your SmoothWall is on a dialup connection. 
+Only if the dialup IP matches this IP will the VPN be brought up
+automatically.  This is so you can use multiple ISP profiles, but control which
+one if them is to be associated with your VPN configuration.</P>
+
+<P>The <B>Enable</B> checkbox will tell SmoothWall to automatically bring up
+the Enabled VPN tunnels when the RED interface comes up.  Even when
+disabled, it is still possible to manually bring up the tunnels.</P>

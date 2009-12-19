@@ -1,0 +1,42 @@
+#!/bin/sh
+
+. /var/smoothwall/main/kernel
+. /var/smoothwall/main/hwprofile
+
+echo "Module: $STORAGE_DRIVER Module options: $STORAGE_DRIVER_OPTIONS"
+
+if [ "$OLD" == "" ]; then OLD=$CURRENT; fi
+
+cp -f /boot/initrd-${OLD}.gz /root/initrd-${CURRENT}.gz
+/usr/bin/gzip -d /root/initrd-${CURRENT}.gz
+
+/bin/mount -o loop /root/initrd-${CURRENT} /mnt/initrd
+
+if [ "$STORAGE_DRIVER" != "" ]; then
+	tar -cf /storagedriver.tar -C /lib/modules/${CURRENT}/kernel/drivers/ scsi/libata.ko scsi/scsi_transport_spi.ko $STORAGE_DRIVER
+
+	tar -xf /storagedriver.tar -C /mnt/initrd/lib
+	rm -f /storagedriver.tar
+
+	cat >/mnt/initrd/linuxrc <<END
+#!/bin/sash
+
+-echo "Loading $1 driver"
+/bin/insmod /lib/scsi/libata.ko
+/bin/insmod /lib/scsi/scsi_transport_spi.ko
+/bin/insmod /lib/$STORAGE_DRIVER $STORAGE_DRIVER_OPTIONS
+END
+else
+	cat >/mnt/initrd/linuxrc <<END
+#!/bin/sash
+
+-echo "No driver required"
+END
+fi
+
+/bin/umount /mnt/initrd
+	
+/usr/bin/gzip /root/initrd-${CURRENT}
+mv -f /root/initrd-${CURRENT}.gz /boot
+
+exit 0;

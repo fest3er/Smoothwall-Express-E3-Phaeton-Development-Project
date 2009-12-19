@@ -1,0 +1,40 @@
+#!/usr/bin/perl -T
+#
+# SmoothWall CGIs
+#
+# This code is distributed under the terms of the GPL
+#
+# (c) The SmoothWall Team
+
+# Clean up our environment (we're running SUID!)
+delete @ENV{qw(IFS CDPATH ENV BASH_ENV PATH)};
+
+use lib "/usr/lib/smoothwall";
+use header qw( :standard );
+
+my %pppsettings;
+my %isdnsettings;
+my %netsettings;
+
+# read vars back from file.
+&readhash("${swroot}/ppp/settings", \%pppsettings);
+&readhash("${swroot}/isdn/settings", \%isdnsettings);
+&readhash("${swroot}/ethernet/settings", \%netsettings);
+
+if ( -e "${swroot}/red/dial-on-demand") {
+	unlink("${swroot}/red/dial-on-demand");
+}
+
+if ($pppsettings{'COMPORT'} =~ /isdn/)
+{
+	system('/sbin/ifconfig','ippp1','down');
+	system('/sbin/ifconfig','ippp0','down');
+	system('/usr/sbin/isdnctrl','delif','ippp1');
+	system('/usr/sbin/isdnctrl','delif','ippp0');
+}
+
+unlink "${swroot}/red/stayup";
+
+system('/usr/bin/killall', 'updatelists.pl');
+system('/usr/bin/killall', 'machine_reg.pl');
+system('/usr/bin/killall', 'pppd');

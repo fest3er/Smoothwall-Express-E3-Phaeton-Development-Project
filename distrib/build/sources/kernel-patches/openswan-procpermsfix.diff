@@ -1,0 +1,12 @@
+diff -Nurb openswan-2.4.5.old/linux/net/ipsec/ipsec_proc.c openswan-2.4.5/linux/net/ipsec/ipsec_proc.c
+--- openswan-2.4.5.old/linux/net/ipsec/ipsec_proc.c	2006-02-13 18:48:12.000000000 +0000
++++ openswan-2.4.5/linux/net/ipsec/ipsec_proc.c	2006-07-19 10:44:09.000000000 +0100
+@@ -914,7 +914,7 @@
+ 				item = proc_mkdir(it->name, *it->parent);
+ 				*it->dir = item;
+ 			} else {
+-				item = create_proc_entry(it->name, 0400, *it->parent);
++				item = create_proc_entry(it->name, 0444, *it->parent);
+ 			}
+ 			if(item) {
+ 				item->read_proc  = it->readthing;

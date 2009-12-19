@@ -1,0 +1,29 @@
+<P><FONT SIZE='3'><STRONG><U>Backup</U></STRONG></FONT></P>
+
+<P>The backup page is used to invoke a backup of SmoothWall Express's
+configuration information to a floppy disk.  Should it prove necessary, at
+some later time, the backup floppy disk can be used during the installation
+process to create a new SmoothWall Express using the saved configuration
+information.  This is especially useful for either cloning SmoothWall Express
+systems (e.g. making facsimiles).  It also allows a SmoothWall Express system to
+be installed by somebody who has no knowledge of how to configure a firewall
+and Internet gateway.</P>
+
+<P>The information is recorded to a floppy disk that should be loaded into the
+floppy disk drive of the SmoothWall Express system, not the workstation PC
+running the web browser being used to initiate the backup.  The floppy disk
+should contain no existing data but must be DOS formatted.</P>
+
+<P>Click the <STRONG>Create backup floppy disk</STRONG> button to create the backup
+disk.  This may take some time to complete and it is possible that the
+'Backup disk created successfully' message may appear before the floppy disk
+write operations are complete.  Do not remove the floppy disk from the
+SmoothWall Express until the activity LED on the drive is no longer
+illuminated.</P>
+
+<P>It is also possible to create a floppy disk image file, and have it
+sent over the network to the web browser.  This is useful
+if the SmoothWall Express is not physically available, and you wish to
+take a backup of the settings.  Press the <STRONG>Create backup floppy
+disk image</STRONG> to create a backup floppy disk image file.  This image
+can then be written to a floppy disk prior to reinstallation.</P>

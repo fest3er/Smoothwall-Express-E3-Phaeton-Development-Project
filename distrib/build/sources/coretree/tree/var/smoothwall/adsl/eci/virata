@@ -1,0 +1,7 @@
+FULLNAME="Virata ADSL USB WAN modem"
+VID1=0x0fe8
+PID1=0x8000
+VID2=0x0915
+PID2=0x8001
+FIRM1=firmware00.bin
+FIRM2=synch01.bin

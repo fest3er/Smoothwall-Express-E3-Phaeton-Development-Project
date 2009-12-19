@@ -1,0 +1,30 @@
+<P><FONT SIZE='3'><B><U>Instant Messenger Proxy</U></B></FONT></P>
+
+<p>SmoothWall has the ability to run an Instant Messenger (IM) proxy that
+understands multiple IM protocols and can log both conversations and file
+transfers. This proxy, like all of the proxies in SmoothWall, will operate
+on both the GREEN and PURPLE networks if it is enabled.</p>
+
+<p>Check the <strong>Enabled</strong> checkbox to turn on this service.
+It is possible to filter English swearwords by checking on the
+<strong>Swear-word filtering</strong> checkbox.</p>
+
+<p><strong>MSN</strong>, <strong>ICQ and AIM</strong>,
+<strong>Yahoo</strong>, <strong>IRC</strong>, <strong>Gadu-Gadu</strong>
+and <strong>Jabber and Gtalk</strong> can all be proxied and monitored using
+this service.</p>
+
+<p>To log and record connections protocected with SSL (which includes Gtalk
+and AIM when used with SSL), <strong>SSL Man-In-The-Middle attack</strong>
+must be enabled.  This will proxy the connection with an on-the-fly
+certificate, signed with a built in Certificate Authority.  In order for
+this connection to be treated as trusted, export the certificate by pressing
+the <strong>Download CA certificate</strong> button, and load it into the
+client.  Without loading the CA certificate, the proxied on-the-fly
+certificate may be rejected by the client.</strong>
+
+<p>Press the <strong>Save</strong> button after enabling or disabling this
+service.</p>
+
+<p><strong>Please note:</strong> This proxy cannot monitor HTTP-based IM
+sessions.</p>

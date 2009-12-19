@@ -1,0 +1,31 @@
+--- squid-2.5.STABLE7/errors/English.old/ERR_ACCESS_DENIED	2002-08-28 21:07:58.000000000 +0000
++++ squid-2.5.STABLE7/errors/English/ERR_ACCESS_DENIED	2005-01-06 15:57:38.000000000 +0000
+@@ -1,25 +1,2 @@
+-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+-<HTML><HEAD><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+-<TITLE>ERROR: The requested URL could not be retrieved</TITLE>
+-<STYLE type="text/css"><!--BODY{background-color:#ffffff;font-family:verdana,sans-serif}PRE{font-family:sans-serif}--></STYLE>
+-</HEAD><BODY>
+-<H1>ERROR</H1>
+-<H2>The requested URL could not be retrieved</H2>
+-<HR noshade size="1px">
+-<P>
+-While trying to retrieve the URL:
+-<A HREF="%U">%U</A>
+-<P>
+-The following error was encountered:
+-<UL>
+-<LI>
+-<STRONG>
+-Access Denied.
+-</STRONG>
+-<P>
+-Access control configuration prevents your request from
+-being allowed at this time.  Please contact your service provider if
+-you feel this is incorrect.
+-</UL>
+-<P>Your cache administrator is <A HREF="mailto:%w">%w</A>. 
+-
++<HTML><HEAD><TITLE>ERROR: Cache Access Denied</TITLE></HEAD><BODY><CENTER><TABLE WIDTH=710 BGCOLOR=#dddddd><TR><TD>&nbsp;</TD></TR><TR><TD><TABLE WIDTH=99% ALIGN=CENTER CELLPADDING=0 BGCOLOR=#cccccc CELLSPACING=0><TR HEIGHT=1><TD BGCOLOR=#ffffff></TD></TR><TR><TD ALIGN=CENTER><h2>ERROR: Cache Access Denied</h2>Sorry, you are not currently allowed to request:<PRE><A HREF=%U>%U</A>
++</PRE>from this cache because you are not logged in or your user group does not have permission to web browse.
++</TD></TR><TR HEIGHT=1><TD BGCOLOR=#888888></TD></TR></TABLE></TD></TR><TR><TD>&nbsp;</TD></TR></TABLE></CENTER>

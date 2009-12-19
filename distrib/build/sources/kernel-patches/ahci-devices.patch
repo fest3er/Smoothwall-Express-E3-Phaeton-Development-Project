@@ -1,0 +1,43 @@
+--- linux-2.6.16.53/drivers/scsi/ahci.c	2007-07-25 22:05:45.000000000 +0100
++++ linux-2.6.16.53.new/drivers/scsi/ahci.c	2007-08-03 15:50:35.000000000 +0100
+@@ -286,10 +286,40 @@
+ 	  board_ahci }, /* ICH8M */
+ 	{ PCI_VENDOR_ID_INTEL, 0x282a, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_ahci }, /* ICH8M */
++	{ PCI_VENDOR_ID_INTEL, 0x2922, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH9 */
++	{ PCI_VENDOR_ID_INTEL, 0x2923, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH9 */
++	{ PCI_VENDOR_ID_INTEL, 0x2924, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH9 */
++	{ PCI_VENDOR_ID_INTEL, 0x2925, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH9 */
++	{ PCI_VENDOR_ID_INTEL, 0x2927, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH9 */
++	{ PCI_VENDOR_ID_INTEL, 0x2929, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH9M */
++	{ PCI_VENDOR_ID_INTEL, 0x292a, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 
++	  board_ahci }, /* ICH9M */
++	{ PCI_VENDOR_ID_INTEL, 0x292b, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH9M */
++	{ PCI_VENDOR_ID_INTEL, 0x292f, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH9M */
++	{ PCI_VENDOR_ID_INTEL, 0x294d, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH9 */
++	{ PCI_VENDOR_ID_INTEL, 0x294e, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ICH9M */
+ 	{ 0x197b, 0x2360, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_ahci }, /* JMicron JMB360 */
++	{ 0x197b, 0x2361, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* JMicron JMB361 */
+ 	{ 0x197b, 0x2363, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_ahci }, /* JMicron JMB363 */
++	{ 0x197b, 0x2365, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* JMicron JMB365 */
++	{ 0x197b, 0x2366, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* JMicron JMB366 */
++	{ 0x197b, 0x2368, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* JMicron JMB368 */
+ 	{ }	/* terminate list */
+ };
+ 

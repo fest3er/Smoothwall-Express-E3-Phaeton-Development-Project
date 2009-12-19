@@ -1,0 +1,12 @@
+diff -Nurb net-snmp-5.2.1.old/agent/snmpd.c net-snmp-5.2.1/agent/snmpd.c
+--- net-snmp-5.2.1.old/agent/snmpd.c	2004-10-06 22:11:23.000000000 +0100
++++ net-snmp-5.2.1/agent/snmpd.c	2005-02-27 14:43:05.000000000 +0000
+@@ -922,7 +922,7 @@
+          * already exists.
+          */
+         unlink(pid_file);
+-        fd = open(pid_file, O_CREAT | O_EXCL | O_WRONLY, 0600);
++        fd = open(pid_file, O_CREAT | O_EXCL | O_WRONLY, 0664);
+         if (fd == -1) {
+             snmp_log_perror(pid_file);
+             if (!netsnmp_ds_get_boolean(NETSNMP_DS_APPLICATION_ID, 

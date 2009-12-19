@@ -1,0 +1,8 @@
+FULLNAME="Aethra Starmodem"
+VID1=0x0659
+PID1=0x0915
+VID2=0x0915
+PID2=0x0916
+FIRM1=firmware00.bin
+FIRM2=synch01.bin
+

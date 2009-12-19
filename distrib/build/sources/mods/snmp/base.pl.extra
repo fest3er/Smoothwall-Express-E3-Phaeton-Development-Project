@@ -1,0 +1,6 @@
+
+# SNMP
+%basetr = ( %basetr,
+'sssnmp' => 'snmp',
+);
+

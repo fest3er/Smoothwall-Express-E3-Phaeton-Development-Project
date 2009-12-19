@@ -1,0 +1,26 @@
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+        charset="iso-8859-1"
+
+This message body was generated automatically by SmoothWall (on
+%HOSTNAME%).
+
+It replaces a message sent to you that contained a virus.
+
+This message includes the email headers of the infected message.
+
+Virus name:
+    %VIRUSNAME%
+Sender:
+    %MAILFROM%
+Sent to:
+    %MAILTO%
+Date:
+    %MAILDATE%
+Subject:
+    %SUBJECT%
+Connection data:
+    POP3 from %CLIENTIP% to %SERVERIP%
+
+.

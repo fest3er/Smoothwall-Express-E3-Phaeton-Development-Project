@@ -1,0 +1,2 @@
+echo "Starting SNMP server (if enabled)"
+/usr/bin/smoothcom snmprestart

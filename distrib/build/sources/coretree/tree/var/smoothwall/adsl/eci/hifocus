@@ -1,0 +1,7 @@
+FULLNAME="ECI HiFocus and B-Focus"
+VID1=0x0547
+PID1=0x2131
+VID2=0x0915
+PID2=0x8000
+FIRM1=firmware00.bin
+FIRM2=synch01.bin

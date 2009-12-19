@@ -1,0 +1,33 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2008-10-05
+Initial Package Version: 2.8-20080929 snapshot
+Upstream Status:         Unknown (Upstream doesn't seem to concerned about x86
+                         architecture any longer)
+Origin:                  http://sourceware.org/ml/libc-alpha/2008-07/msg00024.html
+Description:             Fixes a ildoubl math test suite error on x86 arches
+
+
+diff -Naur glibc-2.8-20080929-orig/sysdeps/i386/fpu/libm-test-ulps glibc-2.8-20080929/sysdeps/i386/fpu/libm-test-ulps
+--- glibc-2.8-20080929-orig/sysdeps/i386/fpu/libm-test-ulps	2006-01-15 17:59:37.000000000 +0000
++++ glibc-2.8-20080929/sysdeps/i386/fpu/libm-test-ulps	2008-10-05 14:44:42.000000000 +0000
+@@ -453,6 +453,10 @@
+ ildouble: 8
+ ldouble: 8
+ 
++# expm1
++Test "expm1 (1) == M_El - 1.0":
++ildouble: 1
++
+ # gamma
+ Test "gamma (-0.5) == log(2*sqrt(pi))":
+ double: 1
+@@ -1134,6 +1138,9 @@
+ ildouble: 8
+ ldouble: 8
+ 
++Function: "expm1":
++ildouble: 1
++
+ Function: "gamma":
+ double: 1
+ idouble: 1

@@ -1,0 +1,43 @@
+<P><FONT SIZE='3'><STRONG><U>Time</U></STRONG></FONT></P>
+
+<P>The time page has three functions. Firstly to set the SmoothWall
+date and time, secondly to allow SmoothWall to synchronise its time
+with a network time server, and finally to enable SmoothWall's inbuilt
+time server.</P>
+
+<P>The <STRONG>Timezone</STRONG> is now set in the browser configuration
+facility rather than in the installation process.  Select the appropriate
+time zone for your location from the Timezone drop-down list box.</P>
+
+<P>In the <STRONG>Time and date</STRONG> section are drop-down list boxes to
+display/set the date and time.  Change as required using the drop-down list
+boxes and check the <STRONG>Set</STRONG> checkbox.</P>
+
+<P>The <STRONG>Network time retrieval</STRONG> section provides controls to
+enable SmoothWall to synchronise its date and time with network time
+servers that are accessible on the Internet.  If the
+<STRONG>Enabled</STRONG> checkbox is checked then the time will be
+synchronised at the interval set in the Interval drop-down list box.  This
+defaults to once per day, which should be adequate for most users of
+SmoothWall.  Below the interval control is a display informing you
+when the next time retrieval will occur.  The final option in this panel,
+<STRONG>Save time to RTC</STRONG>, is used to make SmoothWall
+update the Real-Time Clock (RTC) of the PC on which it is running with the
+time retrieved from the network time server.</P>
+
+<P>The <STRONG>Network time servers</STRONG> section allows the user to
+chose which network time server(s) to use.  The first of three radio buttons
+sets SmoothWall to use Multiple random public servers, i.e. use a
+different server each time, which is the default and recommended option. 
+The second radio button, <STRONG>Selected single public server</STRONG>, makes
+SmoothWall use a single time server each time.  The adjoining drop-down list
+box selects which of approximately 40 world-wide time servers that will be. 
+The third radio button, <STRONG>User defined single public or local server</STRONG>, allows
+for a user-specified time server to be used.  Either an IP address can be
+entered or a name that can be resolved by SmoothWall (e.g. using its
+Static DNS/Hostnames table).</P>
+
+<p>The <strong>Time server</strong> section allows the user to enable or
+disable SmoothWall's built in time server.  This time server, when running, 
+can service the GREEN and PURPLE network with the time using the standard
+NTP protocol.</p>

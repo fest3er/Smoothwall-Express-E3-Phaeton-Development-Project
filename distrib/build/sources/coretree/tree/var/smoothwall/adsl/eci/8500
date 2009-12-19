@@ -1,0 +1,7 @@
+FULLNAME="US Robotics 8500"
+VID1=0x0baf
+PID1=0x00e6
+VID2=0x0915
+PID2=0x00e7
+FIRM1=firmware00.bin
+FIRM2=synch02.bin

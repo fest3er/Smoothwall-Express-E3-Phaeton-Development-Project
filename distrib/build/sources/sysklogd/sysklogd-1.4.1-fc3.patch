@@ -1,0 +1,1903 @@
+diff -Nurb sysklogd-1.4.1/kernel.patch sysklogd-1.4.1rh/kernel.patch
+--- sysklogd-1.4.1/kernel.patch	1970-01-01 01:00:00.000000000 +0100
++++ sysklogd-1.4.1rh/kernel.patch	2000-12-11 19:46:07.000000000 +0000
+@@ -0,0 +1,70 @@
++diff -u --recursive --new-file v1.3.42/linux/arch/alpha/kernel/process.c linux/arch/alpha/kernel/process.c
++--- v1.3.42/linux/arch/alpha/kernel/process.c	Tue Oct 10 18:46:30 1995
+++++ linux/arch/alpha/kernel/process.c	Sat Nov 18 12:23:19 1995
++@@ -57,8 +57,8 @@
++ 
++ void show_regs(struct pt_regs * regs)
++ {
++-	printk("\nps: %04lx pc: %016lx\n", regs->ps, regs->pc);
++-	printk("rp: %016lx sp: %p\n", regs->r26, regs+1);
+++	printk("\nps: %04lx pc: [<%016lx>]\n", regs->ps, regs->pc);
+++	printk("rp: [<%016lx>] sp: %p\n", regs->r26, regs+1);
++ 	printk(" r0: %016lx  r1: %016lx  r2: %016lx  r3: %016lx\n",
++ 	       regs->r0, regs->r1, regs->r2, regs->r3);
++ 	printk(" r4: %016lx  r5: %016lx  r6: %016lx  r7: %016lx\n",
++diff -u --recursive --new-file v1.3.42/linux/arch/alpha/kernel/traps.c linux/arch/alpha/kernel/traps.c
++--- v1.3.42/linux/arch/alpha/kernel/traps.c	Wed Sep 27 15:59:56 1995
+++++ linux/arch/alpha/kernel/traps.c	Sat Nov 18 12:22:52 1995
++@@ -25,8 +25,8 @@
++ 		return;
++ 	printk("%s(%d): %s %ld\n", current->comm, current->pid, str, err);
++ 	sp = (unsigned long) (regs+1);
++-	printk("pc = %lx ps = %04lx\n", regs->pc, regs->ps);
++-	printk("rp = %lx sp = %lx\n", regs->r26, sp);
+++	printk("pc = [<%lx>] ps = %04lx\n", regs->pc, regs->ps);
+++	printk("rp = [<%lx>] sp = %lx\n", regs->r26, sp);
++ 	printk("r0=%lx r1=%lx r2=%lx r3=%lx\n",
++ 		regs->r0, regs->r1, regs->r2, regs->r3);
++ 	printk("r8=%lx\n", regs->r8);
++diff -u --recursive --new-file v1.3.42/linux/arch/i386/kernel/process.c linux/arch/i386/kernel/process.c
++--- v1.3.42/linux/arch/i386/kernel/process.c	Wed Nov  8 07:11:29 1995
+++++ linux/arch/i386/kernel/process.c	Sat Nov 18 12:08:28 1995
++@@ -124,7 +124,7 @@
++ void show_regs(struct pt_regs * regs)
++ {
++ 	printk("\n");
++-	printk("EIP: %04x:%08lx",0xffff & regs->cs,regs->eip);
+++	printk("EIP: %04x:[<%08lx>]",0xffff & regs->cs,regs->eip);
++ 	if (regs->cs & 3)
++ 		printk(" ESP: %04x:%08lx",0xffff & regs->ss,regs->esp);
++ 	printk(" EFLAGS: %08lx\n",regs->eflags);
++diff -u --recursive --new-file v1.3.42/linux/arch/i386/kernel/traps.c linux/arch/i386/kernel/traps.c
++--- v1.3.42/linux/arch/i386/kernel/traps.c	Wed Nov  8 07:11:30 1995
+++++ linux/arch/i386/kernel/traps.c	Tue Nov 21 08:34:54 1995
++@@ -27,7 +27,7 @@
++ 
++ asmlinkage int system_call(void);
++ asmlinkage void lcall7(void);
++-struct desc_struct default_ldt;
+++struct desc_struct default_ldt;
++ 
++ static inline void console_verbose(void)
++ {
++@@ -113,7 +113,7 @@
++ 	console_verbose();
++ 	printk("%s: %04lx\n", str, err & 0xffff);
++ 	printk("CPU:    %d\n", smp_processor_id());
++-	printk("EIP:    %04x:%08lx\nEFLAGS: %08lx\n", 0xffff & regs->cs,regs->eip,regs->eflags);
+++	printk("EIP:    %04x:[<%08lx>]\nEFLAGS: %08lx\n", 0xffff & regs->cs,regs->eip,regs->eflags);
++ 	printk("eax: %08lx   ebx: %08lx   ecx: %08lx   edx: %08lx\n",
++ 		regs->eax, regs->ebx, regs->ecx, regs->edx);
++ 	printk("esi: %08lx   edi: %08lx   ebp: %08lx   esp: %08lx\n",
++@@ -153,7 +153,7 @@
++ 		    ((addr >= module_start) && (addr <= module_end))) {
++ 			if (i && ((i % 8) == 0))
++ 				printk("\n       ");
++-			printk("%08lx ", addr);
+++			printk("[<%08lx>] ", addr);
++ 			i++;
++ 		}
++ 	}
+diff -Nurb sysklogd-1.4.1/klogd.c sysklogd-1.4.1rh/klogd.c
+--- sysklogd-1.4.1/klogd.c	2001-03-11 19:40:10.000000000 +0000
++++ sysklogd-1.4.1rh/klogd.c	2002-04-17 15:49:34.000000000 +0100
+@@ -275,6 +275,10 @@
+ #define ksyslog klogctl
+ #endif
+ 
++#ifndef _PATH_KLOG
++#define _PATH_KLOG  "/proc/kmsg"
++#endif
++
+ #define LOG_BUFFER_SIZE 4096
+ #define LOG_LINE_LENGTH 1000
+ 
+@@ -291,7 +295,7 @@
+ 		terminate = 0,
+ 		caught_TSTP = 0,
+ 		reload_symbols = 0,
+-		console_log_level = -1;
++		console_log_level = 6;
+ 
+ static int	use_syscall = 0,
+ 		one_shot = 0,
+@@ -509,8 +513,7 @@
+ 
+ 
+ 	/* Set level of kernel console messaging.. */
+-	if ( (console_log_level != -1)
+-	&& (ksyslog(8, NULL, console_log_level) < 0) && \
++	if ( (ksyslog(8, NULL, console_log_level) < 0) && \
+ 	     (errno == EINVAL) )
+ 	{
+ 		/*
+@@ -887,8 +890,7 @@
+                value  = strtoul(sym_start+1, (char **) 0, 16);
+                *(line-1) = '>';  /* put back delim */
+ 
+-               symbol = LookupSymbol(value, &sym);
+-               if ( !symbol_lookup || symbol == (char *) 0 )
++               if ( !symbol_lookup || (symbol = LookupSymbol(value, &sym)) == (char *)0 )
+                {
+                   parse_state = PARSING_TEXT;
+                   break;
+@@ -938,7 +940,7 @@
+ 	 * messages into this fresh buffer.
+ 	 */
+ 	memset(log_buffer, '\0', sizeof(log_buffer));
+-	if ( (rdcnt = ksyslog(2, log_buffer, sizeof(log_buffer))) < 0 )
++	if ( (rdcnt = ksyslog(2, log_buffer, sizeof(log_buffer)-1)) < 0 )
+ 	{
+ 		if ( errno == EINTR )
+ 			return;
+@@ -1143,8 +1145,11 @@
+ 	if ( one_shot )
+ 	{
+ 		if (symbol_lookup) {
+-			InitKsyms(symfile);
+-			InitMsyms();
++			symbol_lookup  = (InitKsyms(symfile) == 1);
++			symbol_lookup |= InitMsyms();
++			if (symbol_lookup == 0) {
++				Syslog(LOG_WARNING, "cannot find any symbols, turning off symbol lookups\n");
++			}
+ 		}
+ 		if ( (logsrc = GetKernelLogSrc()) == kernel )
+ 			LogKernelLine();
+@@ -1159,8 +1164,11 @@
+ #endif
+ 	logsrc = GetKernelLogSrc();
+ 	if (symbol_lookup) {
+-		InitKsyms(symfile);
+-		InitMsyms();
++		symbol_lookup  = (InitKsyms(symfile) == 1);
++		symbol_lookup |= InitMsyms();
++		if (symbol_lookup == 0) {
++			Syslog(LOG_WARNING, "cannot find any symbols, turning off symbol lookups\n");
++		}
+ 	}
+ 
+         /* The main loop. */
+diff -Nurb sysklogd-1.4.1/ksym.c sysklogd-1.4.1rh/ksym.c
+--- sysklogd-1.4.1/ksym.c	2000-09-12 22:53:31.000000000 +0100
++++ sysklogd-1.4.1rh/ksym.c	2002-03-12 21:31:15.000000000 +0000
+@@ -112,6 +112,7 @@
+ #include <stdlib.h>
+ #include <malloc.h>
+ #include <sys/utsname.h>
++#include <ctype.h>
+ #include "klogd.h"
+ #include "ksyms.h"
+ 
+@@ -344,6 +345,7 @@
+ 		if ( (sym_file = fopen(symfile, "r")) != (FILE *) 0 ) {
+ 			if (CheckMapVersion(symfile) == 1)
+ 				file = symfile;
++			fclose(sym_file);
+ 		}
+ 		if (sym_file == (FILE *) 0 || file == (char *) 0) {
+ 			sprintf (symfile, "%s", *mf);
+@@ -352,6 +354,7 @@
+ 			if ( (sym_file = fopen(symfile, "r")) != (FILE *) 0 ) {
+ 				if (CheckMapVersion(symfile) == 1)
+ 					file = symfile;
++				fclose(sym_file);
+ 			}
+ 		}
+ 
+@@ -770,6 +773,84 @@
+ 	if ( (num_syms == 0) ||
+ 	     (kp = strstr(line, "[<")) == (char *) 0 )
+ 	{
++#ifdef __sparc__
++		if (num_syms) {
++			/*
++			 * On SPARC, register dumps do not have the [< >] characters in it.
++			 */
++			static struct sparc_tests {
++				char *str;
++				int len;
++			} tests[] = { { "PC: ", 4 },
++				      { " o7: ", 5 },
++				      { " ret_pc: ", 9 },
++				      { " i7: ", 5 },
++				      { "Caller[", 7 }
++				    };
++			int i, j, ndigits;
++			char *kp2;
++			for (i = 0; i < 5; i++) {
++				kp = strstr(line, tests[i].str);
++				if (!kp) continue;
++				kp2 = kp + tests[i].len;
++				if (!isxdigit(*kp2)) continue;
++				for (ndigits = 1; isxdigit(kp2[ndigits]); ndigits++);
++				if (ndigits != 8 && ndigits != 16) continue;
++				/* On sparc64, all kernel addresses are in first 4GB */
++				if (ndigits == 16) {
++					if (strncmp (kp2, "00000000", 8)) continue;
++					kp2 += 8;
++				}
++				if (!i) {
++					char *kp3;
++					if (ndigits == 16 && kp > line && kp[-1L] != 'T') continue;
++					kp3 = kp2 + 8;
++					if (ndigits == 16) {
++						if (strncmp (kp3, " TNPC: 00000000", 15) || !isxdigit(kp3[15]))
++							continue;
++						kp3 += 15;
++					} else {
++						if (strncmp (kp3, " NPC: ", 6) || !isxdigit(kp3[6]))
++							continue;
++						kp3 += 6;
++					}
++					for (j = 0; isxdigit(kp3[j]); j++);
++					if (j != 8) continue;
++					strncpy(elp, line, kp2 + 8 - line);
++					elp += kp2 + 8 - line;
++					value = strtol(kp2, (char **) 0, 16);
++					if ( (symbol = LookupSymbol(value, &sym)) ) {
++						if (sym.size)
++							elp += sprintf(elp, " (%s+%d/%d)", symbol, sym.offset, sym.size);
++						else
++							elp += sprintf(elp, " (%s)", symbol);
++					}
++					strncpy(elp, kp2 + 8, kp3 - kp2);
++					elp += kp3 - kp2;
++					value = strtol(kp3, (char **) 0, 16);
++					if ( (symbol = LookupSymbol(value, &sym)) ) {
++						if (sym.size)
++							elp += sprintf(elp, " (%s+%d/%d)", symbol, sym.offset, sym.size);
++						else
++							elp += sprintf(elp, " (%s)", symbol);
++					}
++					strcpy(elp, kp3 + 8);
++				} else {
++					strncpy(elp, line, kp2 + 8 - line);
++					elp += kp2 + 8 - line;
++					value = strtol(kp2, (char **) 0, 16);
++					if ( (symbol = LookupSymbol(value, &sym)) ) {
++						if (sym.size)
++							elp += sprintf(elp, " (%s+%d/%d)", symbol, sym.offset, sym.size);
++						else
++							elp += sprintf(elp, " (%s)", symbol);
++					}
++					strcpy(elp, kp2 + 8);
++				}
++				return el;
++			}
++		}
++#endif	
+ 		strcpy(el, line);
+ 		return(el);
+ 	}
+diff -Nurb sysklogd-1.4.1/ksym_mod.c sysklogd-1.4.1rh/ksym_mod.c
+--- sysklogd-1.4.1/ksym_mod.c	2000-09-12 22:15:28.000000000 +0100
++++ sysklogd-1.4.1rh/ksym_mod.c	2000-12-18 16:06:06.000000000 +0000
+@@ -93,7 +93,7 @@
+ #include <linux/time.h>
+ #include <linux/module.h>
+ #else /* __GLIBC__ */
+-#include <linux/module.h>
++#include "module.h"
+ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
+ extern int get_kernel_syms __P ((struct kernel_sym *__table));
+ #endif /* __GLIBC__ */
+diff -Nurb sysklogd-1.4.1/Makefile sysklogd-1.4.1rh/Makefile
+--- sysklogd-1.4.1/Makefile	1998-10-12 21:25:15.000000000 +0100
++++ sysklogd-1.4.1rh/Makefile	2004-02-12 15:49:20.000000000 +0000
+@@ -3,13 +3,13 @@
+ CC= gcc
+ #CFLAGS= -g -DSYSV -Wall
+ #LDFLAGS= -g
+-CFLAGS= $(RPM_OPT_FLAGS) -O3 -DSYSV -fomit-frame-pointer -Wall -fno-strength-reduce
+-LDFLAGS= -s
++CFLAGS= $(RPM_OPT_FLAGS) -DSYSV -D_GNU_SOURCE -Wall -fpie
++LDFLAGS=-pie
+ 
+ # Look where your install program is.
+ INSTALL = /usr/bin/install
+-BINDIR = /usr/sbin
+-MANDIR = /usr/man
++BINDIR = $(TOPDIR)/sbin
++MANDIR = $(TOPDIR)/usr/man
+ 
+ # There is one report that under an all ELF system there may be a need to
+ # explicilty link with libresolv.a.  If linking syslogd fails you may wish
+@@ -106,17 +106,51 @@
+ 	${CC} ${CFLAGS} -DTEST -o ksym_test.o -c ksym.c
+ 
+ clean:
+-	rm -f *.o *.log *~ *.orig
++	rm -f *.o *.log *~ *.orig sysklogd-*.tar.gz syslogd klogd
+ 
+ clobber: clean
+ 	rm -f syslogd klogd ksym syslog_tst oops_test TAGS tsyslogd tklogd
+ 
+ install_exec: syslogd klogd
+-	${INSTALL} -m 500 -s syslogd ${BINDIR}/syslogd
+-	${INSTALL} -m 500 -s klogd ${BINDIR}/klogd
++	${INSTALL} -m 500 syslogd ${BINDIR}/syslogd
++	${INSTALL} -m 500 klogd ${BINDIR}/klogd
+ 
+ install_man:
+-	${INSTALL} -o ${MAN_OWNER} -g ${MAN_OWNER} -m 644 sysklogd.8 ${MANDIR}/man8/sysklogd.8
+-	${INSTALL} -o ${MAN_OWNER} -g ${MAN_OWNER} -m 644 syslogd.8 ${MANDIR}/man8/syslogd.8
+-	${INSTALL} -o ${MAN_OWNER} -g ${MAN_OWNER} -m 644 syslog.conf.5 ${MANDIR}/man5/syslog.conf.5
+-	${INSTALL} -o ${MAN_OWNER} -g ${MAN_OWNER} -m 644 klogd.8 ${MANDIR}/man8/klogd.8
++	${INSTALL} -m 644 sysklogd.8 ${MANDIR}/man8/sysklogd.8
++	${INSTALL} -m 644 syslogd.8 ${MANDIR}/man8/syslogd.8
++	${INSTALL} -m 644 syslog.conf.5 ${MANDIR}/man5/syslog.conf.5
++	${INSTALL} -m 644 klogd.8 ${MANDIR}/man8/klogd.8
++
++
++## Red Hat specific additions
++
++VER1 = $(shell awk '/VERSION/ { print $$3 }' version.h | sed 's|"||g')
++VER2 = $(shell awk '/PATCHLEVEL/ { print $$3 }' version.h | sed 's|"||g')
++VERSION = $(VER1).$(VER2)
++RELEASE = $(shell awk '/Release:/ { print $$2 }' sysklogd.spec.in)
++CVSTAG = sysklogd-$(subst .,_,$(VERSION))-$(subst .,-,$(RELEASE))
++
++changelog:
++	rcs2log | sed "s|@.*redhat\.com|@redhat.com|" | sed "s|@@|@|" | \
++	sed "s|/mnt/devel/CVS/sysklogd/||g" > redhat/changenew
++	mv redhat/ChangeLog redhat/ChangeLog.old
++	cat redhat/changenew redhat/ChangeLog.old > redhat/ChangeLog
++	rm -f redhat/changenew
++
++tag-archive:
++	@cvs -Q tag -F $(CVSTAG)
++	
++create-archive:
++	@rm -rf /tmp/sysklogd
++	@cd /tmp ; cvs -Q -d $(CVSROOT) export -r$(CVSTAG) sysklogd || echo "Um... export aborted."
++	@sed 's/VERSIONSUBST/$(VERSION)/' < /tmp/sysklogd/sysklogd.spec.in > /tmp/sysklogd/sysklogd.spec
++	@rm /tmp/sysklogd/sysklogd.spec.in
++	@mv /tmp/sysklogd /tmp/sysklogd-$(VERSION)rh
++	@cd /tmp ; tar -czSpf sysklogd-$(VERSION)rh.tar.gz sysklogd-$(VERSION)rh
++	@rm -rf /tmp/sysklogd-$(VERSION)rh
++	@cp /tmp/sysklogd-$(VERSION)rh.tar.gz .
++	@rm -f /tmp/sysklogd-$(VERSION)rh.tar.gz
++	@echo ""
++	@echo "The final archive is in sysklogd-$(VERSION)rh.tar.gz"
++
++archive: clean tag-archive create-archive
+diff -Nurb sysklogd-1.4.1/module.h sysklogd-1.4.1rh/module.h
+--- sysklogd-1.4.1/module.h	1970-01-01 01:00:00.000000000 +0100
++++ sysklogd-1.4.1rh/module.h	2000-12-18 16:06:06.000000000 +0000
+@@ -0,0 +1,62 @@
++
++/* Module definitions for klogd's module support */
++struct kernel_sym
++{
++	        unsigned long value;
++	        char name[60];
++};
++
++struct module_symbol
++{
++	unsigned long value;
++	const char *name;
++};
++
++struct module_ref
++{
++	struct module *dep;     /* "parent" pointer */
++	struct module *ref;     /* "child" pointer */
++	struct module_ref *next_ref;
++};
++
++struct module_info
++{
++	unsigned long addr;
++	unsigned long size;
++	unsigned long flags;
++	long usecount;
++};
++
++
++typedef struct { volatile int counter; } atomic_t;
++
++struct module
++{
++	unsigned long size_of_struct;   /* == sizeof(module) */
++	struct module *next;
++	const char *name;
++	unsigned long size;
++	
++	union
++	{
++		atomic_t usecount;
++		long pad;
++        } uc;                           /* Needs to keep its size - so says rth */
++	
++	unsigned long flags;            /* AUTOCLEAN et al */
++	
++	unsigned nsyms;
++	unsigned ndeps;
++	
++	struct module_symbol *syms;
++	struct module_ref *deps;
++	struct module_ref *refs;
++	int (*init)(void);
++	void (*cleanup)(void);
++	const struct exception_table_entry *ex_table_start;
++	const struct exception_table_entry *ex_table_end;
++#ifdef __alpha__
++	unsigned long gp;
++#endif
++};
++	
+diff -Nurb sysklogd-1.4.1/redhat/ChangeLog sysklogd-1.4.1rh/redhat/ChangeLog
+--- sysklogd-1.4.1/redhat/ChangeLog	1970-01-01 01:00:00.000000000 +0100
++++ sysklogd-1.4.1rh/redhat/ChangeLog	2004-08-02 23:05:10.000000000 +0100
+@@ -0,0 +1,694 @@
++2004-08-02 Jason Vas Dias  <jvdias@redhat.com>
++
++	* fixing bug 126223, syslogd.c:  1.4.1rh-22
++	
++2004-06-28  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in, redhat/ChangeLog: 1.4.1rh-21
++
++	* redhat/syslog.conf.rhs: async logging for mail (#73306)
++
++2004-06-20  Florian La Roche  <laroche@redhat.com>
++
++	* syslogd.c, sysklogd.spec.in: - -20
++
++2004-06-11  Florian La Roche  <laroche@redhat.com>
++
++	* sysklogd.spec.in, syslogd.c: - make the -HUP race smaller
++
++2004-06-09  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: 1.4.1rh-17
++
++	* sysklogd.spec.in, syslogd.c: don't esacpe UTF-8
++
++	* sysklogd.spec.in: bump rev
++
++	* syslogd.c: don't escape characters (#89292, #71170, #112519)
++
++2004-05-03  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: 1.4.1rh-16
++
++	* sysklogd.spec.in: be more verbose
++
++	* sysklogd.spec.in, syslogd.c: add Owl crunch_list patch
++
++2004-04-07  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in, syslogd.c: commit #120201 fix here as well
++
++	* sysklogd.spec.in, syslogd.c: fix 120201
++
++2004-03-08  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in: bump release for rebuild
++
++2004-02-12  Thomas Woerner  <twoerner@redhat.com>
++
++	* Makefile, redhat/ChangeLog, sysklogd.spec.in: [tw] make sysklogd pie
++
++2003-02-07  Tim Powers  <timp@redhat.com>
++
++	* sysklogd.spec.in: rebuild
++
++2003-01-08  Tim Powers  <timp@redhat.com>
++
++	* sysklogd.spec.in: bump release number
++
++2002-12-20  Elliot Lee  <sopwith@redhat.com>
++
++	* sysklogd.spec.in: rebuild
++
++2002-06-17  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: 1.4.1rh-9
++
++	* Makefile, sysklogd.spec.in: don't strip binaries
++
++2002-04-17  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in: add bug note
++
++	* sysklogd.spec.in: bump rev
++
++	* klogd.c: revert loglevel behavior
++
++2002-03-13  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in: 1.4.1rh-7
++
++	* redhat/syslog.init: provide LSB facility
++
++2002-03-12  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in: 1.4.1rh-6
++
++	* sysklogd.spec.in:
++	don't *require* logrotate, but conflict with older versions
++
++	* ksym.c: fix fd leak (#52901)
++
++	* redhat/syslog: switch to -x; we have kksymoops
++
++2002-03-08  Bill Nottingham  <notting@redhat.com>
++
++	* Makefile: don't strip binaries
++
++2001-08-15  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* Makefile, sysklogd.spec.in, syslogd.c: use LFS for log files
++
++2001-08-14  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in: bump release
++
++	* redhat/syslog.conf.rhs: fix comments in config file (#51678)
++
++2001-08-03  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: clean up changelog
++
++	* sysklogd.spec.in:
++	- fix %preun for the case when it's not running (#50123)
++	- require version of logrotate that implements sharedscripts (#50794)
++
++2001-07-09  Bill Nottingham  <notting@redhat.com>
++
++	* Makefile: tweak versioning
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* redhat/syslog.log: use sharedscripts
++
++	* sysklogd.8, sysklogd.spec.in, syslog.c, syslogd.c, klogd.c:
++	merge in 1.4.1 changes
++
++	* syslogd.c, version.h, sysklogd.8, syslog.c, klogd.8, klogd.c, CHANGES:
++	import sysklogd-1.4.1
++
++2001-02-07  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in: bump release
++
++	* redhat/syslog.init: use -bash
++
++2001-02-06  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/syslog.init: fix so it gets picked up for translation
++
++2001-01-23  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* redhat/syslog.init, sysklogd.spec.in: switch to new new i18n stuff
++
++2001-01-19  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in: typo
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* redhat/syslog, redhat/syslog.init, sysklogd.spec.in:
++	allow arbitrary options in /etc/sysconfig/syslog
++
++	* redhat/syslog.init: tweak translatable strings
++
++2001-01-18  Bill Nottingham  <notting@redhat.com>
++
++	* klogd.c: don't loop endlessly on embedded '\0'
++
++2001-01-15  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/syslog.init: i18n-ize
++
++2000-12-30  Bill Nottingham  <notting@redhat.com>
++
++	* syslogd.c: add -x in usage, fix its invcation
++
++	* redhat/syslog.init, sysklogd.8, syslogd.c:
++	disable name lookups on incoming messages when started with -x
++
++2000-12-18  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* redhat/ChangeLog, sysklogd.spec.in: 1.4-3
++
++	* ksym_mod.c, module.h:
++	fix build with new kernel headers; include our *own* module.h
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* sysklogd.spec.in: 1.4-3
++
++	* redhat/syslog.init:
++	read /etc/sysconfig/syslog for MARK, NETWORK_LOGGING parameters. From Mike Harris <mharris@redhat.com>
++
++	* Makefile: don't set owner on man pages on install
++
++2000-12-12  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in: *** empty log message ***
++
++	* redhat/syslog.init:
++	start klogd with -2 to print two copies of oops info
++
++2000-12-11  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* Makefile: remove tarball, klogd, syslogd on make clean
++
++	* Makefile, sysklogd.spec.in:
++	name tarballs sysklogd-%{version}rh.tar.gz, to distinguish them
++
++	* sysklogd.spec.in:
++	include CHANGES, our ChangeLog, there is no more lsm file
++
++	* sysklogd.spec.in: support for building cvs tarball
++
++	* Makefile, redhat/ChangeLog:
++	add ChangeLog, Makefile support for generating it
++
++	* syslog_tst.c: (sysklogd-1.3-security.patch) Fix format string errors.
++
++	* syslogd.c:
++	(sysklogd-baddir.patch) Don't loop with EBADF if a bad option is passed to -a
++
++	* klogd.c:
++	(sysklogd-ksyms.patch) Don't attempt symbol lookups if initializing the symbol table fails.
++
++	* syslog.c: (sysklogd-dgram.patch) Use datagram sockets by default
++
++	* klogd.c:
++	(sysklogd-nullterm.patch) Make sure buffer is null terminated
++
++	* klogd.c:
++	(sysklogd-1.3-alphafoo.patch) Support for building on Red Hat Linux 4.2 for Alpha (with special glibc))
++
++	* ksym.c:
++	(sysklogd-1.3-sparc.patch) Support for SPARC register dumps/oopses
++
++	* syslogd.c:
++	(sysklogd-1.3-utmp-process.patch) only log utmp stuff that's USER_PROCESS (from Chris Adams <cadams@ro.com>)
++
++	* Makefile: (sysklogd-1.3-rh.patch) Makefile tweaks - optflags, use
++
++	* syslogd.c: (sysklogd-1.3-alpha.patch) Fix build on alpha
++
++	* redhat/syslog.init, redhat/syslog.log, redhat/syslog.conf.rhs:
++	add RH specific files
++
++	* Makefile: fix up tag stuff
++
++	* Makefile, sysklogd.spec.in: check in make archive stuff, specfile
++
++	* ANNOUNCE, CHANGES, COPYING, INSTALL, MANIFEST, Makefile, NEWS, README.1st, README.linux, kernel.patch, klogd.8, klogd.c, klogd.h, ksym.c, ksym_mod.c, ksyms.h, modutils.patch, oops.c, oops_test.c, pidfile.c, pidfile.h, sysklogd.8, syslog-tst.conf, syslog.c, syslog.conf, syslog.conf.5, syslog_tst.c, syslogd.8, syslogd.c, version.h:
++	New file.
++
++	* ANNOUNCE, CHANGES, COPYING, INSTALL, MANIFEST, Makefile, NEWS, README.1st, README.linux, kernel.patch, klogd.8, klogd.c, klogd.h, ksym.c, ksym_mod.c, ksyms.h, modutils.patch, oops.c, oops_test.c, pidfile.c, pidfile.h, sysklogd.8, syslog-tst.conf, syslog.c, syslog.conf, syslog.conf.5, syslog_tst.c, syslogd.8, syslogd.c, version.h:
++	initial import of sysklogd-1.4
++
++2004-06-09  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: 1.4.1rh-17
++
++	* sysklogd.spec.in: bump rev
++
++	* syslogd.c: don't escape characters (#89292, #71170, #112519)
++
++2004-05-03  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: 1.4.1rh-16
++
++	* sysklogd.spec.in: be more verbose
++
++	* sysklogd.spec.in, syslogd.c: add Owl crunch_list patch
++
++2004-04-07  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in, syslogd.c: fix 120201
++
++2004-03-08  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in: bump release for rebuild
++
++2004-02-12  Thomas Woerner  <twoerner@redhat.com>
++
++	* Makefile, redhat/ChangeLog, sysklogd.spec.in: [tw] make sysklogd pie
++
++2003-02-07  Tim Powers  <timp@redhat.com>
++
++	* sysklogd.spec.in: rebuild
++
++2003-01-08  Tim Powers  <timp@redhat.com>
++
++	* sysklogd.spec.in: bump release number
++
++2002-12-20  Elliot Lee  <sopwith@redhat.com>
++
++	* sysklogd.spec.in: rebuild
++
++2002-06-17  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: 1.4.1rh-9
++
++	* Makefile, sysklogd.spec.in: don't strip binaries
++
++2002-04-17  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in: add bug note
++
++	* sysklogd.spec.in: bump rev
++
++	* klogd.c: revert loglevel behavior
++
++2002-03-13  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in: 1.4.1rh-7
++
++	* redhat/syslog.init: provide LSB facility
++
++2002-03-12  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in: 1.4.1rh-6
++
++	* sysklogd.spec.in:
++	don't *require* logrotate, but conflict with older versions
++
++	* ksym.c: fix fd leak (#52901)
++
++	* redhat/syslog: switch to -x; we have kksymoops
++
++2002-03-08  Bill Nottingham  <notting@redhat.com>
++
++	* Makefile: don't strip binaries
++
++2001-08-15  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* Makefile, sysklogd.spec.in, syslogd.c: use LFS for log files
++
++2001-08-14  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in: bump release
++
++	* redhat/syslog.conf.rhs: fix comments in config file (#51678)
++
++2001-08-03  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: clean up changelog
++
++	* sysklogd.spec.in:
++	- fix %preun for the case when it's not running (#50123)
++	- require version of logrotate that implements sharedscripts (#50794)
++
++2001-07-09  Bill Nottingham  <notting@redhat.com>
++
++	* Makefile: tweak versioning
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* redhat/syslog.log: use sharedscripts
++
++	* sysklogd.8, sysklogd.spec.in, syslog.c, syslogd.c, klogd.c:
++	merge in 1.4.1 changes
++
++	* syslogd.c, version.h, sysklogd.8, syslog.c, klogd.8, klogd.c, CHANGES:
++	import sysklogd-1.4.1
++
++2001-02-07  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in: bump release
++
++	* redhat/syslog.init: use -bash
++
++2001-02-06  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/syslog.init: fix so it gets picked up for translation
++
++2001-01-23  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* redhat/syslog.init, sysklogd.spec.in: switch to new new i18n stuff
++
++2001-01-19  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in: typo
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* redhat/syslog, redhat/syslog.init, sysklogd.spec.in:
++	allow arbitrary options in /etc/sysconfig/syslog
++
++	* redhat/syslog.init: tweak translatable strings
++
++2001-01-18  Bill Nottingham  <notting@redhat.com>
++
++	* klogd.c: don't loop endlessly on embedded '\0'
++
++2001-01-15  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/syslog.init: i18n-ize
++
++2000-12-30  Bill Nottingham  <notting@redhat.com>
++
++	* syslogd.c: add -x in usage, fix its invcation
++
++	* redhat/syslog.init, sysklogd.8, syslogd.c:
++	disable name lookups on incoming messages when started with -x
++
++2000-12-18  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* redhat/ChangeLog, sysklogd.spec.in: 1.4-3
++
++	* ksym_mod.c, module.h:
++	fix build with new kernel headers; include our *own* module.h
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* sysklogd.spec.in: 1.4-3
++
++	* redhat/syslog.init:
++	read /etc/sysconfig/syslog for MARK, NETWORK_LOGGING parameters. From Mike Harris <mharris@redhat.com>
++
++	* Makefile: don't set owner on man pages on install
++
++2000-12-12  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in: *** empty log message ***
++
++	* redhat/syslog.init:
++	start klogd with -2 to print two copies of oops info
++
++2000-12-11  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: *** empty log message ***
++
++	* Makefile: remove tarball, klogd, syslogd on make clean
++
++	* Makefile, sysklogd.spec.in:
++	name tarballs sysklogd-%{version}rh.tar.gz, to distinguish them
++
++	* sysklogd.spec.in:
++	include CHANGES, our ChangeLog, there is no more lsm file
++
++	* sysklogd.spec.in: support for building cvs tarball
++
++	* Makefile, redhat/ChangeLog:
++	add ChangeLog, Makefile support for generating it
++
++	* syslog_tst.c: (sysklogd-1.3-security.patch) Fix format string errors.
++
++	* syslogd.c:
++	(sysklogd-baddir.patch) Don't loop with EBADF if a bad option is passed to -a
++
++	* klogd.c:
++	(sysklogd-ksyms.patch) Don't attempt symbol lookups if initializing the symbol table fails.
++
++	* syslog.c: (sysklogd-dgram.patch) Use datagram sockets by default
++
++	* klogd.c:
++	(sysklogd-nullterm.patch) Make sure buffer is null terminated
++
++	* klogd.c:
++	(sysklogd-1.3-alphafoo.patch) Support for building on Red Hat Linux 4.2 for Alpha (with special glibc))
++
++	* ksym.c:
++	(sysklogd-1.3-sparc.patch) Support for SPARC register dumps/oopses
++
++	* syslogd.c:
++	(sysklogd-1.3-utmp-process.patch) only log utmp stuff that's USER_PROCESS (from Chris Adams <cadams@ro.com>)
++
++	* Makefile: (sysklogd-1.3-rh.patch) Makefile tweaks - optflags, use
++
++	* syslogd.c: (sysklogd-1.3-alpha.patch) Fix build on alpha
++
++	* redhat/syslog.init, redhat/syslog.log, redhat/syslog.conf.rhs:
++	add RH specific files
++
++	* Makefile: fix up tag stuff
++
++	* Makefile, sysklogd.spec.in: check in make archive stuff, specfile
++
++	* ANNOUNCE, CHANGES, COPYING, INSTALL, MANIFEST, Makefile, NEWS, README.1st, README.linux, kernel.patch, klogd.8, klogd.c, klogd.h, ksym.c, ksym_mod.c, ksyms.h, modutils.patch, oops.c, oops_test.c, pidfile.c, pidfile.h, sysklogd.8, syslog-tst.conf, syslog.c, syslog.conf, syslog.conf.5, syslog_tst.c, syslogd.8, syslogd.c, version.h:
++	New file.
++
++	* ANNOUNCE, CHANGES, COPYING, INSTALL, MANIFEST, Makefile, NEWS, README.1st, README.linux, kernel.patch, klogd.8, klogd.c, klogd.h, ksym.c, ksym_mod.c, ksyms.h, modutils.patch, oops.c, oops_test.c, pidfile.c, pidfile.h, sysklogd.8, syslog-tst.conf, syslog.c, syslog.conf, syslog.conf.5, syslog_tst.c, syslogd.8, syslogd.c, version.h:
++	initial import of sysklogd-1.4
++
++2004-05-03  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog: 1.4.1rh-16
++
++	* sysklogd.spec.in, syslogd.c: add Owl crunch_list patch
++
++2004-04-07  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in, syslogd.c: fix 120201
++
++2004-03-08  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in: bump release for rebuild
++
++2004-02-12  Thomas Woerner  <twoerner@redhat.com>
++
++	* Makefile, sysklogd.spec.in: make sysklogd pie
++
++2002-06-17  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in:
++	1.4.1rh-9
++	
++	* Makefile, sysklogd.spec.in:
++	don't strip binaries
++
++2002-04-17  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in: add bug note
++
++	* sysklogd.spec.in: bump rev
++
++	* klogd.c: revert loglevel behavior
++
++2002-03-13  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in:
++	1.4.1rh-7
++
++	* redhat/syslog.init: provide LSB facility
++
++2002-03-12  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in:
++	1.4.1rh-6
++
++	* sysklogd.spec.in:
++	don't *require* logrotate, but conflict with older versions
++
++	* ksym.c: fix fd leak (#52901)
++
++	* redhat/syslog:
++	switch to -x; we have kksymoops
++
++2002-03-08  Bill Nottingham  <notting@redhat.com>
++
++	* Makefile: don't strip binaries
++
++2001-08-15  Bill Nottingham  <notting@redhat.com>
++
++	* Makefile, sysklogd.spec.in, syslogd.c:
++	use LFS for log files
++
++2001-08-14  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in:
++	bump release
++
++	* redhat/syslog.conf.rhs:
++	fix comments in config file (#51678)
++
++2001-08-03  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in:
++	- fix %preun for the case when it's not running (#50123)
++	- require version of logrotate that implements sharedscripts (#50794)
++
++2001-07-09  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/syslog.log: use sharedscripts
++
++	* sysklogd.8, sysklogd.spec.in, syslog.c, syslogd.c, klogd.c:
++	merge in 1.4.1 changes
++
++	* syslogd.c, version.h, sysklogd.8, syslog.c, klogd.8, klogd.c, CHANGES:
++	import sysklogd-1.4.1
++
++2001-02-07  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/syslog.init: use $0
++
++2001-02-06  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/syslog.init:
++	fix so it gets picked up for translation
++
++2001-01-23  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/syslog.init, sysklogd.spec.in:
++	switch to new new i18n stuff
++
++2001-01-19  Bill Nottingham  <notting@redhat.com>
++
++	* sysklogd.spec.in: typo
++
++	* redhat/syslog, redhat/syslog.init, sysklogd.spec.in:
++	allow arbitrary options in /etc/sysconfig/syslog
++
++	* redhat/syslog.init:
++	tweak translatable strings
++
++2001-01-18  Bill Nottingham  <notting@redhat.com>
++
++	* klogd.c:
++	don't loop endlessly on embedded '\0'
++
++2001-01-15  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/syslog.init: i18n-ize
++
++2000-12-30  Bill Nottingham  <notting@redhat.com>
++
++	* syslogd.c: add -x in usage, fix its invcation
++
++	* redhat/syslog.init, sysklogd.8, syslogd.c:
++	disable name lookups on incoming messages when started with -x
++
++2000-12-18  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/ChangeLog, sysklogd.spec.in:
++	1.4-3
++
++	* ksym_mod.c, module.h:
++	fix build with new kernel headers; include our *own* module.h
++
++	* sysklogd.spec.in: 1.4-3
++
++	* redhat/syslog.init:
++	read /etc/sysconfig/syslog for MARK, NETWORK_LOGGING parameters. From Mike Harris <mharris@redhat.com>
++
++	* Makefile:
++	don't set owner on man pages on install
++
++2000-12-12  Bill Nottingham  <notting@redhat.com>
++
++	* redhat/syslog.init:
++	start klogd with -2 to print two copies of oops info
++
++2000-12-11  Bill Nottingham  <notting@redhat.com>
++
++	* Makefile:
++	remove tarball, klogd, syslogd on make clean
++
++	* Makefile, sysklogd.spec.in:
++	name tarballs sysklogd-%{version}rh.tar.gz, to distinguish them
++
++	* sysklogd.spec.in:
++	include CHANGES, our ChangeLog, there is no more lsm file
++
++	* sysklogd.spec.in:
++	support for building cvs tarball
++
++	* Makefile, redhat/ChangeLog:
++	add ChangeLog, Makefile support for generating it
++
++	* syslog_tst.c:
++	(sysklogd-1.3-security.patch) Fix format string errors.
++
++	* syslogd.c:
++	(sysklogd-baddir.patch) Don't loop with EBADF if a bad option is passed to -a
++
++	* klogd.c:
++	(sysklogd-ksyms.patch) Don't attempt symbol lookups if initializing the symbol table fails.
++
++	* syslog.c:
++	(sysklogd-dgram.patch) Use datagram sockets by default
++
++	* klogd.c:
++	(sysklogd-nullterm.patch) Make sure buffer is null terminated
++
++	* klogd.c:
++	(sysklogd-1.3-alphafoo.patch) Support for building on Red Hat Linux 4.2 for Alpha (with special glibc))
++
++	* ksym.c:
++	(sysklogd-1.3-sparc.patch) Support for SPARC register dumps/oopses
++
++	* syslogd.c:
++	(sysklogd-1.3-utmp-process.patch) only log utmp stuff that's USER_PROCESS (from Chris Adams <cadams@ro.com>)
++
++	* Makefile:
++	(sysklogd-1.3-rh.patch) Makefile tweaks - optflags, use
++
++	* syslogd.c:
++	(sysklogd-1.3-alpha.patch) Fix build on alpha
++
++	* redhat/syslog.init, redhat/syslog.log, redhat/syslog.conf.rhs:
++	add RH specific files
++
++	* Makefile: fix up tag stuff
++
++	* Makefile, sysklogd.spec.in:
++	check in make archive stuff, specfile
++
++	* ANNOUNCE, CHANGES, COPYING, INSTALL, kernel.patch, klogd.8, klogd.c, klogd.h, ksym.c, ksym_mod.c, ksyms.h, Makefile, MANIFEST, modutils.patch, NEWS, oops.c, oops_test.c, pidfile.c, pidfile.h, README.1st, README.linux, sysklogd.8, syslog.c, syslog.conf, syslog.conf.5, syslogd.8, syslogd.c, syslog_tst.c, syslog-tst.conf, version.h:
++	initial import of sysklogd-1.4
++
++	* ANNOUNCE, CHANGES, COPYING, INSTALL, kernel.patch, klogd.8, klogd.c, klogd.h, ksym.c, ksym_mod.c, ksyms.h, Makefile, MANIFEST, modutils.patch, NEWS, oops.c, oops_test.c, pidfile.c, pidfile.h, README.1st, README.linux, sysklogd.8, syslog.c, syslog.conf, syslog.conf.5, syslogd.8, syslogd.c, syslog_tst.c, syslog-tst.conf, version.h:
++	New file.
+diff -Nurb sysklogd-1.4.1/redhat/syslog sysklogd-1.4.1rh/redhat/syslog
+--- sysklogd-1.4.1/redhat/syslog	1970-01-01 01:00:00.000000000 +0100
++++ sysklogd-1.4.1rh/redhat/syslog	2002-03-12 21:11:58.000000000 +0000
+@@ -0,0 +1,12 @@
++# Options to syslogd
++# -m 0 disables 'MARK' messages.
++# -r enables logging from remote machines
++# -x disables DNS lookups on messages recieved with -r
++# See syslogd(8) for more details
++SYSLOGD_OPTIONS="-m 0"
++# Options to klogd
++# -2 prints all kernel oops messages twice; once for klogd to decode, and
++#    once for processing with 'ksymoops'
++# -x disables all klogd processing of oops messages entirely
++# See klogd(8) for more details
++KLOGD_OPTIONS="-x"
+diff -Nurb sysklogd-1.4.1/redhat/syslog.conf.rhs sysklogd-1.4.1rh/redhat/syslog.conf.rhs
+--- sysklogd-1.4.1/redhat/syslog.conf.rhs	1970-01-01 01:00:00.000000000 +0100
++++ sysklogd-1.4.1rh/redhat/syslog.conf.rhs	2004-06-28 20:48:21.000000000 +0100
+@@ -0,0 +1,26 @@
++# Log all kernel messages to the console.
++# Logging much else clutters up the screen.
++#kern.*							/dev/console
++
++# Log anything (except mail) of level info or higher.
++# Don't log private authentication messages!
++*.info;mail.none;authpriv.none;cron.none		/var/log/messages
++
++# The authpriv file has restricted access.
++authpriv.*						/var/log/secure
++
++# Log all the mail messages in one place.
++mail.*							-/var/log/maillog
++
++
++# Log cron stuff
++cron.*							/var/log/cron
++
++# Everybody gets emergency messages
++*.emerg							*
++
++# Save news errors of level crit and higher in a special file.
++uucp,news.crit						/var/log/spooler
++
++# Save boot messages also to boot.log
++local7.*						/var/log/boot.log
+diff -Nurb sysklogd-1.4.1/redhat/syslog.init sysklogd-1.4.1rh/redhat/syslog.init
+--- sysklogd-1.4.1/redhat/syslog.init	1970-01-01 01:00:00.000000000 +0100
++++ sysklogd-1.4.1rh/redhat/syslog.init	2002-03-13 07:25:21.000000000 +0000
+@@ -0,0 +1,85 @@
++#!/bin/bash
++#
++# syslog        Starts syslogd/klogd.
++#
++#
++# chkconfig: 2345 12 88
++# description: Syslog is the facility by which many daemons use to log \
++# messages to various system log files.  It is a good idea to always \
++# run syslog.
++### BEGIN INIT INFO
++# Provides: $syslog
++### END INIT INFO
++
++# Source function library.
++. /etc/init.d/functions
++
++[ -f /sbin/syslogd ] || exit 0
++[ -f /sbin/klogd ] || exit 0
++
++# Source config
++if [ -f /etc/sysconfig/syslog ] ; then
++	. /etc/sysconfig/syslog
++else
++	SYSLOGD_OPTIONS="-m 0"
++	KLOGD_OPTIONS="-2"
++fi
++
++RETVAL=0
++
++umask 077
++
++start() {
++ 	echo -n $"Starting system logger: "
++	daemon syslogd $SYSLOGD_OPTIONS
++	RETVAL=$?
++	echo
++	echo -n $"Starting kernel logger: "
++	daemon klogd $KLOGD_OPTIONS
++	echo
++	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/syslog
++	return $RETVAL
++}	
++stop() {
++	echo -n $"Shutting down kernel logger: "
++	killproc klogd
++	echo
++	echo -n $"Shutting down system logger: "
++	killproc syslogd
++	RETVAL=$?
++	echo
++	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/syslog
++	return $RETVAL
++}
++rhstatus() {
++	status syslogd
++	status klogd
++}
++restart() {
++	stop
++	start
++}	
++
++case "$1" in
++  start)
++  	start
++	;;
++  stop)
++  	stop
++	;;
++  status)
++  	rhstatus
++	;;
++  restart|reload)
++  	restart
++	;;
++  condrestart)
++  	[ -f /var/lock/subsys/syslog ] && restart || :
++	;;
++  *)
++	echo $"Usage: $0 {start|stop|status|restart|condrestart}"
++	exit 1
++esac
++
++exit $?
++
+diff -Nurb sysklogd-1.4.1/redhat/syslog.log sysklogd-1.4.1rh/redhat/syslog.log
+--- sysklogd-1.4.1/redhat/syslog.log	1970-01-01 01:00:00.000000000 +0100
++++ sysklogd-1.4.1rh/redhat/syslog.log	2001-07-09 05:23:33.000000000 +0100
+@@ -0,0 +1,6 @@
++/var/log/messages /var/log/secure /var/log/maillog /var/log/spooler /var/log/boot.log /var/log/cron {
++    sharedscripts
++    postrotate
++	/bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
++    endscript
++}
+diff -Nurb sysklogd-1.4.1/sysklogd.8 sysklogd-1.4.1rh/sysklogd.8
+--- sysklogd-1.4.1/sysklogd.8	2001-03-11 19:35:51.000000000 +0000
++++ sysklogd-1.4.1rh/sysklogd.8	2001-07-09 05:17:22.000000000 +0100
+@@ -30,6 +30,7 @@
+ .I domainlist
+ ]
+ .RB [ " \-v " ]
++.RB [ " \-x " ]
+ .LP
+ .SH DESCRIPTION
+ .B Sysklogd
+@@ -152,6 +153,11 @@
+ .TP
+ .B "\-v"
+ Print version and exit.
++.TP
++.B "\-x"
++Disable name lookups when receiving remote messages.
++This avoids deadlocks when the nameserver is running on
++the same machine that runs the syslog daemon.
+ .LP
+ .SH SIGNALS
+ .B Syslogd
+diff -Nurb sysklogd-1.4.1/sysklogd.spec sysklogd-1.4.1rh/sysklogd.spec
+--- sysklogd-1.4.1/sysklogd.spec	1970-01-01 01:00:00.000000000 +0100
++++ sysklogd-1.4.1rh/sysklogd.spec	2004-08-02 23:16:37.000000000 +0100
+@@ -0,0 +1,313 @@
++Summary: System logging and kernel message trapping daemons.
++Name: sysklogd
++Version: 1.4.1
++Release: 22
++Copyright: GPL
++Group: System Environment/Daemons
++Source: sysklogd-%{version}rh.tar.gz
++Prereq: fileutils /sbin/chkconfig /etc/init.d
++Conflicts: logrotate < 3.5.2
++Requires: bash >= 2.0
++BuildRoot: /var/tmp/syslog-root
++
++%description
++The sysklogd package contains two system utilities (syslogd and klogd)
++which provide support for system logging.  Syslogd and klogd run as
++daemons (background processes) and log system messages to different
++places, like sendmail logs, security logs, error logs, etc.
++
++%prep
++%setup -q -n sysklogd-%{version}rh
++%ifarch s390 s390x
++perl -pi -e 's/-fpie/-fPIE/' Makefile
++%endif
++
++%build
++make %{?_smp_mflags}
++
++%install
++rm -rf $RPM_BUILD_ROOT
++mkdir -p $RPM_BUILD_ROOT{/etc,%{_bindir},%{_mandir}/man{5,8},/usr/sbin}
++mkdir -p $RPM_BUILD_ROOT/sbin
++
++make install TOPDIR=$RPM_BUILD_ROOT MANDIR=$RPM_BUILD_ROOT%{_mandir} \
++	MAN_OWNER=`id -nu`
++
++install -m644 redhat/syslog.conf.rhs $RPM_BUILD_ROOT/etc/syslog.conf
++
++mkdir -p $RPM_BUILD_ROOT/etc/{rc.d/init.d,logrotate.d,sysconfig}
++install -m755 redhat/syslog.init $RPM_BUILD_ROOT/etc/rc.d/init.d/syslog
++install -m644 redhat/syslog.log $RPM_BUILD_ROOT/etc/logrotate.d/syslog
++install -m644 redhat/syslog $RPM_BUILD_ROOT/etc/sysconfig/syslog
++
++chmod 755 $RPM_BUILD_ROOT/sbin/syslogd
++chmod 755 $RPM_BUILD_ROOT/sbin/klogd
++
++
++%clean
++rm -rf $RPM_BUILD_ROOT
++
++%post
++for n in /var/log/{messages,secure,maillog,spooler}
++do
++	[ -f $n ] && continue
++	touch $n
++	chmod 600 $n
++done
++/sbin/chkconfig --add syslog
++
++%preun
++if [ $1 = 0 ]; then
++   service syslog stop >/dev/null 2>&1
++   /sbin/chkconfig --del syslog
++fi
++
++%postun
++if [ "$1" -ge "1" ]; then
++	service syslog condrestart > /dev/null 2>&1
++fi	
++
++%triggerpostun -- sysklogd < 1.3.31-17
++/sbin/chkconfig --add syslog
++
++%triggerpostun -- sysklogd < 1.3.33-5
++/sbin/chkconfig syslog reset
++
++%files
++%defattr(-,root,root)
++%doc ANNOUNCE CHANGES README* NEWS INSTALL redhat/ChangeLog
++%config(noreplace) /etc/syslog.conf
++%config(noreplace) /etc/sysconfig/syslog
++%config /etc/logrotate.d/syslog
++%config /etc/rc.d/init.d/syslog
++/sbin/*
++%{_mandir}/*/*
++
++%changelog
++* Mon Jun 28 2004 Bill Nottingham <notting@redhat.com> 1.4.1rh-21
++- async logging for mail (#73306)
++
++* Sun Jun 20 2004 Florian La Roche <Florian.LaRoche@redhat.de>
++- do not set bsd compat on sockets #123912
++- fix empty log lines #125679
++
++* Fri Jun 11 2004 Florian La Roche <laroche@redhat.com> 1.4.1rh-18
++- make the race for -HUP a little bit smaller
++
++* Wed Jun  9 2004 Bill Nottingham <notting@redhat.com> 1.4.1rh-17
++- don't escape UTF-8 (#89292, #71170, #112519)
++
++* Mon May  3 2004 Bill Nottingham <notting@redhat.com> 1.4.1rh-16
++- add Owl patch for crunch_list function, fixes potential crashes (#120453)
++
++* Wed Apr  7 2004 Bill Nottingham <notting@redhat.com> 1.4.1rh-15
++- fix recvfrom() on 64-bit big-endian platforms (#120201)
++
++* Mon Mar  8 2004 Bill Nottingham <notting@redhat.com> 1.4.1rh-14
++- rebuild (#117696)
++
++* Thu Feb 12 2004 Thomas Woerner <twoerner@redhat.com> 1.4.1rh-13
++- make sysklogd pie
++
++* Fri Feb  7 2003 Tim Powers <timp@redhat.com> 1.4.1rh-12
++- rebuild
++
++* Wed Jan  8 2003 Tim Powers <timp@redhat.com> 1.4.1rh-11
++- bump release number
++
++* Fri Dec 20 2002 Elliot Lee <sopwith@redhat.com> 1.4.1rh-10
++- _smp_mflags
++
++* Mon Jun 17 2002 Bill Nottingham <notting@redhat.com> 1.4.1rh-9
++- don't forcibly strip binaries
++
++* Wed Apr 17 2002 Bill Nottingham <notting@redhat.com> 1.4.1rh-8
++- revert loglevel setting to previous behavior (#63664)
++
++* Tue Mar 12 2002 Bill Nottingham <notting@redhat.com> 1.4.1rh-7
++- don't *require* logrotate, but conflict with older versions
++- fix fd leak of System.map (#52901)
++- switch to -x for klogd by default; we have kksymoops
++- provide LSB facility
++
++* Wed Aug 15 2001 Bill Nottingham <notting@redhat.com>
++- enable LFS for log files
++
++* Tue Aug 14 2001 Bill Nottingham <notting@redhat.com>
++- fix comments in config file (#51678)
++
++* Fri Aug  3 2001 Bill Nottingham <notting@redhat.com>
++- require a specific version of logrotate (#50794)
++- fix %preun for the case when it's not running (#50123)
++
++* Sun Jul  8 2001 Bill Nottingham <notting@redhat.com>
++- merge with 1.4.1
++
++* Wed Feb  7 2001 Bill Nottingham <notting@redhat.com>
++- i18n tweaks
++
++* Tue Jan 23 2001 Bill Nottingham <notting@redhat.com>
++- new translation stuff
++
++* Fri Jan 19 2001 Bill Nottingham <notting@redhat.com>
++- adapt /etc/sysconfig/syslog for specification of arbitrary options (#23171)
++- fix translation string slightly (#24088)
++
++* Mon Dec 18 2000 Bill Nottingham <notting@redhat.com>
++- don't set owner/group on manpages on install
++- read /etc/sysconfig/syslog if present for some configuration paramters
++- fix build with new kernel headers
++
++* Tue Dec 12 2000 Bill Nottingham <notting@redhat.com>
++- start klogd with '-2'
++
++* Mon Dec 11 2000 Bill Nottingham <notting@redhat.com>
++- update to 1.4
++
++* Fri Dec 01 2000 Bill Nottingham <notting@redhat.com>
++- rebuild because of broken fileutils
++
++* Mon Oct 13 2000 Bill Nottingham <notting@redhat.com>
++- don't log cron in two separate places (#18122)
++
++* Thu Sep 14 2000 Bill Nottingham <notting@redhat.com>
++- more fixes from solar@false.com, dan@debian.org; fix the security fix
++
++* Tue Sep 12 2000 Jakub Jelinek <jakub@redhat.com>
++- never ever call syslog with a user supplied string as second argument
++
++* Mon Aug  7 2000 Bill Nottingham <notting@redhat.com>
++- put cron logs in /var/log/cron; rotate them
++
++* Wed Aug  2 2000 Bill Nottingham <notting@redhat.com>
++- start at position 12, not 30 (we *need* to be before nfslock now)
++
++* Fri Jul 28 2000 Bill Nottingham <notting@redhat.com>
++- um, how did %preun get tacked onto %post?
++- fix condrestart stuff
++
++* Fri Jul 21 2000 Bill Nottingham <notting@redhat.com>
++- add a umask call to the initscript
++
++* Fri Jul 14 2000 Bill Nottingham <notting@redhat.com>
++- move initscript back
++
++* Fri Jul 14 2000 Florian La Roche <Florian.LaRoche@redhat.com>
++- update to 1.3.33
++
++* Wed Jul 12 2000 Prospector <bugzilla@redhat.com>
++- automatic rebuild
++
++* Tue Jul 11 2000 Bill Nottingham <notting@redhat.com>
++- fix logrotate script (#13698)
++
++* Thu Jul  6 2000 Bill Nottingham <notting@redhat.com>
++- prereq /etc/init.d
++
++* Thu Jun 29 2000 Bill Nottingham <notting@redhat.com>
++- fix init script
++
++* Tue Jun 27 2000 Bill Nottingham <notting@redhat.com>
++- require, not prereq new initscripts
++
++* Mon Jun 26 2000 Bill Nottingham <notting@redhat.com>
++- initscript munging
++
++* Wed Jun 14 2000 Nalin Dahyabhai <nalin@redhat.com>
++- modify logrotate configuration to use the PID file
++
++* Sun Jun 11 2000 Bill Nottingham <notting@redhat.com>
++- rebuild in new environment, FHS fixes
++
++* Mon Mar 27 2000 Bill Nottingham <notting@redhat.com>
++- handle bad directories passed to '-a' without behaving strangely (#10363)
++- remove compatibility chkconfig links
++
++* Thu Feb  3 2000 Bill Nottingham <notting@redhat.com>
++- handle compressed man pages
++
++* Wed Dec  1 1999 Bill Nottingham <notting@redhat.com>
++- add patch to fix segfaults in ksym-less cases from HP
++
++* Mon Nov 15 1999 Bill Nottingham <notting@redhat.com>
++- fix ECONNRESETs from security patch (olaf)
++
++* Fri Sep 25 1999 Bill Nottingham <notting@redhat.com>
++- eek. The security patch broke *two* things...
++
++* Wed Sep 22 1999 Bill Nottingham <notting@redhat.com>
++- make klogd actually work.
++
++* Wed Sep  8 1999 Bill Nottingham <notting@redhat.com>
++- rotate boot.log
++
++* Tue Sep 07 1999 Cristian Gafton <gafton@redhat.com>
++- add patch to fix a possible DoS (thanks Olaf Kirch)
++
++* Mon Aug 16 1999 Bill Nottingham <notting@redhat.com>
++- initscript munging
++
++* Mon Aug  9 1999 Bill Nottingham <notting@redhat.com>
++- patch to fix non-null terminated stuff in klogd
++
++* Mon Jun 21 1999 Bill Nottingham <notting@redhat.com>
++- move (sys|k)logd to /sbin
++
++* Tue Apr 13 1999 Bill Nottingham <notting@redhat.com>
++- log boot messages to boot.log
++- actually put the sysklogd links in the new place
++
++* Mon Apr 05 1999 Cristian Gafton <gafton@redhat.com>
++- disable mark ticks by default
++
++* Thu Apr  1 1999 Bill Nottingham <notting@redhat.com>
++- stop klogd/syslogd as late as possible.
++
++* Fri Mar 26 1999 Bill Nottingham <notting@redhat.com>
++- twiddle initscript to avoid confusion
++
++* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
++- auto rebuild in the new build environment (release 2)
++
++* Wed Feb 24 1999 Bill Nottingham <notting@redhat.com>
++- update to sysklogd-1.3-31
++- stop klogd *before* syslogd
++
++* Tue Feb  9 1999 Jeff Johnson <jbj@redhat.com>
++- escape naked percent chars in kernel messages (#1088).
++
++* Thu Dec 17 1998 Jeff Johnson <jbj@redhat.com>
++- rework last-gasp address-in-module oops trace for both 2.0.x/2.1.x modules.
++
++* Mon Dec  7 1998 Jakub Jelinek <jj@ultra.linux.cz>
++- make klogd translate SPARC register dumps and oopses.
++
++* Tue Aug 11 1998 Jeff Johnson <jbj@redhat.com>
++- add %clean
++
++* Tue Aug  4 1998 Chris Adams <cadams@ro.com>
++- only log to entries that are USER_PROCESS (fix #822)
++
++* Mon Jul 27 1998 Jeff Johnson <jbj@redhat.com>
++- remove RPM_BUILD_ROOT from %post
++
++* Wed Apr 29 1998 Cristian Gafton <gafton@redhat.com>
++- patch to support Buildroot
++- package is now buildrooted
++
++* Wed Apr 29 1998 Michael K. Johnson <johnsonm@redhat.com>
++- Added exit patch so that a normal daemon exit is not flagged as an error.
++
++* Mon Apr 27 1998 Prospector System <bugs@redhat.com>
++- translations modified for de, fr, tr
++
++* Wed Oct 29 1997 Donnie Barnes <djb@redhat.com>
++- added (missingok) to init symlinks
++
++* Thu Oct 23 1997 Donnie Barnes <djb@redhat.com>
++- added status|restart support to syslog.init
++- added chkconfig support
++- various spec file cleanups
++
++* Tue Jun 17 1997 Erik Troan <ewt@redhat.com>
++- built against glibc
+diff -Nurb sysklogd-1.4.1/syslogd.c sysklogd-1.4.1rh/syslogd.c
+--- sysklogd-1.4.1/syslogd.c	2001-03-11 19:40:10.000000000 +0000
++++ sysklogd-1.4.1rh/syslogd.c	2004-08-02 23:02:35.000000000 +0100
+@@ -637,8 +637,8 @@
+  * in seconds after previous message is logged.  After each flush,
+  * we move to the next interval until we reach the largest.
+  */
+-int	repeatinterval[] = { 30, 60 };	/* # of secs before flush */
+-#define	MAXREPEAT ((sizeof(repeatinterval) / sizeof(repeatinterval[0])) - 1)
++time_t	repeatinterval[] = { 30, 60 };	/* # of secs before flush */
++#define	MAXREPEAT ((int) ((sizeof(repeatinterval) / sizeof(repeatinterval[0])) - 1))
+ #define	REPEATTIME(f)	((f)->f_time + repeatinterval[(f)->f_repeatcount])
+ #define	BACKOFF(f)	{ if (++(f)->f_repeatcount > MAXREPEAT) \
+ 				 (f)->f_repeatcount = MAXREPEAT; \
+@@ -730,6 +730,7 @@
+ int	MarkInterval = 20 * 60;	/* interval between marks in seconds */
+ int	MarkSeq = 0;		/* mark sequence number */
+ int	NoFork = 0; 		/* don't fork - don't run in daemon mode */
++int     DisableDNS = 0;		/* don't look up IP addresses of incoming messages */
+ int	AcceptRemote = 0;	/* receive messages that come via UDP */
+ char	**StripDomains = NULL;	/* these domains may be stripped before writing logs */
+ char	**LocalHosts = NULL;	/* these hosts are logged with their hostname */
+@@ -743,7 +744,7 @@
+ char **crunch_list(char *list);
+ int usage(void);
+ void untty(void);
+-void printchopped(const char *hname, char *msg, int len, int fd);
++void printchopped(const char *hname, char *msg, size_t len, int fd);
+ void printline(const char *hname, char *msg);
+ void printsys(char *msg);
+ void logmsg(int pri, char *msg, const char *from, int flags);
+@@ -786,7 +787,7 @@
+ 	int len, num_fds;
+ #else /* __GLIBC__ */
+ #ifndef TESTING
+-	size_t len;
++	socklen_t len;
+ #endif
+ 	int num_fds;
+ #endif /* __GLIBC__ */
+@@ -829,7 +830,7 @@
+ 		funix[i]  = -1;
+ 	}
+ 
+-	while ((ch = getopt(argc, argv, "a:dhf:l:m:np:rs:v")) != EOF)
++	while ((ch = getopt(argc, argv, "a:dhf:l:m:np:rs:vx")) != EOF)
+ 		switch((char)ch) {
+ 		case 'a':
+ 			if (nfunix < MAXFUNIX)
+@@ -877,6 +878,9 @@
+ 		case 'v':
+ 			printf("syslogd %s.%s\n", VERSION, PATCHLEVEL);
+ 			exit (0);
++		case 'x':
++			DisableDNS = 1;
++			break;
+ 		case '?':
+ 		default:
+ 			usage();
+@@ -890,11 +894,11 @@
+ 		dprintf("Checking pidfile.\n");
+ 		if (!check_pid(PidFile))
+ 		{
++			signal (SIGTERM, doexit);
+ 			if (fork()) {
+ 				/*
+ 				 * Parent process
+ 				 */
+-				signal (SIGTERM, doexit);
+ 				sleep(300);
+ 				/*
+ 				 * Not reached unless something major went wrong.  5
+@@ -906,6 +910,7 @@
+ 				 */
+ 				exit(1);
+ 			}
++			signal (SIGTERM, SIG_DFL);
+ 			num_fds = getdtablesize();
+ 			for (i= 0; i < num_fds; i++)
+ 				(void) close(i);
+@@ -1074,9 +1079,9 @@
+ 				  (fd_set *) NULL, (struct timeval *) NULL);
+ 		if ( restart )
+ 		{
++			restart = 0;
+ 			dprintf("\nReceived SIGHUP, reloading syslogd.\n");
+ 			init();
+-			restart = 0;
+ 			continue;
+ 		}
+ 		if (nfds == 0) {
+@@ -1145,8 +1150,7 @@
+ 				dprintf("INET socket error: %d = %s.\n", \
+ 					errno, strerror(errno));
+ 				logerror("recvfrom inet");
+-				/* should be harmless now that we set
+-				 * BSDCOMPAT on the socket */
++				/* should be harmless */
+ 				sleep(10);
+ 			}
+ 		}
+@@ -1174,7 +1178,7 @@
+ 
+ int usage()
+ {
+-	fprintf(stderr, "usage: syslogd [-drvh] [-l hostlist] [-m markinterval] [-n] [-p path]\n" \
++	fprintf(stderr, "usage: syslogd [-drvxh] [-l hostlist] [-m markinterval] [-n] [-p path]\n" \
+ 		" [-s domainlist] [-f conffile]\n");
+ 	exit(1);
+ }
+@@ -1232,15 +1236,6 @@
+ 		close(fd);
+ 		return -1;
+ 	}
+-	/* We need to enable BSD compatibility. Otherwise an attacker
+-	 * could flood our log files by sending us tons of ICMP errors.
+-	 */
+-	if (setsockopt(fd, SOL_SOCKET, SO_BSDCOMPAT, \
+-			(char *) &on, sizeof(on)) < 0) {
+-		logerror("setsockopt(BSDCOMPAT), suspending inet");
+-		close(fd);
+-		return -1;
+-	}
+ 	if (bind(fd, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+ 		logerror("bind, suspending inet");
+ 		close(fd);
+@@ -1254,30 +1249,26 @@
+ crunch_list(list)
+ 	char *list;
+ {
+-	int count, i;
++	int i, m, n;
+ 	char *p, *q;
+ 	char **result = NULL;
+ 
+ 	p = list;
+ 	
+ 	/* strip off trailing delimiters */
+-	while (p[strlen(p)-1] == LIST_DELIMITER) {
+-		count--;
++	while (*p && p[strlen(p)-1] == LIST_DELIMITER)
+ 		p[strlen(p)-1] = '\0';
+-	}
+ 	/* cut off leading delimiters */
+-	while (p[0] == LIST_DELIMITER) {
+-		count--;
++	while (p[0] == LIST_DELIMITER)
+ 		p++; 
+-	}
+ 	
+-	/* count delimiters to calculate elements */
+-	for (count=i=0; p[i]; i++)
+-		if (p[i] == LIST_DELIMITER) count++;
++	/* count delimiters to calculate the number of elements */
++	for (n = i = 0; p[i]; i++)
++		if (p[i] == LIST_DELIMITER) n++;
+ 	
+-	if ((result = (char **)malloc(sizeof(char *) * count+2)) == NULL) {
++	if ((result = (char **)malloc(sizeof(char *) * (n + 2))) == NULL) {
+ 		printf ("Sorry, can't get enough memory, exiting.\n");
+-		exit(0);
++		exit(1);
+ 	}
+ 	
+ 	/*
+@@ -1285,30 +1276,28 @@
+ 	 * characters are different from any delimiters,
+ 	 * so we don't have to care about this.
+ 	 */
+-	count = 0;
+-	while ((q=strchr(p, LIST_DELIMITER))) {
+-		result[count] = (char *) malloc((q - p + 1) * sizeof(char));
+-		if (result[count] == NULL) {
++	m = 0;
++	while ((q = strchr(p, LIST_DELIMITER)) && m < n) {
++		result[m] = (char *) malloc((q - p + 1) * sizeof(char));
++		if (result[m] == NULL) {
+ 			printf ("Sorry, can't get enough memory, exiting.\n");
+-			exit(0);
++			exit(1);
+ 		}
+-		strncpy(result[count], p, q - p);
+-		result[count][q - p] = '\0';
++		memcpy(result[m], p, q - p);
++		result[m][q - p] = '\0';
+ 		p = q; p++;
+-		count++;
++		m++;
+ 	}
+-	if ((result[count] = \
+-	     (char *)malloc(sizeof(char) * strlen(p) + 1)) == NULL) {
++	if ((result[m] = strdup(p)) == NULL) {
+ 		printf ("Sorry, can't get enough memory, exiting.\n");
+-		exit(0);
++		exit(1);
+ 	}
+-	strcpy(result[count],p);
+-	result[++count] = NULL;
++	result[++m] = NULL;
+ 
+ #if 0
+-	count=0;
+-	while (result[count])
+-		dprintf ("#%d: %s\n", count, StripDomains[count++]);
++	m = 0;
++	while (result[m])
++		dprintf ("#%d: %s\n", m, result[m++]);
+ #endif
+ 	return result;
+ }
+@@ -1346,7 +1335,7 @@
+ void printchopped(hname, msg, len, fd)
+ 	const char *hname;
+ 	char *msg;
+-	int len;
++        size_t len;
+ 	int fd;
+ {
+ 	auto int ptlngth;
+@@ -1446,6 +1435,7 @@
+ 	while ((c = *p++) && q < &line[sizeof(line) - 4]) {
+ 		if (c == '\n')
+ 			*q++ = ' ';
++#if 0
+ 		else if (c < 040) {
+ 			*q++ = '^';
+ 			*q++ = c ^ 0100;
+@@ -1454,7 +1444,9 @@
+ 			*q++ = '0' + ((c & 0300) >> 6);
+ 			*q++ = '0' + ((c & 0070) >> 3);
+ 			*q++ = '0' + (c & 0007);
+-		} else
++		}
++#endif
++		else
+ 			*q++ = c;
+ 	}
+ 	*q = '\0';
+@@ -1839,7 +1831,7 @@
+ #else
+ 				&& e == EBADF) {
+ #endif
+-				f->f_file = open(f->f_un.f_fname, O_WRONLY|O_APPEND|O_NOCTTY);
++				f->f_file = open(f->f_un.f_fname, O_WRONLY|O_APPEND|O_NOCTTY|O_LARGEFILE);
+ 				if (f->f_file < 0) {
+ 					f->f_type = F_UNUSED;
+ 					logerror(f->f_un.f_fname);
+@@ -1929,7 +1921,7 @@
+ 			/* is this slot used? */
+ 			if (ut.ut_name[0] == '\0')
+ 				continue;
+-			if (ut.ut_type == LOGIN_PROCESS)
++			if (ut.ut_type != USER_PROCESS)
+ 			        continue;
+ 			if (!(strcmp (ut.ut_name,"LOGIN"))) /* paranoia */
+ 			        continue;
+@@ -2013,6 +2005,9 @@
+ 		dprintf("Malformed from address.\n");
+ 		return ("???");
+ 	}
++	if (DisableDNS)
++	  hp = 0;
++	else
+ 	hp = gethostbyaddr((char *) &f->sin_addr, sizeof(struct in_addr), \
+ 			   f->sin_family);
+ 	if (hp == 0) {
+@@ -2640,7 +2635,7 @@
+ 			f->f_file = open(++p, O_RDWR|O_NONBLOCK);
+ 			f->f_type = F_PIPE;
+ 	        } else {
+-			f->f_file = open(p, O_WRONLY|O_APPEND|O_CREAT|O_NOCTTY,
++			f->f_file = open(p, O_WRONLY|O_APPEND|O_CREAT|O_NOCTTY|O_LARGEFILE,
+ 					 0644);
+ 			f->f_type = F_FILE;
+ 		}
+diff -Nurb sysklogd-1.4.1/syslog_tst.c sysklogd-1.4.1rh/syslog_tst.c
+--- sysklogd-1.4.1/syslog_tst.c	1997-06-02 18:21:41.000000000 +0100
++++ sysklogd-1.4.1rh/syslog_tst.c	2000-12-11 21:17:38.000000000 +0000
+@@ -42,7 +42,7 @@
+ 					if ( (nl = strrchr(bufr, '\n')) != \
+ 					    (char *) 0)
+ 						*nl = '\0';
+-					syslog(LOG_INFO, bufr);
++					syslog(LOG_INFO, "%s", bufr);
+ 					logged += strlen(bufr);
+ 					if ( logged > 1024 )
+ 					{
+@@ -54,7 +54,7 @@
+ 		}
+ 		else
+ 			while (argc-- > 1)
+-				syslog(LOG_INFO, argv++[1]);
++				syslog(LOG_INFO, "%s", argv++[1]);
+ 	}
+ 	else
+ 	{

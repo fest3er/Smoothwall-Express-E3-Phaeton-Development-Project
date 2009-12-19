@@ -1,0 +1,119 @@
+--- p3scan-2.3.2.orig/p3scan.c	2005-12-12 15:00:00.000000000 +0000
++++ p3scan-2.3.2/p3scan.c	2007-02-06 14:13:30.413488752 +0000
+@@ -154,7 +154,7 @@
+    vsnprintf(puffer, 4000, fmt, az);
+    strcpy(timenow,ctime(&now)+ 11);
+    if (!config->debug){
+-     openlog(config->syslogname, LOGOPT, LOGFAC);
++     openlog(config->syslogname, LOGOPT, LOG_MAIL);
+      syslog(LOG_NOTICE, "%s\n", puffer);
+      closelog();
+    } else {
+@@ -1237,7 +1237,11 @@
+    lb=linebuf_init(65535);
+    while (getlinep3(fd, lb)>=0){
+       if (lb->linelen >0 ){
+-         if (!strncasecmp(lb->line, "from: ", 6)){
++         if (!strncasecmp(lb->line, "Message-ID: ", 12)){
++            c=lb->line+12;
++            TRIM(c);
++            paramlist_set(params, "%MAILMESSAGEID%", c);
++         } else if (!strncasecmp(lb->line, "from: ", 6)){
+             c=lb->line+6;
+             TRIM(c);
+             paramlist_set(params, "%MAILFROM%", c);
+@@ -1273,6 +1277,7 @@
+    paramlist_set(params, "%MAILFILE%", NULL);
+    paramlist_set(params, "%P3SCANID%", NULL);
+    paramlist_set(params, "%VDINFO%", NULL);
++   paramlist_set(params, "%MAILMESSAGEID%", NULL);
+ }
+ 
+ int do_virusaction(struct proxycontext * p){
+@@ -1558,7 +1563,7 @@
+    int error;
+    int maybe_a_space; // signals a space in the keyword for setting USERNAME var
+    int clientret, serverret;
+-   unsigned long len, smtpsze;
++   unsigned long len = 0, smtpsze;
+    char buf[64];
+ #ifdef SET_TOS
+    int tos;
+@@ -2093,18 +2098,17 @@
+                      paramlist_set(p->params, "%MAILFILE%", p->mailfile);
+                      if (config->delit) paramlist_set(p->params, "%P3SCANID%", config->notify);
+                      else paramlist_set(p->params, "%P3SCANID%", p->filename);
+-                     do_log(LOG_WARNING, "%s from %s:%s to %s:%s from %s to %s user: %s virus: %s file: %s",
++                     do_log(LOG_WARNING, "VIRUS: %s from (%s:%s) to (%s:%s) from (%s) to (%s) user: (%s) virus: (%s) bytes: (%lu) messageid: (%s)",
+                         paramlist_get(p->params,"%PROTOCOL%"),
+                         paramlist_get(p->params,"%CLIENTIP%"), paramlist_get(p->params,"%CLIENTPORT%"),
+                         paramlist_get(p->params,"%SERVERIP%"), paramlist_get(p->params,"%SERVERPORT%"),
+                         paramlist_get(p->params,"%MAILFROM%"), paramlist_get(p->params,"%MAILTO%"),
+                         paramlist_get(p->params,"%USERNAME%"), paramlist_get(p->params,"%VIRUSNAME%"),
+-                        paramlist_get(p->params,"%P3SCANID%")
+-                     );
++                        len, paramlist_get(p->params,"%MAILMESSAGEID%"));
+                      if (do_virusaction(p)!=0){
+                         if (p->cksmtp) {
+                            /* Try cleaning it up again */
+-                           do_log(LOG_CRIT,"ERR: Virusaction failed. Sending 554 and reseting smtp data sent.");
++                           do_log(LOG_CRIT,"ERR: Virusaction failed. Sending 554 and resetting smtp data sent.");
+                            writeline_format(p->client_fd, WRITELINE_LEADING_RN, "554 %s",config->smtprset);
+                            do_log(LOG_DEBUG,"Sending RSET to real smtp server.");
+                            writeline_format(p->server_fd, WRITELINE_LEADING_RN, "RSET");
+@@ -2120,7 +2124,14 @@
+                      p->clientbuf->linelen=GETLINE_LINE_NULL;
+                      p->serverbuf->linelen=GETLINE_LINE_NULL;
+                      if (config->delit) unlink(p->mailfile);
+-                  } /* virus */
++                  } /* virus */ else {
++                     do_log(LOG_WARNING, "CLEAN: from (%s:%s) to (%s:%s) from (%s) to (%s) user: (%s) bytes: (%lu) messageid: (%s)",
++                     paramlist_get(p->params,"%SERVERIP%"), paramlist_get(p->params,"%SERVERPORT%"),
++                     paramlist_get(p->params,"%CLIENTIP%"), paramlist_get(p->params,"%CLIENTPORT%"),
++                     paramlist_get(p->params,"%MAILFROM%"), paramlist_get(p->params,"%MAILTO%"),
++                     paramlist_get(p->params,"%USERNAME%"), len, paramlist_get(p->params,"%MAILMESSAGEID%"));
++                  }
++                                    
+                   /* see if there was a critical error */
+                   if (scannerret==SCANNER_RET_CRIT){
+                      if (!p->errmsg) do_log(LOG_CRIT,"ERR: Writing to client!");
+@@ -2462,12 +2473,14 @@
+             break;
+          case 'l': /* PID File */
+             config->pidfile=arg;
++#if 0
+             if ((pidfd=open(config->pidfile,O_RDONLY ))>=0){
+                do_log(LOG_EMERG, "ERR: PID file %s exists! Aborting!",config->pidfile);
+                /* Should not reach here. We are dead. */
+                pidfd=close(pidfd);
+                exit(0);
+             }
++#endif            
+             break;
+          case 'L': /* SSL port */
+             i=strtol(arg, &rest, 10);
+@@ -2853,7 +2866,7 @@
+       config->scanner->uninit1();
+       do_log(LOG_DEBUG, "uninit1 done");
+    }
+-   if((ret=unlink(config->pidfile)!=0)) do_log(LOG_NOTICE, "ERR: Unable to remove %s", config->pidfile);
++//   if((ret=unlink(config->pidfile)!=0)) do_log(LOG_NOTICE, "ERR: Unable to remove %s", config->pidfile);
+    do_log(LOG_NOTICE, PROGNAME " terminates now");
+    exit(0);
+ }
+@@ -2919,6 +2932,7 @@
+       fprintf(fp, "%i\n", getpid());
+       fclose(fp);
+    }else do_log(LOG_CRIT, "ERR: Can't write PID to %s", PID_FILE);
++#if 0
+    len=strlen(CHOWNCMD)+1+strlen(config->runasuser)+1+strlen(config->runasuser)+1+strlen(config->pidfile)+1;
+    snprintf(chownit, len, "%s %s:%s %s", CHOWNCMD, config->runasuser, config->runasuser, config->pidfile);
+    if ((chowncmd=popen(chownit, "r"))==NULL){
+@@ -2926,6 +2940,7 @@
+       return SCANNER_RET_ERR;
+    }
+    ret=pclose(chowncmd);
++#endif
+    cuid=getuid();
+    if (cuid==0){
+       do_log(LOG_NOTICE, "Changing uid (we are root)");

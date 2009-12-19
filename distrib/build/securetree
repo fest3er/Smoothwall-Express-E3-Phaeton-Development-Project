@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# SmoothWall Build system.
+#
+# (c) SmoothWall Ltd 2005
+#
+# This code is distributed under the terms of the GPL v2.
+
+DIR=$1
+
+if [ "$DIR" = "" ]; then
+	echo "Usage: $0 <root dir>"
+	exit 1;
+fi
+
+cd $DIR
+
+chmod -R ug-s .
+
+exit 0

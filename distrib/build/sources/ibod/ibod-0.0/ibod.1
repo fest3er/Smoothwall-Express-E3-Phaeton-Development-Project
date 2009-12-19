@@ -1,0 +1,54 @@
+.TH IBOD 1L \" -*- nroff -*-
+.SH NAME
+ibod \- ISDN MPPP bandwidth on demand daemon
+.SH SYNOPSIS
+.B ibod
+
+.SH DESCRIPTION
+.B Ibod
+is a ISDN MPPP bandwidth on demand daemon designed to operate
+in conjunction with
+.B isdn4linux.
+It is normally started at boot time, but can be started and stopped
+at any time. The program monitors inbound and outbound traffic on
+the ISDN interface. When the required bandwidth exceeds the capacity
+for one IDSN B-channel (64kbps) a second (slave) channel is connected
+according to the MPPP protocol. When the traffic decreases below
+one channel capacity, the slave channel is disconnected.
+.PP
+A configuration file
+.I /etc/ppp/ibod.cf
+is read initially.
+The device
+.I /dev/isdninfo
+is monitored for the current state and throughput of the ISDN interface.
+All operation on the ISDN interface is made through the
+.I /dev/isdnctrl
+interface.
+.PP
+.B Ibod
+is also listening on TCP port 6050 for eventual connection from control
+panel
+.Bxibod(1).
+
+.SH SIGNALS
+Upon receiving SIGHUP, the configuration file is re-read.
+A SIGPIPE closes an eventual socket connection with
+.B xibod.
+
+.SH ENVIRONMENT
+Variable
+.I IBOD_HOME
+specifies the directory where to look for the
+configuration file
+.I ibod.cf.
+
+.SH DIAGNOSTICS
+All logging is made to syslog with the identity tag
+.I ibod.
+
+.SH SEE ALSO
+ibod.cf(4) and xibod(1)
+
+.SH AUTHOR
+Bjoern Smith, Smith@Compound.SE

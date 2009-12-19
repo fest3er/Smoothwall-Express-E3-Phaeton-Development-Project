@@ -1,0 +1,11 @@
+#! /bin/bash
+
+  if [ "$1" == "" ]; then
+    CMD="/tools/bin/bash -l +h"
+  else
+    CMD="$*"
+  fi
+
+  newroot=`bash ./distrib_root`
+  newpath="$PATH:/tools/bin:/build"
+  sudo su root -c "ROOT=$newroot; PATH=$newpath; ${CMD}"

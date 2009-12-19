@@ -1,0 +1,9 @@
+<P><FONT SIZE='3'><B><U>Modem</U></B></FONT></P>
+
+<P>Modem configuration is set on this page.  For each of the first 6 boxes, if
+your modem requires a special AT string, enter it here, otherwise, use the
+default.  These fields may be blank as well.</P>
+
+<P><B>Connect timeout:</B> This is the amount of time to allow the modem to attempt to
+connect.  After this number of seconds without proper response on the
+receiving side, it will give up.</P>

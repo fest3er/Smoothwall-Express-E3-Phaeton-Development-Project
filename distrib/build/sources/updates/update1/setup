@@ -1,0 +1,15 @@
+#!/bin/sh
+
+echo "Update 1 installing."
+
+tar -zxvf patch.tar.gz -C /
+
+mkdir -p /var/smoothwall/snort/rules
+chown nobody:nobody /var/smoothwall/snort/rules
+chmod 755 /var/smoothwall/snort/rules
+touch /var/smoothwall/proxy/viewersettings
+chown nobody:nobody /var/smoothwall/proxy/viewersettings
+chmod 644 /var/smoothwall/proxy/viewersettings
+
+su -c /usr/bin/smoothwall/writeproxy.pl nobody
+su -c /usr/bin/smoothwall/writep3scan.pl nobody

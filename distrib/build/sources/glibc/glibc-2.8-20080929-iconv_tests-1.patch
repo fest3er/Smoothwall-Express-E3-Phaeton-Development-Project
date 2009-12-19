@@ -1,0 +1,42 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2008-10-04
+Initial Package Version: 2.8-20080915 snapshot
+Upstream Status:         Applied
+Origin:                  DIY-Linux Greg Schafer <gschafer@zip.com.au>
+                         http://sourceware.org/ml/glibc-cvs/2008-q2/msg00271.html
+                         http://sourceware.org/ml/glibc-cvs/2008-q2/msg00272.html
+                         http://sourceware.org/ml/glibc-cvs/2008-q2/msg00347.html
+Description:             Fixes 2 iconv tests
+
+
+diff -Naur glibc-2.8-20080915.orig/iconvdata/Depend glibc-2.8-20080915/iconvdata/Depend
+--- glibc-2.8-20080915.orig/iconvdata/Depend	2000-06-12 19:00:18.000000000 +0000
++++ glibc-2.8-20080915/iconvdata/Depend	2008-09-22 02:07:04.000000000 +0000
+@@ -1 +1,2 @@
+ iconv
++localedata
+diff -Naur glibc-2.8-20080915.orig/iconvdata/Makefile glibc-2.8-20080915/iconvdata/Makefile
+--- glibc-2.8-20080915.orig/iconvdata/Makefile	2008-01-09 20:03:36.000000000 +0000
++++ glibc-2.8-20080915/iconvdata/Makefile	2008-09-22 02:07:01.000000000 +0000
+@@ -73,6 +73,9 @@
+ endif
+ 
+ test-srcs := tst-table-from tst-table-to
++
++bug-iconv6-ENV = LOCPATH=$(common-objpfx)localedata
++tst-iconv7-ENV = LOCPATH=$(common-objpfx)localedata
+ endif
+ 
+ # No code here is in libc.so.
+diff -Naur glibc-2.8-20080915.orig/iconvdata/bug-iconv6.c glibc-2.8-20080915/iconvdata/bug-iconv6.c
+--- glibc-2.8-20080915.orig/iconvdata/bug-iconv6.c	2007-11-07 23:58:04.000000000 +0000
++++ glibc-2.8-20080915/iconvdata/bug-iconv6.c	2008-09-22 02:06:55.000000000 +0000
+@@ -13,7 +13,7 @@
+ static int
+ do_test (void)
+ {
+-  setlocale (LC_ALL, "en_US.UTF-8");
++  setlocale (LC_ALL, "de_DE.UTF-8");
+   iconv_t ic = iconv_open ("ISO-2022-JP//TRANSLIT", "UTF-8");
+   if (ic == (iconv_t) -1)
+     {

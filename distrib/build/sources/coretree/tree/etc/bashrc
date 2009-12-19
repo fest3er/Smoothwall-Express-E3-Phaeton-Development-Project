@@ -1,0 +1,14 @@
+# /etc/bashrc
+
+# System wide functions and aliases
+# Environment stuff goes in /etc/profile
+
+# Uncomment if you liked the old colourfull prompt
+# PS1='\[\033[1;33m\]\u\[\033[1;37m\]@\[\033[1;32m\]\h\[\033[1;31m\]\w\[\033[1;36m\]\$ \[\033[0m\]'
+
+PS1='\[\033[0;34m\]\h (\[\033[0;31m\]\u\[\033[0;34m\]) \[\033[0;32m\]\w $ \[\033[0m\]'
+
+VIM="/usr/share/vim"
+
+alias ls='ls --color=tty -F -b -T 0'
+locate () { su nobody -c "/usr/bin/locate $*"; }

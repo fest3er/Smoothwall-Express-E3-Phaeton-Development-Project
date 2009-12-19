@@ -1,0 +1,133 @@
+diff -Nurb unicorn/unicorn_atm/unicorn_atmdrv.c unicorn.new/unicorn_atm/unicorn_atmdrv.c
+--- unicorn/unicorn_atm/unicorn_atmdrv.c	2004-12-20 15:00:55.000000000 +0000
++++ unicorn.new/unicorn_atm/unicorn_atmdrv.c	2006-12-04 10:08:16.000000000 +0000
+@@ -4,6 +4,7 @@
+   ST70134A or ST70136 Analog Front End (AFE).
+   This file contains the ATM interface and SAR routines.
+ */
++// Fixes for compiling under 2.6.16 kernel made by Martin Houston <martin.houston@smoothwall.net>
+ #include <linux/config.h>
+ #include <linux/version.h>
+ #if defined(CONFIG_MODVERSIONS) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
+@@ -197,7 +198,7 @@
+ 
+ 	atm_dev->link_rate = 0;	
+ 	atm_dev->signal = ATM_PHY_SIG_LOST;
+-	shutdown_atm_dev(atm_dev);
++	atm_dev_deregister(atm_dev);
+ 	drv->atm_dev = NULL;
+ }
+ 
+@@ -337,13 +339,22 @@
+ 	}
+ }
+ 
+-static inline struct sk_buff *peek_tx_skb(struct unicorn_atmdrv *drv)
++// setc whichq to indicate if this buffer came from the 
++// realtime or normal queue so that the buffer can be freed from the 
++// right queue when we are done with it.
++static inline struct sk_buff *peek_tx_skb(struct unicorn_atmdrv *drv,	
++					  struct sk_buff_head **whichq)
+ {
+ 	struct sk_buff *skb;
+ 	
+ 	skb = skb_peek(&drv->rt_tx_q);
++	
+ 	if (!skb) {
+ 		skb = skb_peek(&drv->tx_q);
++		*whichq = &drv->tx_q;
++	}
++	else {
++	  *whichq = &drv->rt_tx_q;
+ 	}
+ 	return skb;
+ }
+@@ -455,6 +466,7 @@
+ 	struct sk_buff *skb;
+ 	int finished;
+ 	int t;
++	struct sk_buff_head *whichq = NULL; // which queue peek got the buffer from
+ 
+ 	if (!ep) return;
+ 	ASSERT(ep->snd_getcell != NULL);
+@@ -480,7 +492,7 @@
+ 	drv->max_cell_counter += max_cells;
+ 	
+ 	cells=0;
+-	skb = peek_tx_skb(drv);
++	skb = peek_tx_skb(drv, &whichq);
+ 	while ((cells < max_cells) &&
+ 	       (skb != NULL) && 
+ 	       ((cell = ep->snd_getcell(ep->dev)) != NULL)) {
+@@ -504,10 +516,11 @@
+ 
+ 		if (finished) {
+ 			// Finished with this buffer
+-			skb_unlink(skb);
++
++		        skb_unlink(skb,whichq);
+ 			tx_free_skb(skb); 	
+ 			// Get next buffer
+-			skb = peek_tx_skb(drv);
++			skb = peek_tx_skb(drv,&whichq);
+ 		}
+ 	}
+ 
+diff -Nurb unicorn/unicorn_eth/unicorn_ethdrv.c unicorn.new/unicorn_eth/unicorn_ethdrv.c
+--- unicorn/unicorn_eth/unicorn_ethdrv.c	2004-04-08 13:20:02.000000000 +0100
++++ unicorn.new/unicorn_eth/unicorn_ethdrv.c	2006-12-04 10:01:17.000000000 +0000
+@@ -4,6 +4,7 @@
+   ST70134A or ST70136 Analog Front End (AFE).
+   This file contains the ethernet interface and SAR routines.
+ */
++// Fixes for compiling under 2.6.16 kernel made by Martin Houston <martin.houston@smoothwall.net>
+ #include <linux/config.h>
+ #include <linux/version.h>
+ #if defined(CONFIG_MODVERSIONS) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
+@@ -323,12 +324,14 @@
+ 	memcpy(skb_push(skb,len),header,len);
+ 	return 0;
+ }
+-
+-static inline struct sk_buff *peek_tx_skb(struct unicorn_ethdrv *drv)
++// Remember the queue we camme off for skb_unlink
++static inline struct sk_buff *peek_tx_skb(struct unicorn_ethdrv *drv,	
++					  struct sk_buff_head **whichq)
+ {
+ 	struct sk_buff *skb;
+ 	
+ 	skb = skb_peek(&drv->tx_q);
++	*whichq = &drv->tx_q;
+ 	return skb;
+ }
+ 
+@@ -437,6 +440,7 @@
+ 	struct sk_buff *skb;
+ 	int finished;
+ 	int t;
++	struct sk_buff_head *whichq = NULL; // which queue peek got the buffer from
+ 
+ 	if (!ep) return;
+ 	ASSERT(ep->snd_getcell != NULL);
+@@ -462,7 +466,7 @@
+ 	drv->max_cell_counter += max_cells;
+ 	
+ 	cells=0;
+-	skb = peek_tx_skb(drv);
++	skb = peek_tx_skb(drv, &whichq);
+ 	while ((cells < max_cells) &&
+ 	       (skb != NULL) && 
+ 	       ((cell = ep->snd_getcell(ep->dev)) != NULL)) {
+@@ -486,10 +490,10 @@
+ 
+ 		if (finished) {
+ 			// Finished with this buffer
+-			skb_unlink(skb);
++		  skb_unlink(skb, whichq);
+ 			dev_kfree_skb_any(skb);
+ 			// Get next buffer
+-			skb = peek_tx_skb(drv);
++			skb = peek_tx_skb(drv, &whichq);
+ 		}
+ 	}
+ 

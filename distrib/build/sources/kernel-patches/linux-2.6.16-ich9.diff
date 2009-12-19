@@ -1,0 +1,67 @@
+--- linux-2.6.16.57/drivers/scsi/ata_piix.c	2007-11-05 20:27:33.000000000 +0000
++++ linux-2.6.16.57.new/drivers/scsi/ata_piix.c	2008-02-28 15:40:08.000000000 +0000
+@@ -101,6 +101,7 @@
+ 	ICH5_PCS		= 0x92,	/* port control and status */
+ 	PIIX_SCC		= 0x0A, /* sub-class code register */
+ 
++	PIIX_FLAG_SCR		= (1 << 26), /* SCR available */
+ 	PIIX_FLAG_AHCI		= (1 << 28), /* AHCI possible */
+ 	PIIX_FLAG_CHECKINTR	= (1 << 29), /* make sure PCI INTx enabled */
+ 	PIIX_FLAG_COMBINED	= (1 << 30), /* combined mode possible */
+@@ -123,6 +124,8 @@
+ 	ich6_sata		= 3,
+ 	ich6_sata_ahci		= 4,
+ 
++	ich8_sata_ahci		= 5,
++
+ 	PIIX_AHCI_DEVICE	= 6,
+ };
+ 
+@@ -157,9 +160,26 @@
+ 	{ 0x8086, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
+ 	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
+ 	{ 0x8086, 0x2680, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
+-	{ 0x8086, 0x2820, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
+-	{ 0x8086, 0x2825, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
+ 	{ 0x8086, 0x2828, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
++	/* SATA Controller 1 IDE (ICH8, no datasheet yet) */
++	{ 0x8086, 0x2820, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
++	/* SATA Controller 2 IDE (ICH8, ditto) */
++	{ 0x8086, 0x2825, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
++	/* Mobile SATA Controller IDE (ICH8M, ditto) */
++	{ 0x8086, 0x2828, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
++
++	/* SATA Controller IDE (ICH9) */
++	{ 0x8086, 0x2920, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
++	/* SATA Controller IDE (ICH9) */
++	{ 0x8086, 0x2921, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
++	/* SATA Controller IDE (ICH9) */
++	{ 0x8086, 0x2926, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
++	/* SATA Controller IDE (ICH9M) */
++	{ 0x8086, 0x2928, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
++	/* SATA Controller IDE (ICH9M) */
++	{ 0x8086, 0x292d, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
++	/* SATA Controller IDE (ICH9M) */
++	{ 0x8086, 0x292e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
+ 
+ 	{ }	/* terminate list */
+ };
+@@ -316,6 +336,18 @@
+ 		.udma_mask	= 0x7f,	/* udma0-6 */
+ 		.port_ops	= &piix_sata_ops,
+ 	},
++	
++	/* ich8_sata_ahci */
++	{
++		.sht		= &piix_sht,
++		.host_flags	= ATA_FLAG_SATA |
++				  PIIX_FLAG_CHECKINTR | PIIX_FLAG_SCR |
++				  PIIX_FLAG_AHCI,
++		.pio_mask	= 0x1f,	/* pio0-4 */
++		.mwdma_mask	= 0x07, /* mwdma0-2 */
++		.udma_mask	= 0x7f,	/* udma0-6 */
++		.port_ops	= &piix_sata_ops,
++	},
+ };
+ 
+ static struct pci_bits piix_enable_bits[] = {

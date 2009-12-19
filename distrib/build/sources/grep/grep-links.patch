@@ -1,0 +1,14 @@
+diff -Nurb grep-2.5.old/src/Makefile.in grep-2.5/src/Makefile.in
+--- grep-2.5.old/src/Makefile.in	2002-03-13 15:23:51.000000000 +0000
++++ grep-2.5/src/Makefile.in	2004-10-29 09:50:40.000000000 +0100
+@@ -354,8 +354,8 @@
+ 
+ 
+ install-exec-local:
+-	@SYMLINK@ @SYMLINKFROM@ $(bindir)/egrep
+-	@SYMLINK@ @SYMLINKFROM@ $(bindir)/fgrep
++	@SYMLINK@ @SYMLINKFROM@ $(DESTDIR)/$(bindir)/egrep
++	@SYMLINK@ @SYMLINKFROM@ $(DESTDIR)/$(bindir)/fgrep
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
+ .NOEXPORT:

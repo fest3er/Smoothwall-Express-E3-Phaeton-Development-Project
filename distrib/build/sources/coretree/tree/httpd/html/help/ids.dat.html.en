@@ -1,0 +1,20 @@
+<P><FONT SIZE='3'><B><U>Intrusion Detection System Log</U></B></FONT></P>
+
+<P>On this page you may view, if turned on, the logs from the IDS system (to
+turn on go to the IDS section). When first visited, the date defaults to the
+current day. You may select a different date with the drop-down boxes if you
+require. An explanation of the fields displayed is given below:</P>
+
+<P>
+<B>Date:</B> the time and date of the incident.<BR>
+<B>Name:</B> the recognised name of the incident.<BR>
+<B>Priority:</B> the seriousness of the incident (1 is high).<BR>
+<B>Type:</B> the general type of the incident.<BR>
+<B>IP Info:</B> the IP address and port the attack came from and to.<BR>
+<B>References:</B> links to any references (URLs) found.<BR>
+</P>
+
+<P>You may press the <B>Export</B> button to download the log file from your
+SmoothWall to your local machine.  Note, you may also need to use the
+"Smooth" links at the top of the page to navigate if there is more than one
+page meeting the current criteria. </P>

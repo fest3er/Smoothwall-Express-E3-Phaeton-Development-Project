@@ -1,0 +1,4 @@
+LDAP,389
+LDAP over SSL,636
+LDAP Admin,3407
+Ident,113

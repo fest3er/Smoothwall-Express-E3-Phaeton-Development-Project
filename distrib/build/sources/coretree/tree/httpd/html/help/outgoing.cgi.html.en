@@ -1,0 +1,37 @@
+<p><font size='3'><strong><u>Outgoing Filtering</u></strong></font></p>
+
+<p><strong>Outgoing Filtering</strong> allows disabling or limiting access
+to the Internet based on each internal interface. In addition, a list
+of IP address can be supplied which are not subject to any blocking.</p>
+
+<p>Each interface can be set to filter or not using the checkboxes on the
+<strong>Outgoing filtering</strong> page. The default filtering level is
+determined when SmoothWall is installed and is either Open (all traffic is
+allowed onto the Internet), Half-open (some traffic is allowed, with the
+rest being blocked) or Closed (all traffic being blocked unless you
+explicitly add a rule to allow it).  If the filtering of an interface is on,
+connections can only be made based on the rules added.</p>
+
+<p>Each rule specifies which port (or range of ports, using the syntax
+<i>low</i>:<i>high</i>) connections can be made on through each
+interface.</p>
+
+<p>For example: <strong>To limit users on the GREEN interface to web access
+and sending email only:</strong></p>
+
+<p>
+<ol>
+<li>Select <strong>GREEEN</strong> under <strong>Interface defaults</strong> and select <strong>Allowed with exceptions</strong> and click on <strong>Save</strong></li>
+<li>Select <strong>GREEN</strong> for <i>Interface</i>, enter '80' for the <i>destination port</i> and click on the <strong>Add</strong> button.</li>
+<li>Select <strong>GREEN</strong> for <i>Interface</i>, enter '25' for the <i>destination port</i> and click on the <strong>Add</strong> button.</li>
+</ol>
+</p>
+
+<p>You can also use the predifened <strong>Application or service(s)</strong>
+drop down to choose what you want to allow or block.</p>
+
+<p>The <strong>Current always allowed machine</strong> list is used to configure
+certain machines not have any filtering done on their Internet access.</p>
+
+<p>Enter the <strong>IP address</strong> an <strong>Add</strong> it to the list
+of <strong>Current always allowed machines</strong> in the usual way.</p>

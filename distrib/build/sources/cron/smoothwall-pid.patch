@@ -1,0 +1,11 @@
+--- cron-3.0pl1.orig/pathnames.h	2004-08-18 09:45:44.758327360 +0100
++++ cron-3.0pl1.orig/pathnames.h.orig	2004-08-18 09:45:40.735938856 +0100
+@@ -63,7 +63,7 @@
+ #else
+ # define PIDDIR "/etc/"
+ #endif
+-#define PIDFILE		"%scrond.pid"
++#define PIDFILE		"%scron.pid"
+ 
+ 			/* 4.3BSD-style crontab */
+ #define SYSCRONTAB	"/etc/crontab"

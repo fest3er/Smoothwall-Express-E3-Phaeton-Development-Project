@@ -1,0 +1,8 @@
+<P><FONT SIZE='3'><B><U>Alcatel SpeedTouch USB ADSL driver upload</U></B></FONT></P>
+
+<P>Use this page to upload the mgmt.o file to the SmoothWall.  This file is
+required by Alcatel SpeedTouch modems.  Other ADSL USB devices do not
+require this file.  Alcatel SpeedTouch USB ADSL will not work without it.
+Choose the file on your desktop machine, and then press the Upload button to
+transfer it to SmoothWall. Upon a successful upload, USB ADSL can be
+utilised.</P>

@@ -1,0 +1,347 @@
+#!/usr/bin/perl
+#
+# SmoothWall CGIs
+#
+# This code is distributed under the terms of the GPL
+#
+# (c) The SmoothWall Team
+
+# Clean up our environment (we're running SUID!)
+delete @ENV{qw(IFS CDPATH ENV BASH_ENV PATH)};
+
+use lib "/usr/lib/smoothwall";
+use header qw( :standard );
+
+my %pppsettings;
+my %isdnsettings;
+my %netsettings;
+my %adslsettings;
+my %ecisettings;
+
+# read vars back from file.
+&readhash("${swroot}/ppp/settings", \%pppsettings);
+&readhash("${swroot}/isdn/settings", \%isdnsettings);
+&readhash("${swroot}/ethernet/settings", \%netsettings);
+&readhash("${swroot}/adsl/settings", \%adslsettings);
+
+if ($adslsettings{'DEVICE'} eq 'ECI')
+{
+	&readhash("${swroot}/adsl/eci/$adslsettings{'ECITYPE'}",
+		\%ecisettings);
+}
+
+if ((! -e "${swroot}/red/active") && ($pppsettings{'DIALONDEMAND'} eq 'on'))
+{
+	system ('/bin/touch', "${swroot}/red/dial-on-demand");
+}
+
+if (-e '/var/run/ppp-smooth.pid') {
+	exit; }
+
+if (! -e "${swroot}/red/active")
+{
+	&log("Dialing $pppsettings{'PROFILENAME'}."); 
+
+	if ($pppsettings{'COMPORT'} =~ /^tty/) {	
+		&domodemdial(); }
+	elsif ($pppsettings{'COMPORT'} =~ /^isdn/) {
+		&doisdndial(); }
+	elsif ($pppsettings{'COMPORT'} =~ /^pppoe/) {
+		&dopppoedial(); }
+	elsif ($pppsettings{'COMPORT'} =~ /^adsl/)
+	{
+		if ($adslsettings{'DEVICE'} eq 'ALCATEL') {
+			&doadsldialalcatel(); }
+		elsif ($adslsettings{'DEVICE'} eq 'ECI') {
+			&doadsldialeci(); }
+		elsif ($adslsettings{'DEVICE'} eq 'EAGLE') {
+			&doadsldialeagle(); }
+		elsif ($adslsettings{'DEVICE'} eq 'UNICORN') {
+			&doadsldialatm(); }
+		elsif ($adslsettings{'DEVICE'} eq 'CNX') {
+			&doadsldialatm(); }
+		elsif ($adslsettings{'DEVICE'} eq 'PULSAR') {
+			&doadsldialatm(); }
+	}
+
+	# stayup
+	if ($pppsettings{'DIALONDEMAND'} ne 'on' && $pppsettings{'AUTOREBOOT'} eq 'on') {
+		system('/bin/touch', "${swroot}/red/stayup"); }
+	else {
+		unlink "${swroot}/red/stayup"; }
+}   
+
+exit 0;
+
+sub domodemdial
+{
+	my @pppcommand = ('/usr/sbin/pppd');
+	my $loginscript = '';
+
+	my $device = "/dev/${pppsettings{'COMPORT'}}";
+
+	if ($pppsettings{'DNS'} eq 'Automatic') {
+		push(@pppcommand, ('usepeerdns')); }
+
+	if ($pppsettings{'AUTH'} eq 'pap-or-chap') {
+		$loginscript = ''; }
+	elsif ($pppsettings{'AUTH'} eq 'standard-login-script') {
+		$loginscript = 'standardloginscript'; }
+	elsif ($pppsettings{'AUTH'} eq 'demon-login-script') {
+		$loginscript = 'demonloginscript'; }
+	else {
+		$loginscript = $pppsettings{'LOGINSCRIPT'}; }
+
+	if ($pppsettings{'PERSISTENT'} eq 'on') {
+		push(@pppcommand, ('persist')); }
+	else
+	{
+		if ($pppsettings{'TIMEOUT'} != 0)
+		{
+			my $seconds = $pppsettings{'TIMEOUT'} * 60;
+			push (@pppcommand, ('idle', $seconds));
+		}
+	}
+	
+	if ($pppsettings{'DIALONDEMAND'} eq 'on') {
+		push (@pppcommand, ('demand'));
+	}
+
+	push (@pppcommand, ('novj', 'novjccomp', 'holdoff', '1'));
+
+	push (@pppcommand, ('debug', 'lock', 'modem', 'crtscts', $device,
+		$pppsettings{'DTERATE'}, 'kdebug', '0', 'noipdefault',
+		'defaultroute', 'user', $pppsettings{'USERNAME'},
+		'maxfail', $pppsettings{'MAXRETRIES'}, 'connect',
+		'/etc/ppp/dialer'));
+
+	system @pppcommand;
+
+	if ($pppsettings{'DIALONDEMAND'} eq 'on' &&
+		$pppsettings{'DIALONDEMANDDNS'} eq 'on') 
+	{
+		system('/usr/bin/smoothcom', 'dnsproxyrestart', '1.2.3.4');
+	}
+}
+
+sub doisdndial
+{
+	my $pppoptions;
+        my $seconds;
+
+ 	$seconds = $pppsettings{'TIMEOUT'} * 60;
+
+	if ($pppsettings{'COMPORT'} eq 'isdn2')
+	{
+		system('/sbin/isdnctrl','addif','ippp0');
+		system('/sbin/isdnctrl','addslave','ippp0','ippp1');
+		system('/sbin/isdnctrl','l2_prot','ippp0','hdlc');
+		system('/sbin/isdnctrl','l3_prot','ippp0','trans');
+		system('/sbin/isdnctrl','encap','ippp0','syncppp');
+		system('/sbin/isdnctrl','dialmax','ippp0',$pppsettings{'MAXRETRIES'});
+		system('/sbin/isdnctrl','eaz','ippp0',$isdnsettings{'MSN'});
+		system('/sbin/isdnctrl','addphone','ippp0','out',$pppsettings{'TELEPHONE'});
+		system('/sbin/isdnctrl','huptimeout','ippp0',$seconds);
+		system('/sbin/isdnctrl','l2_prot','ippp1','hdlc');
+		system('/sbin/isdnctrl','l3_prot','ippp1','trans');
+		system('/sbin/isdnctrl','encap','ippp1','syncppp');
+		system('/sbin/isdnctrl','dialmax','ippp1',$pppsettings{'MAXRETRIES'});
+		system('/sbin/isdnctrl','eaz','ippp1',$isdnsettings{'MSN'});
+		system('/sbin/isdnctrl','addphone','ippp1','out',$pppsettings{'TELEPHONE'});
+		system('/sbin/isdnctrl','huptimeout','ippp1',$seconds);
+		system('/sbin/isdnctrl','dialmode','ippp1','auto');
+
+		system('/sbin/ipppd','ms-get-dns','noipdefault','+mp',
+			'file','/etc/ppp/ioptions',
+		 	'defaultroute','user',$pppsettings{'USERNAME'},
+			'pidfile','/var/run/ppp-smooth.pid','/dev/ippp0','/dev/ippp1');
+	}
+	else
+	{
+		system('/sbin/isdnctrl','addif','ippp0');
+		system('/sbin/isdnctrl','l2_prot','ippp0','hdlc');
+		system('/sbin/isdnctrl','l3_prot','ippp0','trans');
+		system('/sbin/isdnctrl','encap','ippp0','syncppp');
+		system('/sbin/isdnctrl','dialmax','ippp0',$pppsettings{'MAXRETRIES'});
+		system('/sbin/isdnctrl','eaz','ippp0',$isdnsettings{'MSN'});
+		system('/sbin/isdnctrl','addphone','ippp0','out',$pppsettings{'TELEPHONE'});
+		system('/sbin/isdnctrl','huptimeout','ippp0',$seconds);
+
+		system('/sbin/ipppd','ms-get-dns','noipdefault',
+			'file','/etc/ppp/ioptions',
+			'defaultroute','user',$pppsettings{'USERNAME'},
+			'name',$pppsettings{'USERNAME'},
+			'pidfile','/var/run/ppp-smooth.pid','/dev/ippp0');
+ 	}
+
+	sleep 1;
+
+	if ($pppsettings{'DIALONDEMAND'} eq 'on') {
+		system('/sbin/isdnctrl','dialmode','ippp0','auto');
+		system('/sbin/ifconfig','ippp0','10.112.112.112','pointopoint','10.112.112.113');
+		system('/sbin/ifconfig','ippp0','-arp','-broadcast');
+		system('/sbin/route','add','default','dev','ippp0');
+		if ($pppsettings{'DIALONDEMANDDNS'} eq 'on')
+		{
+			system('/usr/bin/smoothcom', 'dnsproxyrestart', '1.2.3.4');
+		}
+	} else {
+		system('/sbin/isdnctrl', 'dial', 'ippp0');
+	}
+
+	system('/usr/bin/killall', 'ibod');
+	if ($pppsettings{'COMPORT'} eq 'isdn2') {
+		system("/usr/sbin/ibod &"); }
+}
+
+sub dopppoedial
+{
+	my @pppcommand = ('/usr/sbin/pppd', 'pty');
+	my @pppoecommand = ('/usr/sbin/pppoe', '-p','/var/run/pppoe.pid','-I',
+		$netsettings{'RED_DEV'}, '-T', '80', '-U', '-m', '1412');
+
+	if ($pppsettings{'SERVICENAME'}) {
+		push(@pppoecommand, ('-S', $pppsettings{'SERVICENAME'})); }
+	if ($pppsettings{'CONCENTRATORNAME'}) {
+		push(@pppoecommand, ('-C', $pppsettings{'CONCENTRATORNAME'})); }
+
+	push(@pppcommand, "@pppoecommand");
+
+	if ($pppsettings{'DNS'} eq 'Automatic') {
+		push(@pppcommand, ('usepeerdns')); }
+	if ($pppsettings{'PERSISTENT'} eq 'on') {
+		push(@pppcommand, ('persist')); }
+	else
+	{
+		if ($pppsettings{'TIMEOUT'} != 0)
+		{
+			my $seconds = $pppsettings{'TIMEOUT'} * 60;  
+			push(@pppcommand, ('idle', "$seconds"));
+		}
+	}
+
+	push(@pppcommand, ('noipdefault', 'default-asyncmap',  
+		'defaultroute', 'hide-password', 'local',
+		'mtu', '1492', 'mru', '1492', 'noaccomp', 'noccp',
+		'nobsdcomp', 'nodeflate', 'nopcomp', 'novj', 'novjccomp',
+		'user', $pppsettings{'USERNAME'}, 'lcp-echo-interval', '20',
+		'lcp-echo-failure', '3', 'lcp-max-configure', '50', 
+		'maxfail',$pppsettings{'MAXRETRIES'}));
+
+ 	system (@pppcommand);
+}
+
+sub doadsldialalcatel
+{
+	my @pppcommand = ('/usr/sbin/pppd', 'pty');
+	my @pppoacommand = ('/usr/bin/pppoa3','-vpi',$adslsettings{'VPI'},'-vci',$adslsettings{'VCI'});
+
+	push(@pppcommand, "@pppoacommand");
+
+	if ($pppsettings{'DNS'} eq 'Automatic') {
+		push(@pppcommand, ('usepeerdns')); }
+	if ($pppsettings{'PERSISTENT'} eq 'on') {
+		push(@pppcommand, ('persist')); }
+	else
+	{
+		if ($pppsettings{'TIMEOUT'} != 0)
+		{
+			my $seconds = $pppsettings{'TIMEOUT'} * 60;  
+			push(@pppcommand, ('idle', "$seconds"));
+		}
+	}
+
+	push(@pppcommand, ('noipdefault', 'defaultroute', 'sync', 'user', 
+		$pppsettings{'USERNAME'}, 'ipcp-accept-local', 'ipcp-accept-remote', 'passive',
+		'noaccomp', 'nopcomp', 'noccp', 'novj', 'holdoff', '1', 'nobsdcomp',
+		'nodeflate', 'lcp-echo-interval', '20', 'lcp-echo-failure', '3', 
+		'lcp-max-configure', '50', 'maxfail', $pppsettings{'MAXRETRIES'}));
+
+ 	system (@pppcommand);
+}
+
+sub doadsldialeci
+{
+	my @pppcommand = ('/usr/sbin/pppd', 'pty');
+	my @pppoacommand = ('/usr/bin/pppoeci', '-v', '2', '-alt', '2', '-vpi',$adslsettings{'VPI'},'-vci',$adslsettings{'VCI'},
+		'-vendor', $ecisettings{'VID2'}, '-product', $ecisettings{'PID2'});
+
+	push(@pppcommand, "@pppoacommand");
+
+	if ($pppsettings{'DNS'} eq 'Automatic') {
+		push(@pppcommand, ('usepeerdns')); }
+	if ($pppsettings{'PERSISTENT'} eq 'on') {
+		push(@pppcommand, ('persist')); }
+	else
+	{
+		if ($pppsettings{'TIMEOUT'} != 0)
+		{
+			my $seconds = $pppsettings{'TIMEOUT'} * 60;  
+			push(@pppcommand, ('idle', "$seconds"));
+		}
+	}
+
+	push(@pppcommand, ('noipdefault', 'defaultroute', 'debug', 'kdebug', '1', 'sync', 'user', 
+		$pppsettings{'USERNAME'}, 'ipcp-accept-local', 'ipcp-accept-remote', 'passive',
+		'noaccomp', 'nopcomp', 'noccp', 'novj', 'holdoff', '1', 'nobsdcomp',
+		'nodeflate', 'lcp-echo-interval', '20', 'lcp-echo-failure', '3', 
+		'lcp-max-configure', '50', 'maxfail', $pppsettings{'MAXRETRIES'}));
+
+	system (@pppcommand);
+}
+
+sub doadsldialeagle
+{
+	my @pppcommand = ('/usr/sbin/pppd', 'pty');
+	my @pppoacommand = ('/usr/sbin/pppoa', '-I' ,'eagle');
+
+	push(@pppcommand, "@pppoacommand");
+
+	if ($pppsettings{'DNS'} eq 'Automatic') {
+		push(@pppcommand, ('usepeerdns')); }
+	if ($pppsettings{'PERSISTENT'} eq 'on') {
+		push(@pppcommand, ('persist')); }
+	else
+	{
+		if ($pppsettings{'TIMEOUT'} != 0)
+		{
+			my $seconds = $pppsettings{'TIMEOUT'} * 60;  
+			push(@pppcommand, ('idle', "$seconds"));
+		}
+	}
+
+	push(@pppcommand, ('noipdefault', 'defaultroute', 'debug', 'kdebug', '1', 'user', 
+		$pppsettings{'USERNAME'}, 'ipcp-accept-local', 'ipcp-accept-remote', 'passive',
+		'noaccomp', 'nopcomp', 'noccp', 'novj', 'holdoff', '1', 'nobsdcomp',
+		'nodeflate', 'lcp-echo-interval', '20', 'lcp-echo-failure', '3', 
+		'lcp-max-configure', '50', 'maxfail', $pppsettings{'MAXRETRIES'}));
+
+	system (@pppcommand);
+}
+
+sub doadsldialatm
+{
+	my @pppcommand = ('/usr/sbin/pppd', 'plugin', '/usr/lib/pppd/2.4.4/pppoatm.so');
+
+	if ($pppsettings{'DNS'} eq 'Automatic') {
+		push(@pppcommand, ('usepeerdns')); }
+	if ($pppsettings{'PERSISTENT'} eq 'on') {
+		push(@pppcommand, ('persist')); }
+	else
+	{
+		if ($pppsettings{'TIMEOUT'} != 0)
+		{
+			my $seconds = $pppsettings{'TIMEOUT'} * 60;  
+			push(@pppcommand, ('idle', "$seconds"));
+		}
+	}
+
+	push(@pppcommand, ('noipdefault', 'defaultroute', 'debug', 'kdebug', '1', 'sync', 'user', 
+		$pppsettings{'USERNAME'}, 'ipcp-accept-local', 'ipcp-accept-remote', 'passive',
+		'noaccomp', 'nopcomp', 'noccp', 'novj', 'holdoff', '1', 'nobsdcomp',
+		'nodeflate', 'lcp-echo-interval', '20', 'lcp-echo-failure', '3', 
+		'lcp-max-configure', '50', 'maxfail', $pppsettings{'MAXRETRIES'},
+		"$adslsettings{'VPI'}.$adslsettings{'VCI'}"));
+
+ 	system (@pppcommand);
+}

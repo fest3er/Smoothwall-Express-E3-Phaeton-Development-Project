@@ -1,0 +1,62 @@
+<P><FONT SIZE='3'><B><U>QoS</U></B></FONT></P>
+
+<p>SmoothWall is able to decide if some of the network traffic is more
+urgent than others. Imagine your network connection is like a multilane
+freeway or motorway. The faster the connection, the more lanes. However, a
+motorway is not very fast if every lane is blocked by a large lorry!</p>
+
+<p>Enabling QoS is like enforcing traffic regulations - such as Heavy Goods Vehicles(HGVs) are 
+only permitted in the inside lanes. Smoothwall QoS defines four such 'lanes':</p>
+
+<ul>
+<li><b>slow</b> - for traffic that you wish to force to go slow even if the motorway 
+(Internet connection) is otherwise empty.</li>
+<li><b>low</b> - for traffic that can use up to 40% of the available lanes but if there is
+other traffic on the road this is limited to 15%.</li>
+<li><b>normal</b> - can use 90% of the capacity of the road if the road is otherwise empty 
+and at least 40% in busier conditions.</li>
+<li><b>high</b> - also can use 90% of an otherwise empty road and is guaranteed 20% if the 
+road is busy, BUT has first call on any spare capacity, then normal then low.</li>
+</ul>
+
+<P>You will notice that the <i>promised</i> bandwidth to each lane does not 
+exceed 100% in total. If all classes of traffic want to use the network
+all the time they will each only get their allowed bandwidth. However,
+much traffic is 'bursty' such as loading web pages and sending emails
+so, in practice, there is often spare bandwidth to share about.</p>
+
+<p>In order for QoS to work we need to know what actual bandwidth corresponds
+to the 100% we have to share out. This is done by choosing an appropriate
+speed for your connection. If you can, try to test what speed your connection
+actually is rather than believing promises of the ISP.  Note that for ADSL
+connection speed can vary, so try to do speed tests at the busiest time of day,
+otherwise you may find that QoS will stop working if the line gets busier.</p>
+
+<p>It is very important that the SmoothWall is the slowest part of the network
+(only by a few percent will do) - you may need to adjust the headroom parameter 
+so that you have the minimum headroom where QoS is actually working.
+How to tell if it's working? Try doing a low priority task such as p2p file sharing
+at the same time as a normal or high priority task. The low priority task
+should not impact on your other task in the same way it does without QoS.</P>
+
+<p>You can choose to assign different sorts of traffic to these different classes.
+The defaults are sensible, for example Peer to Peer traffic to the low class but 
+ssh high so that accessing a remote system can be done with minimal echo delay.</P>
+
+<p>The Voice over IP (VOIP) rule is special in that any traffic with the diffserv
+'EF' option set will also be caught by this rule.  If you assign high
+priority to VOIP - the default, be aware that you will only have 20% of the
+bandwidth guaranteed.  If good VOIP performance is paramount to you then it
+is best to change it to use 'normal' but make everything else either 'low'
+or 'slow'.</p>
+
+<p>If you do not want any of the rules to be active then simply change the class to 
+'none' for that rule. Such traffic will go into the class defined for 
+'Traffic that does not match below'.</p>
+
+<p>QoS as a whole can be turned off with the 'Enable traffic shaping'
+checkbox. Traffic shaping will always cost a small amount of bandwidth so if you
+are only doing one thing with your connection, e.g. a large file transfer,
+then you can turn traffic shaping off to get maximum speed for the single
+task.</p>
+

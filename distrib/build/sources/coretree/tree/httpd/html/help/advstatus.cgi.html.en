@@ -1,0 +1,24 @@
+<P><FONT SIZE='3'><B><U>Advanced Status</U></B></FONT></P>
+
+<P>This page shows, from top to bottom:</P>
+
+<P><B>Memory:</B> This shows the amount of memory used for programs, disk buffers or cache.</P>
+
+<P><B>Disk usage:</B> This shows how the file systems of the SmoothWall box are set up.</P>
+
+<P><B>Inode usage:</B> This shows the Inode usage of the various file systems. At least
+one inode is required for each file on the system.</P>
+
+<P><B>Uptime and users:</B> Shown here is the number of users logged in (via SSH or the console).</P>
+
+<P><B>Interfaces:</B> This shows network interface information.</P>
+
+<P><B>Routing:</B> This shows the routing table.</P>
+
+<P><B>Hardware:</B> This lists the PCI (and PCI-Express) devices installed
+in the machine running SmoothWall Express.</P>
+
+<P><B>Loaded modules:</B> These are the modules being used by your network
+cards and the IP NAT helper modules, etc.</P>
+
+<P><B>Kernel version:</B> This shows the Linux kernel version in use.</P>

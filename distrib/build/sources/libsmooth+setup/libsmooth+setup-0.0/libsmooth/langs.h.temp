@@ -1,0 +1,13 @@
+/* SmoothWall libsmooth.
+ *
+ * This program is distributed under the terms of the GNU General Public
+ * Licence.  See the file COPYING for details.
+ *
+ * (c) Lawrence Manning, 2001
+ *
+ * filename: langs.h.temp/langs.h
+ * This is a template (basically just a header). langs.h is generated via
+ * the Makefile, from english.c. */
+
+enum trstrings
+{

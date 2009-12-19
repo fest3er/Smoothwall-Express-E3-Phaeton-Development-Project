@@ -1,0 +1,35 @@
+--- squid-2.5.STABLE7/errors/English.old/ERR_TOO_BIG	2002-08-28 21:07:58.000000000 +0000
++++ squid-2.5.STABLE7/errors/English/ERR_TOO_BIG	2005-01-06 15:57:30.000000000 +0000
+@@ -1,21 +1,6 @@
+-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+-<HTML><HEAD><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+-<TITLE>ERROR: The requested URL could not be retrieved</TITLE>
+-<STYLE type="text/css"><!--BODY{background-color:#ffffff;font-family:verdana,sans-serif}PRE{font-family:sans-serif}--></STYLE>
+-</HEAD><BODY>
+-<H1>ERROR</H1>
+-<H2>The requested URL could not be retrieved</H2>
+-<HR noshade size="1px">
+-<P>
+-While trying to retrieve the URL:
+-<A HREF="%U">%U</A>
+-<P>
+-The following error was encountered:
+-<UL>
+-<LI>
+-<STRONG>
+-The request or reply is too large.
+-</STRONG>
++<HTML><HEAD><TITLE>ERROR: Requested URL couldn't be retrieved</TITLE></HEAD><BODY><CENTER><TABLE WIDTH=710 BGCOLOR=#dddddd><TR><TD>&nbsp;</TD></TR><TR><TD><TABLE WIDTH=99% ALIGN=CENTER CELLPADDING=0 BGCOLOR=#cccccc CELLSPACING=0><TR HEIGHT=1><TD BGCOLOR=#ffffff></TD></TR><TR><TD ALIGN=CENTER><h2>ERROR: The requested URL could not be retrieved</h2><PRE><A HREF=%U>%U</A>
++</PRE><P>
++<STRONG>The request or reply is too large.</STRONG>
+ <P>
+ If you are making a POST or PUT request, then your request body
+ (the thing you are trying to upload) is too large.  If you are 
+@@ -23,6 +8,4 @@
+ to download) is too large.   These limits have been established
+ by the Internet Service Provider who operates this cache.  Please
+ contact them directly if you feel this is an error.
+-</UL>
+-<P>
+-Your cache administrator is <A HREF="mailto:%w">%w</A>.
++</TD></TR><TR HEIGHT=1><TD BGCOLOR=#888888></TD></TR></TABLE></TD></TR><TR><TD>&nbsp;</TD></TR></TABLE></CENTER>

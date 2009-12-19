@@ -1,0 +1,11 @@
+--- clamav-0.87.1/clamd/server-th.c	2005-10-30 16:01:38.000000000 +0000
++++ clamav-0.87.1.new/clamd/server-th.c	2006-08-11 12:13:30.000000000 +0100
+@@ -257,7 +257,7 @@
+     mainpid = getpid();
+     if((cpt = cfgopt(copt, "PidFile"))) {
+ 	    FILE *fd;
+-	old_umask = umask(0006);
++	old_umask = umask(0022);
+ 	if((fd = fopen(cpt->strarg, "w")) == NULL) {
+ 	    logg("!Can't save PID in file %s\n", cpt->strarg);
+ 	} else {

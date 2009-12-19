@@ -1,0 +1,18 @@
+<P><FONT SIZE='3'><B><U>Intrusion Detection System</U></B></FONT></P>
+
+<P>This page is used to activate/deactivate the IDS (Intrusion Detection
+System) mechanism. To <B>Enable</B>, chceck the box and click <B>Save</B>, to
+disable uncheck the box and click <B>Save</B>. Logs are available from the
+IDS log viewer in real time, which is accessed from the <B>Logs</B> page.</P>
+
+<P>SmoothWall Express is no longer shipped with any rules. However, you can
+register at <a href="http://www.snort.org">www.snort.org</a> and get an
+'Oink' code which you can enter here to retrieve rules that are 5 days old.
+Copy the Oink code you are given into the 'Oink code:' box under <b>Rules
+retrieval</b>. Pressing <B>Save and Update rules</B> will attempt to fetch a
+fresh set of snort rules and then restart snort if that is successful. Note
+that this may take a while to complete and also that you are only permitted
+to download the rules at a limited frequency (don't share the same Oink code
+between different systems).</P>
+
+

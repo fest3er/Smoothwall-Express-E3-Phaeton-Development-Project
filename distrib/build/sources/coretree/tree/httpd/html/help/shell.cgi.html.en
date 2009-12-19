@@ -1,0 +1,42 @@
+<P><FONT SIZE='3'><B><U>JAVA SSH Shell Client</U></B></FONT></P>
+
+<P>This page is used to give the user a Java-based SSH Shell to the
+SmoothWall Express.  This allows for administration, maintenance, setup,
+and backup.</P>
+
+<P><B>SSH Shell:</B> This page is activated by checking the <B>SSH</B> box
+on the <B>Remote Access</B> page of your SmoothWall.  If <B>SSH</B> is
+enabled, this page can be used to remotely log on to the SmoothWall via a
+secure Java based SSH (Secure Shell) client built directly into the
+SmoothWall platform.  Here, the administrator can perform routine duties
+such as maintenance, tweaking various system parameters, monitoring network and
+platform performance, backing up logs, etc.  The SSH client provides the
+necessary CLI (Command Line Interface) to the underlying Linux system that
+makes up the SmoothWall platform.  It is advisable that prior to using this
+interface, new users or users unfamiliar with Linux or Unix consult either
+the Man Pages, the various Unix or Linux How-To's, or any of the many
+quality Linux and Unix books available.</P>
+
+<P>The client will first ask you to enter the hostname to which you
+wish to connect. You should simply press return to accept the default, which
+is to connect back to the SmoothWall box. You should then enter the name of
+the user (<B>"root"</B> or <B>"setup"</B>) you wish to login as.</P>
+
+<P><B>"root"</B>: This is the shell user and provides full access to the SmoothWall
+shell.</P>
+
+<P><B>"setup"</B>: This user account is used for running the setup program.
+Login as 'setup', give the correct password, and you will be placed straight
+into the setup program for reconfiguring the hostname, networks, ISDN,
+and passwords.  This is an extremely important feature, as it allows you
+to reconfigure your SmoothWall without reinstalling.</P>
+
+<P>Note that it may take a moment for the SSH client to be downloaded and
+initialised, and that you <B><I>must have Java enabled</I></B> in your
+browser for the Java SSH Shell Client to operate.<P>
+
+<P><strong>WARNING:</strong> Accessing the SSH client and
+logging into the SmoothWall allows the user to modify any and all files.
+This can result in loss of connectivity, reduced security, or the need to
+reinstall SmoothWall. <strong>You have been
+warned.</strong></P>

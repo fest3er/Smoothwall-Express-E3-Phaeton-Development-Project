@@ -1,0 +1,11 @@
+--- ipp2p-0.8.2/Makefile	2009-08-22 16:07:03.000000000 -0400
++++ ipp2p-0.8.2/a	2009-08-22 16:06:56.000000000 -0400
+@@ -32,7 +32,7 @@
+ $(warning You need to install iptables sources and maybe set IPTABLES_SRC)
+ endif
+ 
+-IPTABLES_INCLUDE = -I$(IPTABLES_SRC)/include/config/ip/nf/
++IPTABLES_INCLUDE = -I$(IPTABLES_SRC)/include
+ 
+ ifneq ($(IPTVER),)
+ 	IPTABLES_VERSION = $(IPTVER)

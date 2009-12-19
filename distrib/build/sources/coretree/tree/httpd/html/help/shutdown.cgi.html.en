@@ -1,0 +1,11 @@
+<P><FONT SIZE='3'><B><U>Shutdown Control</U></B></FONT></P>
+
+<P>This page contains two buttons, "Shutdown" and "Reboot". When the machine
+has finished shutting down, SmoothWall will beep once indicating that you
+can disconnect the power. You should, generally, not have to reboot a
+SmoothWall unless you have just applied a patch and it requires you to do
+so.</P>
+
+<P>Alternatively, you can shutdown SmoothWall from the console. Press
+Ctrl+Alt+Del to start the shutdown sequence, as per the Shutdown button. The
+machine will NOT reboot.</P>

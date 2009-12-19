@@ -1,0 +1,12 @@
+<P><FONT SIZE='3'><B><U>Realtime Traffic Graphs</U></B></FONT></P>
+
+<p>This page shows, in realtime, a visible representation of the amount of
+bandwidth network interfaces and network IP addresses are using over recent
+history.</p>
+
+<p>Each interface and each known IP address is given a graph which will be
+updated to show the amount of traffic. Inactive interfaces and IP
+addresses are automatically hidden from view.</p>
+
+<p><strong>Please note:</strong> For browser-performance reasons, only the
+most busy network interfaces and IP addresses will be shown.</p>

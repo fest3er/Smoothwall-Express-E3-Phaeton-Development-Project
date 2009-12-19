@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+#
+# SmoothWall CGIs
+#
+# This code is distributed under the terms of the GPL
+#
+# (c) The SmoothWall Team
+use lib "/usr/lib/smoothwall";
+use header qw( :standard );
+use smoothd qw( message );
+
+&log("PPP has gone down on $ARGV[0]");
+
+if (!-e "${swroot}/red/active") {
+	exit; }
+
+umask 022;
+
+my %pppsettings;
+my %netsettings;
+
+# read vars back from file.
+&readhash("${swroot}/ppp/settings", \%pppsettings);
+&readhash("${swroot}/ethernet/settings", \%netsettings);
+
+unlink "${swroot}/red/active";
+unlink "${swroot}/red/local-ipaddress";
+unlink "${swroot}/red/remote-ipaddress";
+unlink "${swroot}/red/iface";
+unlink "${swroot}/red/dns1";
+unlink "${swroot}/red/dns2";
+
+# Reset default route to ippp0 for dial on demand
+if ((-e "${swroot}/red/dial-on-demand") &&
+    ($pppsettings{'COMPORT'} =~ /^isdn/)) {
+	system ('/sbin/route','add','default','dev','ippp0');
+}
+
+# Leave dnrd running if dial on demand for DNS
+if ((! -e "${swroot}/red/dial-on-demand") ||
+	($pppsettings{'DIALONDEMANDDNS'} ne 'on'))
+{
+	message('dnsproxyrestart');
+}
+
+# If not on DoD, make sure ISDN is dead
+if ((! -e "${swroot}/red/dial-on-demand") &&
+    ($pppsettings{'COMPORT'} =~ /^isdn/))
+{
+	my $lockfile = "/var/run/ppp-smooth.pid";
+	if (open(FILE, $lockfile))
+	{
+		my $pid = <FILE>;
+		close FILE;
+		chomp ($pid);
+		system ('/bin/kill', $pid);
+	}
+}
+
+system('/etc/rc.d/rc.vpn.down');
+
+system('/usr/bin/sounds/offlinesound');

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "Update 4 installing."
+
+tar -zxvf patch.tar.gz -C /
+
+# Regenerate siproxd.conf; syntax changed.
+su nobody -c /usr/bin/smoothwall/writesiproxdconf.pl

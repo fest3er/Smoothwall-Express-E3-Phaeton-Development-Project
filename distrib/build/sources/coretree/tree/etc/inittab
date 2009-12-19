@@ -1,0 +1,18 @@
+id:3:initdefault:
+
+l0:0:wait:/etc/rc.d/rc.halt halt
+l6:6:wait:/etc/rc.d/rc.halt reboot
+
+si::sysinit:/etc/rc.d/rc.sysinit
+
+# Trap CTRL-ALT-DELETE
+ca::ctrlaltdel:/sbin/shutdown -h now
+
+# Run gettys in standard runlevels
+1:2345:respawn:/sbin/agetty 38400 tty1
+2:2345:respawn:/sbin/agetty 38400 tty2
+3:2345:respawn:/sbin/agetty 38400 tty3
+4:2345:respawn:/sbin/agetty 38400 tty4
+5:2345:respawn:/sbin/agetty 38400 tty5
+6:2345:respawn:/sbin/agetty 38400 tty6
+~:S:wait:/bin/bash

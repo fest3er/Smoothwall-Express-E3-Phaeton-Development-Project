@@ -1,0 +1,15 @@
+<P><FONT SIZE='3'><STRONG><U>IP Information</U></STRONG></FONT></P>
+
+<P>The Whois page is used to display the ownership information for an IP
+address or domain name.  A major use within SmoothWall Express is to determine
+the source of messages that are appearing in the firewall or Intrusion
+Detection System logs, i.e. the source of possible hacking attempts.</P>
+
+<P>Enter the IP address or domain name into IP addresses or domain names
+text box and click the Run button.  The results of the Whois command are
+displayed in the panel below the user-input controls.  The output is
+defendant on the item being queried.  Typically, it will show the owner of
+the IP block for the IP address in question, including such things as
+company names, addresses, etc. If you are looking up a domain name, it will
+show the owner of that name. It is, of course, generally far more convenient
+to run the command from this configuration and management procedure.</P>

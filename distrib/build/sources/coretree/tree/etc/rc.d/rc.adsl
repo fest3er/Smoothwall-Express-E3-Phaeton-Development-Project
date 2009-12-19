@@ -1,0 +1,39 @@
+#!/bin/sh
+
+. /var/smoothwall/adsl/settings
+
+if [ "$ENABLED" = "on" ]; then
+	/sbin/modprobe n_hdlc
+	sleep 5
+	echo "Device type is $DEVICE"
+	if [ "$DEVICE" = "ALCATEL" ]; then
+		/usr/bin/modem_run -f /var/smoothwall/adsl/mgmt.o -v 2 2>/dev/null
+	fi
+	if [ "$DEVICE" = "ECI" ]; then
+		/usr/bin/smoothwall/ecifw.sh
+	fi
+	if [ "$DEVICE" = "EAGLE" ]; then
+		/usr/bin/smoothwall/writeeagleconfig.pl
+		/sbin/modprobe eagle-usb if_name=eagle
+		sleep 5
+		/usr/sbin/eaglectrl -w
+		/sbin/ifconfig eagle up
+	fi
+	if [ "$DEVICE" = "UNICORN" ]; then
+		/sbin/modprobe unicorn_pci_atm
+		/sbin/modprobe pppoatm
+		sleep 30
+	fi
+	if [ "$DEVICE" = "CNX" ]; then
+		/sbin/modprobe CnxADSL
+		/usr/bin/smoothwall/writecnxadslconfig.pl
+		/usr/sbin/cnxadslload /usr/etc/cnxadsl
+		sleep 30
+	fi
+	if [ "$DEVICE" = "PULSAR" ]; then
+		/sbin/modprobe pulsar_atm
+		sleep 30
+	fi
+else
+	echo "No USB ADSL enabled"
+fi

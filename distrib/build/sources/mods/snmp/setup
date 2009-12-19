@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "This is the SNMP installing..."
+
+tar -zxvf patch.tar.gz -C /
+
+cat base.pl.extra >>/usr/lib/smoothwall/langs/base.pl
+cat rc.netaddress.up.extra >>/etc/rc.d/rc.netaddress.up

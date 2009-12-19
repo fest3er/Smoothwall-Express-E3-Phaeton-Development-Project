@@ -1,0 +1,38 @@
+<P><FONT SIZE='3'><B><U>Timed Access</U></B></FONT></P>
+
+<p>SmoothWall Express has the ability to allow or disalow Inetnet access at
+certain times of the day, for a specified group of local machines.</p>
+
+<p>If this ability is required, <strong>Enable</strong> it with the checkbox.</p>
+
+<p>Timed access works in one of two ways:</p>
+
+<ul>
+<li><strong>Allow at specified times:</strong> In this mode, Internet access
+is allowed only at the times specified.</li>
+<li><strong>Reject at specified times:</strong> In this mode, Internet access
+is blocked at the times specified.</li>
+</ul>
+
+<p>To specify a time to apply the rule, choose a hour and minute <strong>From</strong>
+which to start the access rule and a <strong>To</strong> time to end the access rule.</p>
+
+<p>Note that the <strong>From</strong> time must be chronologically before the
+<strong>To</strong> time.  If you require, for example, the ability to block
+access between 21:00 one day and 07:00 the next, you should reverse the sense
+of the rule and instead allow access between 07:00 and 21:00. This will have the
+same effect.</p>
+
+<p>In addition to setting a range of times, the <strong>Days</strong> the rule
+is to apply for must also be selected.  This enables you to perform your blocking
+(or allowing) only on certain days in the week such as weekdays.</p>
+
+<p>The timed access controls are only performed on the listed <strong>Machines</strong>.
+You should enter one IP address or network with netmask per line in the supplied
+text box.</p>
+
+<p>Press <strong>Save</strong> to enable or disable the timed access rules.</p>
+
+<p><strong>Please note:</strong> All access to the Internet and to the SmoothWall
+itself is blocked using this page.  This includes the ability to administer
+the SmoothWall on its web interface.</p>

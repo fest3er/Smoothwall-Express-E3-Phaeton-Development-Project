@@ -1,0 +1,67 @@
+AU (pool) Australia|oc|au.pool.ntp.org
+AU Victoria|oc|time.deakin.edu.au
+AR Buenos Aires|sa|tick.nap.com.ar
+AT (pool) Austria|eu|at.pool.ntp.org
+BE Brussels|eu|ntp1.belbone.be
+CA (pool) Canada|na|ca.pool.ntp.org
+CA Alberta|na|ntp.cpsc.ucalgary.ca
+CA Ontario|na|time.nrc.ca
+CH Switzerland|eu|ch.pool.ntp.org
+CZ Prague|eu|ntp.karpo.cz
+DE (pool) Germany|eu|de.pool.ntp.org
+DK (pool) Denmark|eu|dk.pool.ntp.org
+ES (pool) Spain|eu|es.pool.ntp.org
+FR (pool) France|eu|fr.pool.ntp.org
+FR Paris|eu|ntp.tuxfamily.net
+HR Zagreb|eu|zh2.ntp.carnet.hr
+KR Seoul|as|time.nuri.net
+ID Jakarta|oc|ntp.incaf.net
+IT (pool) Italy|eu|it.pool.ntp.org
+IT Vercelli|eu|ntps.net4u.it
+JP Tokyo|as|ntp.cyber-fleet.net
+LU (pool) Luxembourg|eu|lu.pool.ntp.org
+MX Mexico DF|sa|ntp2b.audiotel.com.mx
+MY (pool) Malaysia|as|my.pool.ntp.org
+NL (pool) Netherlands|eu|nl.pool.ntp.org
+NL Amsterdam|eu|ntp2.theinternetone.net
+NO (pool) Norway|eu|no.pool.ntp.org
+NO Oslo|eu|fartein.ifi.uio.no
+NZ (pool) New Zealand|oc|nz.pool.ntp.org
+NZ Dunedin|oc|ntp.public.otago.ac.nz
+NZ Hamilton|oc|ntp.waikato.ac.nz
+NZ Auckland|oc|tk1.ihug.co.nz
+PH (pool) Philippines|oc|ph.pool.ntp.org
+PL (pool) Poland|eu|pl.pool.ntp.org
+PL Krakow|eu|info.cyf-kr.edu.pl
+RO Bucharest|eu|ntp.ip.ro
+RU Moscow|eu|ntp.psn.ru
+SE (pool) Sweden|eu|se.pool.ntp.org
+SI (pool) Slovenia|eu|si.pool.ntp.org
+SG Singapore|as|ntp.shim.org
+SI Ljubljana|eu|calvus.rzs-hm.si
+UK (pool) United Kingdom|eu|uk.pool.ntp.org
+UK Aylesbury|eu|tick.tanac.net
+UK Glasgow|eu|ntp.cs.strath.ac.uk
+UK London|eu|ntp1.demon.co.uk
+UK Manchester|eu|ntp2a.mcc.ac.uk
+US (pool) United States|na|us.pool.ntp.org
+US Arkansas|na|sushi.compsci.lyon.edu
+US Quincy, CA|na|ntp2.mainecoon.com
+US Salinas, CA|na|reloj.kjsl.com
+US San Diego, CA|na|ntp.ucsd.edu
+US San Jose, CA|na|ntp1.sf-bay.org
+US Delaware|na|louie.udel.edu
+US Illinois|na|ntp-1.cso.uiuc.edu
+US Indiana|na|gilbreth.ecn.purdue.edu
+US Kansas|na|ntp2.kansas.net
+US Massachusetts|na|ntp.ourconcord.net
+US Montana|na|chronos1.umt.edu
+US Nevada|na|tick.cs.unlv.edu
+US Ithaca, NY|na|ntp0.cornell.edu
+US U-Columbia, NY|na|sundial.columbia.edu
+US Pennsylvania|na|clock.psu.edu
+US Texas|na|ntp5.tamu.edu
+US Virginia|na|ntp-1.vt.edu
+US Wisconsin|na|ntp3.cs.wisc.edu
+VE Caracas|sa|ntp.linux.org.ve
+ZA Pietermaritzburg|ma|ntp.cs.unp.ac.za

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+. /var/smoothwall/adsl/settings
+
+/usr/bin/killall pppd
+/usr/bin/killall modem_run
+/sbin/ifconfig ADIModem down
+/sbin/rmmod adiusbadsl
+/sbin/rmmod n_hdlc
+/sbin/rmmod pppoatm
+/sbin/rmmod unicorn_atm
+/sbin/rmmod unicorn_pci

@@ -1,0 +1,12 @@
+diff -Nurb openntpd-20040824p.orig/ntpd.h openntpd-20040824p/ntpd.h
+--- openntpd-20040824p.orig/ntpd.h	2004-08-20 12:43:20.000000000 +0100
++++ openntpd-20040824p/ntpd.h	2004-10-26 22:14:18.000000000 +0100
+@@ -27,7 +27,7 @@
+ 
+ #include "ntp.h"
+ 
+-#define	NTPD_USER	"_ntp"
++#define	NTPD_USER	"ntpd"
+ #define	CONFFILE	SYSCONFDIR "/ntpd.conf"
+ 
+ #define	READ_BUF_SIZE		65535

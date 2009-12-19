@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+
+use lib "/usr/lib/smoothwall";
+use header qw( :standard );
+
+chdir '/var/smoothwall';
+
+system('/usr/bin/tar', '-zcf', 'backup/backup.dat', 'adsl', 'advnet', 'auth',
+	'ddns', 'dhcp', 'dmzholes', 'ethernet', 'ipblock', 'isdn',
+	'main/hostname.conf', 'main/settings', 'main/proxy',
+	'modem', 'portfw', 'ppp', 'proxy', 'remote', 'snort',
+	'time', 'vpn', 'xtaccess', 'clamav', 'hosts', 'im', 'outgoing',
+	'p3scan', 'sipproxy', 'timedaccess', 'traffic');
+
+open (FILE, '>backup/version');
+print FILE "$version\n";
+close (FILE);
+

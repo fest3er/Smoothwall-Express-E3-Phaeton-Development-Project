@@ -1,0 +1,20 @@
+<P><FONT SIZE='3'><B><U>Firewall Log</U></B></FONT></P>
+
+<P>Like the normal log viewer, you select the date you are interested in
+viewing using the drop-down boxes at the top of the page. The body of this
+page is made up of a table of packets that were dropped by the firewall.
+Included here are the Source and Destination IP addresses and ports, as well
+as the protocol involved. Note that not all denied packets are hostile
+attempts by crackers to gain access to your machine. Connections to the
+ident/auth port (113) are common occurrences and can be ignored.</P>
+
+<P>Every IP address will also have a small arrow and a checkbox.  The arrow
+can be used to perform whois lookups and IP blocks from within the firewall
+log viewer itself, while with the checkbox you can perform these actions on
+a bulk selection of IPs.  The whois function is useful for determining who
+is scanning your SmoothWall.</P>
+
+<P>Note, you may also need to use the "Smooth" links at the top of the page
+to navigate if there is more than one page meeting the current criteria. 
+You may press the <B>Export</B> button to download the log file from your
+SmoothWall to your local machine.</P>

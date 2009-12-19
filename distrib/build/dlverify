@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# SmoothWall Build system.
+#
+# (c) SmoothWall Ltd 2005
+#
+# This code is distributed under the terms of the GPL v2.
+
+# Mirror root
+MIRROR_ROOT=http://downloads.smoothwall.org/buildmirror/
+
+DIRECTORY=$1
+URL=$2
+EXPECTED_MD5=$3
+
+if [ "$DIRECTORY" = "" -o "$URL" = "" ]; then
+	echo "Usage: $0 <directory> <url> [expected md5]"
+	exit 0
+fi
+
+FILENAME=/`basename $URL`
+
+if [ ! -e "$DIRECTORY/$FILENAME.done" ]; then
+	if [ "$MIRROR_ROOT" != "" ]; then
+		wget -c --directory $DIRECTORY $MIRROR_ROOT/$FILENAME
+	else
+		false
+	fi
+	if [ $? -ne 0 ]; then
+		wget -c --directory $DIRECTORY $URL
+		if [ $? -ne 0 ]; then
+			echo "Download failed"
+			exit 1
+		fi
+	fi
+	if [ "$EXPECTED_MD5" != "" ]; then
+		MD5=`md5sum $DIRECTORY/$FILENAME | cut -d " " -f 1`
+		if [ "$MD5" != "$EXPECTED_MD5" ]; then
+			echo "MD5 missmatch.  Was $MD5, meant to be $EXPECTED_MD5"
+			rm -f $DIRECTORY/$FILENAME
+			exit 1
+		fi
+	fi
+	touch $DIRECTORY/$FILENAME.done
+fi
+
+exit 0

@@ -1,0 +1,12 @@
+/var/log/smoothderror {
+    monthly
+    rotate 4
+    copytruncate
+    compress
+    notifempty
+    missingok
+    postrotate
+        kill `cat /var/run/smoothd.pid`
+	/usr/sbin/smoothd
+    endscript
+}

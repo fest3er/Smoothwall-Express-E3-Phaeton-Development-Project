@@ -1,0 +1,10 @@
+--- hddtemp-0.3-beta11/src/hddtemp.c.orig	2004-09-01 10:04:21.321548320 +0000
++++ hddtemp-0.3-beta11/src/hddtemp.c	2004-09-01 09:59:47.890116216 +0000
+@@ -52,6 +52,7 @@
+ #include <time.h>
+ #include <netinet/in.h>
+ #include <linux/hdreg.h>
++#include <locale.h>
+ 
+ // Application specific includes
+ #include "ata.h"

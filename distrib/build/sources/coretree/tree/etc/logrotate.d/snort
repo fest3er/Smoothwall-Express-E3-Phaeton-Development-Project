@@ -1,0 +1,21 @@
+/var/log/snort/alert {
+    weekly
+    rotate 1
+    copytruncate
+    compress
+    notifempty
+    missingok
+}
+/var/log/snort/portscan.log {
+    weekly
+    rotate 1
+    copytruncate
+    compress
+    notifempty
+    missingok
+# hup snort
+    postrotate
+      /usr/bin/find /var/log/snort -name "[0-9]*" -mtime +7 | xargs /bin/rm -rf
+      /usr/bin/smoothcom snortrestart
+    endscript
+}

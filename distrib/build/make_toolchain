@@ -1,0 +1,109 @@
+#!/bin/bash
+#
+# SmoothWall Build system.
+#
+# Parts (c) SmoothWall Ltd 2005
+# Parts (c) Neal P. Murphy, 2009
+#
+# This code is distributed under the terms of the GPL v2.
+#
+ 
+# When building the toolchain, use the host's sudo to become root. It may require
+#   entering a password or three, but that's preferable to clobbering the host's
+#   rootfs.
+
+# First be sure we are being run from the build directory, not from a relative path
+#   'make -C build build' does it right; this is in case this script is run en mano.
+#
+ME=`basename $0`
+if [ "$0" != "$ME" -a "$0" != "./$ME" ]; then
+  echo "Please operate the build system from the build directory!"
+  exit 1
+fi
+unset ME
+
+# For debugging
+(
+  echo -e "\nInitial environment:"
+  tput smso;echo PRE-SET;tput rmso;set;echo
+  tput smso;echo PRE-ENV;tput rmso;env|sort;echo
+  tput smso;echo PRE-EXPORT;tput rmso;export;echo
+) > crumbs/tc-Stage_$1.debug
+
+# Grab our needed environment and utility functions
+#
+source ./environment
+source ./functions
+
+# Set up parallel make, as needed
+#   First export/define the three associated vars
+export JOBS
+export JOBS_UP="-j 1"
+export JOBS_MP
+cpu_count
+
+
+# This is the tool chain boot strap, where '/' is the real system root.
+# /tools MUST point to the correct .../distrib/tools.
+#
+FROM_TOOLS="`ls -l /tools | sed -e 's/.*-> //'`"
+THISDIR=`/bin/pwd`
+FROM_PWD="`dirname \"$THISDIR\"`/tools"
+if [ "$FROM_TOOLS" != "$FROM_PWD" ]; then
+  echo "su-ing to root to remove & create the /tools symlink on the host"
+  sudo su -c "rm -f /tools >/dev/null 2>&1; cd ../; ln -sv $FROM_PWD /tools" || \
+    (echo "/tools link creation failure!"; exit -1)
+  if [ $? -ne 0 ]; then
+    exit $?
+  fi
+fi
+unset FROM_TOOLS THISDIR FROM_PWD
+
+# Build the tool chain stage as specified by $1
+#
+
+case $1 in
+  PREP)
+    mso ON
+    echo -e "\nPreparing environment for building"
+    mso OFF
+    ls -lsd ../tools | grep root && (
+      lUID=`id | sed -e 's/(.*//' -e 's/uid=//'`
+      lGID=`id | sed -e 's/.*gid=//' -e 's/(.*//'`
+      CHOWN_ARGS="$lUID:$lGID ../tools"
+      sudo su -c "/bin/chown $CHOWN_ARGS"
+    )
+    ;;
+  1)
+    mso ON
+    echo -e "\nBuilding Tool Chain, Stage 1"
+    mso OFF
+    build_tc_stage_1
+    ;;
+  2)
+    mso ON
+    echo -e "\nBuilding Tool Chain, Stage 2"
+    mso OFF
+    build_tc_stage_2
+    ;;
+  3)
+    mso ON
+    echo -e "\nBuilding Tool Chain, Stage 3"
+    mso OFF
+    build_tc_stage_3
+    ;;
+  *)
+    echo
+    echo -e "\nWall? I don't know how to build stage '$1'!"
+    exit -1
+esac
+
+# For debugging
+(
+  echo -e "\nEnvironment on exit:"
+tput smso;echo POST-SET;tput rmso;set;echo
+tput smso;echo POST-ENV;tput rmso;env|sort;echo
+tput smso;echo POST-EXPORT;tput rmso;export;echo
+) >> crumbs/tc-Stage_$1.debug
+
+

@@ -1,0 +1,23 @@
+<P><FONT SIZE='3'><B><U>Traffic Graphs</U></B></FONT></P>
+
+<P>This page contains a collection of traffic statistics and graphs detailing
+traffic conditions as recorded by the server.  Initially, these graphs
+indicate traffic on the <b>GREEN</b>, <b>ORANGE</b> (if configured) and
+<b>RED</b> interfaces over the last day.  </p>
+
+<P>At the top of this page two sets of traffic statistics are shown: one lists traffic
+statistics for each network interface in the SmoothWall, and the other lists
+traffic statistics per network IP address. Traffic statistics are retained
+for two months and show byte counts for incoming and outgoing directions,
+with totals recorded for the current and previous hour, day, week and month.
+Also, approximate current rates are shown.</P>
+
+<p>Also present on this page is a series of graphs. Clicking on one of the
+graphs itself will then further detail traffic and this interface, covering
+the last day, week, month and year.</p>
+
+<p>For all graphs, graphs show traffic on the given interface, in
+both the incoming and outgoing directions.  The maximum, minimum,
+current and average speed per second is also displayed on a graph by
+graph basis.  The data for these graphs is correlated every 5
+minutes.</p>

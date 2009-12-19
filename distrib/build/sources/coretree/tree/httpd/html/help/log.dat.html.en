@@ -1,0 +1,16 @@
+<P><FONT SIZE='3'><B><U>System Logs</U></B></FONT></P>
+
+<P>Here you can view the system logs for the different sub-systems
+including: PPP logs, DHCP logs, kernel logs, SSH logs, SIP proxy, IM proxy,
+web proxy, a general SmoothWall log and the IPSec logs.  The SmoothWall log
+shows general SmoothWall events like PPP profile saving. The drop-down boxes
+at the top of the page select which day you wish to view.</P>
+
+<P>After choosing the log you wish to view, press <B>Update</B> to see the
+selected log.  Note, you may also need to use the "Smooth" links at the top
+of the page to navigate if there is more than one page meeting the current
+criteria.  You may press the <B>Export</B> button to download the log files
+from your SmoothWall to your local machine.</P>
+
+<P>The PPP log is mostly useful for discovering the reason for connection
+failures and the like.</P>

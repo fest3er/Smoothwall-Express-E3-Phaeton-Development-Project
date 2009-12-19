@@ -1,0 +1,7 @@
+FULLNAME="Ericsson hm120dp"
+VID1=0x08ea
+PID1=0x00c9
+VID2=0x0915
+PID2=0x00ca
+FIRM1=firmware00.bin
+FIRM2=synch02.bin

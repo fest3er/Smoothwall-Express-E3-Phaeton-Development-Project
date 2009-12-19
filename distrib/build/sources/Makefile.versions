@@ -1,0 +1,23 @@
+# SmoothWall Build system.
+#
+# (c) SmoothWall Ltd 2005
+#
+# This code is distributed under the terms of the GPL v2.
+
+KERNEL_VER = 2.6.26.8
+SWETYPE = -phaeton
+K_RAW_VERSION = $(KERNEL_VER)
+K_SWE_VERSION = $(KERNEL_VER)$(SWETYPE)
+
+FREESWAN_TYPE = openswan
+FREESWAN_VER = 2.6.22
+
+IPP2P_VER = 0.8.2
+
+#IPTABLES_VER = 1.3.8
+IPTABLES_VER = 1.4.2
+
+GMP_VER = 4.3.1
+MPFR_VER = 2.4.1
+
+TCL_VER = 8.4.19

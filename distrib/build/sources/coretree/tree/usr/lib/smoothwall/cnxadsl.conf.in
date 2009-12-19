@@ -1,0 +1,138 @@
+# This is the user data configuration file
+# for the Conexant Tigris ADSL modem.
+# It is modified using any text editor or cnxadslconfig.
+# It is read by cnxadslload (except as noted).
+#
+# Format: Use any non-alpha character to start a comment line.
+#         Put the lines in any order but do not change
+#           the parameter names.
+#         Put only spaces or tabs between the name and the value.
+#         Lines may contain multiple values for array variables
+#         Value may be preceeded by a format specifier
+#             %[m]c
+#                 where "m" is the optional length modifier
+#                       b = byte
+#                       h = short int
+#                       l = long int (default)
+#                 and "c" is the conversion character
+#                       d = decimal
+#                       x = hex
+#                 default is %ld
+
+
+
+
+# Mac address -   Set OverrideMacAddress to 1 for override
+OverrideMacAddress            0
+MACAddress                %bx 00,30,CD,00,01,00
+
+# VPI/VCI (no format allowed because this group is read by cnxadslctl.sh)
+# ATM_VPI                       0
+# ATM_VCI                       38
+
+# Latency values
+RxMaxLatency                  200
+RxMinLatency                  45
+TxMaxLatency                  65
+TxMinLatency                  45
+
+# Interrupt rates
+RxInterruptRate               20
+TxInterruptRate               15
+
+# Link speeds
+RxSpeed                       1500000
+TxSpeed                       1000000
+
+# Fifo sizes
+RxFifoSize                    512
+TxFifoSize                    512
+
+# Download
+FirmwareFilename          %s  CnxTgF.hex
+
+# Misc
+AdslPsdTestMode               0
+LinePersistentAct             1
+LinePersistenceTmr            5
+ControllerLogEnable           1
+CapabilitiesG922              0
+CapabilitiesG922Annex         9
+LineAutoActivation            1
+
+# HeadEnd
+AdslHeadEnd                   0
+AdslHeadEndEnvironment        0
+
+# Debug Flags
+HwDebugFlag               %lx 0
+DebugFlag                 %lx 0
+
+# Handshake Selection mode
+#  0 - Handshake / Tone 
+#  1 - Tone / Handshake
+#  2 - Handshake
+#  3 - Tone
+AutoSenseHandshake            0
+
+# Wiring Selection mode
+#  0 - Auto wiring selection
+#  1 - Combo 1
+#  2 - Combo 2
+#  3 - Combo 3
+#  4 - Combo 4
+AutoWiringSelection           0
+
+AutoSenseWiresFirst           0
+AutoWiringNumCombos           2
+AutoWiringComboGPIO       %bd 3,3,3,3,5,5,5,5,0,0,0,0,0,0,0,0
+AutoWiringRelayDelay          200
+AutoWiringRelayEnrg           1
+AutoWiringOrder           %bd 1,2,0,0
+
+GpioADSLFunctionMask      %lx 217F
+GpioARMFunctionMask       %lx 100
+GpioDirectionMask         %lx 17F
+GpioEdgeMask              %lx 0
+
+
+#     The PciVendorId, PciArmDeviceId, PciAdslDeviceId,
+#     and PhysicalDriverType are passed to the driver
+#     by the "insmod" command line.  They are only
+#     here for reference and double-check.
+ARMHwId                   %lx 14f11610
+ADSLHwId                  %lx 14f11611
+ARMFunctionIdentifier         0
+ADSLFunctionIdentifier        1
+PciVendorId               %lx 14f1
+PciArmDeviceId            %lx 1610
+PciAdslDeviceId           %lx 1611
+PhysicalDriverType            1
+
+# Buffer Managerment/SAR
+RXBufAllocLimit               10
+RXBufRatioLimit               10
+RxMaxFrameSize                1500
+TxMaxFrameSize                1500
+MaxTransmit                   10
+RfcEncapsulationMode          0
+CellBurstSize                 1000
+PeakCellRate                  0
+
+
+# Auto-Logging Parameters:
+#          AutoLogEnabled -         0 to disable logging
+#                                   1 to enable logging
+#          AutoLogMaxFileSize -     max log file size in bytes
+#                                   0 unlimited
+#          AutoLogUpdateFrequency - updates per 10 seconds
+#          AutoLogOverwrite -       1 to clear file on driver start
+#                                   0 to append to file
+#          AutoLogPath -            autolog file name including full path
+
+AutoLogEnabled                1
+AutoLogMaxFileSize            1024
+AutoLogUpdateFrequency        10
+AutoLogOverwrite              1
+AutoLogPath               %s  /var/log/adsl.log
+

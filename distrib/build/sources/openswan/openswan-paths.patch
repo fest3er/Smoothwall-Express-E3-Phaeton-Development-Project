@@ -1,0 +1,30 @@
+diff -Nurb openswan-1.0.6.old/pluto/Makefile openswan-1.0.6/pluto/Makefile
+--- openswan-1.0.6.old/pluto/Makefile	2004-04-01 15:13:33.000000000 +0100
++++ openswan-1.0.6/pluto/Makefile	2004-10-29 16:07:22.000000000 +0100
+@@ -117,7 +117,7 @@
+ 
+ 
+ CPPFLAGS = $(HDRDIRS) $(DEFINES) \
+-	-DSHARED_SECRETS_FILE=\"${FINALCONFDIR}/ipsec.secrets\"
++	-DSHARED_SECRETS_FILE=\"${FINALCONFDIR}/ipsec.secrets\" -DFINALCONFDIR=\"$(FINALCONFDIR)\"
+ 
+ ALLFLAGS = $(CPPFLAGS) $(CFLAGS)
+ 
+diff -Nurb openswan-1.0.6.old/pluto/x509.h openswan-1.0.6/pluto/x509.h
+--- openswan-1.0.6.old/pluto/x509.h	2004-01-18 20:19:48.000000000 +0000
++++ openswan-1.0.6/pluto/x509.h	2004-10-29 16:09:27.000000000 +0100
+@@ -20,10 +20,10 @@
+ /*
+  * path definitions for my optional OpenPGP cert, peer certs, cacerts and crls
+  */
+-#define PGP_CERT_PATH	  "/etc/pgpcert.pgp"
+-#define HOST_CERT_PATH    "/etc/ipsec.d"
+-#define CA_CERT_PATH	  "/etc/ipsec.d/cacerts"
+-#define CRL_PATH	  "/etc/ipsec.d/crls"
++#define PGP_CERT_PATH	  FINALCONFDIR "/pgpcert.pgp"
++#define HOST_CERT_PATH	  FINALCONFDIR "/ipsec.d"
++#define CA_CERT_PATH	  FINALCONFDIR "/ipsec.d/cacerts"
++#define CRL_PATH	  FINALCONFDIR "/ipsec.d/crls"
+ 
+ /* advance warning of imminent expiry of
+  * cacerts, public keys, and crls

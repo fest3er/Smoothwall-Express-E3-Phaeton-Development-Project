@@ -1,0 +1,7 @@
+FULLNAME="Xentrix"
+VID1=0x0e60
+PID1=0x0100
+VID2=0x0915
+PID2=0x0101
+FIRM1=firmware00.bin
+FIRM2=synch00.bin

@@ -1,0 +1,5 @@
+/dev/harddisk1		/boot			ext3	defaults	1 2
+/dev/harddisk2		swap 			swap	defaults	0 0
+/dev/harddisk3		/var/log		ext3	defaults	1 2
+/dev/harddisk4          /                       ext3    defaults        1 1
+none                    /proc                   proc    defaults        0 0

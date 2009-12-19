@@ -1,0 +1,29 @@
+--- openntpd-20040824p/ntpd.c	2004-08-20 13:14:18.000000000 +0100
++++ openntpd-20040824p.new/ntpd.c	2004-10-27 13:04:58.000000000 +0100
+@@ -128,8 +128,15 @@
+ 	seed_rng();
+ #endif
+ 
+-	if (!debug)
++	if (!debug) {
+ 		daemon(1, 0);
++		FILE *pidfile = fopen("/var/run/ntpd.pid", "w");
++		if (pidfile) {
++			fprintf(pidfile, "%d\n", getpid());
++			fclose(pidfile);
++		}
++	}
++		
+ 
+ 	if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, pipe_chld) == -1)
+ 		fatal("socketpair");
+@@ -187,6 +194,9 @@
+ 	if (chld_pid)
+ 		kill(chld_pid, SIGTERM);
+ 
++	if (!debug)
++		unlink("/var/run/ntpd.pid");
++
+ 	do {
+ 		if ((pid = wait(NULL)) == -1 &&
+ 		    errno != EINTR && errno != ECHILD)

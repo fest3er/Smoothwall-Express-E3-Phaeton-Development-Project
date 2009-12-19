@@ -1,0 +1,47 @@
+cache_mem 8 MB
+maximum_object_size_in_memory 32 KB
+
+cache_replacement_policy heap GDSF
+memory_replacement_policy heap GDSF
+
+half_closed_clients off
+
+cache_swap_high 100%
+cache_swap_low 80%
+
+shutdown_lifetime 3 seconds
+icp_port 0
+
+acl QUERY urlpath_regex cgi-bin \?
+no_cache deny QUERY
+
+cache_effective_user squid
+cache_effective_group squid
+
+pid_filename /var/run/squid.pid
+
+cache_access_log /var/log/squid/access.log
+cache_log /var/log/squid/cache.log
+cache_store_log none
+error_directory /usr/share/errors/English
+log_mime_hdrs off
+
+forwarded_for off
+
+acl all src 0.0.0.0/0.0.0.0
+acl localhost src 127.0.0.1/255.255.255.255
+
+acl SSL_ports port 445 443 441 563
+acl Safe_ports port 80  	  	# http
+acl Safe_ports port 81  	  	# smoothwall http
+acl Safe_ports port 21  	  	# ftp 
+acl Safe_ports port 445 443 441 563	# https, snews
+acl Safe_ports port 70     		# gopher
+acl Safe_ports port 210    	   	# wais  
+acl Safe_ports port 1025-65535		# unregistered ports
+acl Safe_ports port 280       		# http-mgmt
+acl Safe_ports port 488       		# gss-http 
+acl Safe_ports port 591       		# filemaker
+acl Safe_ports port 777       		# multiling http
+acl CONNECT method CONNECT
+

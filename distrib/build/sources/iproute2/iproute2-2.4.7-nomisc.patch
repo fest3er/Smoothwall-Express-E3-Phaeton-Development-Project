@@ -1,0 +1,12 @@
+diff -Nurb iproute2.old/Makefile iproute2/Makefile
+--- iproute2.old/Makefile	2002-01-15 23:30:32.000000000 +0000
++++ iproute2/Makefile	2004-10-07 16:20:32.000000000 +0100
+@@ -39,7 +39,7 @@
+ 
+ LDLIBS += -L../lib -lnetlink -lutil
+ 
+-SUBDIRS=lib ip tc misc netem genl
++SUBDIRS=lib ip tc netem genl
+ 
+ LIBNETLINK=../lib/libnetlink.a ../lib/libutil.a
+ 

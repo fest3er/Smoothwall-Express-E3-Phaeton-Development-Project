@@ -1,0 +1,27 @@
+<P><FONT SIZE='3'><B><U>Updates</U></B></FONT></P>
+
+<P>This page is used to manage updates to your SmoothWall system.</P>
+
+<p>From time to time security and product updates are rolled out to all 
+SmoothWall systems,  this page is used to apply these updates in a simple
+fashion.</p>
+
+<p>The main panel of the update page will present a list of both the 
+applied and unapplied updates available for your system, along with a brief 
+description of what each update contains.</p>
+
+<p>To refresh this list of updates use the <strong>Check for Updates</strong>
+button.  Please make sure you are connected to the Internet before updating your
+System</p>
+
+<p>If there are <strong>available updates</strong> press the <strong>Update</strong>
+button, this will prompt the system to download and apply all updates available
+for your system.</p>
+
+<p><strong>Manual uploads</strong>: To manually apply an update press the <strong>
+Advanced</strong> button and then simply use the <B>Browse</B> button
+to select the saved file on your hard disk and then click the <B>Upload</B>
+button to apply the patch. Once done, you will see the patch in the
+"installed" list. PLEASE NOTE: only official patches will work with this
+system. Some patches may automatically reboot your SmoothWall machine, read
+the instructions carefully before installing ANY patch!</P>

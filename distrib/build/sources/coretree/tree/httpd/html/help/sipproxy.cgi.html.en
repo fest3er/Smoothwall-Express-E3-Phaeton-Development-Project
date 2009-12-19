@@ -1,0 +1,26 @@
+<P><FONT SIZE='3'><B><U>SIP Proxy</U></B></FONT></P>
+
+<P>On the SIP proxy page, you can configure a proxy to manage Session Initiation
+Protocol (SIP) traffic. SIP is often used to set up calls in Voice over Internet Protocol (VoIP) systems.
+
+<P>The SIP proxy is also able to proxy Real-time Transport Protocol (RTP) traffic, and will solve some of the
+problems involved in setting up VoIP behind NAT.
+
+<P>To configure and enable the SIP proxy:</P>
+
+<P>Select <STRONG>Enabled</STRONG> to enable the proxy.</P>
+
+<P>Select the <STRONG>Logging level</STRONG> required.</P>
+
+<P>If individual call logging is required, select <STRONG>Log
+calls</STRONG>.</P
+
+<P>Set the <STRONG>Maximum number of clients</STRONG> that can use the proxy.</P>
+
+<P>If a transparent SIP proxy is required, select
+<STRONG>Transparent</STRONG>. The SIP proxy may be configured in both
+transparent and non-transparent mode. When operating transparently, the SIP
+proxy is not used as a registrar, but will allow internal SIP devices to
+communicate properly with an external registrar such as an ITSP.</P>
+
+<P>Press <STRONG>Save</STRONG> to enable or disable the SIP proxy.</P>

@@ -1,0 +1,73 @@
+#!/bin/sh
+
+. /var/smoothwall/ethernet/settings
+
+. /etc/rc.d/rc.firewall.down
+
+echo "Restarting DNS proxy"
+/usr/bin/smoothcom dnsproxyrestart
+
+if [ "$1" != "NOTGREEN" ]; then
+	if [ "$GREEN_DEV" != "" ]; then
+		/sbin/ifconfig $GREEN_DEV $GREEN_ADDRESS netmask $GREEN_NETMASK broadcast $GREEN_BROADCAST up
+	else
+		echo "WARNING: No driver set for GREEN"
+	fi
+fi
+
+if [ "$CONFIG_TYPE" = "1" -o "$CONFIG_TYPE" = "3" -o "$CONFIG_TYPE" = "5" -o "$CONFIG_TYPE" = "7" ]; then
+	if [ "$ORANGE_DEV" != "" ]; then
+		/sbin/ifconfig $ORANGE_DEV $ORANGE_ADDRESS netmask $ORANGE_NETMASK broadcast $ORANGE_BROADCAST up
+	else
+		echo "WARNING: No driver set for ORANGE"
+	fi
+fi
+
+if [ "$CONFIG_TYPE" = "4" -o "$CONFIG_TYPE" = "5" -o "$CONFIG_TYPE" = "6" -o "$CONFIG_TYPE" = "7" ]; then
+	if [ "$PURPLE_DEV" != "" ]; then
+		/sbin/ifconfig $PURPLE_DEV $PURPLE_ADDRESS netmask $PURPLE_NETMASK broadcast $PURPLE_BROADCAST up
+	else
+		echo "WARNING: No driver set for PURPLE"
+	fi
+fi
+	
+if [ "$CONFIG_TYPE" = "2" -o "$CONFIG_TYPE" = "3" -o "$CONFIG_TYPE" = "6" -o "$CONFIG_TYPE" = "7" ]; then
+	if [ "$RED_DEV" != "" ]; then
+		if [ "$RED_TYPE" = "DHCP" ]; then
+			rm /usr/etc/dhcpc/*.info -f
+			/usr/sbin/dhcpcd -h $RED_DHCP_HOSTNAME -R $RED_DEV -c /etc/rc.d/rc.updatered
+		elif [ "$RED_TYPE" = "STATIC" ]; then
+			/sbin/ifconfig $RED_DEV $RED_ADDRESS netmask $RED_NETMASK broadcast $RED_BROADCAST up
+			if [ "$DEFAULT_GATEWAY" != "" ]; then
+				/sbin/route add default gw $DEFAULT_GATEWAY
+			fi
+		else
+			/sbin/ifconfig $RED_DEV 1.1.1.1 netmask 255.255.255.0 broadcast 1.1.1.255 up
+		fi
+	else
+		echo "WARNING: No driver set for RED"
+	fi
+fi
+
+echo "Setting up firewall"
+. /etc/rc.d/rc.firewall.up
+echo "Starting traffic stats collector"
+/usr/sbin/trafficlogger
+echo "Setting DMZ pinholes"
+/usr/bin/smoothcom setinternal
+echo "Setting up advanced networking features"
+/usr/bin/smoothcom setadvnet
+echo "Setting up IP block"
+/usr/bin/smoothcom setipblock
+
+if [ "$RED_DEV" != "" -a "$RED_TYPE" == "STATIC" ]; then
+	/etc/rc.d/rc.updatered
+fi
+
+echo "Setting external access rules"
+/usr/bin/smoothcom setxtaccess
+echo "Setting up outgoing filter"
+/usr/bin/smoothcom setoutgoing
+echo "Setting up timed access rules"
+/usr/bin/smoothcom settimedaccess
+

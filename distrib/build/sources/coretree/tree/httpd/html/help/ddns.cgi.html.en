@@ -1,0 +1,50 @@
+<P><FONT SIZE='3'><B><U>Dynamic DNS</U></B></FONT></P>
+
+<P>If you have a connection with dynamic IP, the dynamic DNS section of
+SmoothWall allows you to use dynamic DNS service provided by dyndns.org,
+no-ip.com, hn.org, dhs.org and/or dyns.cx. These services allow people
+without a static IP address to have a subdomain name pointing to their
+computer, allowing them to run services like a web server, VNC, etc.</P>
+
+<P>The first step for using dynamic DNS with SmoothWall is, of course, to
+subscribe to this free service with one of the supported providers. Once this is
+done, you just have to fill in the form on SmoothWall's dynamic DNS
+configuration page:</P>
+
+<P>Choose the correct service from the drop-down menu.</P>
+
+<P>The checkbox <B>Behind a proxy</B> has to be checked if you're using
+the no-ip.com service and if your SmoothWall is behind a proxy. This checkbox is
+useless with other services.</P>
+
+<P>The checkbox <B>Enable wildcards</B> allows you to have all the
+subdomains of your dynamic DNS hostname pointing to the same IP as your
+hostname (e.g. with this checkbox enabled, www.foo.dyndns.org will point to
+the same IP as foo.dyndns.org). This checkbox is useless with no-ip.com
+service, as they only allow this to be activated or deactivated directly on their
+web site.</P>
+
+<P><B>Hostname</B> and <B>Domain</B> have to be filled with the hostname and
+domain you chose. E.g. if you chose foo.dyndns.org, foo is your Hostname and
+dyndns.org is your Domain.</P>
+
+<P><B>Username</B> and <B>Password</B> are obviously the login information
+you chose when you subscribed to one of the dynamic DNS service
+providers.</P>
+
+<P>When you're done, just hit <B>Add</B> to save the information you submitted, and
+have it appear in the Current hosts section. You may edit that information
+later simply by checking the <B>Mark</B> checkbox at the end of the line you want
+to edit and then hitting <B>Edit</B>. If you want to keep the information for one
+of your dynamic DNS hostnames saved but want to avoid having your IP updated
+by the dynamic service provider for this hostname, just edit it, uncheck the
+<B>Enable</B> box and save it.</P>
+
+<P>Once you have finished entering all the information regarding your
+dynamic DNS hostname(s), you can force an update of all the enabled
+hostnames by hitting <B>Force update</B>. Don't do it too often, as dynamic
+DNS service providers don't like people who update their IP when it hasn't
+changed, and may block hostnames of abusive users. In the future, you won't
+need to hit this button anymore as your IP will automatically be updated
+each time your IP changes, allowing you to always be able to find your
+SmoothWall and your LAN.</P>
