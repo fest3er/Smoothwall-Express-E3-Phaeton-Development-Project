@@ -4,6 +4,10 @@
 
 . /etc/rc.d/rc.firewall.down
 
+echo "Poking udev"
+/sbin/udevadm trigger
+/sbin/udevadm settle
+
 echo "Restarting DNS proxy"
 /usr/bin/smoothcom dnsproxyrestart
 
@@ -34,7 +38,7 @@ fi
 if [ "$CONFIG_TYPE" = "2" -o "$CONFIG_TYPE" = "3" -o "$CONFIG_TYPE" = "6" -o "$CONFIG_TYPE" = "7" ]; then
 	if [ "$RED_DEV" != "" ]; then
 		if [ "$RED_TYPE" = "DHCP" ]; then
-			rm /usr/etc/dhcpc/*.info -f
+			rm /var/lib/dhcpcd/*.info -f
 			/usr/sbin/dhcpcd -h $RED_DHCP_HOSTNAME -R $RED_DEV -c /etc/rc.d/rc.updatered
 		elif [ "$RED_TYPE" = "STATIC" ]; then
 			/sbin/ifconfig $RED_DEV $RED_ADDRESS netmask $RED_NETMASK broadcast $RED_BROADCAST up

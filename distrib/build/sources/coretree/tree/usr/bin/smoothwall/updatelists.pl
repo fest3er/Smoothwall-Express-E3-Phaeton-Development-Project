@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+print "\nUpdates disabled for Phaeton.\n";
+exit 0;
+
 use IO::Socket;
 
 use lib "/usr/lib/smoothwall";

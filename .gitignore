@@ -1,0 +1,8 @@
+distrib/build/downloads/
+distrib/build/target/
+distrib/build/buildroot/
+distrib/usr/
+distrib/tools/
+distrib/var/
+distrib/boot/
+distrib/sbin/

@@ -8,14 +8,14 @@ fi
 /sbin/ifconfig $ORANGE_DEV down 2> /dev/null
 /sbin/ifconfig $PURPLE_DEV down 2> /dev/null
 /sbin/ifconfig $RED_DEV down 2> /dev/null
-if [ -e "/usr/etc/dhcpc/dhcpcd-eth0.pid" ]; then
-	kill `cat /usr/etc/dhcpc/dhcpcd-eth0.pid`
+if [ -e "/var/run/dhcpcd-eth0.pid" ]; then
+	kill `cat /var/run/dhcpcd-eth0.pid`
 fi
-if [ -e "/usr/etc/dhcpc/dhcpcd-eth1.pid" ]; then
-	kill `cat /usr/etc/dhcpc/dhcpcd-eth1.pid`
+if [ -e "/var/run/dhcpcd-eth1.pid" ]; then
+	kill `cat /var/run/dhcpcd-eth1.pid`
 fi
-if [ -e "/usr/etc/dhcpc/dhcpcd-eth2.pid" ]; then
-	kill `cat /usr/etc/dhcpc/dhcpcd-eth2.pid`
+if [ -e "/var/run/dhcpcd-eth2.pid" ]; then
+	kill `cat /var/run/dhcpcd-eth2.pid`
 fi
 /usr/bin/killall trafficlogger
 /usr/bin/smoothcom dnsproxyrestart

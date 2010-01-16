@@ -1,5 +1,13 @@
 #!/bin/bash
 
+CLS="\033[0;0f\033[2J"
+BO="\033[1m"
+UL="\033[4m"
+BOUL="\033[1;4m"
+NO="\033[0m"
+
+/sbin/depmod -a
+
 echo "Loading, please wait..."
 
 [ -d /dev ] || mkdir -m 0755 /dev
@@ -17,11 +25,8 @@ echo "Making some needed /dev entries"
 test -e /dev/console || mknod -m0600 /dev/console c 5 1
 test -e /dev/null || mknod -m0777 /dev/null c 1 3
 
-echo "Mounting real root read/write"
+echo "Mounting root read/write"
 mount -n -o remount,rw /
-
-echo "depmod"
-depmod -a
 
 echo "Clearing mtab"
 >/etc/mtab
@@ -32,22 +37,20 @@ mount -f /
 # Mounting and populating dev
 /etc/udev.rc
 
-echo "Starting USB"
-/sbin/modprobe usbcore
-/sbin/modprobe ohci-hcd
-/sbin/modprobe uhci-hcd
-/sbin/modprobe ehci-hcd
-/sbin/modprobe usbhid
-/bin/mount -t usbfs busprocusb /proc/bus/usb
+echo "Mounting /proc/bus/usb"
+/bin/mount -t usbfs procbususb /proc/bus/usb
 
-echo "1 4 1 7" >/proc/sys/kernel/printk
+# Need a short delay to give USB devices, if any, time to appear
+echo -e "${BOUL}Waiting for USB devices to finish appearing${NO}"
+sleep 5
+echo -e "${BOUL}Done waiting${NO}"
 
-test -e /etc/modules && egrep -v "^$|^#" | while read a; do modprobe $a; done
+test -e /etc/modules && egrep -v "^$|^#" /etc/modules | while read a; do modprobe $a; done
 
 # Switch to hard drive and start the system
-mount /dev/harddisk4 /harddisk -o ro
+mount /harddisk -o ro
 
-# Stop udevd, we'll miss a few events while we run init, but we catch up
+# Stop udevd, we may miss a few events while we run init, but we'll catch up
 for proc in /proc/[0-9]*; do
     [ -x $proc/exe ] || continue
     [ "$(/usr/lib/klibc/bin/readlink $proc/exe)" != /bin/udevd ] || kill ${proc#/proc/}
@@ -60,5 +63,7 @@ ln -s /harddisk/dev /dev
 
 mount -n -o move /sys /harddisk/sys
 mount -n -o move /proc /harddisk/proc
+
+echo "1 4 1 7" >/proc/sys/kernel/printk
 
 exec /usr/lib/klibc/bin/run-init /harddisk /sbin/init </harddisk/dev/console >/harddisk/dev/console 2>&1

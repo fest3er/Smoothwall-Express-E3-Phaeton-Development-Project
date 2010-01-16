@@ -174,7 +174,7 @@ extracontent:
 	find cdrom -name .svn -exec rm -rf {} \;
 
 all: cdrom cdrom/smoothwall.tgz extracontent
-	@/sbin/mkisofs -o $(TARGET_DIR)/isos/smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso \
+	/sbin/mkisofs -o $(TARGET_DIR)/isos/smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso \
           -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
 	  -no-emul-boot -boot-load-size 4 -boot-info-table \
 	  -V $(BASENAME) --publisher "Smoothwall Express Phaeton" cdrom

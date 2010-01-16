@@ -1,10 +1,19 @@
 #!/bin/bash 
 
+CLS="\033[0;0f\033[2J"
+BO="\033[1m"
+UL="\033[4m"
+BOUL="\033[1;4m"
+NO="\033[0m"
+
+# rsr() clears the scrolling region and restores the saved cursor position
+#
 function rsr {
   echo -ne "\033[r\033[20;1f\033[J\033"
   echo -ne "8"
 }
-
+# ssr() saves the cursor position and sets the scrolling region
+#
 function ssr {
   echo -ne "\033"
   echo -ne "7\033[21;24r"
@@ -13,6 +22,9 @@ function ssr {
   echo -ne "\033[21;1f"
 }
 
+# do_or_die() executes the given command in a sub-scrolling region. If the
+#   command fails, the user is notified and the system can reboot
+#
 function do_or_die {
   ssr "$1"
   eval "$1"
@@ -33,11 +45,50 @@ function do_or_die {
   fi
 }
 
-CLS="\033[0;0f\033[2J"
-BO="\033[1m"
-UL="\033[4m"
-BOUL="\033[1;4m"
-NO="\033[0m"
+# undo_alot() unmounts, unswaps, kills udevd, and other stuff
+function undo_alot {
+  umount /harddisk/var/log >/dev/null 2>&1
+  umount /harddisk/boot >/dev/null 2>&1
+  umount /harddisk/sys >/dev/null 2>&1
+  umount /harddisk/dev >/dev/null 2>&1
+  umount /harddisk/proc/bus/usb >/dev/null 2>&1
+  umount /harddisk/proc >/dev/null 2>&1
+  umount /harddisk >/dev/null 2>&1
+  umount /cdrom >/dev/null 2>&1
+
+  # Stop udevd, we may miss a few events while we run init, but we'll catch up
+  for proc in /proc/[0-9]*; do
+    [ -x $proc/exe ] || continue
+    [ "$(/usr/lib/klibc/bin/readlink $proc/exe)" != /bin/udevd ] || kill ${proc#/proc/}
+  done
+
+  swapoff -a >/dev/null 2>&1
+  umount /proc/bus/usb /dev /sys /proc >/dev/null 2>&1
+}
+
+
+# The shell calls EXITTRAP() when init (this script) exits; it attempts to restore
+#   the operating state so that init (this script) can be restarted.
+#   
+function EXITTRAP {
+  trap - EXIT
+  kill -9 $ASHPID
+  export TERM=linux; echo "$CLS" >/dev/tty3
+  kill -9 $BASHPID
+  export TERM=linux; echo "$CLS" >/dev/tty4
+
+  echo "Unexpected exit! Restarting..."
+  sleep 2
+
+  # Reverse a bunch of stuff
+  undo_alot
+
+  echo "Dropping to a shell..."
+  /bin/bash </dev/tty1 >/dev/tty1 2>/dev/tty1
+
+  exec /init
+}
+
 
 echo "Loading, please wait..."
 
@@ -70,42 +121,18 @@ mount -f /
 # Mounting and populating dev
 /etc/udev.rc
 
-echo "Starting USB"
-/sbin/modprobe usbcore
-/sbin/modprobe ohci-hcd
-/sbin/modprobe uhci-hcd
-/sbin/modprobe ehci-hcd
-/sbin/modprobe usbhid
-/bin/mount -t usbfs busprocusb /proc/bus/usb
+echo "Mounting /proc/bus/usb"
+/bin/mount -t usbfs procbususb /proc/bus/usb
+
+# Need a short delay to give USB devices, if any, time to appear
+echo -e "${BOUL}Waiting for USB devices to finish appearing${NO}"
+sleep 5
+echo -e "${BOUL}Done waiting${NO}"
+
 
 echo "1 4 1 7" >/proc/sys/kernel/printk
-#echo "0 0 0 0" >/proc/sys/kernel/printk
 
-function EXITTRAP {
-  trap - EXIT
-  kill -9 $ASHPID
-  export TERM=linux; tput clear >/dev/tty3
-  kill -9 $BASHPID
-  export TERM=linux; tput clear >/dev/tty4
-
-  echo "Unexpected exit! Restarting..."
-  sleep 2
-
-  umount /harddisk/var/log
-  umount /harddisk/boot
-  umount /harddisk/sys
-  umount /harddisk/dev
-  umount /harddisk/proc
-  umount /harddisk
-  umount /cdrom
-  swapoff -a
-
-  echo "Dropping to a shell..."
-  /bin/bash </dev/tty1 >/dev/tty1 2>/dev/tty1
-
-  exec /init
-}
-  
+# If init (this script) exits for any reason, it will be trapped
 trap EXITTRAP EXIT
 
 /bin/iowrap /dev/tty3 /bin/ash&
@@ -143,4 +170,7 @@ echo
     cd /harddisk
     chroot . /usr/sbin/setup /dev/tty2 INSTALL
 
-  /sbin/reboot -f
+  echo; echo; echo; echo;
+  echo "  clean up and reboot"
+    undo_alot
+    /sbin/reboot -f

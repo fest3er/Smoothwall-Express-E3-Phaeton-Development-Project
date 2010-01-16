@@ -10,11 +10,9 @@ sleep 3
 
 echo "Turning off swap"
 /sbin/swapoff -a
-echo "Unmounting /proc"
-umount /proc
 echo "Unmounting others"
 umount -a
-echo "Unmounting root"
+echo "Remounting root RO"
 mount -n -o remount,ro /
 
 echo -ne \\a >/dev/console 

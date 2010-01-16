@@ -160,7 +160,7 @@ echo
     do_or_die "mkdir -p -m 755 /harddisk/etc/udev/rules.d"
     do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /harddisk/etc/udev/rules.d/"
 
-  echo "  creating new fstab"
+  echo "  creating new fstab, modules"
   set -- $FS
 
   echo >/dev/tty2
@@ -176,6 +176,7 @@ echo
         echo "/dev/harddisk1	/boot		reiserfs	defaults	0	2"
         echo "/dev/harddisk5	/var/log	reiserfs	defaults	0	2"
       ) >/harddisk/etc/fstab
+      echo "reiserfs" >/harddisk/etc/modules
       ;;
     ext3)
       (
@@ -235,6 +236,7 @@ END
       (
         echo "/dev/${hd_dev[$hd]}4	/harddisk	reiserfs	notail		0	1"
       ) >/runtimeroot/etc/fstab
+      echo "reiserfs" >/runtimeroot/etc/modules
       ;;
     ext3)
       (
@@ -257,8 +259,8 @@ END
 # By default boot the first menu entry.
 default 0
 
-# Allow 30 seconds before booting the default.
-timeout 30
+# Allow 10 seconds before booting the default.
+timeout 10
 
 # Use prettier colors.
 color green/white light-green/black
