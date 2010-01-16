@@ -217,10 +217,6 @@ char *english_tr[] = {
 "Calculating module dependancies...",
 /* TR_UNABLE_TO_CALCULATE_MODULE_DEPENDANCIES */
 "Unable to calculate module dependencies.",
-/* TR_SKIP_DEV */
-"Development System",
-/* TR_SKIP_DEV_TEXT */
-"Shall I skip installing the development packages?",
 
 /* cdrom.c */
 /* TR_SELECT_CDROM_TYPE */
