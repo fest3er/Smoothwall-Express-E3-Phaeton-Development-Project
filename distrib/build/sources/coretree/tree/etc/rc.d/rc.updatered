@@ -5,7 +5,7 @@
 if [ "$RED_TYPE" = "DHCP" ]; then
 	DNSMASQ_DNS1=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 1`
 	DNSMASQ_DNS2=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 2`
-	. /var/lib/dhcpc/dhcpcd-${RED_DEV}.info
+	. /var/lib/dhcpcd/dhcpcd-${RED_DEV}.info
 	echo "$IPADDR" >/var/smoothwall/red/local-ipaddress
 	echo "$GATEWAY" >/var/smoothwall/red/remote-ipaddress
 elif [ "$RED_TYPE" = "STATIC" ]; then
