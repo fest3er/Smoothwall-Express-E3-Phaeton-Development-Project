@@ -154,6 +154,9 @@ cdrom/smoothwall.tgz:
 	/sbin/ldconfig -r distrib; \
 	) | sed -u -e 's/^/  /'
 
+	@echo -e "\nTidying ..."
+	@rm -f distrib/etc/resolv.conf
+
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
 	@tar -zcf cdrom/smoothwall.tgz -C distrib .
 
