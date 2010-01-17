@@ -25,7 +25,8 @@ INST_PKGS = glibc newt libsmooth+setup newt libgcc binutils coreutils iana-etc \
 	    reiserfsprogs
 
 DEV_PKGS = kernel-headers patch make autoconf automake binutils bison dejagnu \
-	   gcc gdb tcl m4 neon apr apr-util subversion screen lynx groff man man-pages
+	   gcc gdb tcl m4 neon apr apr-util subversion screen lynx groff man man-pages \
+	   sudo
 
 KLIBC_VER = 1.5
 klibc-tools:

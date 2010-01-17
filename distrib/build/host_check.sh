@@ -24,7 +24,7 @@ VBINUTILS=2.12
 VBINUTILSM=2.19.1
 
 CFLEX=020500
-VFLEX=2.5 #(/usr/bin/yacc should be a link to bison or small script that executes bison) 
+VFLEX=2.5
 
 CBISON=01875
 VBISON=1.875 #(/usr/bin/yacc should be a link to bison or small script that executes bison) 
@@ -148,20 +148,27 @@ else
   fi
 
   # check /usr/bin/yacc
-  readlink -ef /usr/bin/yacc|grep -i bison >/dev/null 2>&1; if [ $? -eq 0 ]; then
+  readlink -ef /usr/bin/yacc | grep -i bison >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
     echo "    OK: /usr/bin/yacc starts bison"
   else
-    echo "    FAIL: /usr/bin/yacc -> `readlink -f /usr/bin/yacc`"
-    OK=1
+    grep "exec /usr/bin/bison" /usr/bin/yacc >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+      echo "    OK: yacc starts bison"
+    else
+      test -h /usr/bin/yacc && echo "    FAIL: yacc -> `readlink -f /usr/bin/yacc`"
+      test -h /usr/bin/yacc || echo "    FAIL: yacc doesn't start bison"
+      OK=1
+    fi
   fi
 fi
 
 # Check bzip2
-if [ ! -e /bin/bzip2 ]; then
-  echo "    FAIL: /usr/bin/bzip2 not found. Need bzip2 version>=$VBISON."
-    OK=1
+if [ ! -e /bin/bzip2 -a ! -e /usr/bin/bzip2 ]; then
+  echo "    FAIL: bzip2 not found in /bin or /usr/bin. Need bzip2 version>=$VBZIP2."
+  OK=1
 else
-  WORK=`bzip2 --version 2>&1| head -1 | sed -e 's/bzip2.*Version \([0-9.]*\).*/\1/'`
+  WORK=`bzip2 --version </dev/null 2>&1 | head -1 | sed -e 's/bzip2.*Version \([0-9.]*\).*/\1/'`
   OIFS=$IFS; IFS="."; set $WORK
   TBZIP2=`echo $*|awk '{printf("%2.2d%2.2d%2.2d\n", $1, $2, $3)}'`
   IFS=$OIFS
@@ -226,7 +233,7 @@ fi
 
 # Check flex
 if [ ! -e /usr/bin/flex ]; then
-  echo "    FAIL: /usr/bin/flex not found. Need flex version>=$VBISON."
+  echo "    FAIL: /usr/bin/flex not found. Need flex version>=$VFLEX."
     OK=1
 else
   WORK=`flex --version | head -1 | sed -e 's/[^0-9.]*\(.*\)/\1/'`
@@ -301,8 +308,8 @@ else
 fi
 
 # Check gzip
-if [ ! -e /bin/gzip ]; then
-  echo "    FAIL: /bin/gzip not found. Need gzip version>=$VBISON."
+if [ ! -e /bin/gzip -a ! -e /usr/bin/gzip ]; then
+  echo "    FAIL: not found in /bin or /usr/bin. Need gzip version>=$VGZIP."
     OK=1
 else
   WORK=`gzip --version 2>&1| head -1 | sed -e 's/[^0-9.]*\(.*\)/\1/'`
@@ -334,7 +341,7 @@ fi
 
 # Check m4
 if [ ! -e /usr/bin/m4 ]; then
-  echo "    FAIL: /usr/bin/m4 not found. Need m4 version>=$VBISON."
+  echo "    FAIL: /usr/bin/m4 not found. Need m4 version>=$VM4."
   OK=1
 else
   WORK=`m4 --version 2>&1| head -1 | sed -e 's/.* \([0-9.]*\)/\1/'`
@@ -351,7 +358,7 @@ fi
 
 # Check make
 if [ ! -e /usr/bin/make ]; then
-  echo "    FAIL: /usr/bin/make not found. Need make version>=$VBISON."
+  echo "    FAIL: /usr/bin/make not found. Need make version>=$VMAKE."
   OK=1
 else
   WORK=`make --version 2>&1| head -1 | sed -e 's/.* \([0-9.]*\)/\1/'`
@@ -368,7 +375,7 @@ fi
 
 # Check patch
 if [ ! -e /usr/bin/patch ]; then
-  echo "    FAIL: /usr/bin/patch not found. Need patch version>=$VBISON."
+  echo "    FAIL: /usr/bin/patch not found. Need patch version>=$VPATCH."
   OK=1
 else
   WORK=`patch --version 2>&1| head -1 | sed -e 's/.* \([0-9.]*\)/\1/'`
@@ -385,7 +392,7 @@ fi
 
 # Check perl
 if [ ! -e /usr/bin/perl ]; then
-  echo "    FAIL: /usr/bin/perl not found. Need perl version>=$VBISON."
+  echo "    FAIL: /usr/bin/perl not found. Need perl version>=$VPERL."
   OK=1
 else
   WORK=`perl -V:version 2>&1| head -1 | sed -e 's/.*'"'"'\([0-9.]*\)'"'"'.*/\1/'`
@@ -401,8 +408,8 @@ else
 fi
 
 # Check sed
-if [ ! -e /bin/sed ]; then
-  echo "    FAIL: /bin/sed not found. Need sed version>=$VBISON."
+if [ ! -e /bin/sed -a ! -e /usr/bin/sed ]; then
+  echo "    FAIL: sed not found in /bin or /usr/bin. Need sed version>=$VSED."
   OK=1
 else
   WORK=`sed --version 2>&1| head -1 | sed -e 's/.* \([0-9.]*\)/\1/'`
@@ -434,8 +441,8 @@ else
 fi
 
 # Check tar
-if [ ! -e /bin/tar ]; then
-  echo "    FAIL: /bin/tar not found. Need tar version>=$VBISON."
+if [ ! -e /bin/tar -a ! -e /usr/bin/tar ]; then
+  echo "    FAIL: tar not found in /bin or /usr/bin. Need tar version>=$VTAR."
   OK=1
 else
   WORK=`tar --version 2>&1| head -1 | sed -e 's/.* \([0-9.]*\)/\1/'`

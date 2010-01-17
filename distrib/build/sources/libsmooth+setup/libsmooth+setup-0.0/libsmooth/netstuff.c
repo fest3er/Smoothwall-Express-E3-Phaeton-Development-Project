@@ -603,7 +603,7 @@ int countcards(void)
 	{
 		start = buffer;
 		while (*start == ' ') start++;
-		if (strncmp(start, "lo", strlen("lo")) != 0)
+		if (strncmp(start, "eth", strlen("eth")) == 0)
 			niccount++;
 	}
 	

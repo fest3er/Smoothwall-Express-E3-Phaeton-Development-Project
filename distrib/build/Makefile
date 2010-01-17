@@ -82,7 +82,8 @@ crumbs/Final.prep.built: crumbs/tc_stage_3.built
 # must have resolv.conf in chroot jail
 #
 crumbs/resolv.conf:
-	@cp /etc/resolv.conf ./crumbs/
+	@if [ -f /etc/resolv.conf ]; then cp -v /etc/resolv.conf ./crumbs/; fi
+	@if [ -f /etc/resolv.conf.dnsmasq ]; then cp -v /etc/resolv.conf.dnsmasq ./crumbs/resolv.conf; fi
 
 # build full product
 #
