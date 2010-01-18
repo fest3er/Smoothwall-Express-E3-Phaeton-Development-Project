@@ -26,6 +26,11 @@ if (!&readhash("/var/lib/dhcpcd/dhcpcd-$settings{'RED_DEV'}.info", \%dhcpc)) {
 	die "Could not open dhcpc info file"; }
 
 $dns = $dhcpc{'DNS'};
+if ($dns eq "")
+{
+        $dns = $dhcpc{'DNSSERVERS'};
+}
+
 
 @alldns = split(',', $dns);
 
