@@ -9,6 +9,8 @@
 
 SHELL = bash
 
+GLOBALDEBUG = ON
+
 # Default target, display help
 #
 default:
