@@ -7,15 +7,18 @@
 include ../Makefile.conf
 
 PACKAGE = slang
-VERSION = 1.4.9
+#VERSION = 1.4.9
+MAJORVERSION = 2.0
+VERSION = $(MAJORVERSION).7
 
-BASE_URL = ftp://space.mit.edu/pub/davis/slang/v1.4/
+BASE_URL = ftp://space.mit.edu/pub/davis/slang/v$(MAJORVERSION)/
 
 INSTALL = yes
 
 install: compile
-	@mkdir $(PKG_ROOT)
+	@rm -rf $(PKG_ROOT); mkdir $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
+	@make -C $(COMPILE_DIR) DESTDIR=/ install
 	@rm -f $(PKG_ROOT)/$(PKG_DIR)/lib/libsnewt*.so*
 
 include ../Makefile.rules

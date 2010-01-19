@@ -7,9 +7,7 @@
 #
 # Top level Makefile for SmoothWall Build system.
 
-SHELL = bash
-
-GLOBALDEBUG = ON
+export SHELL = bash
 
 # Default target, display help
 #

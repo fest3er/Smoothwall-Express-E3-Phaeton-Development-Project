@@ -25,7 +25,7 @@ extern char *english_tr[];
 int main(int argc, char *argv[])
 {
 	int choice;
-	char *sections[12]; /* need to fill this out AFTER knowning lang */
+	char *sections[13]; /* need to fill this out AFTER knowing lang */
 	int rc;
 	struct keyvalue *kv;
 	char selectedshortlang[STRING_SIZE] = "en";
