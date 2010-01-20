@@ -206,7 +206,7 @@ int firstmenu(void)
 	char *sections[] = { ctr[TR_NETWORK_CONFIGURATION_TYPE],
 		ctr[TR_DRIVERS_AND_CARD_ASSIGNMENTS],
 		ctr[TR_ADDRESS_SETTINGS],
-		ctr[TR_DNS_AND_GATEWAY_SETTINGS], NULL };
+		ctr[TR_DNS_AND_GATEWAY_SETTINGS], NULL, NULL };
 	int rc;
 	static int choice = 0;
 	struct keyvalue *kv = initkeyvalues();
@@ -369,7 +369,7 @@ int changedrivers(void)
 	char *orange = "ORANGE";
 	char *purple = "PURPLE";
 	char *red = "RED";
-	char *sections[3];
+	char *sections[6];
 	int choice;
 	char nexteth[STRING_SIZE];
 	int abort;
@@ -597,7 +597,7 @@ int addressesmenu(void)
 	struct keyvalue *kv = initkeyvalues();
 	struct keyvalue *mainkv = initkeyvalues();
 	int rc = 0;
-	char *sections[4];
+	char *sections[6];
 	char *green = "GREEN";
 	char *orange = "ORANGE";
 	char *purple = "PURPLE";

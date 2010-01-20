@@ -4,6 +4,8 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
+export GLOBALDEBUG = OFF
+
 include ../Makefile.conf
 
 PACKAGE = glibc

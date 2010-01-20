@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = newt
-VERSION = 0.52.2
+VERSION = 0.51.6
 
 BASE_URL = http://distro.ibiblio.org/pub/linux/distributions/amigolinux/download/Libs/$(PACKAGE)-$(VERSION)
 

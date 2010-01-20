@@ -89,7 +89,7 @@ int handleadsl(void)
 	char ecitype[STRING_SIZE] = "";
 	char message[1000];
 	int c;
-	char *sections[] = { "Device type", "Other settings", NULL };
+	char *sections[] = { "Device type", "Other settings", NULL, NULL };
 	int choice;
 	char enableddisabled[STRING_SIZE];
 	FILE *f;

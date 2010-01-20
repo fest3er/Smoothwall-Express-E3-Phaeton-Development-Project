@@ -86,7 +86,7 @@ int handleisdn(void)
 	int c;
 	char *sections[] = { ctr[TR_PROTOCOL_COUNTRY],
 		ctr[TR_SET_ADDITIONAL_MODULE_PARAMETERS], ctr[TR_ISDN_CARD],
-		 ctr[TR_MSN_CONFIGURATION], NULL };
+		 ctr[TR_MSN_CONFIGURATION], NULL, NULL };
 	int choice;
 	char enableddisabled[STRING_SIZE];
 	FILE *f;

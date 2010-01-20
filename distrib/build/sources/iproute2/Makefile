@@ -9,7 +9,7 @@ include ../Makefile.conf
 PACKAGE = iproute2
 VERSION = 2.6.18-061002
 
-BASE_URL = http://developer.osdl.org/dev/iproute2/download/
+BASE_URL = http://devresources.linuxfoundation.org/dev/iproute2/download
 
 PATCH_FILE1 = iproute2-2.4.7-nomisc.patch
 
