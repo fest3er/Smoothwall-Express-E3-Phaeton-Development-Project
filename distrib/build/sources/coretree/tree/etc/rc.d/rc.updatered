@@ -29,7 +29,5 @@ echo "$DNSMASQ_DNS2" >/var/smoothwall/red/dns2
 /usr/bin/smoothcom trafficrestart
 
 /usr/bin/smoothwall/setddns.pl
-/usr/bin/smoothwall/updatelists.pl
 
 /etc/rc.d/rc.vpn.up
-/etc/rc.d/rc.machineregister
