@@ -54,7 +54,7 @@ ls -C1 | while read a; do
   fi
 done > /tmp/nic.list
 cd $OPWD
-endif
+fi
   
 
 # Now get the config info
@@ -224,7 +224,7 @@ while [ 1 -eq 1 ]; do
   echo -n "                Name: "
   read CLR[$nic] #</dev/tty
 done
-endif # skipping NIC rename
+fi # skipping NIC rename
 
 while [ 1 == 1 ]; do
   echo -e "$TITLE"
@@ -272,7 +272,7 @@ while [ 1 == 1 ]; do
     fi
     i=i+1
   done
-  endif # skip NIC renaming
+  fi # skip NIC renaming
 
   echo -en "\033[20;0fIf this is OK, type yes."
   echo -en "\033[21;0fTo restart, type no."
@@ -281,7 +281,7 @@ while [ 1 == 1 ]; do
   if [ x$a == "xyes" ]; then
     export hd CD dev maxMiB filesys loader
     break;
-  elseif [ x$a == "xno" ]; then
+  elif [ x$a == "xno" ]; then
     echo "Restarting installation configuration..."
     sleep 1
     exit

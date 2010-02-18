@@ -48,7 +48,7 @@ echo "Tweaking udev"
       fi
       i=i+1
     done
-    endif # skip NIC names
+    fi # skip NIC names
   ) > /etc/udev/rules.d/90-Smoothwall-custom-NIC-names.rules
 
   echo "  Triggering udev and waiting for it to settle"
