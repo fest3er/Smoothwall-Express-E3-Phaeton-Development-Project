@@ -1,0 +1,11 @@
+# System initialization.
+::sysinit:/etc/rc
+
+# Trap CTRL-ALT-DELETE
+::ctrlaltdel:/etc/halt
+
+# Run gettys in standard runlevels
+#::respawn:/bin/iowrap /dev/tty1 /bin/loader
+::respawn:/bin/iowrap /dev/tty1 /etc/install.rc
+::respawn:/bin/iowrap /dev/tty3 /bin/ash
+::respawn:/bin/iowrap /dev/tty5 /bin/bash

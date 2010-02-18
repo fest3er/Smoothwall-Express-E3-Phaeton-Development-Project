@@ -1,0 +1,31 @@
+#!/bin/bash
+
+function EXITTRAP {
+  trap - EXIT
+  kill -9 $BASHPID
+  echo "Unexpected exit! Restarting..."
+  sleep 2
+
+  echo "Dropping to a shell..."
+  /bin/bash </dev/tty1 >/dev/tty1 2>/dev/tty1
+
+  exec /init
+}
+  
+trap EXITTRAP EXIT
+
+/bin/iowrap /dev/tty4 /bin/bash -mi&
+BASHPID=$!
+
+(
+  [ -t 0 ] || (echo "STDIN not a tty"; exit)
+
+  echo "Configuring installer"
+  . /etc/config-install.rc
+
+  echo "Executing installer"
+  . /etc/exec-install.rc
+)
+
+echo "Dropping to a shell..."
+/bin/iowrap /dev/tty1 /bin/bash
