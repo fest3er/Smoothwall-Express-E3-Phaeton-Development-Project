@@ -10,6 +10,7 @@ PACKAGE = busybox
 VERSION = 1.15.0
 
 BASE_URL = http://busybox.net/downloads/
+EXTENSION = .tar.bz2
 
 PKG_DIR = /opt/busybox
 

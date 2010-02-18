@@ -11,7 +11,7 @@ VERSION = 2.8-20080929
 
 EXTENSION = .tar.bz2
 
-BASE_URL =  ftp://ftp.lfs-matrix.net/pub/lfs/lfs-packages/development/
+BASE_URL =  ftp://ftp.lfs-matrix.net/pub/lfs/lfs-packages/6.4/
 
 COMPILE_DIR = $(DIR)-compile
 
