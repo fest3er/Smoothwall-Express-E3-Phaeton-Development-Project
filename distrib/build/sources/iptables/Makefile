@@ -15,6 +15,8 @@
 # Of course, this should also mean that iptables and the kernel should
 # always be built and rebuilt in this manner.
 
+export GLOBALDEBUG = ON
+
 DEFAULT = yes
 default: all
 unpack: clean configure
@@ -34,6 +36,8 @@ BASE_URL = ftp://ftp.netfilter.org/pub/iptables
 ifeq ($(VERSION), 1.4.2)
 CONFIG_OPTS = --with-kbuild=$(SOURCES_DIR)/kernel-phaeton/linux --enable-libipq
 
+#PATCH_FILE1 = iptc-debug.patch
+
 CONFIGURE = yes
 
 configure: $(DIR)/ patch
@@ -46,7 +50,7 @@ endif
 
 COMPILE = yes
 
-compile:
+compile: configure
 	make -C $(COMPILE_DIR) COPT_FLAGS='$(CFLAGS)' KERNEL_DIR=$(SOURCES_DIR)/kernel-phaeton/linux PREFIX=$(PKG_DIR)
 
 

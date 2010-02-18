@@ -22,7 +22,9 @@ install: patch
 CLEAN = yes
 clean:
 	@echo -n " $(PACKAGE)"
-	@rm -rf $(PKG_ROOT)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+endif
 	@rm -rf $(PACKAGE)-$(VERSION)
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 

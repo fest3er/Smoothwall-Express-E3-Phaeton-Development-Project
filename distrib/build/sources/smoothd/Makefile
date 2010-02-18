@@ -1,7 +1,8 @@
 include ../Makefile.conf
 include ../Makefile.versions
 
-CFLAGS = -I /usr/include
+export GLOBALDEBUG = ON
+export CFLAGS = -I /usr/include
 
 PACKAGE = smoothd
 VERSION = 0.0
@@ -53,7 +54,9 @@ all: install
 clean:
 	@echo -n " $(PACKAGE)"
 	@make --no-print-directory -C $(COMPILE_DIR) clean
-	@rm -rf $(PKG_ROOT)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+endif
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 
 download:

@@ -35,6 +35,9 @@ echo "Tweaking udev"
     
     echo "    Persistent custom NIC names" > /dev/tty1
     echo "# Persistent NIC names"
+    # not doing custom NIC names for now
+    #
+    if [ 1 -lt 0 ]; then
     typeset -i i
     i=1
     while [ $i -lt $nic_cnt ]; do
@@ -45,6 +48,7 @@ echo "Tweaking udev"
       fi
       i=i+1
     done
+    endif # skip NIC names
   ) > /etc/udev/rules.d/90-Smoothwall-custom-NIC-names.rules
 
   echo "  Triggering udev and waiting for it to settle"
@@ -59,54 +63,81 @@ echo
 echo "Partitioning hard drive"
 echo
   typeset -i remainder bootsize swapsize rootsize extsize logsize memsize
+  typeset -i sRemainder bootstart swapstart rootstart extstart logstart sMemsize
+  typeset -i Mremainder Mbootsize Mswapsize Mrootsize Mextsize Mlogsize Mmemsize
+  typeset -i sTotal sPerCyl Cyls Hds PerTrk
   hdd="/dev/harddisk"
+  set `sfdisk -g $hdd 2>&1`
+  Cyls=$2
+  Hds=$4
+  PerTrk=$6
+  sTotal=Cyls*Hds*PerTrk
+  hdsize=sTotal/2048
+  sPerCyl=$4*$6
+  sPerTrack=$6
+
   # boot partition fixed size
-  bootsize=100
+  bootsize=100*2048
+  bootstart=PerTrk
 
   # swap fixed to installed RAM
   set `grep MemTotal /proc/meminfo`
   memsize=$2
   memunit=$3
-  swapsize=memsize/1024
+  swapsize=memsize*2
+  swapstart=bootstart+bootsize
+  Mswapsize=memsize/1024
 
   # Compute partition sizes
-  # no dev pkgs
+  #
   if [ $maxMiB -eq 0 ]; then
     # using whole disk
-    remainder=${hd_size[$hd]}-8 # minus a little more than 1 cylinder
-    echo "  ${hdd}1  100MiB -> /boot" >/dev/tty1
-    echo "  ${hdd}2  ${swapsize}MiB -> swap" >/dev/tty1
+    remainder=sTotal-PerTrk          # less one track
+    echo "  ${hdd}1  100MiB -> /boot"
+    echo "  ${hdd}2  ${Mswapsize}MiB -> swap"
     remainder=remainder-bootsize-swapsize
     logsize=remainder/3
-    extsize=logsize+1
-    echo "  ${hdd}3    ${extsize}MiB -> (extended)" >/dev/tty1
+    logstart=swapstart+swapsize+PerTrk
+    Mlogsize=logsize/2048
+    extsize=logsize+PerTrk
+    extstart=swapstart+swapsize
+    Mextsize=extsize/2048
+    echo "  ${hdd}3    ${Mextsize}MiB -> (extended)"
     rootsize=remainder-extsize
-    echo "  ${hdd}4    ~${rootsize}MiB -> / (root)" >/dev/tty1
-    echo "  ${hdd}5    ${logsize}MiB -> /log" >/dev/tty1
+    rootstart=extstart+extsize
+    Mrootsize=rootsize/2048
+    echo "  ${hdd}4    ~${Mrootsize}MiB -> / (root)"
+    echo "  ${hdd}5    ${Mlogsize}MiB -> /log"
   else
     # using limited size
-    remainder=${hd_size[$hd]}-1 # minus a little more than 1 cylinder
-    unused=remainder-maxMiB
-    echo "  ${hdd}1    100MiB -> /boot" >/dev/tty1
-    echo "  ${hdd}2    ${swapsize}MiB -> swap" >/dev/tty1
+    remainder=$hdsize*2048-PerTrk   # less one track
+    unused=remainder-maxMiB*2048
+    echo "  ${hdd}1    100MiB -> /boot"
+    echo "  ${hdd}2    ${Mswapsize}MiB -> swap"
     remainder=remainder-bootsize-swapsize
     logsize=(remainder-unused)/3
-    extsize=unused+logsize+1
-    echo "  ${hdd}3    ${extsize}MiB -> (extended)" >/dev/tty1
+    logstart=swapstart+swapsize+PerTrk
+    Mlogsize=logsize/2048
+    extsize=unused+logsize+PerTrk
+    extstart=swapstart+swapsize
+    Mextsize=extsize/2048
+    echo "  ${hdd}3    ${Mextsize}MiB -> (extended)"
     rootsize=remainder-extsize
-    echo "  ${hdd}4    ~${rootsize}MiB -> / (root)" >/dev/tty1
-    echo "  ${hdd}5    ${logsize}MiB -> /log" >/dev/tty1
+    rootstart=extstart+extsize
+    Mrootsize=rootsize/2048
+    echo "  ${hdd}4    ~${Mrootsize}MiB -> / (root)"
+    echo "  ${hdd}5    ${Mlogsize}MiB -> /log"
   fi
   cat >/tmp/sfdisk.parts <<END
-1,$bootsize,83,*
-,$swapsize,82,
-,$extsize,5,
-,,83,
-,$logsize,83,
+63,$bootsize,83,*
+$swapstart,$swapsize,82,
+$extstart,$extsize,85,
+$rootstart,$rootsize,83,
+$logstart,$logsize,83,
 END
 
   echo
-  do_or_die "sfdisk -uMq --no-reread /dev/harddisk </tmp/sfdisk.parts"
+  do_or_die "sfdisk -uSq --force --no-reread /dev/harddisk </tmp/sfdisk.parts"
 
   sleep 2
 
@@ -220,16 +251,16 @@ END
   echo "  prepping module dependencies"
   do_or_die "/bin/chroot /harddisk /sbin/depmod -a"
 
-  echo "  tweaking initramfs"
+  echo "  adjusting runtime initramfs"
   set -- $FS
 
-  echo "    unpacking runtime initramfs"
   OPWD=`pwd`
   mkdir -p /runtimeroot; cd /runtimeroot
+  echo "    unpack"
   do_or_die "gunzip -c /boot/runtimerootimage.gz | cpio -id"
-  echo "    copying udev rules to runtime initramfs"
-    do_or_die "mkdir -p -m 755 /runtimeroot/etc/udev/rules.d"
-    do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /runtimeroot/etc/udev/rules.d/"
+  echo "    update"
+  do_or_die "mkdir -p -m 755 /runtimeroot/etc/udev/rules.d"
+  do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /runtimeroot/etc/udev/rules.d/"
 
   case $2 in
     reiserfs) 
@@ -245,6 +276,8 @@ END
       ;;
   esac
   do_or_die "/bin/chroot /runtimeroot /sbin/depmod -a"
+
+  echo "    re-pack"
   do_or_die "cd /runtimeroot; find . | cpio -o -H newc | gzip > /harddisk/boot/initrd-2.6.26.8-phaeton.gz"
   do_or_die "chmod 444 /harddisk/boot/initrd-2.6.26.8-phaeton.gz"
 
@@ -252,8 +285,8 @@ END
   do_or_die "mount --bind /proc /harddisk/proc"
   do_or_die "mount --bind /sys /harddisk/sys"
   do_or_die "mount --bind /dev /harddisk/dev"
-  if [ $loader -eq 1 ]; then
-  cat > /harddisk/boot/grub/menu.lst <<END
+  if [ $loader -eq 2 ]; then
+    cat > /harddisk/boot/grub/menu.lst <<END
 # Begin /boot/grub/menu.lst
 
 # By default boot the first menu entry.
@@ -286,3 +319,9 @@ END
 sleep 2
 
 kill -9 $MYBASHPID >/dev/null 2>/dev/null
+
+echo -e "$TITLE"
+echo
+echo "Installation is complete. Proceeding to setup..."
+
+sleep 2

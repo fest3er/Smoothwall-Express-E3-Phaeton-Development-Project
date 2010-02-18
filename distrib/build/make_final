@@ -170,11 +170,13 @@ else
       build iptables unpack
       build kernel-phaeton
       build iptables
-      build udev
-      build ipp2p
+      build xtables-addons
+      #build ipp2p
       build ipbatch
       build libipt_ACCOUNT
       build listtables
+      build udev
+      build udev-config
       build pciutils
       build bin86
       build nasm
@@ -297,7 +299,6 @@ else
 
       build miniupnpd
       build cpio
-      build udev-config
       build grub
       build reiserfsprogs
 

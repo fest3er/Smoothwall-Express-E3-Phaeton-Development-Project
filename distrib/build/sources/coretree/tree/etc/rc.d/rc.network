@@ -13,8 +13,22 @@ echo "Setting up loopback"
 ifconfig lo localhost up
 
 echo "Loading QOS modules"
-/sbin/modprobe sch_sfq
+/sbin/modprobe cls_basic
+/sbin/modprobe cls_flow
+/sbin/modprobe cls_fw
+/sbin/modprobe cls_route
+/sbin/modprobe cls_tcindex
+/sbin/modprobe cls_u32
+/sbin/modprobe sch_cbq
+/sbin/modprobe sch_dsmark
+/sbin/modprobe sch_gred
+/sbin/modprobe sch_hfsc
 /sbin/modprobe sch_htb
+/sbin/modprobe sch_prio
+/sbin/modprobe sch_red
+/sbin/modprobe sch_sfq
+/sbin/modprobe sch_tbf
+/sbin/modprobe sch_teql
 
 echo "Loading SPI modules"
 /sbin/modprobe ip_tables
@@ -31,8 +45,8 @@ echo "Loading SPI modules"
 /sbin/modprobe ipt_state
 /sbin/modprobe ipt_multiport
 /sbin/modprobe ipt_connmark
-/sbin/modprobe ipt_ipp2p
 /sbin/modprobe ipt_dscp
+/sbin/modprobe xt_ipp2p
 /sbin/modprobe xt_mark
 /sbin/modprobe xt_tcpudp
 /sbin/modprobe xt_length

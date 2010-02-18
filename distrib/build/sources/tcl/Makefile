@@ -35,6 +35,9 @@ compile: configure
 	@make -C $(DIR)/unix
 
 install: compile
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+endif
 	@make -C $(DIR)/unix INSTALL_ROOT=$(PKG_ROOT) install
 	@ln -s tclsh8.4 $(PKG_ROOT)$(PKG_DIR)/bin/tclsh
 

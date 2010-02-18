@@ -50,7 +50,7 @@ int set_xtaccess(std::vector<std::string> & parameters, std::string & response)
 	{
 		response = "Bad iface: " + iface; 
 		error = 1;
-		goto EXIT;
+		return error;
 	}
 	
 	ipb.push_back("iptables  -F xtaccess");
@@ -70,44 +70,46 @@ int set_xtaccess(std::vector<std::string> & parameters, std::string & response)
 		{
 			response = "Bad protocol: " + protocol;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		if ((n = remip.find_first_not_of(IP_NUMBERS)) != std::string::npos)
 		{
 			response = "Bad remote IP: " + remip;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		if ((n = locport.find_first_not_of(NUMBERS_COLON)) != std::string::npos)
 		{
 			response = "Bad port: " + locport;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		if (enabled == "on")
 		{
 			ipb.push_back("iptables -A xtaccess -i ppp0 -p " + protocol + 
 				" -s " + remip + 
-				" --destination-port " + locport + " -j ACCEPT");
+				" --destination-port " + locport + " -j ACCEPT\n");
 			ipb.push_back("iptables -A xtaccess -i ippp0 -p " + protocol + 
 				" -s " + remip + 
-				" --destination-port " + locport + " -j ACCEPT");
+				" --destination-port " + locport + " -j ACCEPT\n");
 
 			if (iface != "")
 			{
 				ipb.push_back("iptables -A xtaccess -i " + iface + " -p " + protocol + 
 					" -s " + remip + 
-					" --destination-port " + locport + " -j ACCEPT");
+					" --destination-port " + locport + " -j ACCEPT\n");
 			}		
 		}
 	}
 
+fprintf(stderr, "xtaccess: before ipbatch()\n");
 	error = ipbatch(ipb);
+fprintf(stderr, "xtaccess: after ipbatch(); error=%d\n", error);
+
 	if (error)
 		response = "ipbatch failure";
 	else
 		response = "xtaccess set";
 
-EXIT:
 	return error;
 }

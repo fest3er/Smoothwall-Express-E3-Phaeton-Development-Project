@@ -14,7 +14,7 @@ INST_PKGS = glibc newt libsmooth+setup newt libgcc binutils coreutils iana-etc \
 	    gettext net-tools inetutils iputils whois perl bash bzip2 kbd e2fsprogs \
 	    grep grub gzip module-init-tools procinfo procps psmisc shadow sysklogd \
 	    logrotate sysvinit tar util-linux-ng joe wget iptables libipt_ACCOUNT \
-	    ipp2p ipbatch pciutils kernel-phaeton lilo openssl openssh apache \
+	    ipbatch pciutils kernel-phaeton lilo openssl openssh apache \
 	    smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace libart_lgpl \
 	    freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd hdparm \
 	    hddtemp iproute2 libpng gd gmp expat ethtool popt listtables beep2 pcre \
@@ -22,7 +22,7 @@ INST_PKGS = glibc newt libsmooth+setup newt libgcc binutils coreutils iana-etc \
 	    eciadsl-synch_bin eciadsl-usermode cnxadsl dhcp snort oinkmaster openswan \
 	    wireless_tools imspector diffutils traceroute clamav p3scan libosip2 \
 	    siproxd which miniupnpd ez-ipupdate noip udev udev-config coretree \
-	    reiserfsprogs
+	    reiserfsprogs xtables-addons
 
 DEV_PKGS = kernel-headers patch make autoconf automake binutils bison dejagnu \
 	   gcc gdb tcl m4 neon apr apr-util subversion screen lynx groff man man-pages \

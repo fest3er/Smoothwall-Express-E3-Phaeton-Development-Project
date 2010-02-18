@@ -21,5 +21,7 @@ all: install
 clean:
 	@echo -n " $(PACKAGE)"
 	@rm -f $(COMPILE_DIR)/ibod
-	@rm -rf $(PKG_ROOT)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+endif
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz

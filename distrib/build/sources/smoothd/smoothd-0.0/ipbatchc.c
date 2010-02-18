@@ -106,9 +106,9 @@ int dobatch(char *store)
 			linebuf[linelen] = 0;
 			// syslog(LOG_WARNING, "linebuf %s\n", linebuf);
 			if((pos + linelen) < &store[size])
-				pos += linelen;
+				pos += linelen + 1;
 			else
-				pos += size;
+				pos = store + size;
 			if(!have_committed) {
 				if(table_changed(linebuf)) {
 					error =  iptc_commit(&handle);

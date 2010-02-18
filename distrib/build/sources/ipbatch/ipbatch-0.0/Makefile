@@ -1,9 +1,9 @@
 # where to find it - relative path
 IPTABLES_SRC_DIR:=../../iptables/iptables-$(IPTABLES_VER)
 # where the IPT shared libs live
-IPT_LIB_DIR:=/usr/lib/iptables
+IPT_LIB_DIR:=$(IPT_LIBEXEC)
 
-KERNEL_DIR:=/usr/src/linux
+KERNEL_DIR:=../../kernel-phaeton/linux
 
 CC=gcc 
 CXX=g++

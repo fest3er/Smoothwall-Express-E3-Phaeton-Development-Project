@@ -14,7 +14,8 @@ VERSION = 0.0
 MODSWROOT = /var/smoothwall/traffic
 
 compile:
-	@make -C $(COMPILE_DIR) CFLAGS="$(CFLAGS)" MODSWROOT=$(MODSWROOT) IPTABLES_VERSION=$(IPTABLES_VER) KERNEL_VER=$(KERNEL_VER) 
+	@make -C $(COMPILE_DIR) CFLAGS="$(CFLAGS)" MODSWROOT=$(MODSWROOT) KERNEL_VER=$(KERNEL_VER) \
+	  IPTABLES_VERSION=$(IPTABLES_VER) LIB_IPT_DIR=$(IPT_LIBEXEC)
 
 install: compile
 	@install -D $(COMPILE_DIR)/trafficlogger $(PKG_ROOT)/$(PKG_DIR)/sbin/trafficlogger
@@ -27,7 +28,9 @@ all: install
 clean:
 	@echo -n " $(PACKAGE)"
 	@make --no-print-directory -C $(COMPILE_DIR) CFLAGS="$(CFLAGS)" clean
-	@rm -rf $(PKG_ROOT)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+endif
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 
 packageinfo.html: clean

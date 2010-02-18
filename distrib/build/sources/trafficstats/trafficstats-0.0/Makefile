@@ -6,7 +6,7 @@
 # where to find the external stuff - you will probably have to change this
 IPTABLES_SRC_DIR=/build/sources/iptables/iptables-$(IPTABLES_VERSION)
 IPROUTE_INC_DIR=/build/sources/iproute2/iproute2/include
-IPT_LIB_DIR=/usr/lib/iptables
+IPT_LIB_DIR=$(LIB_IPT_DIR)
 KERNEL_DIR=/build/sources/kernel-phaeton/linux-$(KERNEL_VER)
 IPROUTE_LIB_DIR=/build/sources/iproute2/iproute2/lib
 IPTABLES_OBJS= $(IPTABLES_SRC_DIR)/iptables.o \

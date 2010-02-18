@@ -23,6 +23,8 @@ install: compile
 clean:
 	@echo -n " $(PACKAGE)"
 	@rm -rf $(PACKAGE)-$(VERSION)
-	@rm -rf $(PKG_ROOT)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+endif
 	
 include ../Makefile.rules

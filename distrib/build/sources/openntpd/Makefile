@@ -14,8 +14,8 @@ BASE_URL = ftp://ftp.openbsd.org/pub/OpenBSD/OpenNTPD/
 
 CONFIG_OPTS = --with-ssl-dir=/usr/ssl
 
-#PATCH_FILE1 = openntpd-username.patch
-#PATCH_FILE2 = openntpd-pidfile.patch
+PATCH_FILE1 = openntpd-username.patch
+PATCH_FILE2 = openntpd-pidfile.patch
 
 INSTALL = yes
 

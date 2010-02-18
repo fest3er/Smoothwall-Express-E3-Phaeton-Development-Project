@@ -94,7 +94,7 @@ clean:
 	@echo -n " $(PACKAGE)"
 	@rm -rf $(DIR)
 	@rm -rf $(COMPILE_DIR)
-ifndef BUILDENV
+ifeq ($(BUILD_PHASE), Final)
 	@rm -rf $(BUILDDIR)/buildroot/$(PACKAGE)
 endif
 endif

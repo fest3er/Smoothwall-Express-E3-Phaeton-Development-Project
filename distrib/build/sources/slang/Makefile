@@ -16,7 +16,9 @@ BASE_URL = ftp://space.mit.edu/pub/davis/slang/v$(MAJORVERSION)/
 INSTALL = yes
 
 install: compile
-	@rm -rf $(PKG_ROOT); mkdir $(PKG_ROOT)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+endif
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	@make -C $(COMPILE_DIR) DESTDIR=/ install
 	@rm -f $(PKG_ROOT)/$(PKG_DIR)/lib/libsnewt*.so*

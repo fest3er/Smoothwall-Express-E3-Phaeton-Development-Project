@@ -157,8 +157,18 @@ echo "Loading filesystems"
 /sbin/modprobe vfat
 /sbin/modprobe nls_cp437
 
+echo "Loading IPSEC"
+/sbin/modprobe ipsec
+
 echo "Starting smoothd"
 /usr/sbin/smoothd
+
+echo "Silencing kernel, syslog output on tty12"
+echo "View the log files in /var/log to trace errors."
+echo "1 4 1 7" >/proc/sys/kernel/printk
+
+echo "Saving dmesg buffer to /var/log/dmesg-pre-network"
+dmesg >/var/log/dmesg-pre-network
 
 echo "Running /etc/rc.d/rc.network"
 . /etc/rc.d/rc.network
@@ -184,10 +194,12 @@ echo "Starting Clam Anti-Virus (if enabled)"
 echo "Starting POP3 scanner (if enabled)"
 /usr/bin/smoothcom p3scanrestart
 
-echo "Silencing kernel, syslog output on tty12"
-echo "1 4 1 7" >/proc/sys/kernel/printk
+echo "Saving dmesg buffer to /var/log/dmesg-post-network"
+dmesg >/var/log/dmesg-post-network
 
-dmesg >/var/log/dmesg
+echo "Looking for system updates and registering your system."
+/usr/bin/smoothwall/updatelists.pl
+/etc/rc.d/rc.machineregister
 
 logger -t smoothwall "SmoothWall started."
 

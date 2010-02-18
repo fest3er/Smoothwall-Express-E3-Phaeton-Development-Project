@@ -1,14 +1,19 @@
-
+ifdef GLOBALDEBUG
+CXXFLAGS = -g -O0
+else
 CXXFLAGS = $(CFLAGS)
+endif
+
 # where to find it - relative path
 IPTABLES_SRC_DIR = ../../iptables/iptables-$(IPTABLES_VER)
 # where the IPT shared libs live
-IPT_LIB_DIR = /usr/lib/iptables
+export IPT_LIB_DIR = $(IPT_LIBEXEC)
 
 OBJS=
 LIB_OBJS = module.o UDSocket.o pid.o setuid.o config.o ipbatch.o ipbatchc.o \
 	$(IPTABLES_SRC_DIR)/iptables.o \
 	$(IPTABLES_SRC_DIR)/libiptc/libiptc.a
+
 MAIN = main.cpp
 LIBS = -ldl /usr/lib/libsmoothd.so  -lxtables
 BIN = smoothd
@@ -25,14 +30,14 @@ all: libsmoothd smoothd $(MODULES) smoothcom ipbatchtest
 modules: $(MODULES)
 
 libsmoothd : $(LIB_OBJS)
-	$(CXX) -shared  -o libsmoothd.so $(LIB_OBJS)
+	$(CXX) -shared  -o libsmoothd.so $(CXXFLAGS) $(LIB_OBJS)
 	@install -D ./libsmoothd.so /usr/lib/libsmoothd.so
 
 smoothd: $(OBJS) 
-	$(CXX) -o $(BIN) $(DFLAGS) $(MAIN) $(OBJS) $(LIBS)
+	$(CXX) -o $(BIN) $(CXXFLAGS) $(DFLAGS) $(MAIN) $(OBJS) $(LIBS)
 
 ipbatchtest: $(OBJS) 
-	$(CXX) -g -o ipbatchtest $(DFLAGS) ipbatchtest.cpp $(OBJS) $(LIBS) 
+	$(CXX) -o ipbatchtest $(CXXFLAGS) $(DFLAGS) ipbatchtest.cpp $(OBJS) $(LIBS) 
 
 smoothcom:
 	$(CXX) -o smoothcom $(CXXFLAGS) smoothcom.cpp -ldl -lxtables /usr/lib/libsmoothd.so 

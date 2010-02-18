@@ -13,7 +13,8 @@ NO="\033[0m"
 PCI_IDS="/etc/filled.pci.ids"
 TITLE="$CLS            ${BOUL}Smoothwall Express 3 (Phaeton Development) Installation$NO"
 
-echo "Preparing lists of CDROM and hard drives and NICs"
+#echo "Preparing lists of CDROM and hard drives and NICs"
+echo "Preparing lists of CDROM and hard drives"
 OPWD=$PWD;cd /sys/block
 
 ls -C1 | while read a; do
@@ -32,6 +33,8 @@ ls -C1 | while read a; do
 done
 cd $OPWD
 
+# skip NICs until setup works
+if [ 1 -lt 0 ]; then
 OPWD=$PWD;cd /sys/class/net
 ls -C1 | while read a; do
   VNDNO=""; VND=""; DEVNO=""; DEV=""; MAC=""
@@ -51,6 +54,7 @@ ls -C1 | while read a; do
   fi
 done > /tmp/nic.list
 cd $OPWD
+endif
   
 
 # Now get the config info
@@ -165,8 +169,8 @@ while [ 1 -eq 1 ]; do
   echo
   echo -e "${BO}Boot Loader${NO}"
 
-  i=1; echo "  $i. GRUB (default)"
-  i=2; echo "  $i. LILO"
+  i=1; echo "  $i. LILO (default)"
+  i=2; echo "  $i. GRUB"
   echo
 
   echo -n "[1]        Selection: "
@@ -175,6 +179,9 @@ while [ 1 -eq 1 ]; do
   if [ $loader -lt 3 ]; then break; fi
 done
 
+# setup is limited to eth[0-3]; so skip NIC renaming for now.
+#
+if [ 1 -lt 0 ]; then
 typeset -i nic_cnt
 nic_cnt=1
 OIFS="$IFS"; IFS="|"
@@ -217,55 +224,69 @@ while [ 1 -eq 1 ]; do
   echo -n "                Name: "
   read CLR[$nic] #</dev/tty
 done
+endif # skipping NIC rename
 
-echo -e "$TITLE"
-echo
-echo
+while [ 1 == 1 ]; do
+  echo -e "$TITLE"
+  echo
+  echo
 
-echo "Confirm installation configuration"
-echo
-echo -e "  Installing on ${BO}/dev/${hd_dev[$hd]}${NO}"
-echo -e "  Using CD/DVD drive ${BO}/dev/${cd_dev[$CD]}${NO}"
-if [ $dev -eq 1 ]; then
-  echo -e "  ${BO}Skipping${NO} development packages"
-else
-  echo -e "  ${BO}Installing${NO} development packages"
-fi
-if [ $maxMiB == "0" ]; then
-  echo -e "  Using ${BO}whole disk${NO} (${hd_size[$hd]}MiB)"
-else
-  echo -e "  Using first ${BO}${maxMiB}MiB${NO} of hard drive"
-fi
-if [ $filesys == "1" ]; then
-  echo -e "  Making ${BO}EXT3${NO} filesystems"
-else
-  echo -e "  Making ${BO}ReiserFS${NO} filesystems"
-fi
-if [ $loader == "1" ]; then
-  echo -e "  Installing ${BO}GRUB${NO} boot loader"
-else
-  echo -e "  Installing ${BO}LILO${NO} boot loader"
-fi
-echo
-typeset -i ypos
-ypos=6
-echo -e "\033[${ypos};40f  Assigning persistent NIC names:"
-ypos=ypos+1
-i=1;
-while [ $i -lt $nic_cnt ]; do
-  if [ "${CLR[$i]}" != "not named" ]; then
-    echo -e "\033[${ypos};40f    ${DEV[$i]} -> ${BO}${CLR[$i]}${NO}"
-    ypos=ypos+1
+  echo "Confirm installation configuration"
+  echo
+  echo -e "  Installing on ${BO}/dev/${hd_dev[$hd]}${NO}"
+  echo -e "  Using CD/DVD drive ${BO}/dev/${cd_dev[$CD]}${NO}"
+  if [ $dev -eq 1 ]; then
+    echo -e "  ${BO}Skipping${NO} development packages"
+  else
+    echo -e "  ${BO}Installing${NO} development packages"
   fi
-  i=i+1
-done
+  if [ $maxMiB == "0" ]; then
+    echo -e "  Using ${BO}whole disk${NO} (${hd_size[$hd]}MiB)"
+  else
+    echo -e "  Using first ${BO}${maxMiB}MiB${NO} of hard drive"
+  fi
+  if [ $filesys == "1" ]; then
+    echo -e "  Making ${BO}EXT3${NO} filesystems"
+  else
+    echo -e "  Making ${BO}ReiserFS${NO} filesystems"
+  fi
+  if [ $loader == "1" ]; then
+    echo -e "  Installing ${BO}LILO${NO} boot loader"
+  else
+    echo -e "  Installing ${BO}GRUB${NO} boot loader"
+  fi
+  echo
 
-echo -en "\033[23;0fIf this is OK, type YES, otherwise tap <ENTER>: "
-read a #</dev/tty
-if [ x$a == "xYES" ]; then
-  export hd CD dev maxMiB filesys
-else
-  echo "Restarting installation configuration..."
-  sleep 2
-  exit
-fi
+  # Skip NIC renaming for now
+  #
+  if [ 1 -lt 0 ]; then
+  typeset -i ypos
+  ypos=6
+  echo -e "\033[${ypos};40f  Assigning persistent NIC names:"
+  ypos=ypos+1
+  i=1;
+  while [ $i -lt $nic_cnt ]; do
+    if [ "${CLR[$i]}" != "not named" ]; then
+      echo -e "\033[${ypos};40f    ${DEV[$i]} -> ${BO}${CLR[$i]}${NO}"
+      ypos=ypos+1
+    fi
+    i=i+1
+  done
+  endif # skip NIC renaming
+
+  echo -en "\033[20;0fIf this is OK, type yes."
+  echo -en "\033[21;0fTo restart, type no."
+  echo -en "\033[23;0fOK? "
+  read a #</dev/tty
+  if [ x$a == "xyes" ]; then
+    export hd CD dev maxMiB filesys loader
+    break;
+  elseif [ x$a == "xno" ]; then
+    echo "Restarting installation configuration..."
+    sleep 1
+    exit
+  else
+    echo -en "\007 ??"
+    sleep 2
+  fi
+done

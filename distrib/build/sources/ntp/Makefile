@@ -9,7 +9,7 @@ include ../Makefile.conf
 PACKAGE = ntp
 VERSION = 4.2.4p2
 
-CONFIG_OPTS = --enable-linuxcaps
+CONFIG_OPTS = --enable-linuxcaps --with-privsep=ntpd
 
 BASE_URL = http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/
 

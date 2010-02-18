@@ -5,7 +5,7 @@ PACKAGE = ipbatch
 VERSION = 0.0
 
 compile:
-	@make -C $(COMPILE_DIR) IPTABLES_VER=$(IPTABLES_VER) IPT_LIB_DIR=/usr/lib/iptables
+	@make -C $(COMPILE_DIR) IPTABLES_VER=$(IPTABLES_VER) IPT_LIB_DIR=$(IPT_LIBEXEC)
 
 install: compile
 	@install -D $(COMPILE_DIR)/ipbatch $(PKG_ROOT)/usr/sbin/ipbatch
@@ -15,7 +15,9 @@ all: install
 
 clean:
 	echo -n " $(PACKAGE)"
-	rm -rf $(PKG_ROOT)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+endif
 	rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 
 download:
