@@ -1,0 +1,101 @@
+This is a userspace front end onto the iptableproc kernel module.
+Written by Martin Houston, Smoothwall Ltd.
+
+(c) 2006 Smoothwall Ltd.<martin.houston@smoothwall.net>
+Released under the GPLv2
+
+It takes a specification in the form of an xml file and uses curses to present
+flow through the specified rules.
+
+It is based on the Smoothwall trafficmon program - which used the iptables libs
+so was a cpu hog - as for every reading the entire iptables structure had to 
+be decoded from its in kernel form and copied to userspace.. This is all fine 
+for checking on iptables counters one a minute or so for long term logging 
+but not much fun 20 times a second, hence why iptableproc was written.
+
+The format of the input file is a number of xml records in the following form
+where "this|that" indicates the range of allowed values.
+
+<ipt_vis title="title"
+ samples_per_sec="10" 
+ average_over="20" 
+ output_method="curses|plain|afilename"
+ output_format="mbit|kbit|bit"
+ measuring="bytes|packets"
+>
+<entry name="name for this rule"
+       table="table"
+       chain="chain"
+       rule="rule num"
+       bg_colour="black"
+       bar_color="blue" OR 
+       bar_colour="green:30,orange:60,red:80"
+       
+       max_rate="13107200"
+/>
+
+
+</ipt_vis>
+
+The max_rate is in either bytes or packets per second.
+To convert kbits per second divide 8 and multiply by 1024.
+Without knowing a max_rate it is not possible to display a bar graph of
+how much of that 'maximum' any rule is consuming at present. However the
+bar graph feature is only availble in "curses" mode. The plain mode is just
+the bare rate only.
+If the max_rate is set too low then the graphs will be solid red all the 
+time, if set too high then there will be no visible feedback that shows how
+data is flowing through the different rules relaitive to each other (which is 
+the whole point of the exercise).
+
+The number of samples that need to be stored for each rule is
+samples_per_sec * average_over as we want to show the rate based on that number
+of seconds as well as the difference between current and immediatley previous readings. 
+
+There are a number of other optional paremeters at the ipt_vis level
+
+table="filter|mangle|nat" - which table all the entrys refer to (but can
+be overriden in entry level).
+
+bar_colour = "green:30,yellow:50,red:99" - if curses ouput method the 
+precentage levels that trigger different colours of the bar. 0-30% green, 31-50% yellow and 51-99 % red.
+
+bg_colour="black" - he curses forground/background colour pair used for display
+of that line.
+
+
+
+The entrys will be rendered down the page in the order encountered.
+
+For the curses output_method:
+
+If the rules specified do not exist then the corresponding line will be blank apart from the rule name.
+
+Otherwise the name is displayed at the left of the screen and the instantaneous
+and averaged quantities of either bytes or packets. 
+
+On an entry both the name and the rule elements can be comma separated 
+multiple values. In this case the counters are read at the whole chain level 
+(even more efficient) and all other settings considered the same for each of 
+the rules. 
+
+The plain output method just consists of a line of rates, tab separated. This 
+is intended for some other program to interpret, possibly on another machine.
+
+There is no title information. The presumption is that the xml file for the 
+plain method has been written by the same process that wants to use the rates.
+
+If average_over is greater than one then each entry consists of two numbers comma separated. 
+The first is the difference between
+the current and previous sample and the next is the difference between the 
+current and oldest sample. Both scaled up to be the how much data whould have 
+been transferred if that rate had been maintained for a whole second.
+
+Output is flushed after each line.
+
+if average_over is just 1 then only the first of these values is present 
+giving the simplest and lightest weight output for further processing,
+possibly on a client machine.
+
+
+

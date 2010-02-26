@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svnroot/smoothwall/!svn/ver/361/trunk/distrib/build/sources/ipt_vis/ipt_vis-0.1
+END
+sample.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svnroot/smoothwall/!svn/ver/361/trunk/distrib/build/sources/ipt_vis/ipt_vis-0.1/sample.xml
+END
+ipt_vis.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svnroot/smoothwall/!svn/ver/361/trunk/distrib/build/sources/ipt_vis/ipt_vis-0.1/ipt_vis.hpp
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/smoothwall/!svn/ver/361/trunk/distrib/build/sources/ipt_vis/ipt_vis-0.1/Makefile
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svnroot/smoothwall/!svn/ver/361/trunk/distrib/build/sources/ipt_vis/ipt_vis-0.1/README
+END
+ipt_vis.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svnroot/smoothwall/!svn/ver/361/trunk/distrib/build/sources/ipt_vis/ipt_vis-0.1/ipt_vis.cpp
+END

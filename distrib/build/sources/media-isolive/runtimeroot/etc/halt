@@ -1,0 +1,11 @@
+#!/bin/sh
+echo "Unmounting /cdrom, /harddisk/boot, /harddisk/var/log and /harddisk"
+/sbin/umount /cdrom 2>/dev/null
+/sbin/umount /harddisk/boot 2>/dev/null
+/sbin/umount /harddisk/var/log 2>/dev/null
+/sbin/umount /harddisk 2>/dev/null
+echo "Unmounting root"
+/sbin/mount -n -o remount,ro /
+sleep 1
+echo "Rebooting..."
+/sbin/reboot

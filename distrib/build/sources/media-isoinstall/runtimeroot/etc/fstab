@@ -1,0 +1,3 @@
+none		/	rootfs
+none		/proc	proc
+none		/sys	sysfs

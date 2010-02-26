@@ -1,0 +1,37 @@
+#!/bin/bash 
+
+(
+echo "Making some needed /dev entries"
+mknod -m0600 dev/console c 5 1
+mknod -m0600 dev/kmem c 1 2
+mknod -m0600 dev/mem c 1 1
+
+echo "Mounting root read/write"
+mount -n -o remount,rw /
+
+echo "Clearing mtab"
+>/etc/mtab
+
+echo "Marking root as mounted"
+mount -f /
+
+echo "Mounting proc"
+mount /proc
+
+echo "Mounting sysfs"
+/bin/mount -t sysfs sysfs /sys -onodev,noexec,nosuid
+
+# Mounting and populating dev
+/etc/udev.rc
+
+echo "Starting USB"
+/sbin/modprobe usbcore
+/sbin/modprobe ohci-hcd
+/sbin/modprobe uhci-hcd
+/sbin/modprobe ehci-hcd
+/sbin/modprobe usbhid
+
+#echo "1 4 1 7" >/proc/sys/kernel/printk
+echo "0 0 0 0" >/proc/sys/kernel/printk
+
+) >/dev/tty2

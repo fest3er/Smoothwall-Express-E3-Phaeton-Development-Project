@@ -1,0 +1,66 @@
+#! /bin/bash -x
+
+echo "Preparing lists of CDROM and hard drives"
+OPWD=$PWD;cd /sys/block
+
+typeset -i tries cd_cnt hd_cnt
+tries=0
+
+# Loop until we have enough drives or concede obsequiously
+#
+while :; do
+  # Start empty each time
+  >/tmp/hd.list
+  >/tmp/cd.list
+  ls -C1 | while read a; do
+case $a in sd[a-c]) continue;;esac
+    if [ -e $a/device ]; then
+      # if an optical drive, add it to /tmp/cd.list
+      egrep "ide:m-cdrom|scsi:t-0x05" $a/device/modalias >/dev/null 2>&1
+      if [ $? -eq 0 ]; then
+        echo "$a `cat $a/size`" >> /tmp/cd.list
+      fi
+      # if a disk drive, add it to /tmp/hd.list
+      egrep "ide:m-disk|scsi:t-0x00" $a/device/modalias >/dev/null 2>&1
+      if [ $? -eq 0 ]; then
+        set `cat $a/size`
+        if [ $1 -gt 0 ]; then
+          echo "$a `cat $a/size`" >> /tmp/hd.list
+        fi
+      fi
+    fi
+  done
+
+  # Find anything?
+  set `wc -l /tmp/hd.list`
+  hd_cnt=$1
+  set `wc -l /tmp/cd.list`
+  cd_cnt=$1
+
+  # If at least one of each was found, get on with the install already!
+  test $hd_cnt -gt 0 && test $cd_cnt -gt 0 && break
+
+  case $tries in
+    1|7|17)
+      case $hd_cnt in
+        0) echo -n "No writable drives found. ";;
+        1) echo -n "One writable drive found. ";;
+        *) echo -n "Two or more writable drives found. ";;
+      esac
+      case $cd_cnt in
+        0) echo -n "No optical drives found. ";;
+        1) echo -n "One optical drive found. ";;
+        *) echo -n "Two or more optical drives found. ";;
+      esac
+      echo -e "\nEither this system hasn't got the needed dive, or it is pokey in recognizing it."
+      echo -e "Will continue to look for a little while.\n"
+      ;;
+    30)
+      echo -e "\n\n\nI do apologize. I cannot continue without both a writable drive and an optical drive.\n\n"
+      exit 1
+      ;;
+  esac
+  sleep 1
+  tries=tries+1
+done
+cd $OPWD

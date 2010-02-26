@@ -1,0 +1,28 @@
+53c700 cards|scsi|53c700
+NCR53c406a cards|scsi|NCR53c406a
+Adaptec 1542 cards|scsi|aha1542
+Adaptec 152x cards|scsi|aha152x
+Adaptec 1740 cards|scsi|aha1740
+Adaptec AIC7xxx cards|scsi/aic7xxx|aic7xxx
+Adaptec AIC79xx cards|scsi/aic7xxx|aic79xx
+Bus Logic cards|scsi|BusLogic
+Initio 9100U(W) cards|scsi|initio
+Initio A100U2W cards|scsi|a100u2w
+Symbios 53c8xx cards|scsi/sym53c8xx_2|sym53c8xx
+Future Domain cards|scsi|fdomain
+Compaq Tachyon TS Fibre Channel|scsi|cpqfc
+ATA Intel PIIX|scsi|ata_piix
+LSI Logic Fusion MPT|message/fusion|mptscsih
+SATA NVidia|scsi|sata_nv
+SATA Promise|scsi|sata_promise
+SATA Silicon Image|scsi|sata_sil
+SATA Silicon Image 24|scsi|sata_sil24
+SATA SiS 964/180|scsi|sata_sis
+SATA SVW|scsi|sata_svw
+SATA Promise SX4|scsi|sata_sx4
+SATA ULi Electronics|scsi|sata_uli
+SATA VIA|scsi|sata_via
+SATA VSC|scsi|sata_vsc
+SATA Pacific Digital QStor|scsi|sata_qstor
+SATA MV|scsi|sata_mv
+AHCI SATA|scsi|ahci
