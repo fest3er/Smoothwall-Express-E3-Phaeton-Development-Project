@@ -12,6 +12,7 @@ DOWNLOAD = 1
 PREPARE=1
 PATCH=1
 CONFIGURE=1
+CLEAN=1
 
 include ../Makefile.rules
 
@@ -26,3 +27,7 @@ prepare:
 
 download:
 	@true
+
+clean:
+	@echo -n " $(PACKAGE)"
+	@make -C $(COMPILE_DIR) clean >/dev/null 2>&1

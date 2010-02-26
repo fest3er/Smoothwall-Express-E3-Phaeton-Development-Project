@@ -38,7 +38,7 @@ if ($cgiparams{'ACTION'} eq $tr{'add'})
 	unless(&validipormask($cgiparams{'EXT'}))
 	{
 		if ($cgiparams{'EXT'} ne '') {
-			$errormessage = $tr{'source is bad'}; }
+			$errormessage = $tr{'source ip bad'}; }
 		else {
 			$cgiparams{'EXT'} = '0.0.0.0/0'; }
 	}

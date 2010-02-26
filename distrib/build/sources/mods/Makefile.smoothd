@@ -8,4 +8,5 @@ $(PLUGINS):
 	$(CXX) $(MODFLAGS)
 
 clean:
-	rm -f *.o *.so
+	@echo -n "mods/snmp "
+	@rm -f *.o *.so

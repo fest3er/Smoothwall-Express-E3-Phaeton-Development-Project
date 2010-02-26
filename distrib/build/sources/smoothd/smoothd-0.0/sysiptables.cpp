@@ -128,7 +128,7 @@ int set_incoming(std::vector<std::string> & parameters, std::string & response)
 	if ((error = (localip.str() == "")))
 	{
 		response = "Couldn't open local IP file";
-		goto EXIT;
+		return error;
 	}
 	// carry on
 	if ((n = localip.str().find_first_not_of(IP_NUMBERS)) != std::string::npos) 
@@ -136,12 +136,12 @@ int set_incoming(std::vector<std::string> & parameters, std::string & response)
 		// illegal characters
 		response = "Bad local IP: " + localip.str();
 		error = 1;
-		goto EXIT;
+		return error;
 	}
 	if ((error = (iface.str() == "")))
 	{
 		response = "Couldn't open iface file";
-		goto EXIT;
+		return error;
 	}
 	// carry on
 	if ((n = iface.str().find_first_not_of(LETTERS_NUMBERS)) != std::string::npos) 
@@ -149,7 +149,7 @@ int set_incoming(std::vector<std::string> & parameters, std::string & response)
 		// illegal characters
 		response = "Bad iface: " + iface.str();
 		error = 1;
-		goto EXIT;
+		return error;
 	}
 
 	ipbfilter.push_back("iptables -t filter -F portfwf");
@@ -172,50 +172,31 @@ int set_incoming(std::vector<std::string> & parameters, std::string & response)
 		{
 			response = "Bad protocol: " + protocol;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		if ((n = extip.find_first_not_of(IP_NUMBERS)) != std::string::npos)
 		{
 			response = "Bad external IP: " + extip;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		if ((n = locport.find_first_not_of(NUMBERS_COLON)) != std::string::npos)
 		{
 			response = "Bad local port: " + locport;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		if ((n = remip.find_first_not_of(IP_NUMBERS)) != std::string::npos)
 		{
 			response = "Bad remote IP: " + remip;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		if ((n = remport.find_first_not_of(NUMBERS)) != std::string::npos)
 		{
 			response = "Bad remote port: " + remport;
 			error = 1;
-			goto EXIT;
-		}
-
-		int mark = 0; std::string insideinterface;
-
-		// work out what interface the destination is on, for bounce forwards		
-		if (ipinsubnet(ethernet["GREEN_NETADDRESS"], ethernet["GREEN_NETMASK"], remip))
-		{
-			mark = GREEN_MARK;
-			insideinterface = ethernet["GREEN_DEV"];
-		}
-		if (ipinsubnet(ethernet["ORANGE_NETADDRESS"], ethernet["ORANGE_NETMASK"], remip))
-		{
-			mark = ORANGE_MARK;
-			insideinterface = ethernet["ORANGE_DEV"];
-		}
-		if (ipinsubnet(ethernet["PURPLE_NETADDRESS"], ethernet["PURPLE_NETMASK"], remip))
-		{
-			mark = PURPLE_MARK;
-			insideinterface = ethernet["PURPLE_DEV"];
+			return error;
 		}
 
 		if (enabled == "on")
@@ -228,8 +209,7 @@ int set_incoming(std::vector<std::string> & parameters, std::string & response)
 			else 
 				remdouble = remip;
 
-			ipbfilter.push_back("iptables -t filter -A portfwf -m state --state NEW -i " + 
-				iface.str() + " -p " + protocol +  			
+			ipbfilter.push_back("iptables -t filter -A portfwf -m state --state NEW -p " + protocol +
 				" -s " + extip +  			
 				" -d " + remip +  			
 				" --dport " + remport + " -j ACCEPT");
@@ -237,12 +217,27 @@ int set_incoming(std::vector<std::string> & parameters, std::string & response)
 				" -s " + extip +  
 				" -d " + localip.str() +  			
 				" --dport " + locport + " -j DNAT --to " + remdouble);
-			if (mark)
-			{
-				ipbmangle.push_back("iptables -t mangle -A portfwb -i " + insideinterface +
-					" -p " + protocol + " -d " + localip.str() + " --dport " + locport +
-					" -j MARK --set-mark " + stringprintf("%d", mark));
-			}
+		}
+	}
+
+	/* Rules to detect bouncing port forwarding */
+	int mark = 0;
+	std::string insideinterface;
+	while (mark++ < 3)
+	{
+		switch (mark)
+		{
+			case 1: insideinterface = ethernet["GREEN_DEV"];  break;
+			case 2: insideinterface = ethernet["ORANGE_DEV"]; break;
+			case 3: insideinterface = ethernet["PURPLE_DEV"]; break;
+			default: break;
+		}
+
+		if (insideinterface != "")
+		{
+			ipbmangle.push_back("iptables -t mangle -A portfwb -i " + insideinterface +
+				" -d " + localip.str() + " -j MARK --set-mark " + stringprintf("%d", mark));
+
 		}
 	}
 
@@ -250,26 +245,24 @@ int set_incoming(std::vector<std::string> & parameters, std::string & response)
 	if (error)
 	{
 		response = "ipbatch failure (filter)";
-		goto EXIT;
+		return error;
 	}
 
 	error = ipbatch(ipbnat);
 	if (error)
 	{
 		response = "ipbatch failure (nat)";
-		goto EXIT;
+		return error;
 	}
 	
 	error = ipbatch(ipbmangle);
 	if (error)
 	{
 		response = "ipbatch failure (mangle)";
-		goto EXIT;
+		return error;
 	}
 	
 	response = "Portfw rules set";
-
-EXIT:
 	return (error);
 }
 
@@ -302,7 +295,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 		{
 			response = "Bad colour: " + colour;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 
 		std::string chain = "out" + colour;
@@ -331,7 +324,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 				{
 					response = "Bad port: " + port;
 					error = 1;
-					goto EXIT;
+					return error;
 				}
 			} 
 			else
@@ -361,7 +354,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 		{
 			response = "Bad IP: " + ip;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		
 		if (enabled == "on")
@@ -374,7 +367,6 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 	else
 		response = "Outbound ports set";
 
-EXIT:
 	return error;
 }
 
@@ -406,19 +398,19 @@ int set_internal(std::vector<std::string> & parameters, std::string & response)
 		{
 			response = "Bad protocol: " + protocol;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		if ((n = locip.find_first_not_of(IP_NUMBERS)) != std::string::npos)
 		{
 			response = "Bad local IP: " + locip;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		if ((n = remip.find_first_not_of(IP_NUMBERS)) != std::string::npos)
 		{
 			response = "Bad remote IP: " + remip;
 			error = 1;
-			goto EXIT;
+			return error;
 		}
 		
 		if (enabled == "on")
@@ -440,7 +432,7 @@ int set_internal(std::vector<std::string> & parameters, std::string & response)
 				{
 					response = "Bad remote port: " + remport;
 					error = 1;
-					goto EXIT;
+					return error;
 				}
 			}
 			else
@@ -455,7 +447,6 @@ int set_internal(std::vector<std::string> & parameters, std::string & response)
 	else
 		response = "DMZ Holes set";
 
-EXIT:
 	return (error);
 }
 

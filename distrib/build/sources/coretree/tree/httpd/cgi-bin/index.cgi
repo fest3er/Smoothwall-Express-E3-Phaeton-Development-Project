@@ -184,7 +184,7 @@ print <<END
 END
 ;
 
-if ($pppsettings{'COMPORT'} ne '')
+if (($pppsettings{'COMPORT'} ne '') && (($netsettings{'RED_DEV'} eq "") || ($netsettings{'RED_TYPE'} eq 'PPPOE')))
 {
 	if ($pppsettings{'VALID'} eq 'yes')
 	{

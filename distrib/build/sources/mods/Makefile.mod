@@ -45,6 +45,7 @@ $(OUTPUT_FILENAME): patch.tar.gz
 	@tar -zcf $(OUTPUT_FILENAME) patch.tar.gz setup $(EXTRA_MOD_FILES)
 
 clean:
+	@echo -n "mods/tools "
 	@rm -rf distrib
 	@rm -f patch.tar.gz
 	@rm -f $(OUTPUT_FILENAME)

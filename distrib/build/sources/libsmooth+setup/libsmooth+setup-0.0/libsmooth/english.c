@@ -213,9 +213,9 @@ char *english_tr[] = {
 "Press Ok to reboot.",
 /* TR_ERROR */
 "Error",
-/* TR_CALCULATING_MODULE_DEPENDANCIES */
-"Calculating module dependancies...",
-/* TR_UNABLE_TO_CALCULATE_MODULE_DEPENDANCIES */
+/* TR_CALCULATING_MODULE_DEPENDENCIES */
+"Calculating module dependencies...",
+/* TR_UNABLE_TO_CALCULATE_MODULE_DEPENDENCIES */
 "Unable to calculate module dependencies.",
 
 /* cdrom.c */

@@ -311,9 +311,9 @@ else
 
   # The ISOs must be created in non-parallel mode
   JOBS=$JOBS_UP
-  other_cmd "sources/initramfs-media/$BUILD_PHASE.phaetondevISO.built" \
+  other_cmd "sources/media-isoinstall/$BUILD_PHASE.phaetondevISO.built" \
             "phaeton devel ISO" \
-            "make -C sources/initramfs-media TYPE=-devel" \
-            "sources/initramfs-media/$BUILD_PHASE.phaetondevISO.out"
+            "make -C sources/media-isoinstall TYPE=-devel" \
+            "sources/media-isoinstall/$BUILD_PHASE.phaetondevISO.out"
 
 fi

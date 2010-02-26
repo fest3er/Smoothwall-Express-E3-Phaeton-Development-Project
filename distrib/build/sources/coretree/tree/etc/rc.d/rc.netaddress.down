@@ -17,6 +17,9 @@ fi
 if [ -e "/var/run/dhcpcd-eth2.pid" ]; then
 	kill `cat /var/run/dhcpcd-eth2.pid`
 fi
+if [ -e "/var/run/dhcpcd-eth3.pid" ]; then
+	kill `cat /var/run/dhcpcd-eth3.pid`
+fi
 /usr/bin/killall trafficlogger
 /usr/bin/smoothcom dnsproxyrestart
 rm -f /var/smoothwall/red/*

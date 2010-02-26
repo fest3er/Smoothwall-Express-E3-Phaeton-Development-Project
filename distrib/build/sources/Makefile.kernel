@@ -91,6 +91,7 @@ build-tarball: package-kernel $(PACKAGES)
 	tar -zxvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /);
 
 clean:
+	@echo -n " $(PACKAGE)"
 	@rm -f linux
 	@rm -rf linux-$(KERNEL_VER)
 	@rm -rf $(FREESWAN_TYPE)-$(FREESWAN_VER)

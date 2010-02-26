@@ -28,7 +28,7 @@ all: install
 
 clean:
 	@echo -n " $(PACKAGE)"
-	@make --no-print-directory -C $(COMPILE_DIR) clean
+	@make --no-print-directory -C $(COMPILE_DIR) clean >/dev/null 2>&1
 ifeq ($(BUILD_PHASE), Final)
 	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
 endif

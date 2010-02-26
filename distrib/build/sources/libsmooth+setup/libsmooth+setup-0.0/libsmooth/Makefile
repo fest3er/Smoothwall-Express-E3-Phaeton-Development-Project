@@ -20,7 +20,7 @@ all : programs
 programs : makelangs libsmooth libsmooth.o 
 
 clean :
-	-rm -f *.o core langs.h
+	-rm -f *.o libsmooth.so core langs.h
 
 makelangs :
 	-cp -f langs.h.temp langs.h

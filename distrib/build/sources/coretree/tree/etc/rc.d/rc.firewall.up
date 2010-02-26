@@ -18,6 +18,15 @@ done
 # Set timeouts.  2.5 hours for TCP.
 echo 9000 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_established
 
+# Set timeout for udp, since the servers fail in 90+ seconds, lots of hits
+echo 100 > /proc/sys/net/ipv4/netfilter/ip_conntrack_udp_timeout
+
+# Set timeouts for tcp, to avoid the nagging FINACK, FIN, RSTACKs
+echo 630 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_fin_wait
+echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_last_ack
+echo 630 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close_wait
+echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close
+
 /sbin/iptables -F
 /sbin/iptables -X
 
@@ -44,6 +53,16 @@ if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A FORWARD -i $RED_DEV -j ipblock
 fi
 
+# Setup timed access chains.
+/sbin/iptables -N timedaccess
+/sbin/iptables -N timedaction
+/sbin/iptables -A timedaction -j LOG --log-prefix Denied-by-Timed-Access:-
+/sbin/iptables -A timedaction -j REJECT
+
+# Apply the time rules to deny the traffic.
+/sbin/iptables -A INPUT -j timedaccess
+/sbin/iptables -A FORWARD -j timedaccess
+
 # For IGMP and multicast
 /sbin/iptables -N advnet
 /sbin/iptables -A INPUT -i ppp0 -j advnet
@@ -67,14 +86,6 @@ fi
 if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A INPUT -i $RED_DEV -j spoof
 fi
-
-# Setup timed access chains.
-/sbin/iptables -N timedaccess
-/sbin/iptables -N timedaction
-/sbin/iptables -A timedaction -j RETURN
-
-# Apply the time rules to deny the traffic.
-/sbin/iptables -A INPUT -j timedaccess
 
 # localhost and ethernet.
 /sbin/iptables -A INPUT -i lo -j ACCEPT
@@ -109,6 +120,7 @@ fi
 # IPSEC
 /sbin/iptables -N ipsec
 /sbin/iptables -A ipsec -p udp --destination-port 500 -j ACCEPT
+/sbin/iptables -A ipsec -p udp --destination-port 4500 -j ACCEPT
 /sbin/iptables -A ipsec -p 50 -j ACCEPT
 /sbin/iptables -A ipsec -p 51 -j ACCEPT
 /sbin/iptables -A block -i ppp0 -j ipsec
@@ -162,7 +174,6 @@ fi
 # Setup our outgoing filter stub chains.
 /sbin/iptables -N outbound
 /sbin/iptables -A outbound -p icmp -j ACCEPT
-/sbin/iptables -A outbound -j timedaccess
 /sbin/iptables -A outbound -j allows
 /sbin/iptables -A outbound -i $GREEN_DEV -j outgreen
 if [ "$ORANGE_DEV" != "" ]; then
@@ -316,12 +327,12 @@ if [ "$RED_DEV" != "" ]; then
 fi
 
 # Bouncing port forwards
-/sbin/iptables -t nat -A POSTROUTING -m mark --mark 1 -j SNAT --to-source $GREEN_ADDRESS
+/sbin/iptables -t nat -A POSTROUTING -o $GREEN_DEV -m mark --mark 1 -j SNAT --to-source $GREEN_ADDRESS
 if [ "$ORANGE_DEV" != "" ]; then
-	/sbin/iptables -t nat -A POSTROUTING -m mark --mark 2 -j SNAT --to-source $ORANGE_ADDRESS
+	/sbin/iptables -t nat -A POSTROUTING -o $ORANGE_DEV -m mark --mark 2 -j SNAT --to-source $ORANGE_ADDRESS
 fi
 if [ "$PURPLE_DEV" != "" ]; then
-	/sbin/iptables -t nat -A POSTROUTING -m mark --mark 2 -j SNAT --to-source $PURPLE_ADDRESS
+	/sbin/iptables -t nat -A POSTROUTING -o $PURPLE_DEV -m mark --mark 3 -j SNAT --to-source $PURPLE_ADDRESS
 fi
 
 # UPNP

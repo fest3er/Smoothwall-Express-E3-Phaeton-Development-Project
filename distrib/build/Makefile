@@ -162,10 +162,10 @@ clean-sources:
         else \
 	  tput smso; echo -n "cleaning sources"; tput rmso; \
 	  (cd sources; for I in `find -maxdepth 1 -mindepth 1 -type d`; do \
-             if [ "$$I" != "CVS" ]; then \
-               export BUILDDIR=`pwd`; make --no-print-directory -C $$I clean; \
-             fi \
-          done); \
+	     if [ "$$I" != "CVS" ]; then \
+	       export BUILDDIR=`pwd`; make --no-print-directory -C $$I clean; \
+	     fi \
+	  done); \
 	  echo; \
 	fi
 

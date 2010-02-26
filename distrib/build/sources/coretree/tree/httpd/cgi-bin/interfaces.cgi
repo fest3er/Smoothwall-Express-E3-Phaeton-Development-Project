@@ -112,6 +112,18 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'save'} )
 
 		if (not defined $success) {
 			$errormessage = $tr{'smoothd failure'}; }
+
+		# cyclenetworking flushes iptables, which will make some services
+		# inaccessible. Restart all services which depend on firewall rules.
+		system('/usr/bin/smoothwall/writedhcp.pl');
+
+		foreach my $service (qw(dhcpd p3scan squid im sip)) {
+			my $success = message($service.'restart');
+
+			if (not defined $success) {
+				$errormessage = $tr{'smoothd failure'}; }
+		}
+
 	}
 }
 

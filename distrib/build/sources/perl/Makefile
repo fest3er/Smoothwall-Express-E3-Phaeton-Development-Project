@@ -24,8 +24,7 @@ CONFIG_OPTS = -des -Dprefix=/tools -Dstatic_ext="Data/Dumper Fcntl IO POSIX" \
 
 CONFIGURE = yes
 configure: patch
-	@cd $(COMPILE_DIR); \
-	  sh Configure $(CONFIG_OPTS); \
+	@cd $(COMPILE_DIR); sh Configure $(CONFIG_OPTS)
 
 COMPILE = yes
 compile: configure

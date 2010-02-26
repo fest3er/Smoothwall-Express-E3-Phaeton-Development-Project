@@ -88,23 +88,21 @@ int set_xtaccess(std::vector<std::string> & parameters, std::string & response)
 		{
 			ipb.push_back("iptables -A xtaccess -i ppp0 -p " + protocol + 
 				" -s " + remip + 
-				" --destination-port " + locport + " -j ACCEPT\n");
+				" --destination-port " + locport + " -j ACCEPT");
 			ipb.push_back("iptables -A xtaccess -i ippp0 -p " + protocol + 
 				" -s " + remip + 
-				" --destination-port " + locport + " -j ACCEPT\n");
+				" --destination-port " + locport + " -j ACCEPT");
 
 			if (iface != "")
 			{
 				ipb.push_back("iptables -A xtaccess -i " + iface + " -p " + protocol + 
 					" -s " + remip + 
-					" --destination-port " + locport + " -j ACCEPT\n");
+					" --destination-port " + locport + " -j ACCEPT");
 			}		
 		}
 	}
 
-fprintf(stderr, "xtaccess: before ipbatch()\n");
 	error = ipbatch(ipb);
-fprintf(stderr, "xtaccess: after ipbatch(); error=%d\n", error);
 
 	if (error)
 		response = "ipbatch failure";

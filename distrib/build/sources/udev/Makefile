@@ -33,7 +33,7 @@ compile: configure
 	install -dv lib/udev/devices/shm; \
 	install -dv lib/udev/rules/packages; \
 	install -dv lib/udev/rules.d; \
-        install -dv usr/share/doc/; \
+	install -dv usr/share/doc/; \
 	mknod -m0666 lib/udev/devices/null c 1 3; \
 	mknod -m0600 lib/udev/devices/kmsg c 1 11; \
 	ln -sv /proc/self/fd lib/udev/devices/fd; \

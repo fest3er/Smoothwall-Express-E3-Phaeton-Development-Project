@@ -28,7 +28,7 @@ extern "C" {
 	int set_timed_access(std::vector<std::string> & parameters, std::string & response);
 	
 	bool indaterange(ConfigVAR &settings);
-	int setallowed(bool allowed);
+	int setallowed(bool allowed, bool logging);
 }
 
 int load(std::vector<CommandFunctionPair> & pairs)
@@ -46,6 +46,7 @@ int load(std::vector<CommandFunctionPair> & pairs)
 int timed_access(std::vector<std::string> & parameters, std::string & response)
 {
 	int error = 0;
+        bool logging = false;
 	static bool modeset = true;
 	static bool setmode = true;
 	static bool firstset = true;
@@ -53,6 +54,8 @@ int timed_access(std::vector<std::string> & parameters, std::string & response)
 	ConfigVAR settings("/var/smoothwall/timedaccess/settings");
 	
 	std::string mode = settings["MODE"];
+
+	logging = (settings["LOGGING"] == "on");
 
 	if (settings["ENABLE"] != "on")
 	{
@@ -69,7 +72,7 @@ int timed_access(std::vector<std::string> & parameters, std::string & response)
 	/* If not set correctly, or current setting unknown, set now */
 	if (modeset != setmode || !firstset)
 	{
-		error = setallowed(setmode);
+		error = setallowed(setmode, logging);
 		if (!error) {
 			modeset = setmode;
 			firstset = true;
@@ -154,10 +157,13 @@ bool indaterange(ConfigVAR &settings)
 
 }
 
-int setallowed(bool allowed)
+int setallowed(bool allowed, bool logging)
 {
 	std::vector<std::string> ipb;
 	int error = 0;
+
+	// Rule number 2 in timedaccess is set to REJECT by rc.firewall.up
+	// and is static
 
 	if (allowed)
 	{
@@ -167,7 +173,12 @@ int setallowed(bool allowed)
 	else
 	{
 		syslog(LOG_INFO, "Timed access: Not allowing");
-		ipb.push_back("iptables -R timedaction 1 -j REJECT");
+		if (logging) {
+			ipb.push_back("iptables -R timedaction 1 -j LOG --log-prefix Denied-by-Timed-Access:-");
+		}
+		else {
+			ipb.push_back("iptables -R timedaction 1 -j REJECT");
+		}
 	}
 	
 	error = ipbatch(ipb);

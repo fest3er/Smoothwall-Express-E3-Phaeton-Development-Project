@@ -14,11 +14,12 @@ all: install
 	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) .
 
 clean:
-	echo -n " $(PACKAGE)"
+	@echo -n " $(PACKAGE)"
+	@make --no-print-directory -C $(COMPILE_DIR) clean >/dev/null 2>&1
 ifeq ($(BUILD_PHASE), Final)
 	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
 endif
-	rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
+	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 
 download:
 	@true

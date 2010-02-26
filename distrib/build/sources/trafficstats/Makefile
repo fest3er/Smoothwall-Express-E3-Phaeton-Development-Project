@@ -27,7 +27,7 @@ all: install
 
 clean:
 	@echo -n " $(PACKAGE)"
-	@make --no-print-directory -C $(COMPILE_DIR) CFLAGS="$(CFLAGS)" clean
+	@make --no-print-directory -C $(COMPILE_DIR) CFLAGS="$(CFLAGS)" clean >/dev/null 2>&1
 ifeq ($(BUILD_PHASE), Final)
 	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
 endif
@@ -35,5 +35,5 @@ endif
 
 packageinfo.html: clean
 	@echo "<li><span style='font-size:large;'>$(PACKAGE) $(VERSION)</span><br>" >>/tmp/packageinfo.html
-	@tar -zcvf /tmp/downloads/$(TARBALL)-$(VERSION).tar.gz $(DIR)
+	@tar --exclude .svn -zcvf /tmp/downloads/$(TARBALL)-$(VERSION).tar.gz $(DIR)
 	@echo "Download: <a href='downloads/$(TARBALL)$(EXTENSION)'>$(TARBALL)$(EXTENSION)</a><br>" >>/tmp/packageinfo.html
