@@ -166,8 +166,7 @@ function check()
 
 
 # function cpu_count()
-#   Figure out how many real CPUs we have. Don't use parallel make if
-#   hyperthreading is active.
+#   Figure out how many CPUs we have (real or HT).
 
 function cpu_count() {
   typeset -i phy_max cor_max cores cpus
@@ -177,12 +176,7 @@ function cpu_count() {
   cpus=`egrep -i "^processor" /proc/cpuinfo|sed -e 's/.*: //'|sort|tail -1`+1
   cores=cor_max*phy_max
 
-  if [ $cpus -gt $cores ]; then
-    echo "Hyperthreading seems to be active; disabling parallel make"
-    JOBS_MP="-j 1"
-  else
-    JOBS_MP="-j $cores"
-  fi
+  JOBS_MP="-j $cores"
 
   unset phy_max cor_max cores cpus
 }

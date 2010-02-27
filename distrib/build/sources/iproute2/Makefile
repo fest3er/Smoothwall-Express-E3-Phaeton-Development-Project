@@ -10,6 +10,7 @@ PACKAGE = iproute2
 VERSION = 2.6.26
 
 BASE_URL = http://devresources.linuxfoundation.org/dev/iproute2/download
+EXTENSION=.tar.bz2
 
 #PATCH_FILE1 = iproute2-2.4.7-nomisc.patch
 

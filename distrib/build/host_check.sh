@@ -19,9 +19,9 @@ CBASH=02050a
 VBASH=2.5.a #(/bin/sh should be a symbolic or hard link to bash) 
 
 CBINUTILS=021200
-CBINUTILSM=021901 #(Versions greater than 2.19.1 are not recommended as they have not been tested) 
+CBINUTILSM=022000
 VBINUTILS=2.12
-VBINUTILSM=2.19.1
+VBINUTILSM=2.20
 
 CFLEX=020500
 VFLEX=2.5
