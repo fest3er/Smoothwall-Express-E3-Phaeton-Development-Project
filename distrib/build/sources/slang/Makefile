@@ -21,6 +21,6 @@ ifeq ($(BUILD_PHASE), Final)
 endif
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	@make -C $(COMPILE_DIR) DESTDIR=/ install
-	@rm -f $(PKG_ROOT)/$(PKG_DIR)/lib/libsnewt*.so*
+	@rm -f $(PKG_ROOT)$(PKG_DIR)/lib/libsnewt*.so*
 
 include ../Makefile.rules

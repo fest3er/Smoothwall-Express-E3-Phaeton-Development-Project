@@ -14,6 +14,6 @@ BASE_URL = http://www.tcpdump.org/weekly/
 INSTALL = yes
 
 install: compile
-	@install -D $(DIR)/tcpdump $(PKG_ROOT)/$(PKG_DIR)/sbin/tcpdump
+	@install -D $(DIR)/tcpdump $(PKG_ROOT)$(PKG_DIR)/sbin/tcpdump
 
 include ../Makefile.rules

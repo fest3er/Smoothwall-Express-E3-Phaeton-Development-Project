@@ -38,6 +38,6 @@ ifeq ($(BUILD_PHASE), Final)
 	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
 endif
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT)/ INC_USRLOCAL=/$(PKG_DIR) FINALCONFDIR=/$(PKG_DIR)/etc FINALRCDIR=/$(PKG_DIR)/bin install
-	@rm -rf $(PKG_ROOT)/$(PKG_DIR)/rc*
+	@rm -rf $(PKG_ROOT)$(PKG_DIR)/rc*
 
 include ../Makefile.rules

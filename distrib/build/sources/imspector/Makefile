@@ -15,7 +15,7 @@ CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
-OPTS = PREFIX=$(PKG_ROOT)/$(PKG_DIR) SSL_DIR=/usr/ssl
+OPTS = PREFIX=$(PKG_ROOT)$(PKG_DIR) SSL_DIR=/usr/ssl
 DIR = imspector
 
 configure: patch
@@ -26,6 +26,6 @@ compile: configure
 
 install: compile
 	@make -C $(DIR) $(OPTS) install
-	@rm -f $(PKG_ROOT)/$(PKG_DIR)/etc/imspector/imspector.conf
+	@rm -f $(PKG_ROOT)$(PKG_DIR)/etc/imspector/imspector.conf
 
 include ../Makefile.rules

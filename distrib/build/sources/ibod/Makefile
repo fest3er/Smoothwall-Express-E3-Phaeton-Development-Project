@@ -13,7 +13,7 @@ compile:
 	@make -C $(COMPILE_DIR)
 
 install: compile
-	@install -D $(COMPILE_DIR)/ibod $(PKG_ROOT)/$(PKG_DIR)/sbin/ibod
+	@install -D $(COMPILE_DIR)/ibod $(PKG_ROOT)$(PKG_DIR)/sbin/ibod
 
 all: install
 	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) .

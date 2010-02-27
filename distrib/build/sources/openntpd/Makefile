@@ -20,6 +20,6 @@ PATCH_FILE2 = openntpd-pidfile.patch
 INSTALL = yes
 
 install: compile
-	@install -D $(COMPILE_DIR)/ntpd $(PKG_ROOT)/$(PKG_DIR)/sbin/ntpd
+	@install -D $(COMPILE_DIR)/ntpd $(PKG_ROOT)$(PKG_DIR)/sbin/ntpd
 
 include ../Makefile.rules

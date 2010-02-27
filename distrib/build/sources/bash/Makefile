@@ -24,7 +24,7 @@ CONFIG_OPTS = --prefix=/tools --without-bash-malloc \
 INSTALL = yes
 install: compile
 	@make -C $(DIR) DESTDIR=$(PKG_ROOT) install
-	@(cd $(PKG_ROOT)/$(PKG_DIR)/bin; ln -s bash sh);
+	@(cd $(PKG_ROOT)$(PKG_DIR)/bin; ln -s bash sh);
 endif
 
 ifeq ($(BUILD_PHASE), Final)

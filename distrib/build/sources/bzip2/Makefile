@@ -24,7 +24,7 @@ compile : configure
 	@make -C $(DIR) CC="gcc $(CFLAGS)"
 
 install : compile
-	@make -C $(DIR) PREFIX=$(PKG_ROOT)/$(PKG_DIR) install
+	@make -C $(DIR) PREFIX=$(PKG_ROOT)$(PKG_DIR) install
 
 include ../Makefile.rules
 

@@ -29,7 +29,7 @@ compile: configure
 	@true
 
 install: compile
-	@mkdir -p $(PKG_ROOT)/$(PKG_DIR)/etc/eciadsl
-	@install -D $(DIR)/*.bin $(PKG_ROOT)/$(PKG_DIR)/etc/eciadsl/
+	@mkdir -p $(PKG_ROOT)$(PKG_DIR)/etc/eciadsl
+	@install -D $(DIR)/*.bin $(PKG_ROOT)$(PKG_DIR)/etc/eciadsl/
 
 include ../Makefile.rules

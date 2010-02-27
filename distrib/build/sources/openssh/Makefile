@@ -18,6 +18,6 @@ INSTALL = yes
 install: compile
 	-mkdir $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
-	@rm -f $(PKG_ROOT)/$(PKG_DIR)/etc/sshd_config
+	@rm -f $(PKG_ROOT)$(PKG_DIR)/etc/sshd_config
 
 include ../Makefile.rules

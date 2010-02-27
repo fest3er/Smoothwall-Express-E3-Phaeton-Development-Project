@@ -18,8 +18,8 @@ compile:
 	  IPTABLES_VERSION=$(IPTABLES_VER) LIB_IPT_DIR=$(IPT_LIBEXEC)
 
 install: compile
-	@install -D $(COMPILE_DIR)/trafficlogger $(PKG_ROOT)/$(PKG_DIR)/sbin/trafficlogger
-	@install -D $(COMPILE_DIR)/trafficmon $(PKG_ROOT)/$(PKG_DIR)/sbin/trafficmon
+	@install -D $(COMPILE_DIR)/trafficlogger $(PKG_ROOT)$(PKG_DIR)/sbin/trafficlogger
+	@install -D $(COMPILE_DIR)/trafficmon $(PKG_ROOT)$(PKG_DIR)/sbin/trafficmon
 
 all: install
 	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) .

@@ -23,6 +23,6 @@ compile: configure
 
 install: compile
 	@(cd $(DIR); \
-        install -s -D src/dnsmasq $(PKG_ROOT)/$(PKG_DIR)/bin/dnsmasq);
+        install -s -D src/dnsmasq $(PKG_ROOT)$(PKG_DIR)/bin/dnsmasq);
 
 include ../Makefile.rules

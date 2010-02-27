@@ -22,7 +22,7 @@ configure: $(DIR)/
 	 true
 
 install: compile
-	@mkdir -p $(PKG_ROOT)/$(PKG_DIR)/sbin
+	@mkdir -p $(PKG_ROOT)$(PKG_DIR)/sbin
 	@make -C $(COMPILE_DIR) ROOT=$(PKG_ROOT) install
 	@cp $(COMPILE_DIR)/{bitmap.b,bootsect.b} $(PKG_ROOT)/boot
 

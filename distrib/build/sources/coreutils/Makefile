@@ -36,7 +36,7 @@ install: compile
 	for FILE in basename cat chgrp chmod chown cp cut date dd df echo env false link ln \
 		 ls mkdir mknod mv nice pwd rm rmdir sleep sort stty sync touch true uname unlink; \
 	do \
-		mv $(PKG_ROOT)/$(PKG_DIR)/bin/$$FILE $(PKG_ROOT)/bin; \
+		mv $(PKG_ROOT)$(PKG_DIR)/bin/$$FILE $(PKG_ROOT)/bin; \
 	done);
 endif
 	         

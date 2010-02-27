@@ -27,10 +27,10 @@ compile: configure
 
 install: compile
 	@(for I in cnxadslload cnxadslstatus; do \
-		install -D $(DIR)/DownLoadApp/$$I $(PKG_ROOT)/$(PKG_DIR)/sbin/$$I; \
+		install -D $(DIR)/DownLoadApp/$$I $(PKG_ROOT)$(PKG_DIR)/sbin/$$I; \
 	done)
 	@(for I in CnxTgF.hex; do \
-		install -D $(DIR)/DownLoadApp/$$I $(PKG_ROOT)/$(PKG_DIR)/etc/cnxadsl/$$I; \
+		install -D $(DIR)/DownLoadApp/$$I $(PKG_ROOT)$(PKG_DIR)/etc/cnxadsl/$$I; \
 	done)
 	
 include ../Makefile.rules

@@ -24,6 +24,6 @@ compile: configure
 
 install: compile
 	-mkdir $(PKG_ROOT)
-	@make -C $(DIR) DESTDIR=$(PKG_ROOT)/$(PKG_DIR) install
+	@make -C $(DIR) DESTDIR=$(PKG_ROOT)$(PKG_DIR) install
 	
 include ../Makefile.rules

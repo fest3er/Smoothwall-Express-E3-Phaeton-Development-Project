@@ -15,6 +15,6 @@ INSTALL = yes
 
 install: compile
 	@(cd $(DIR); \
-	install -D less $(PKG_ROOT)/$(PKG_DIR)/bin/less);
+	install -D less $(PKG_ROOT)$(PKG_DIR)/bin/less);
 
 include ../Makefile.rules
