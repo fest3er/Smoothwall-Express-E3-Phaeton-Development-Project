@@ -19,7 +19,7 @@ CONFIGURE = yes
 COMPILE = yes
 
 configure: patch
-	@sed -i '/^TARGETS/s@ arpd@@g' $(PACKAGE)-$(VERSION)/misc/Makefile
+	@sed -i '/^TARGETS/s@ arpd@@g' $(COMPILE_DIR)/misc/Makefile
 #	@true
 
 compile: configure
