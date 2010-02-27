@@ -43,7 +43,7 @@ smoothcom:
 	$(CXX) -o smoothcom $(CXXFLAGS) smoothcom.cpp -ldl -lxtables /usr/lib/libsmoothd.so 
 
 clean:
-	rm -f $(OBJS) $(BIN) *.o *.so modules smoothcom
+	rm -f $(OBJS) $(BIN) *.o *.so modules smoothcom ipbatchtest
 
 sysshutdown : $(OBJS)  
 	$(CXX) $(MODULEFLAGS)

@@ -23,7 +23,7 @@ all : programs
 programs : clean install
 
 clean :
-	-rm -f *.o install-$(TYPE) core
+	-rm -f *.o install-$(TYPE) core install
 
 ######
 

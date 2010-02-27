@@ -7,11 +7,12 @@
 include ../Makefile.conf
 
 PACKAGE = flex
-VERSION = 2.5.4
+VERSION = 2.5.35
 
 BASE_URL = ftp://ftp.gnu.org/non-gnu/flex/
 
-TARBALL = $(PACKAGE)-$(VERSION)a
+#TARBALL = $(PACKAGE)-$(VERSION)a  # For V2.5.4
+TARBALL = $(PACKAGE)-$(VERSION)
 
 DIR = $(PACKAGE)-$(VERSION)
 
