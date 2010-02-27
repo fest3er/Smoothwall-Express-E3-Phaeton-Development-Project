@@ -19,8 +19,8 @@ CONFIGURE = yes
 COMPILE = yes
 
 configure: patch
-	@true
-#	@sed -i '/^TARGETS/s@arpd@@g' misc/Makefile
+	@sed -i '/^TARGETS/s@ arpd@@g' $(PACKAGE)-$(VERSION)/misc/Makefile
+#	@true
 
 compile: configure
 	@make -C $(COMPILE_DIR) KERNEL_INCLUDE=/usr/include
