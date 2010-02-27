@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = iproute2
-VERSION = 2.6.26
+VERSION = $(KERNEL_MMR)
 
 BASE_URL = http://devresources.linuxfoundation.org/dev/iproute2/download
 EXTENSION=.tar.bz2
@@ -19,6 +19,7 @@ COMPILE = yes
 
 configure: patch
 	@true
+#	@sed -i '/^TARGETS/s@arpd@@g' misc/Makefile
 
 compile: configure
 	@make -C $(COMPILE_DIR) KERNEL_INCLUDE=/usr/include
