@@ -11,7 +11,7 @@ VERSION = 5.7
 
 BASE_URL = ftp://ftp.gnu.org/gnu/ncurses/
 
-ifeq ($(BUILDENV), 1)
+ifeq ($(BUILD_PHASE), Stage_3)
 CONFIG_OPTS = --with-shared \
     --without-debug --without-ada --enable-overwrite
 else

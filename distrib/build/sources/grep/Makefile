@@ -13,7 +13,7 @@ BASE_URL = ftp://ftp.gnu.org/gnu/grep/
 
 PATCH_FILE1 = grep-links.patch
 
-ifeq ($(BUILDENV), 1)
+ifeq ($(BUILD_PHASE), Stage_3)
 CONFIG_OPTS = --disable-perl-regexp --with-included-regex
 else
 CONFIG_OPTS = --bindir=/bin --with-included-regex

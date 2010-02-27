@@ -23,7 +23,7 @@ configure: patch
 	@(cd $(COMPILE_DIR); \
 	DEFAULT_POSIX2_VERSION=199209 ./configure --prefix=/$(PKG_DIR));
 
-ifndef BUILDENV
+ifeq ($(BUILD_PHASE), Final)
 
 PATCH_FILE1 = coreutils-6.12-uname-1.patch
 PATCH_FILE2 = coreutils-6.12-old_build_kernel-1.patch

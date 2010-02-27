@@ -103,6 +103,7 @@ else
       build gawk
       build ncurses
       build vim
+      build nano
       build m4
       build bison
       build less
@@ -208,6 +209,7 @@ else
       build apache
       build smoothd
       build cron
+      build at
       build cgilib
       build freetype
       build libart_lgpl

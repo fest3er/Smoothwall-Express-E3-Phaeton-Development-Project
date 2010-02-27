@@ -11,24 +11,26 @@ include ../Makefile
 PACKAGE = media-isoinstall
 
 TARGET_DIR = /build/target/
-INST_PKGS = glibc newt libsmooth+setup newt libgcc binutils coreutils cpio iana-etc \
-	    mktemp findutils iana-etc findutils gawk ncurses vim less sed flex \
+INST_PKGS = glibc newt libsmooth+setup newt bin86 binutils coreutils cpio iana-etc \
+	    mktemp findutils iana-etc findutils gawk ncurses vim nano less sed flex \
 	    gettext net-tools inetutils iputils whois perl bash bzip2 kbd e2fsprogs \
 	    grep grub gzip module-init-tools procinfo procps psmisc shadow sysklogd \
 	    logrotate sysvinit tar util-linux-ng joe wget iptables libipt_ACCOUNT \
 	    ipbatch pciutils kernel-phaeton lilo openssl openssh apache \
 	    smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace libart_lgpl \
-	    freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd hdparm \
+	    freetype rrdtool cron at tcpdump dnsmasq libcap libpcap ntp openntpd hdparm \
 	    hddtemp iproute2 libpng gd gmp expat ethtool popt listtables beep2 pcre \
 	    trafficstats iftop setuids ppp isdn4k-utils rp-pppoe ibod dhcpcd \
 	    eciadsl-synch_bin eciadsl-usermode cnxadsl dhcp snort oinkmaster openswan \
 	    wireless_tools imspector diffutils traceroute clamav p3scan libosip2 \
 	    siproxd which miniupnpd ez-ipupdate noip udev udev-config coretree \
-	    reiserfsprogs xtables-addons
+	    reiserfsprogs xtables-addons cgilib dosfstools expect ipt_vis jam \
+	    mtools nasm pkg-config sash slang sqlite texinfo updates \
+	    vlan zlib
 
-DEV_PKGS = kernel-headers patch make autoconf automake binutils bison dejagnu \
+DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu \
 	   gcc gdb tcl m4 neon apr apr-util subversion screen lynx groff man man-pages \
-	   sudo
+	   sudo cdrtools libtool
 
 KLIBC_VER = 1.5
 klibc-tools:

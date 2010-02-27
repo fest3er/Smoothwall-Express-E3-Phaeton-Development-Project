@@ -27,7 +27,7 @@ install: compile
 	@(cd $(PKG_ROOT)/$(PKG_DIR)/bin; ln -s bash sh);
 endif
 
-ifndef BUILDENV
+ifeq ($(BUILD_PHASE), Final)
 CONFIG_OPTS = --bindir=/bin $(BUILD)
 
 INSTALL = yes
