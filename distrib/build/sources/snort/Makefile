@@ -7,24 +7,20 @@
 include ../Makefile.conf
 
 PACKAGE = snort
-VERSION = 2.8.4.1
 
-BASE_URL = http://dl.snort.org/snort284
+# Deal with snort: get the latest version number dynamically. :)
+#
+VERSION := $(shell ./get-snort-ver.sh)
+
+BASE_URL = http://dl.snort.org/snort-current
 
 PATCH_FILE1 = snort-pidfix.patch
 
 # You're looking in here because the build system failed to find
-# the snort source package.
-
-# Snort screws the world with their every release. They delete the old
-# previous release, rename 'current' to its a.b.c number, call the new
-# release 'current', and move directories around. Clearly they're
-# unfamliar with the concept of automation.
-
-# In short, the build system has found that the release in VERSION,
-# above, is out-dated or has been deleted by snort.org. You will need
-# to change to a more current version and add/change/delete patches
-# as needed. Visit www.linuxfromscratch.org for more clues.
+# the snort source package or it failed to build.
+#
+# This makefile should always get the latest version of snort, whatever it is.
+# However, the build might fail if the pidfile fix patch is no longer correct.
 
 INSTALL = yes
 
