@@ -11,7 +11,17 @@ VERSION = 1.0.0
 
 BASE_URL = http://www.tcpdump.org/release/
 
+CONFIGURE = yes
 INSTALL = yes
+
+configure: patch
+	(if [ ! -e $(COMPILE_DIR) ]; then mkdir $(COMPILE_DIR); fi)
+ifneq ($(DIR), $(COMPILE_DIR))
+	(cd $(COMPILE_DIR); $(PRE_CONFIGURE) ../$(DIR)/configure --prefix=$(PKG_DIR) $(CONFIG_OPTS))
+else
+	(cd $(COMPILE_DIR); $(PRE_CONFIGURE) ./configure --prefix=$(PKG_DIR) $(CONFIG_OPTS))
+endif
+	sed -i 's@INSTALL = /usr/bin/install -c@INSTALL = /usr/bin/install -c -D@' $(DIR)/Makefile
 
 install: compile
 ifeq ($(BUILD_PHASE), Final)
