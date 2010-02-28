@@ -5,7 +5,7 @@ diff -Nurb snort-2.3.0/src/util.c snort-2.3.0.new/src/util.c
          LogMessage("Writing PID \"%d\" to file \"%s\"\n", pid, pv.pid_filename);
          fprintf(pid_file, "%d\n", pid);
          fflush(pid_file);
-+        chmod(pv.pid_filename, 0644);
++        chmod(snort_conf->pid_filename, 0644);
      }
      else
      {
