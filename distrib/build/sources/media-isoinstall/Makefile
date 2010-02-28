@@ -160,7 +160,7 @@ cdrom/smoothwall.tgz:
 
 	@echo -e "\nTidying ..."
 	@rm -f distrib/etc/resolv.conf
-	@find distrib -name .gitignore -rm
+	@find distrib -name .gitignore -exec rm -f {} \;
 
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
 	@tar -zcf cdrom/smoothwall.tgz -C distrib .
