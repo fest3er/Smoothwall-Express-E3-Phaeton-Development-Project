@@ -1,7 +1,0 @@
-<ipt_vis samples_per_sec="10" 
-         average_over="50" 
-         measuring="bytes" 
-         max_rate="2000" 
-         output_method="curses" 
-         output_format="bit" title="External interface in/out"><entry name="IN" table="mangle" chain="prerouting-1" rule="1"/><entry name="OUT" table="mangle" chain="postrouting-1" rule="1" /></ipt_vis>
-

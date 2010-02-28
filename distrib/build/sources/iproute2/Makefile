@@ -13,17 +13,24 @@ VERSION = $(KERNEL_MMR)
 BASE_URL = http://devresources.linuxfoundation.org/dev/iproute2/download
 EXTENSION=.tar.bz2
 
-#PATCH_FILE1 = iproute2-2.4.7-nomisc.patch
-
 CONFIGURE = yes
 COMPILE = yes
+CLEAN = yes
 
 configure: patch
 	@sed -i '/^TARGETS/s@ arpd@@g' $(COMPILE_DIR)/misc/Makefile
-#	@true
 
 compile: configure
 	@make -C $(COMPILE_DIR) KERNEL_INCLUDE=/usr/include
 	@ln -s $(DIR) $(PACKAGE)
+
+clean:
+	@echo -n " $(PACKAGE)"
+	@rm -rf $(DIR)
+	@rm -rf $(COMPILE_DIR)
+	@rm -f $(PACKAGE)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(BUILDDIR)/buildroot/$(PACKAGE)
+endif
 
 include ../Makefile.rules
