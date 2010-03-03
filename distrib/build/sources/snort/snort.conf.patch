@@ -1,0 +1,83 @@
+--- snort-2.8.5.3/etc/snort.conf-orig	2010-02-12 15:30:43.000000000 -0500
++++ snort-2.8.5.3/etc/snort.conf	2010-03-02 02:07:35.000000000 -0500
+@@ -47,7 +47,9 @@
+ # or you can specify the variable to be any IP address
+ # like this:
+ 
+-var HOME_NET any
++include /etc/snort/vars
++
++#var HOME_NET any
+ 
+ # Set up the external network addresses as well.  A good start may be "any"
+ var EXTERNAL_NET any
+@@ -59,7 +61,7 @@
+ # above for $HOME_NET.  
+ 
+ # List of DNS servers on your network 
+-var DNS_SERVERS $HOME_NET
++#var DNS_SERVERS $HOME_NET
+ 
+ # List of SMTP servers on your network
+ var SMTP_SERVERS $HOME_NET
+@@ -117,8 +119,8 @@
+ # Path to your rules files (this can be a relative path)
+ # Note for Windows users:  You are advised to make this an absolute path,
+ # such as:  c:\snort\rules
+-var RULE_PATH ../rules
+-var PREPROC_RULE_PATH ../preproc_rules
++var RULE_PATH /var/smoothwall/snort/rules
++var PREPROC_RULE_PATH /var/smoothwall/snort/preproc_rules
+ 
+ # Configure the snort decoder
+ # ============================
+@@ -201,22 +203,22 @@
+ # Load all dynamic preprocessors from the install path
+ # (same as command line option --dynamic-preprocessor-lib-dir)
+ #
+-dynamicpreprocessor directory /usr/local/lib/snort_dynamicpreprocessor/
++dynamicpreprocessor directory /usr/lib/snort_dynamicpreprocessor/
+ #
+ # Load a specific dynamic preprocessor library from the install path
+ # (same as command line option --dynamic-preprocessor-lib)
+ #
+-# dynamicpreprocessor file /usr/local/lib/snort_dynamicpreprocessor/libdynamicexample.so
++# dynamicpreprocessor file /usr/lib/snort_dynamicpreprocessor/libdynamicexample.so
+ #
+ # Load a dynamic engine from the install path
+ # (same as command line option --dynamic-engine-lib)
+ #
+-dynamicengine /usr/local/lib/snort_dynamicengine/libsf_engine.so
++dynamicengine /usr/lib/snort_dynamicengine/libsf_engine.so
+ #
+ # Load all dynamic rules libraries from the install path
+ # (same as command line option --dynamic-detection-lib-dir)
+ #
+-# dynamicdetection directory /usr/local/lib/snort_dynamicrule/
++# dynamicdetection directory /usr/lib/snort_dynamicrule/
+ #
+ # Load a specific dynamic rule library from the install path
+ # (same as command line option --dynamic-detection-lib)
+@@ -318,7 +320,7 @@
+ # unicode.map should be wherever your snort.conf lives, or given
+ # a full path to where snort can find it.
+ preprocessor http_inspect: global \
+-    iis_unicode_map unicode.map 1252 
++    iis_unicode_map /var/smoothwall/snort/unicode.map 1252 
+ 
+ preprocessor http_inspect_server: server default \
+     profile all ports { 80 8080 8180 } oversize_dir_length 500
+@@ -815,7 +817,7 @@
+ # README.alert_order for how rule ordering affects how alerts are triggered.
+ #=========================================
+ 
+-include $RULE_PATH/local.rules
++#include $RULE_PATH/local.rules
+ include $RULE_PATH/bad-traffic.rules
+ include $RULE_PATH/exploit.rules
+ include $RULE_PATH/scan.rules
+@@ -879,4 +881,3 @@
+ # such as:  c:\snort\etc\threshold.conf
+ # Uncomment if needed.
+ # include threshold.conf
+-
