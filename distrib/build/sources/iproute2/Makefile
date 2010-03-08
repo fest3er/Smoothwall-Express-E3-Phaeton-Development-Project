@@ -15,6 +15,7 @@ EXTENSION=.tar.bz2
 
 CONFIGURE = yes
 COMPILE = yes
+INSTALL = yes
 CLEAN = yes
 
 configure: patch
@@ -23,6 +24,12 @@ configure: patch
 compile: configure
 	@make -C $(COMPILE_DIR) KERNEL_INCLUDE=/usr/include
 	@ln -s $(DIR) $(PACKAGE)
+
+install: compile
+	@mkdir -p $(PKG_ROOT)
+	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
+	@mkdir -p $(PKG_ROOT)/usr/sbin
+	@ln -s /sbin/tc $(PKG_ROOT)/usr/sbin
 
 clean:
 	@echo -n " $(PACKAGE)"

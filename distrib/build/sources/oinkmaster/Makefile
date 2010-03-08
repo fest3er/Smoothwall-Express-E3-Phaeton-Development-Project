@@ -7,9 +7,9 @@
 include ../Makefile.conf
 
 PACKAGE = oinkmaster
-VERSION = 1.2
+VERSION = 2.0
 
-BASE_URL = http://www.snort.org/dl/contrib/rule_management/oinkmaster
+BASE_URL = http://heanet.dl.sourceforge.net/project/oinkmaster/oinkmaster/$(VERSION)
 
 INSTALL = yes
 

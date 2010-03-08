@@ -1,0 +1,105 @@
+#! /bin/bash
+
+export PATH="/bin:/usr/bin:/sbin:/usr/sbin;/usr/bin/smoothwall"
+
+# Gramps ignores the alarm clock.
+trap "" 14
+
+# The process that does all the work. Daddy runs in a sub-shell.
+(
+  # Make 'tries' an integer
+  typeset -i tries
+
+  # hit the snooze button; executes in Daddy's context
+  function alarm_clock {
+    trap "" 14
+    if [ -n "$PID1" ]; then log_str=" the update check"; fi
+    if [ -n "$PID1" -a -n "$PID2" ]; then log_str="$log_str and"; fi
+    if [ -n "$PID2" ]; then log_str=" the machine register"; fi
+    echo "Still waiting for$log_str"
+    #/usr/bin/logger -f syslog "Still waiting for$log_str"
+
+    # increase delay quickly, but not greater than one hour
+    ZZZZ=`echo "2^$tries * 5" | bc -ql`
+    if [ "$ZZZZ" -ge 3600 ]; then
+      # crowbar the snooze to one hour and don't increment the attempt count
+      ZZZZ=3600
+    else
+      # increment attempts
+      tries=tries+1
+    fi
+
+    # re-enable the alarm clock
+    trap 'alarm_clock $tries $MY_PID' 14
+    set_alarm $ZZZZ
+  }
+
+  # Called to 'set' an alarm; executed in Daddy's context
+  function set_alarm {
+    (
+      sleep "$1"
+      kill -14 $MY_PID
+    )&
+    alarm_pid=$!
+  }
+
+  # Called when the Daddy PID exits; executes in Daddy's context
+  function smash_clock {
+    kill -9 $alarm_pid
+  }
+
+  # Daddy's PID
+  MY_PID=`bash -c 'echo $PPID'`
+
+  # initialize the attempt count
+  tries=0
+
+  # trap sigalarm
+  trap "alarm_clock $tries $MY_PID" 14
+
+  # be sure the alarm pid is dead when leaving
+  trap 'smash_clock $alarm_pid' EXIT
+
+  # This grandchild runs the update checker
+  (
+    echo "short"; sleep 3; echo "short done"
+    #/usr/bin/logger -f syslog "Begin update check"
+    #/usr/bin/smoothwall/updatelists.pl
+    #/usr/bin/logger -f syslog "Update check complete"
+    exit
+  )&
+  PID1=$!
+  
+  # This grandchild runs the machine register
+  (
+    echo "long";sleep 14; echo "long done"
+    #/usr/bin/logger -f syslog "Begin machine register"
+    #/etc/rc.d/rc.machineregister
+    #/usr/bin/logger -f syslog "Machine register complete"
+    exit
+  )&
+  PID2=$!
+
+  # set the first alarm
+  set_alarm 2 $MY_PID
+
+  # loop forever
+  while :; do
+    # wait only for the two brats, NOT the alarm clock
+    wait $PID1 $PID2
+
+    # clear the PID if it has completed so we don't wait for it any more
+    test -e /proc/$PID1 || PID1=""
+    test -e /proc/$PID2 || PID2=""
+
+    # if both brats have perished, we are done.
+    test "$PID1$PID2" == "" && break
+  done
+
+  echo "rc.sysinit background jobs complete"
+  #/usr/bin/logger -f syslog "rc.sysinit background jobs complete"
+  
+)&
+
+# Give the brats 5 seconds to get in the car, then leave them behind.
+sleep 5

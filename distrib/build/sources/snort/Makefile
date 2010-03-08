@@ -15,7 +15,7 @@ VERSION := $(shell ./get-snort-ver.sh)
 BASE_URL = http://dl.snort.org/snort-current
 
 PATCH_FILE1 = snort-pidfix.patch
-PATCH_FILE2 = snort.conf.patch
+#PATCH_FILE2 = snort.conf.patch
 
 # You're looking in here because the build system failed to find
 # the snort source package or it failed to build.
@@ -40,7 +40,5 @@ install: compile
 	@chown nobody:nobody -R $(PKG_ROOT)/var/smoothwall/
 	@mkdir -p $(PKG_ROOT)/$(MODULE_DIR)/usr/lib/smoothwall
 	@echo $(VERSION) > $(PKG_ROOT)/$(MODULE_DIR)/usr/lib/smoothwall/snortversion
-	sed -i -e 's@/usr/local@/usr@g' $(COMPILE_DIR)/etc/snort.conf
-	install -D $(COMPILE_DIR)/etc/snort.conf $(PKG_ROOT)/etc/snort.conf
 
 include ../Makefile.rules
