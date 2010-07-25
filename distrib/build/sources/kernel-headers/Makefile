@@ -18,7 +18,7 @@ install: download
 ifeq ($(BUILD_PHASE), Stage_1)
 	cd linux-$(KERNEL_VER); \
 	  make mrproper; \
-	  cp ../../kernel.config-phaeton-$(KERNEL_VER) .config &&\
+	  cp ../../kernel.config-phaeton-i686 .config &&\
 	  make headers_check &&\
 	  make INSTALL_HDR_PATH=dest headers_install &&\
 	  cp -rv dest/include/* $(TOOLS_DIR)/include
