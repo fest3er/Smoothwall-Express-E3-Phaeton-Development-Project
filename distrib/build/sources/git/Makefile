@@ -1,0 +1,36 @@
+# SmoothWall Build system.
+#
+# (c) SmoothWall Ltd 2005
+#
+# This code is distributed under the terms of the GPL v2.
+
+include ../Makefile.conf
+
+PACKAGE = git
+VERSION = 1.7.2
+
+EXTENSION = .tar.bz2
+
+BASE_URL = http://www.kernel.org/pub/software/scm/git
+
+CONFIG_OPTS = --with-openssl=/usr/ssl --without-curl --without-tcltk --without-python
+
+COMPILE = yes
+INSTALL = yes
+CLEAN = yes
+
+compile: configure
+	make $(JOBS) -C $(COMPILE_DIR) PREFIX=$(PKG_DIR)
+
+install: compile
+	make -C $(COMPILE_DIR) PREFIX=$(PKG_DIR) DESTDIR=$(PKG_ROOT) install
+
+clean:
+	@echo -n " $(PACKAGE)"
+	@rm -rf $(DIR)
+	@rm -rf $(COMPILE_DIR)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(BUILDDIR)/buildroot/$(PACKAGE)
+endif
+
+include ../Makefile.rules

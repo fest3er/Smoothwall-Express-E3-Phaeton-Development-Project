@@ -37,7 +37,7 @@ OTHER_PKGS = updates jam sqlite udev-config
 
 # Last line is Phaeton
 DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu gcc \
-	   gdb tcl m4 neon subversion screen lynx groff man man-pages \
+	   gdb tcl m4 neon git screen lynx groff man man-pages \
 	   klibc pkg-config sudo syslinux texinfo bin86 busybox \
 	   libtool nasm
 

@@ -292,7 +292,7 @@ else
       build apr
       build apr-util
       build neon
-      build subversion
+      build git
       build screen
       build gdb
       build lynx
