@@ -215,21 +215,21 @@ sub display_speeds
 	print qq{
 		<table style='width: 100%;'>
 		<tr>
-			<td style='width: 25%;'>$tr{'traffic enable'}</td>
+			<td class='base' style='width: 25%;'>$tr{'traffic enable'}</td>
 			<td style='width: 25%;'><input name='ENABLE' type='checkbox' $enable_bit /></td>
-			<td style='width: 25%;'>$tr{'traffic internal speed'}</td>
+			<td class='base' style='width: 25%;'>$tr{'traffic internal speed'}</td>
 			<td style='width: 25%;'><select name='INTERNAL_SPEED'>$internal_speed_block</select></td>
 		</tr>
 		<tr>
-			<td>$tr{'traffic external up'}</td>
+			<td class='base'>$tr{'traffic external up'}</td>
 			<td><select name='UPLOAD_SPEED'>$upload_speed_block</select></td>
-			<td>$tr{'traffic external down'}</td>
+			<td class='base'>$tr{'traffic external down'}</td>
 			<td><select name='DOWNLOAD_SPEED'>$download_speed_block</select></td>
 		</tr>
 		<tr>
-			<td>$tr{'traffic headroom'}</td>
+			<td class='base'>$tr{'traffic headroom'}</td>
 			<td><select name='HEADROOM'>$headroom_block</select></td>
-			<td>$tr{'traffic default'}</td>
+			<td class='base'>$tr{'traffic default'}</td>
 			<td><select name='DEFAULT_TRAFFIC'>$default_block</select></td>
 		</tr>
 		</table>
@@ -268,7 +268,7 @@ sub display_rules
 		map { "<option value='$_'" . ($selected{$_} || '') . ">$class_labels{$_}</option>\n" } 
 		(qw/none normal high low slow/));
 		$name =~ s/_/ /g;
-		push @rules, qq[<td style='width: 25%;'>$name:</td><td style='width: 25%;'><select name='${rule}_CLASS'>$class_block</select></td>\n];
+		push @rules, qq[<td class='base' style='width: 25%;'>$name:</td><td style='width: 25%;'><select name='${rule}_CLASS'>$class_block</select></td>\n];
 	}
 	# 2 colums
 	for(my $r = 0; $r <= $#rules; $r += 2)

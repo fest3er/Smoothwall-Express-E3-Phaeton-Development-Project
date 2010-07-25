@@ -58,9 +58,9 @@ print "<FORM METHOD='POST'>\n";
 print <<END
 <TABLE WIDTH='100%'>
 <TR>
-	<TD WIDTH='25%' CLASS='base'>SSH:</TD>
+	<TD class='base' WIDTH='25%' CLASS='base'>SSH:</TD>
 	<TD WIDTH='25%'><INPUT TYPE='checkbox' NAME='ENABLE_SSH' $checked{'ENABLE_SSH'}{'on'}></TD>
-	<TD WIDTH='25%' CLASS='base'>$tr{'secure admin'}<IMG SRC='/ui/img/blob.gif'></TD>
+	<TD class='base' WIDTH='25%' CLASS='base'><IMG SRC='/ui/img/blob.gif'>&nbsp;$tr{'secure admin'}</TD>
 	<TD WIDTH='25%'><INPUT TYPE='checkbox' NAME='ENABLE_SECURE_ADMIN' $checked{'ENABLE_SECURE_ADMIN'}{'on'}></TD>
 </TR>
 </TABLE>

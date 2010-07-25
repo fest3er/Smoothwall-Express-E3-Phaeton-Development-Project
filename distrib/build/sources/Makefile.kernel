@@ -9,66 +9,46 @@ IPTABLES_DIR = $(SOURCES_DIR)/iptables/iptables-$(IPTABLES_VER)
 
 PACKAGE = kernel$(SWETYPE)
 
-PATCH_O_MATIC_VER = 20090513
-IPT_ACCOUNT_VER = 1.15
+#PATCH_O_MATIC_VER = 20090513
+#IPT_ACCOUNT_VER = 1.15
 IPTABLEPROC_VER = 0.1
 
 COMPILER = /usr/bin/gcc
 
 PACKAGES = 
 
+
 download:
 	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/linux-$(K_RAW_VERSION).tar.bz2
 	@$(DL_CMD) http://www.openswan.org/download/$(FREESWAN_TYPE)-$(FREESWAN_VER).tar.gz
-	@$(DL_CMD) ftp://ftp.netfilter.org/pub/patch-o-matic-ng/snapshot/patch-o-matic-ng-$(PATCH_O_MATIC_VER).tar.bz2
-	@$(DL_CMD) http://www.intra2net.com/en/developer/ipt_ACCOUNT/download/pom-ng-ipt_ACCOUNT-$(IPT_ACCOUNT_VER).tgz
+
 
 unpack: download
 	@tar -jxvf $(DOWNLOADS_DIR)/linux-$(K_RAW_VERSION).tar.bz2
 	@tar -zxvf $(DOWNLOADS_DIR)/$(FREESWAN_TYPE)-$(FREESWAN_VER).tar.gz
-	@tar -jxvf $(DOWNLOADS_DIR)/patch-o-matic-ng-$(PATCH_O_MATIC_VER).tar.bz2
+
 
 prepare: unpack
-	@rm -f linux
-	@ln -s linux-$(K_RAW_VERSION) linux
+	rm -f linux
+	ln -s linux-$(K_RAW_VERSION) linux
 
-	@make -C linux mrproper
+	make -C linux mrproper
 
 	sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../kernel.config$(SWETYPE)-$(ARCH) > linux/.config
 
-	@make -C linux CC=$(COMPILER) clean prepare
+	make -C linux CC=$(COMPILER) clean prepare
 
-	@make -C $(FREESWAN_TYPE)-$(FREESWAN_VER) CC=$(COMPILER) KERNELSRC=$(KERNEL_DIR) precheck verset kpatch
+	make -C $(FREESWAN_TYPE)-$(FREESWAN_VER) CC=$(COMPILER) KERNELSRC=$(KERNEL_DIR) precheck verset kpatch
 
-test-pom: 
-	@(cd patch-o-matic-ng-$(PATCH_O_MATIC_VER)/patchlets; \
-	tar xvzf $(DOWNLOADS_DIR)/pom-ng-ipt_ACCOUNT-$(IPT_ACCOUNT_VER).tgz)
 
-	@(export KERNEL_DIR=$(KERNEL_DIR); \
-	export IPTABLES_DIR=$(IPTABLES_DIR); \
-	cd patch-o-matic-ng-$(PATCH_O_MATIC_VER); \
-	./runme --batch ACCOUNT)
+compile-kernel: prepare
+	cp ../kernel.config$(SWETYPE)-$(ARCH) linux/.config
 
-apply-pom: prepare
-	@(cd patch-o-matic-ng-$(PATCH_O_MATIC_VER)/patchlets; \
-	tar xvzf $(DOWNLOADS_DIR)/pom-ng-ipt_ACCOUNT-$(IPT_ACCOUNT_VER).tgz)
+	make -C linux CC=$(COMPILER) clean
+	make -C linux CC=$(COMPILER) oldconfig
+	make $(JOBS) -C linux CC=$(COMPILER) bzImage
+	make $(JOBS) -C linux CC=$(COMPILER) modules
 
-	@(export KERNEL_DIR=$(KERNEL_DIR); \
-	export IPTABLES_DIR=$(IPTABLES_DIR); \
-	cd patch-o-matic-ng-$(PATCH_O_MATIC_VER); \
-	./runme --batch ACCOUNT)
-
-compile-kernel: apply-pom
-#compile-kernel: prepare
-	@cp ../kernel.config$(SWETYPE)-$(ARCH) linux/.config
-
-	@make -C linux CC=$(COMPILER) clean
-	@make -C linux CC=$(COMPILER) oldconfig
-	@make $(JOBS) -C linux CC=$(COMPILER) bzImage
-	@make $(JOBS) -C linux CC=$(COMPILER) modules
-
-compile-iptableproc: compile-kernel
-	@make -C iptableproc CC=$(COMPILER) KERNEL_DIR=$(KERNEL_DIR)
 
 package-kernel: compile-kernel
 	mkdir -p $(PKG_ROOT)
@@ -80,27 +60,26 @@ package-kernel: compile-kernel
 	rm -f lib/modules/$(K_SWE_VERSION)/build; \
 	cp $(KERNEL_DIR)/.config $(SOURCES_DIR)/kernel.config$(SWETYPE)-$(ARCH).new)
 
-package-iptableproc: compile-iptableproc
-	@mkdir -p $(PKG_ROOT)/lib/modules/$(KERNEL_VER)/kernel/drivers/misc
-	@cp $(SOURCES_DIR)/kernel-runtime/iptableproc/iptableproc.ko \
-		$(PKG_ROOT)/lib/modules/$(KERNEL_VER)/kernel/drivers/misc
 
 build-tarball: package-kernel $(PACKAGES)
 	@(cd $(PKG_ROOT); \
 	tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz .; \
 	tar -zxvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /);
 
+
 clean:
 	@echo -n " $(PACKAGE)"
 	@rm -f linux
 	@rm -rf linux-$(KERNEL_VER)
 	@rm -rf $(FREESWAN_TYPE)-$(FREESWAN_VER)
-#	@rm -rf patch-o-matic-ng-$(PATCH_O_MATIC_VER)
 	@rm -rf $(PKG_ROOT)
+
 
 cleanall: clean build-tarball
 
+
 all: build-tarball
+
 
 packageinfo.html:
 	@echo "<li><span style='font-size:large;'>$(PACKAGE) $(VERSION)</span><br>" >>/tmp/packageinfo.html
@@ -122,3 +101,38 @@ packageinfo.html:
 		cp -avR ../kernel-patches/$$PATCH /tmp/downloads; \
 	done) 
 #	@echo "</ul>" >>/tmp/packageinfo.html
+
+
+
+####
+# obsolete below here
+####
+
+#test-pom: 
+#	cd patch-o-matic-ng-$(PATCH_O_MATIC_VER)/patchlets; \
+#	  tar xvzf $(DOWNLOADS_DIR)/pom-ng-ipt_ACCOUNT-$(IPT_ACCOUNT_VER).tgz
+#
+#	export KERNEL_DIR=$(KERNEL_DIR); \
+#	  export IPTABLES_DIR=$(IPTABLES_DIR); \
+#	  cd patch-o-matic-ng-$(PATCH_O_MATIC_VER); \
+#	  ./runme --batch ACCOUNT
+#
+#apply-pom: prepare
+#	cd patch-o-matic-ng-$(PATCH_O_MATIC_VER)/patchlets; \
+#	  tar xvzf $(DOWNLOADS_DIR)/pom-ng-ipt_ACCOUNT-$(IPT_ACCOUNT_VER).tgz
+#
+#	export KERNEL_DIR=$(KERNEL_DIR); \
+#	  export IPTABLES_DIR=$(IPTABLES_DIR); \
+#	  cd patch-o-matic-ng-$(PATCH_O_MATIC_VER); \
+#	  ./runme --batch ACCOUNT
+#
+##compile-kernel: apply-pom
+#
+#compile-iptableproc: compile-kernel
+#	make -C iptableproc CC=$(COMPILER) KERNEL_DIR=$(KERNEL_DIR)
+#
+#
+#package-iptableproc: compile-iptableproc
+#	@mkdir -p $(PKG_ROOT)/lib/modules/$(KERNEL_VER)/kernel/drivers/misc
+#	@cp $(SOURCES_DIR)/kernel-runtime/iptableproc/iptableproc.ko \
+#		$(PKG_ROOT)/lib/modules/$(KERNEL_VER)/kernel/drivers/misc

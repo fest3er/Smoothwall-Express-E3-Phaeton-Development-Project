@@ -4,37 +4,52 @@
 >/tmp/cd.list
 >/tmp/nic.list
 
+# Display aesthetics
 CLS="\033[0;0f\033[2J"
 BO="\033[1m"
 UL="\033[4m"
 BOUL="\033[1;4m"
 NO="\033[0m"
 
+# Drive types
+CDs="ide:m-cdrom|scsi:t-0x05"
+HDs="ide:m-disk|scsi:t-0x00"
+
+# Device IDs
 PCI_IDS="/etc/filled.pci.ids"
+
+# Uber title
 TITLE="$CLS            ${BOUL}Smoothwall Express 3 (Phaeton Development) Installation$NO"
 
 #echo "Preparing lists of CDROM and hard drives and NICs"
 echo "Preparing lists of CDROM and hard drives"
 OPWD=$PWD;cd /sys/block
 
-typeset -i tries cd_cnt hd_cnt
+typeset -i tries cd_cnt hd_cnt WORK_IDX
 tries=0
+WORKING[0]="|"
+WORKING[1]="/"
+WORKING[2]="-"
+WORKING[3]="\\\\"
+WORK_IDX=0
 
 # Loop until we have enough drives or concede obsequiously
 #
-while :; do
+while [ 1 -eq 1 ]; do
   # Start empty each time
   >/tmp/hd.list
   >/tmp/cd.list
+  ALT_CD=0
+
   ls -C1 | while read a; do
     if [ -e $a/device ]; then
       # if an optical drive, add it to /tmp/cd.list
-      egrep "ide:m-cdrom|scsi:t-0x05" $a/device/modalias >/dev/null 2>&1
+      egrep "$CDs" $a/device/modalias >/dev/null 2>&1
       if [ $? -eq 0 ]; then
         echo "$a `cat $a/size`" >> /tmp/cd.list
       fi
       # if a disk drive, add it to /tmp/hd.list
-      egrep "ide:m-disk|scsi:t-0x00" $a/device/modalias >/dev/null 2>&1
+      egrep "$HDs" $a/device/modalias >/dev/null 2>&1
       if [ $? -eq 0 ]; then
         set `cat $a/size`
         if [ $1 -gt 0 ]; then
@@ -54,29 +69,51 @@ while :; do
   test $hd_cnt -gt 0 && test $cd_cnt -gt 0 && break
 
   case $tries in
-    1|7|17)
+    12)
+      echo -e -n "  Your system may be pokey in recognizing the needed drive(s).\r"
+      ;;
+    24)
+      echo -e -n "  I ain't gone wait much longer!\r"
+      ;;
+    18|30)
+      echo -e -n "\033[0J\r"
+      ;;
+    36)
+      echo -e -n "\033[0J\r"
       case $hd_cnt in
-        0) echo -n "No writable drives found. ";;
-        1) echo -n "One writable drive found. ";;
-        *) echo -n "Two or more writable drives found. ";;
+        0) echo -en "\r\nNo writable drives found. ";;
+        1) echo -en "\r\nOne writable drive found. ";;
+        *) echo -en "\r\nTwo or more writable drives found. ";;
       esac
       case $cd_cnt in
-        0) echo -n "No optical drives found. ";;
-        1) echo -n "One optical drive found. ";;
-        *) echo -n "Two or more optical drives found. ";;
+        0) echo -n "No optical drives found. "
+           if [ $hd_cnt -gt 1 ]; then
+             echo -e "\n\nBooting/installing from flash?"
+             echo -e "Be sure to correctly select the boot drive!\n"
+             ALT_CD=1
+             break;
+           fi
+           ;;
+        1) echo "One optical drive found.";;
+        *) echo "Two or more optical drives found.";;
       esac
-      echo -e "\nEither this system hasn't got the needed drive, or it is pokey in recognizing it."
-      echo -e "Will continue to look for a little while.\n"
-      ;;
-    30)
-      echo -e "\n\n\nI do apologize. I cannot continue without both a writable drive and an optical drive.\n\n"
+      echo -e "\nI do apologize. I cannot continue without at least two writable drives,"
+      echo -e "or a writable drive and a CD/DVD drive.\n"
       exit 1
       ;;
   esac
-  sleep 1
+
+  echo -en "${WORKING[$WORK_IDX]}\r"
+  WORK_IDX=WORK_IDX+1
+  [ $WORK_IDX -eq 4 ] && WORK_IDX=0
+
+  usleep 500000
   tries=tries+1
 done
 cd $OPWD
+
+echo "Finished finding drives"
+sleep 5
 
 # skip NICs until setup works
 if [ 1 -lt 0 ]; then
@@ -112,7 +149,7 @@ while [ 1 -eq 1 ]; do
   echo -e "${BO}Disk Drive Selection$NO"
 
   unset b
-  typeset -i i b
+  typeset -i i b h
   i=1
   while read a b; do
     b=b/2/1024
@@ -122,6 +159,7 @@ while [ 1 -eq 1 ]; do
     if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
     i=i+1
   done < /tmp/hd.list
+  HD_CNT=$i
   echo
 
   echo -n "[1]        Selection: "
@@ -135,7 +173,7 @@ while [ 1 -eq 1 ]; do
   echo -en "$TITLE"
   echo
   echo
-  echo -e "${BO}CD/DVD Drive Selection${NO}"
+  echo -e "${BO}CD/DVD/Flash Drive Selection${NO}"
 
   i=1
   while read a b; do
@@ -144,12 +182,33 @@ while [ 1 -eq 1 ]; do
     if [ $i -eq 1 ]; then echo "( default)"; else echo; fi
     i=i+1
   done < /tmp/cd.list
+  OPTI_CNT=$i
+  if [ $ALT_CD -eq 1 ]; then
+    h=1
+    while read a b; do
+      if [ $h -ne $hd ]; then
+        b=b/2/1024
+        hd_dev[$i]=$a
+        hd_size[$i]=$b
+        echo -n "  $i. $a - ${hd_size[$i]}MiB"
+        if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
+      fi
+      i=i+1
+      h=h+1
+    done < /tmp/hd.list
+  fi
   echo
 
   echo -n "[1]        Selection: "
-  read cd #</dev/tty
+  read CD #</dev/tty
   if [ x$CD == "x" ]; then CD=1; fi
-  if [ $CD -lt $i ]; then break; fi
+  if [ $CD -lt $OPTI_CNT ]; then break; fi
+  # if allowing 'HD' devices...
+  if [ $CD -lt $i ]; then 
+    cd_dev[1]=${hd_dev[$CD]}
+    CD=1
+    break
+  fi
 done
 
 while [ 1 -eq 1 ]; do
@@ -207,22 +266,26 @@ while [ 1 -eq 1 ]; do
   if [ $filesys -lt 3 ]; then break; fi
 done
 
-while [ 1 -eq 1 ]; do
-  # Boot loader
-  echo -en "$TITLE"
-  echo
-  echo
-  echo -e "${BO}Boot Loader${NO}"
+# Only use grub. LILO sucks.
+#
+loader=2
 
-  i=1; echo "  $i. LILO (default)"
-  i=2; echo "  $i. GRUB"
-  echo
-
-  echo -n "[1]        Selection: "
-  read loader #</dev/tty
-  if [ x$loader == x ]; then loader="1"; fi
-  if [ $loader -lt 3 ]; then break; fi
-done
+#while [ 1 -eq 1 ]; do
+#  # Boot loader
+#  echo -en "$TITLE"
+#  echo
+#  echo
+#  echo -e "${BO}Boot Loader${NO}"
+#
+#  i=1; echo "  $i. LILO (default)"
+#  i=2; echo "  $i. GRUB"
+#  echo
+#
+#  echo -n "[1]        Selection: "
+#  read loader #</dev/tty
+#  if [ x$loader == x ]; then loader="1"; fi
+#  if [ $loader -lt 3 ]; then break; fi
+#done
 
 # setup is limited to eth[0-3]; so skip NIC renaming for now.
 #
@@ -279,7 +342,7 @@ while [ 1 == 1 ]; do
   echo "Confirm installation configuration"
   echo
   echo -e "  Installing on ${BO}/dev/${hd_dev[$hd]}${NO}"
-  echo -e "  Using CD/DVD drive ${BO}/dev/${cd_dev[$CD]}${NO}"
+  echo -e "  Booting from drive ${BO}/dev/${cd_dev[$CD]}${NO}"
   if [ $dev -eq 1 ]; then
     echo -e "  ${BO}Skipping${NO} development packages"
   else

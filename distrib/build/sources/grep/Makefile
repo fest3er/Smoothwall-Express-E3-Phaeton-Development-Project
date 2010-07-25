@@ -7,11 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = grep
-VERSION = 2.5
+VERSION = 2.5.4
 
 BASE_URL = ftp://ftp.gnu.org/gnu/grep/
 
-PATCH_FILE1 = grep-links.patch
+#PATCH_FILE1 = grep-links.patch
 
 ifeq ($(BUILD_PHASE), Stage_3)
 CONFIG_OPTS = --disable-perl-regexp --with-included-regex

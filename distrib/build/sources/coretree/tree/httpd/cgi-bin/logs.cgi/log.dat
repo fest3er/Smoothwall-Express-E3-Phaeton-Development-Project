@@ -136,7 +136,7 @@ print <<END
 <FORM ACTION='/cgi-bin/logs.cgi/log.dat' METHOD='POST'>
 <TABLE WIDTH='100%'>
 <TR>
-	<TD WIDTH='10%'>$tr{'section'}</TD>
+	<TD class='base' WIDTH='10%'>$tr{'section'}</TD>
 	<TD WIDTH='20%'><SELECT NAME='SECTION'>
 	<OPTION $selected{'SECTION'}{'smoothwall'} VALUE='smoothwall'>SmoothWall
 	<OPTION $selected{'SECTION'}{'ppp'} VALUE='ppp'>PPP
@@ -155,7 +155,7 @@ print <<END
 	<OPTION $selected{'SECTION'}{'av'} VALUE='av'>$tr{'logsec av'}
 	</SELECT>
 	</TD>
-	<TD WIDTH='10%' CLASS='base'>$tr{'month'}</TD>
+	<TD class='base' WIDTH='10%' CLASS='base'>$tr{'month'}</TD>
 	<TD WIDTH='20%'>
 	<SELECT NAME='MONTH'>
 END
@@ -171,7 +171,7 @@ for ($month = 0; $month < 12; $month++)
 print <<END
 	</SELECT>
 	</TD>
-	<TD WIDTH='10%' CLASS='base'>$tr{'day'}</TD>
+	<TD class='base' WIDTH='10%' CLASS='base'>$tr{'day'}</TD>
 	<TD WIDTH='10%'>
 	<SELECT NAME='DAY'>
 END

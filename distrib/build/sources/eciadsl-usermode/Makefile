@@ -7,8 +7,10 @@
 include ../Makefile.conf
 
 PACKAGE = eciadsl-usermode
-VERSION = 0.11
+VERSION = 0.12
 
 BASE_URL = http://eciadsl.flashtux.org/download/
+
+PATCH_FILE1 = pusb-linux.c.patch
 
 include ../Makefile.rules

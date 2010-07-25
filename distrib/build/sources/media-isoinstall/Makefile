@@ -10,40 +10,38 @@ include ../Makefile
 
 PACKAGE = media-isoinstall
 
+# Two lines above coretree are Phaeton
 TARGET_DIR = /build/target/
-INST_PKGS = glibc newt libsmooth+setup newt bin86 binutils coreutils cpio iana-etc \
-	    mktemp findutils iana-etc findutils gawk ncurses vim nano less sed flex \
-	    gettext net-tools inetutils iputils whois perl bash bzip2 kbd e2fsprogs \
-	    grep grub gzip module-init-tools procinfo procps psmisc shadow sysklogd \
-	    logrotate sysvinit tar util-linux-ng joe wget iptables libipt_ACCOUNT \
-	    ipbatch pciutils kernel-phaeton lilo openssl openssh apache \
-	    smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace libart_lgpl \
-	    freetype rrdtool cron at tcpdump dnsmasq libcap libpcap ntp openntpd hdparm \
-	    hddtemp iproute2 libpng gd gmp expat ethtool popt listtables beep2 pcre \
-	    trafficstats iftop setuids ppp isdn4k-utils rp-pppoe ibod dhcpcd \
-	    eciadsl-synch_bin eciadsl-usermode cnxadsl dhcp snort oinkmaster openswan \
-	    wireless_tools imspector diffutils traceroute clamav p3scan libosip2 \
-	    siproxd which miniupnpd ez-ipupdate noip udev udev-config coretree \
-	    reiserfsprogs xtables-addons cgilib dosfstools expect ipt_vis jam \
-	    mtools nasm pkg-config sash slang sqlite texinfo updates \
-	    vlan zlib
+INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
+	    coreutils iana-etc mktemp file findutils gawk ncurses \
+	    vim less sed flex gettext net-tools inetutils iputils whois perl \
+	    bash bzip2 kbd e2fsprogs grep gzip module-init-tools procinfo procps \
+	    psmisc shadow sysklogd logrotate sysvinit tar util-linux-ng joe wget \
+	    iptables ipbatch pciutils kernel-phaeton openssl openssh \
+	    apache smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace \
+	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
+	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
+	    beep2 pcre trafficstats iftop setuids ppp isdn4k-utils \
+	    rp-pppoe ibod dhcpcd eciadsl-synch_bin eciadsl-usermode \
+	    cnxadsl dhcp snort oinkmaster openswan wireless_tools imspector  \
+	    diffutils traceroute clamav p3scan libosip2 siproxd which miniupnpd \
+	    ez-ipupdate noip cdrtools \
+	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
+	    reiserfsprogs xtables-addons zlib sash slang cpio \
+	    apr apr-util apr apr-util udev lm_sensors \
+	    coretree
 
-DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu \
-	   gcc gdb tcl m4 neon apr apr-util subversion screen lynx groff man man-pages \
-	   sudo cdrtools libtool
+OBSOLETE_PKGS = libipt_ACCOUNT ipp2p speedtouch eagle-usb devnodes libstdc++ lilo
+TOOLCHAIN_PKGS = expect
+OTHER_PKGS = updates jam sqlite udev-config
 
-KLIBC_VER = 1.5
-klibc-tools:
-	echo "  Building klibc"
-	@rm -rf klibc
-	@mkdir -p klibc
-	@tar xfz klibc-$(KLIBC_VER).tar.gz -C klibc >/dev/null
-	@cd klibc/klibc-$(KLIBC_VER); ln -s ../../../kernel-phaeton/linux linux
-	@make -s -j 4 -C klibc/klibc-$(KLIBC_VER) >klibc/klibc-build.out 2>&1
-	@INSTALLROOT=/build/buildroot/klibc make -e -C klibc/klibc-$(KLIBC_VER) install
+# Last line is Phaeton
+DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu gcc \
+	   gdb tcl m4 neon subversion screen lynx groff man man-pages \
+	   klibc pkg-config sudo syslinux texinfo bin86 busybox \
+	   libtool nasm
 
-
-cdrom: klibc-tools
+cdrom:
 	mkdir cdrom
 	make -C runtimeroot
 	make -C installroot
@@ -91,12 +89,22 @@ cdrom/smoothwall.tgz:
 	echo "Copying udev.rc to distrib:"
 	@cp runtimeroot/etc/udev.rc distrib/etc/udev/
 
+	@echo "Moving includes to distrib-dev:"
+	@if [ -d distrib/usr/include ]; then \
+	  mkdir -p distrib-dev/usr/include; \
+	  mv distrib/usr/include/* distrib-dev/usr/include/; fi; \
+	if [ -d distrib/usr/ssl/include ]; then \
+	  mkdir -p distrib-dev/usr/ssl/include; \
+	  mv distrib/usr/ssl/include/* distrib-dev/usr/ssl/include/; fi; \
+
 	@echo "Moving docs to distrib-doc:"
-	@for I in include man info share/man share/info share/doc examples; do \
+	@for I in man info share/man share/info share/doc examples; do \
 	  if [ -d distrib/usr/$$I ]; then \
-	    mv distrib/usr/$$I distrib-doc/usr/$$I; fi; \
+	    mkdir -p distrib-doc/usr/$$I; \
+	    mv distrib/usr/$$I/* distrib-dev/usr/$$I/; fi; \
 	  if [ -d distrib/usr/ssl/$$I ]; then \
-	    mv distrib/usr/ssl/$$I distrib-doc/usr/ssl/$$I; fi; \
+	    mkdir -p distrib-doc/usr/ssl/$$I; \
+	    mv distrib/usr/ssl/$$I/* distrib-doc/usr/ssl/$$I/; fi; \
 	done
 
 	@echo -e "\nProduct info:"
@@ -137,14 +145,15 @@ cdrom/smoothwall.tgz:
 
 	@echo -e "\nSecuring tree ..."
 	@( \
-	/build/securetree distrib; \
-	/build/securetree distrib-dev; \
-	/build/securetree distrib-doc; \
-	chmod u+s distrib/bin/traceroute; \
-	chmod u+s distrib/usr/bin/ping; \
-	chmod u+s distrib/usr/sbin/listtables; \
-	chown root:nobody distrib/usr/bin/setuids/*; \
-	chmod 4750 distrib/usr/bin/setuids/*; \
+	  /build/securetree distrib; \
+	  /build/securetree distrib-dev; \
+	  /build/securetree distrib-doc; \
+	  chmod u+s distrib/bin/traceroute; \
+	  chmod u+s distrib/usr/bin/ping; \
+	  chmod u+s distrib/usr/sbin/listtables; \
+	  chown root:nobody distrib/usr/bin/setuids/*; \
+	  chmod 4750 distrib/usr/bin/setuids/*; \
+	  mkdir -/ distrib/tmp; chmod 1777 distrib/tmp; \
 	) | sed -u -e 's/^/  /'
 	
 	@echo -e "\nConverting to shadow passwords ..."
@@ -159,8 +168,9 @@ cdrom/smoothwall.tgz:
 	) | sed -u -e 's/^/  /'
 
 	@echo -e "\nTidying ..."
-	@rm -f distrib/etc/resolv.conf
+	#@rm -f distrib/etc/resolv.conf
 	@find distrib -name .gitignore -exec rm -f {} \;
+	@cp ../../make_flash cdrom
 
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
 	@tar -zcf cdrom/smoothwall.tgz -C distrib .
@@ -170,6 +180,14 @@ cdrom/smoothwall.tgz:
 
 	@echo -e "\nBuilding smoothdoc.tgz, stand by ..."
 	@tar -zcf cdrom/smoothdoc.tgz -C distrib-doc .
+
+	@( \
+	  src_tgz=../../../../smoothsrc.tar.gz; \
+	  if [ -e "$src_tgz" ]; then \
+	    echo -e "\nCopying smoothsrc.tgz, stand by ..."; \
+	    cp $src_tgz  cdrom/smoothsrc.tgz; \
+	  fi \
+	)
 
 extracontent:
 	cp extracontent/* cdrom -avR
@@ -191,6 +209,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 
 clean:
 	@echo -n " $(PACKAGE)"
+	@rm -f Media.phaetondevISO.built
 	@rm -rf cdrom distrib distrib-dev distrib-doc klibc
 	@make --no-print-directory -C cdromboot clean >/dev/null 2>&1
 	@make --no-print-directory -C installroot clean >/dev/null 2>&1

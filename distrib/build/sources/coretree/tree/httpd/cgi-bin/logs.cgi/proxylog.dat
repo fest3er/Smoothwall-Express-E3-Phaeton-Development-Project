@@ -180,8 +180,8 @@ for ($day = 1; $day <= 31; $day++)
 print <<END
 	</SELECT>
 	</TD>
-	<TD CLASS='15%' CLASS='base'>$tr{'source ipc'}</TD>
-	<TD CLASS='15%'>
+	<TD WIDTH='15%' CLASS='base'>$tr{'source ipc'}</TD>
+	<TD WIDTH='15%'>
 	<SELECT NAME='SOURCE_IP'>
 	<OPTION VALUE='ALL' $selected{'SOURCE_IP'}{'ALL'}>$tr{'caps all'}
 END

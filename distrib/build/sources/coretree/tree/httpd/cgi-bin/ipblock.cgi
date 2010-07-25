@@ -181,18 +181,18 @@ print <<END
 <TR>
 <TD WIDTH='20%' CLASS='base'><FONT COLOR='$colourred'>$tr{'source ip or networkc'}</FONT></TD>
 <TD WIDTH='20%'><INPUT TYPE='TEXT' NAME='SRC_IP' VALUE='$cgiparams{'SRC_IP'}' SIZE='15' id='src_ip' @{[jsvalidipormask('src_ip')]}></TD>
-<TD WIDTH='20%' CLASS='base'>
+<TD WIDTH='20%' CLASS='base' style='text-align:left'>
 <INPUT TYPE='radio' NAME='TARGET' VALUE='DROP' $checked{'TARGET'}{'DROP'}>$tr{'drop packet'}
 </TD>
-<TD WIDTH='20%' CLASS='base'>
+<TD WIDTH='20%' CLASS='base' style='text-align:left'>
 <INPUT TYPE='radio' NAME='TARGET' VALUE='REJECT' $checked{'TARGET'}{'REJECT'}>$tr{'reject packet'}
 </TD>
-<TD WIDTH='20%' CLASS='base'>
+<TD WIDTH='20%' CLASS='base' style='text-align:left'>
 $tr{'logc'}<INPUT TYPE='checkbox' NAME='LOG' $checked{'LOG'}{'on'}>
 </TD>
 </TR>
 <tr>
-	<td>$tr{'commentc'}</td>
+	<td class='base'>$tr{'commentc'}</td>
 	<td colspan='3'><input type='text' style='width: 80%;' name='COMMENT' value='$cgiparams{'COMMENT'}' id='comment' @{[jsvalidcomment('comment')]}  ></td>
 </tr>
 </TABLE>

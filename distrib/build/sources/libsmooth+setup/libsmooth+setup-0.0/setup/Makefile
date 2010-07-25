@@ -6,7 +6,7 @@
 
 include ../../../Makefile.versions
 
-CC=gcc 
+CC=gcc -g
 
 LD=gcc
 LDFLAGS=-g -L../libsmooth

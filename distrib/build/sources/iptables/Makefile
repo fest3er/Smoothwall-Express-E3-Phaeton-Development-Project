@@ -32,13 +32,13 @@ VERSION =  $(IPTABLES_VER)
 EXTENSION = .tar.bz2
 BASE_URL = ftp://ftp.netfilter.org/pub/iptables
 
-# iptables 1.4.2
-ifeq ($(VERSION), 1.4.2)
-CONFIG_OPTS = --with-kbuild=$(SOURCES_DIR)/kernel-phaeton/linux --enable-libipq
-
-#PATCH_FILE1 = iptc-debug.patch
+CONFIG_OPTS = --prefix=/usr --mandir=/usr/man --docdir=/usr/doc \
+	        --enable-devel --enable-libipq
 
 CONFIGURE = yes
+COMPILE = yes
+INSTALL = yes
+
 
 configure: $(DIR)/ patch
 	(if [ ! -e $(COMPILE_DIR) ]; then mkdir $(COMPILE_DIR); fi)
@@ -48,39 +48,13 @@ else
 	(cd $(COMPILE_DIR); ./configure --prefix=$(PKG_DIR) $(CONFIG_OPTS))
 endif
 
-COMPILE = yes
-
 compile: configure
-	make -C $(COMPILE_DIR) COPT_FLAGS='$(CFLAGS)' KERNEL_DIR=$(SOURCES_DIR)/kernel-phaeton/linux PREFIX=$(PKG_DIR)
-
-
-INSTALL = yes
-
-install: compile
-	make -C $(DIR) KERNEL_DIR=$(SOURCES_DIR)/kernel-phaeton/linux DESTDIR=$(PKG_ROOT) install
-	@mkdir -p $(PKG_ROOT)/sbin
-	@(cd $(PKG_ROOT)/sbin; rm -f iptables; ln -s /usr/sbin/iptables)
-endif
-
-# iptables 1.3.8
-ifeq ($(VERSION), 1.3.8)
-
-CONFIGURE = yes
-COMPILE = yes
-INSTALL = yes
-
-
-configure: $(DIR)/ patch
-	@true
-
-compile: configure
-	make -C $(COMPILE_DIR) COPT_FLAGS='$(CFLAGS)' KERNEL_DIR=$(SOURCES_DIR)/kernel-phaeton/linux PREFIX=$(PKG_ROOT)$(PKG_DIR)
+	make -C $(COMPILE_DIR) COPT_FLAGS='$(CFLAGS)' PREFIX=$(PKG_DIR)
 
 
 install: compile
-	make -C $(DIR) KERNEL_DIR=$(SOURCES_DIR)/kernel-phaeton/linux PREFIX=$(PKG_ROOT) install
+	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	@mkdir -p $(PKG_ROOT)/sbin
 	@(cd $(PKG_ROOT)/sbin; rm -f iptables; ln -s /usr/sbin/iptables)
-endif
 
 include ../Makefile.rules

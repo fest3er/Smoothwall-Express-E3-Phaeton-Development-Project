@@ -5,9 +5,11 @@
 /* Original Author  : Lawrence Manning                                     */
 /* Translated to C++: M. W. Houston                                        */
 /* Refactored by    : Steven L. Pittman                                    */
+/* Modified to add logging of rejected packets                             */
+/* 09-07-08         : Steven L. Pittman                                    */
 
-/* include the usual headers.  iostream gives access to stderr (cerr)     */
-/* module.h includes vectors and strings which are important              */
+/* include the usual headers.  iostream gives access to stderr (cerr)      */
+/* module.h includes vectors and strings which are important               */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -34,8 +36,8 @@ extern "C" {
 int load(std::vector<CommandFunctionPair> & pairs)
 {
 	/* CommandFunctionPair name("command", "function"); */
-	CommandFunctionPair timed_access_function(1, "timed_access", 0, 0);
-	CommandFunctionPair set_timed_access_function("settimedaccess", "set_timed_access", 0, 0);
+	CommandFunctionPair timed_access_function(1, "timed_access", 0, 4);
+	CommandFunctionPair set_timed_access_function("settimedaccess", "set_timed_access", 0, 4);
 	
 	pairs.push_back(timed_access_function);
 	pairs.push_back(set_timed_access_function);
@@ -46,16 +48,17 @@ int load(std::vector<CommandFunctionPair> & pairs)
 int timed_access(std::vector<std::string> & parameters, std::string & response)
 {
 	int error = 0;
-        bool logging = false;
+   bool logging = false;
 	static bool modeset = true;
 	static bool setmode = true;
-	static bool firstset = true;
-	
+	static bool firstset = false;
+
 	ConfigVAR settings("/var/smoothwall/timedaccess/settings");
-	
+
 	std::string mode = settings["MODE"];
 
-	logging = (settings["LOGGING"] == "on");
+	if (settings["LOGGING"] == "on") logging = true;
+	else logging = false;
 
 	if (settings["ENABLE"] != "on")
 	{
@@ -162,9 +165,6 @@ int setallowed(bool allowed, bool logging)
 	std::vector<std::string> ipb;
 	int error = 0;
 
-	// Rule number 2 in timedaccess is set to REJECT by rc.firewall.up
-	// and is static
-
 	if (allowed)
 	{
 		syslog(LOG_INFO, "Timed access: Ok, allowing");
@@ -172,15 +172,19 @@ int setallowed(bool allowed, bool logging)
 	}
 	else
 	{
+		// Rule number 2 in timedaccess is set to REJECT by rc.firewall.up and is static
 		syslog(LOG_INFO, "Timed access: Not allowing");
-		if (logging) {
-			ipb.push_back("iptables -R timedaction 1 -j LOG --log-prefix Denied-by-Timed-Access:-");
+	   	if (!logging)
+	   	{
+	   		ipb.push_back("iptables -R timedaction 1 -j REJECT");
 		}
-		else {
-			ipb.push_back("iptables -R timedaction 1 -j REJECT");
+		else
+		{
+			ipb.push_back("iptables -R timedaction 1 -j LOG --log-prefix -Denied-by-Timed-Access:-");
 		}
 	}
 	
 	error = ipbatch(ipb);
+
 	return error;
 }

@@ -1,0 +1,6 @@
+MOD_NAME = ExampleMod
+MOD_LONG_NAME = Example Mod
+MOD_DIR = /var/smoothwall/mods/$(MOD_NAME)
+MOD_VERSION = 1.0
+MOD_INFO = Example Mod Template for Build System
+MOD_FORUM = http://community.smoothwall.org/forum/viewtopic.php?f=

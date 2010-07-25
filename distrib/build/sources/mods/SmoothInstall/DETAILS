@@ -1,0 +1,6 @@
+MOD_NAME = SmoothInstall
+MOD_LONG_NAME = Smoothwall Mod Build System
+MOD_DIR = /var/smoothwall/mods/$(MOD_NAME)
+MOD_VERSION = 1.23
+MOD_INFO = Module Creation tool for Smoothwall Express
+MOD_FORUM = http://community.smoothwall.org/forum/viewtopic.php?f=

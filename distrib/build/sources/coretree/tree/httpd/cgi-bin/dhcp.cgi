@@ -420,19 +420,19 @@ END
 print <<END
 <table class='centered'>
 <tr>
-	<td style='width: 25%;'>$tr{'network boot enabledc'}</td>
+	<td class='base' style='width: 25%;'>$tr{'network boot enabledc'}</td>
 	<td style='width: 25%;'><input type='checkbox' name='BOOT_ENABLE' $checked{'BOOT_ENABLE'}{'on'}></td>
 	<td style='width: 25%;'></td>
 	<td style='width: 25%;'></td>
 </tr>
 <tr>
-	<td>$tr{'boot serverc'}</TD>
+	<td class='base'>$tr{'boot serverc'}</TD>
 	<td><input type='text' name='BOOT_SERVER' value='$dhcpsettings{'BOOT_SERVER'}'></td>
-	<td>$tr{'boot filenamec'}</td>
+	<td class='base'>$tr{'boot filenamec'}</td>
 	<td><input type='text' name='BOOT_FILE' value='$dhcpsettings{'BOOT_FILE'}'></td>
 </tr>
 <tr>
-	<td>$tr{'root pathc'}</TD>
+	<td class='base'>$tr{'root pathc'}</TD>
 	<td colspan='3'><input type='text' name='BOOT_ROOT' size='32' value='$dhcpsettings{'BOOT_ROOT'}'></td>
 </tr>
 </table>
@@ -470,49 +470,49 @@ END
 print <<END
 <table class='centered'>
 <tr>
-	<td style='width: 25%;'>$tr{'start address'}</td>
+	<td class='base' style='width: 25%;'>$tr{'start address'}</td>
 	<td style='width: 25%;'><input type='text' name='START_ADDR' value='$dhcpsettings{'START_ADDR'}' id='start_addr' @{[jsvalidip('start_addr')]} ></td>
-	<td style='width: 25%;'>$tr{'end address'}</td>
+	<td class='base' style='width: 25%;'>$tr{'end address'}</td>
 	<td style='width: 25%;'><input type='text' name='END_ADDR' value='$dhcpsettings{'END_ADDR'}' id='end_addr' @{[jsvalidip('end_addr')]} ></td>
 </tr>
 <tr>
-	<td>$tr{'primary dns'}</td>
+	<td class='base'>$tr{'primary dns'}</td>
 	<td><input type='text' name='DNS1' value='$dhcpsettings{'DNS1'}' id='dns1' @{[jsvalidip('dns1','true')]} ></td>
-	<td>$tr{'secondary dns'}</TD>
+	<td class='base'>$tr{'secondary dns'}</TD>
 	<td><input type='text' name='DNS2' value='$dhcpsettings{'DNS2'}' id='dns2' @{[jsvalidip('dns2','true')]}  ></td>
 </tr>
 <tr>
-	<td>$tr{'primary ntp'}</td>
+	<td class='base'>$tr{'primary ntp'}</td>
 	<td><input type='text' name='NTP1' value='$dhcpsettings{'NTP1'}' id='ntp1' @{[jsvalidip('ntp1','true')]} ></td>
-	<td>$tr{'secondary ntp'}</TD>
+	<td class='base'>$tr{'secondary ntp'}</TD>
 	<td><input type='text' name='NTP2' value='$dhcpsettings{'NTP2'}' id='ntp2' @{[jsvalidip('ntp2','true')]}  ></td>
 </tr>
 <tr>
-	<td>$tr{'primary wins'}</td>
+	<td class='base'>$tr{'primary wins'}</td>
 	<td><input type='text' name='WINS1' value='$dhcpsettings{'WINS1'}' id='wins1' @{[jsvalidip('wins1','true')]} ></td>
-	<td>$tr{'secondary wins'}</td>
+	<td class='base'>$tr{'secondary wins'}</td>
 	<td><input type='text' name='WINS2' value='$dhcpsettings{'WINS2'}' id='wins2' @{[jsvalidip('wins2','true')]}  ></td>
 </tr>
 <tr>
-	<td>$tr{'default lease time'}</td>
+	<td class='base'>$tr{'default lease time'}</td>
 	<td><input type='text' name='DEFAULT_LEASE_TIME' value='$dhcpsettings{'DEFAULT_LEASE_TIME'}' id='default_lease_time' @{[jsvalidnumber('default_lease_time',1,400)]}></td>
-	<td>$tr{'max lease time'}</td>
+	<td class='base'>$tr{'max lease time'}</td>
 	<td><input type='text' name='MAX_LEASE_TIME' value='$dhcpsettings{'MAX_LEASE_TIME'}' id='max_lease_time' @{[jsvalidnumber('max_lease_time',1,400)]}></td>
 </tr>
 <tr>
-	<td>$tr{'domain name suffix'}&nbsp;<IMG SRC='/ui/img/blob.gif' alt='*'></td>
+	<td class='base'><IMG SRC='/ui/img/blob.gif' alt='*'>&nbsp;$tr{'domain name suffix'}</td>
 	<td><input type='text' name='DOMAIN_NAME' value='$dhcpsettings{'DOMAIN_NAME'}' id='domain_name' @{[jsvalidregex('domain_name','^([a-zA-Z])+([\.a-zA-Z0-9_-])+$', 'true')]} ></td>
-	<td>$tr{'nis_domainc'}</TD>
+	<td class='base'>$tr{'nis_domainc'}</TD>
 	<td><input type='text' name='NIS_DOMAIN' value='$dhcpsettings{'NIS_DOMAIN'}' id='nis_domain' @{[jsvalidregex('nis_domain','^([a-zA-Z])+([\.a-zA-Z0-9_-])+$','true')]} ></td>
 </tr>
 <tr>
-	<td>$tr{'primary nisc'}</TD>
+	<td class='base'>$tr{'primary nisc'}</TD>
 	<td><input type='text' name='NIS1' value='$dhcpsettings{'NIS1'}' id='nis1' @{[(jsvalidip('nis1','true'))]}></td>
-	<td>$tr{'secondary nisc'}</TD>
+	<td class='base'>$tr{'secondary nisc'}</TD>
 	<td><input type='text' name='NIS2' value='$dhcpsettings{'NIS2'}' id='nis2' @{[(jsvalidip('nis2','true'))]}></td>
 </tr>
 <tr>
-	<td>$tr{'enabled'}</td>
+	<td class='base'>$tr{'enabled'}</td>
 	<td><input type='checkbox' name='ENABLE' $checked{'ENABLE'}{'on'}></td>
 	<td></td>
 	<td></td>
@@ -535,19 +535,19 @@ END
 print <<END
 <table class='centered'>
 <tr>
-	<td style='width: 25%;'>$tr{'hostnamec'}</td>
+	<td class='base' style='width: 25%;'>$tr{'hostnamec'}</td>
 	<td style='width: 25%;'><input type='text' name='STATIC_HOST' value='$dhcpsettings{'STATIC_HOST'}' id='static_host' @{[jsvalidregex('static_host','^([a-zA-Z])+([\.a-zA-Z0-9_-])+$')]}></td>
-	<td style='width: 25%;'>$tr{'descriptionc'}</td>
+	<td class='base' style='width: 25%;'>$tr{'descriptionc'}</td>
 	<td style='width: 25%;'><input type='text' name='STATIC_DESC' value='$dhcpsettings{'STATIC_DESC'}' id='static_desc' @{[jsvalidregex('static_desc','^([a-zA-Z0-9_-]+)$','true')]} ></td>
 </tr>
 <tr>
-	<td>$tr{'mac addressc'}</td>
+	<td class='base'>$tr{'mac addressc'}</td>
 	<td><input type='text' name='STATIC_MAC' value='$dhcpsettings{'STATIC_MAC'}' id='static_mac' @{[(jsvalidmac('static_mac'))]} ></td>
-	<td>$tr{'ip addressc'}</td>
+	<td class='base'>$tr{'ip addressc'}</td>
 	<td><input type='text' name='STATIC_IP' value='$dhcpsettings{'STATIC_IP'}' id='static_ip' @{[(jsvalidip('static_ip'))]}></td>
 </tr>
 <tr>
-	<td>$tr{'enabled'}</td>
+	<td class='base'>$tr{'enabled'}</td>
 	<td><input type='checkbox' name='DEFAULT_ENABLE_STATIC' $checked{'DEFAULT_ENABLE_STATIC'}{'on'}></td>
 	<td style='text-align: right;'><input type='submit' name='ACTION' value='$tr{'add'}'></td>
 	<td></td>

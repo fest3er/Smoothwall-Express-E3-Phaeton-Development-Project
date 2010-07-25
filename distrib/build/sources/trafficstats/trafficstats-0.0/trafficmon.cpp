@@ -15,6 +15,9 @@
 #include <time.h>
 #include "traffic_config.hpp"
 #include "trafstats_core.hpp"
+#include </usr/include/linux/types.h>
+#include </usr/include/netinet/in.h> 
+
 
 
 // these are needed to keep the iptables libs happy

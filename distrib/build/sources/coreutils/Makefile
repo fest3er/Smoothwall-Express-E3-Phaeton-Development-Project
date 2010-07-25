@@ -7,27 +7,27 @@
 include ../Makefile.conf
 
 PACKAGE = coreutils
-VERSION = 6.12
+VERSION = 8.4
 
 BASE_URL = ftp://ftp.gnu.org/gnu/coreutils/
 
 CONFIGURE = yes
 
-PATCH_URL1 = http://www.linuxfromscratch.org/patches/lfs/6.4/coreutils-6.12-uname-1.patch
-PATCH_URL2 = http://www.linuxfromscratch.org/patches/lfs/6.4/coreutils-6.12-old_build_kernel-1.patch
-PATCH_URL3 = http://www.linuxfromscratch.org/patches/lfs/6.4/coreutils-6.12-i18n-2.patch
-
-PATCH_FILE1 = coreutils-6.12-old_build_kernel-1.patch
+#PATCH_URL1 = http://www.linuxfromscratch.org/patches/lfs/6.4/coreutils-6.12-uname-1.patch
+#PATCH_URL2 = http://www.linuxfromscratch.org/patches/lfs/6.4/coreutils-6.12-old_build_kernel-1.patch
+#PATCH_URL3 = http://www.linuxfromscratch.org/patches/lfs/6.4/coreutils-6.12-i18n-2.patch
+#
+#PATCH_FILE1 = coreutils-6.12-old_build_kernel-1.patch
 
 configure: patch
-	@(cd $(COMPILE_DIR); \
-	DEFAULT_POSIX2_VERSION=199209 ./configure --prefix=/$(PKG_DIR));
+	@cd $(COMPILE_DIR); \
+	  ./configure --prefix=$(PKG_DIR) --enable-install-program=hostname;
 
 ifeq ($(BUILD_PHASE), Final)
 
-PATCH_FILE1 = coreutils-6.12-uname-1.patch
-PATCH_FILE2 = coreutils-6.12-old_build_kernel-1.patch
-PATCH_FILE3 = coreutils-6.12-i18n-2.patch
+#PATCH_FILE1 = coreutils-6.12-uname-1.patch
+#PATCH_FILE2 = coreutils-6.12-old_build_kernel-1.patch
+#PATCH_FILE3 = coreutils-6.12-i18n-2.patch
 
 INSTALL = yes
 install: compile

@@ -166,18 +166,20 @@ else
       build tar
       build util-linux-ng
       build joe
+      build openssl
       build wget
       build sudo
       build iptables unpack
       build kernel-phaeton
       build iptables
       build xtables-addons
-      #build ipp2p
+      #build ipp2p: obsolete, included in xtables-addons
       build ipbatch
-      build libipt_ACCOUNT
+      build klibc
+      #build libipt_ACCOUNT: obsolete, included in xtables-addons
       build listtables
       build udev
-      build udev-config
+      #build udev-config; not needing?
       build pciutils
       build bin86
       build nasm
@@ -204,7 +206,6 @@ else
 
       build dosfstools
       build syslinux
-      build openssl
       build openssh
       build apache
       build smoothd
@@ -215,6 +216,7 @@ else
       build libart_lgpl
       build libpng
       build rrdtool
+      build lm_sensors
       build dnsmasq
       build whois
       build popt
@@ -299,6 +301,7 @@ else
       build libosip2
       build siproxd
 
+      # miniupnpd has build problems; skipping
       build miniupnpd
       build cpio
       build grub
@@ -310,12 +313,4 @@ else
     touch crumbs/Final.compiled
   fi
   echo
-
-  # The ISOs must be created in non-parallel mode
-  JOBS=$JOBS_UP
-  other_cmd "sources/media-isoinstall/$BUILD_PHASE.phaetondevISO.built" \
-            "phaeton devel ISO" \
-            "make -C sources/media-isoinstall TYPE=-devel" \
-            "sources/media-isoinstall/$BUILD_PHASE.phaetondevISO.out"
-
 fi

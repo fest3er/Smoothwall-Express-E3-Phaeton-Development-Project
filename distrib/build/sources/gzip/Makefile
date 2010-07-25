@@ -7,16 +7,16 @@
 include ../Makefile.conf
 
 PACKAGE = gzip
-VERSION = 1.3.12
+VERSION = 1.4
 
 BASE_URL = ftp://ftp.gnu.org/gnu/gzip/
 
-PATCH = yes
-patch: $(DIR)/
-	cd $(DIR); \
-	for file in gzip.c lib/utimens.{c,h} ; do \
-	  cp -v $$file{,.orig}; \
-	  sed 's/futimens/gl_&/' $$file.orig > $$file; \
-	done
+#PATCH = yes
+#patch: $(DIR)/
+#	cd $(DIR); \
+#	for file in gzip.c lib/utimens.{c,h} ; do \
+#	  cp -v $$file{,.orig}; \
+#	  sed 's/futimens/gl_&/' $$file.orig > $$file; \
+#	done
 
 include ../Makefile.rules

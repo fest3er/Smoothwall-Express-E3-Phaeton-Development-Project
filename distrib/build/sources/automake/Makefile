@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = automake
-VERSION = 1.8.5
+VERSION = 1.11.1
 
 BASE_URL = ftp://ftp.gnu.org/gnu/automake/
 

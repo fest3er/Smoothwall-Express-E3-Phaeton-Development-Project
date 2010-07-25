@@ -7,12 +7,16 @@
 include ../Makefile.conf
 
 APACHE_VER = 1.3.41
-MODSSL_VER = 2.8.31
+MODSSL_VER = 2.8.31-1.3.41
 
 PACKAGE = apache
 VERSION = $(APACHE_VER)
 
 DIR = $(PACKAGE)_$(VERSION)
+
+PATCH_FILE1 = src-supp-htdigest.c.patch
+PATCH_FILE2 = src-supp-htpasswd.c.patch
+PATCH_FILE3 = src-supp-logresolve.c.patch
 
 DOWNLOAD = yes
 PREPARE = yes
@@ -24,14 +28,14 @@ PACKAGEINFO = yes
 
 download:
 	@$(DL_CMD) http://www.mirrorservice.org/sites/ftp.apache.org/httpd/$(DIR).tar.gz
-	@$(DL_CMD) http://www.modssl.org/source/mod_ssl-$(MODSSL_VER)-$(APACHE_VER).tar.gz
+	@$(DL_CMD) http://www.modssl.org/source/mod_ssl-$(MODSSL_VER).tar.gz
 
 prepare: download
 	@tar -zxvf $(DOWNLOADS_DIR)/apache_$(APACHE_VER).tar.gz
-	@tar -zxvf $(DOWNLOADS_DIR)/mod_ssl-$(MODSSL_VER)-$(APACHE_VER).tar.gz
+	@tar -zxvf $(DOWNLOADS_DIR)/mod_ssl-$(MODSSL_VER).tar.gz
 
-configure: prepare
-	@(cd mod_ssl-$(MODSSL_VER)-$(APACHE_VER); \
+configure: prepare patch
+	@(cd mod_ssl-$(MODSSL_VER); \
 	./configure --with-apache=../$(DIR)/ \
 		--with-ssl=/usr/ssl --with-layout=RedHat);
 
@@ -49,7 +53,7 @@ $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz: install
 clean:
 	@echo -n " $(PACKAGE)"
 	@rm -rf apache_$(APACHE_VER)
-	@rm -rf mod_ssl-$(MODSSL_VER)-$(APACHE_VER)
+	@rm -rf mod_ssl-$(MODSSL_VER)
 
 packageinfo.html:
 	@echo "<li><span style='font-size:large;'>$(PACKAGE) $(VERSION)</span><br>" >>/tmp/packageinfo.html

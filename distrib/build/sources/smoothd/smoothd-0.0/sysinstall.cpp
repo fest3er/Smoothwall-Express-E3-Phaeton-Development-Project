@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstdio>
 #include <fcntl.h>
 #include <syslog.h>
 #include <signal.h>

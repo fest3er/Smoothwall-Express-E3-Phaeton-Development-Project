@@ -21,21 +21,21 @@ int fetch_counts(const char *chain, struct iptable_data *dp, int max) {
     unsigned int num = 0;
     const char *thischain;
     const struct ipt_entry *ipt;
-    iptc_handle_t handle;
+    struct iptc_handle *handle;
 
     handle = iptc_init("mangle");
     
     if(handle) {
          
-        for (thischain = iptc_first_chain(&handle);
+        for (thischain = iptc_first_chain(handle);
              thischain;
-             thischain = iptc_next_chain(&handle)) {
+             thischain = iptc_next_chain(handle)) {
             if(!strcmp(thischain, chain)) {
                 // go through rules in this chain  
                 
-                for (ipt = iptc_first_rule(thischain, &handle),num=0;
+                for (ipt = iptc_first_rule(thischain, handle),num=0;
                      ipt;
-                     ipt = iptc_next_rule(ipt, &handle),num++) {
+                     ipt = iptc_next_rule(ipt, handle),num++) {
                     if(!ipt || num >= max)
                         break;
                     
@@ -56,7 +56,7 @@ int fetch_counts(const char *chain, struct iptable_data *dp, int max) {
             }
         } 
     
-        iptc_free(&handle);
+        iptc_free(handle);
     }
     // number of rules matched if == max then there may be more
     

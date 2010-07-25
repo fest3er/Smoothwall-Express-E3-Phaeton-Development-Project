@@ -8,7 +8,7 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = xtables-addons
-VERSION =  1.12
+VERSION =  $(XTABLES_ADDONS_VER)
 
 EXTENSION = .tar.bz2
 

@@ -11,6 +11,7 @@
 #include <sys/file.h>
 #include <cerrno>
 #include <cstdlib>
+#include <cstdio>
 #include <cstring>
 #include <string>
 #include <iostream>

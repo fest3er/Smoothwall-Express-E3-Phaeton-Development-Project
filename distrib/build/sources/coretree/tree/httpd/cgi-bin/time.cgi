@@ -351,16 +351,16 @@ END
 &openbox($tr{'network time servers'});
 
 print <<END
-<TABLE WIDTH='100%'>
+<TABLE>
 <TR>
-<TD WIDTH='50%' CLASS='base'>
+<TD CLASS='base' style='text-align:left; padding-left:5em'>
 <INPUT TYPE='radio' NAME='NTP_SERVER_TYPE' VALUE='RANDOM' $selected{'NTP_SERVER_TYPE'}{'RANDOM'}>
 $tr{'multiple random public servers'}
 </TD>
-<TD WIDTH='50%'>&nbsp;</TD>
+<TD 
 </TR>
 <TR>
-<TD CLASS='base'>
+<TD CLASS='base' style='text-align:left; padding-left:5em'>
 <INPUT TYPE='radio' NAME='NTP_SERVER_TYPE' VALUE='SELECTED' $selected{'NTP_SERVER_TYPE'}{'SELECTED'}>
 $tr{'selected single public server'}
 </TD>
@@ -374,7 +374,7 @@ print <<END
 </SELECTED>
 </TD>
 </TR>
-<TD CLASS='base'>
+<TD CLASS='base' style='text-align:left; padding-left:5em'>
 <INPUT TYPE='radio' NAME='NTP_SERVER_TYPE' VALUE='USERDEFINED' $selected{'NTP_SERVER_TYPE'}{'USERDEFINED'}>
 $tr{'user defined single public or local server'}
 </TD>

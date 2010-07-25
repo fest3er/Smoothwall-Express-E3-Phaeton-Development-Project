@@ -1,0 +1,144 @@
+#! /bin/bash
+
+export ORIG_DIR=${PWD}
+
+# Function to unmount and clean up
+function cleanup {
+  cd $ORIG_DIR
+  umount ./$1
+  rmdir $1
+  umount ./$2
+  rmdir $2
+}
+
+function countdown {
+  typeset -i i
+  i=$1
+  while [ $i -gt 0 ]; do
+    echo -en "\033[0K$i\r"
+    i=i-1
+    sleep 1
+  done
+  echo
+}
+
+# Stuff you need to know
+echo
+echo "                 PHAETON ISO TO FLASH CONVERTER"
+echo
+echo "$0 is a script that copies a Phaeton install ISO image to a flash/thumb"
+echo "drive such that it can be booted. There are a few items to be aware of."
+echo
+echo "The flash device must have at least one partition. The first partition will be"
+echo "used and must be formatted with FAT-16 or FAT-32. Prepare it now if necessary."
+echo
+echo "The contents of the flash device's first partition will be lost."
+echo
+echo "You must know the device node name of the portable flash drive you will be"
+echo "using. It will be something like '/dev/sdd'. Check it now."
+echo
+echo "If you are careless, you will erase the wrong thing. So be"
+echo "  TRIPLY sure you have the correct node name! Then check it again."
+echo
+echo "You will be prompted to enter the node name (without the '/dev/')."
+echo "You will be prompted to enter the downloaded ISO filename."
+echo
+echo -n "Enter 'yes' to continue or press <ENTER> to skip this step: "
+read ans </dev/tty
+if [ "$ans" != "yes" ]; then exit 0; fi
+
+# Won't work as a mere mortal
+if [ $UID -ne 0 ]; then
+  echo "This script MUST be run as root. Please su or sudo and try again!"
+  echo
+  exit 1
+fi
+
+# Pause for reflection
+sleep 3
+
+# Get the needed info
+echo
+echo
+
+echo -n "Enter the flash node name(e.g. 'sdd'): "
+read fldev1
+
+echo -n "                     Enter it again! : "
+read fldev2
+
+if [ "$fldev1" != "$fldev2" ]; then
+  echo "The names do not match! Try again."
+  exit 1
+fi
+
+echo -n "               Enter the ISO filename: "
+read isoname
+
+fldev=${fldev1}
+
+[ -b "/dev/$fldev" ] || \
+    (echo "Device '/dev/${fldev}' does not exist. Try again."; exit 1)
+
+[ -f "$isoname" ] || \
+    (echo "ISO image '$isoname' does not exist. Try again."; exit 1)
+
+echo "Will continue in 10 seconds..."
+countdown 10
+
+# Shorthand
+CD="isomnt${RANDOM}"
+FL="flmnt${RANDOM}"
+
+# Be sure the ISO and flash are unmounted and the mount point deleted
+#   if the script abends.
+trap "cleanup $CD $FL; exit" EXIT SIGINT SIGQUIT
+
+echo
+echo "Preparing..."
+
+# Be sure loop device is availabe
+modprobe loop || \
+    (echo "Couldn't modprobe loop device!"; exit 1)
+
+# Make it bootable
+syslinux /dev/${fldev}1 || \
+    (echo "Couldn't make /dev/${fldev}1 bootable!"; exit 1)
+
+# Make the mount points
+mkdir -p $CD || \
+    (echo "Couldn't make '$CD' ISO mount point!"; exit 1)
+mkdir -p $FL || \
+    (echo "Couldn't make '$FL' flash mount point!"; exit 1)
+
+# Mount the ISO and flash
+mount -t iso9660 ${isoname} $CD -o loop || exit 1
+mount -t vfat /dev/${fldev}1 $FL || exit 1
+
+echo
+echo "Copying..."
+
+# Copy the ISO contents to flash
+cp -avr $CD/* $FL
+
+echo
+echo "Wrenching..."
+
+# Fix it so it'll boot
+cd $FL
+mv isolinux/* .
+rmdir isolinux
+sed -e 's=/isolinux==' isolinux.cfg > syslinux.cfg
+cd ..
+
+echo
+echo "Finishing..."
+
+# Unmount them
+cleanup $CD $FL
+
+# Clear the exit booby trap
+trap "" EXIT
+
+echo
+echo "Phaeton iso2flash complete."

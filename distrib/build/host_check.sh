@@ -45,12 +45,13 @@ CGAWK=0300
 VGAWK=3.0 #(/usr/bin/awk should be a link to gawk) 
 
 CGCC=030001
-CGCCM=040401 #(Versions greater than 4.4.1 are not recommended as they have not been tested) 
+CGCCM=040403 #(Versions greater than 4.4.3 are not recommended as they have not been tested) 
 VGCC=3.0.1
 
 CGLIBC=020205
-CGLIBCM=021001 #(Versions greater than 2.10.1 are not recommended as they have not been tested) 
+CGLIBCM=021102 #(Versions greater than 2.11.2 are not recommended as they have not been tested) 
 VGLIBC=2.2.5
+VGLIBCM=2.11.2
 
 CGREP=0205
 VGREP=2.5
@@ -116,7 +117,7 @@ fi
 
 # check binutils
 if [ ! -e /usr/bin/ld ]; then
-  echo "    FAIL: /usr/bin/ld not found. Need binutilis version>=$VBINUTILS."
+  echo "    FAIL: /usr/bin/ld not found. Need binutilis $VBINUTILS<=version<=$VBINUTILSM."
   OK=1
 else
   WORK=`ld --version | head -1 | sed -e 's/[^0-9.]*\(.*\)/\1/'`
@@ -152,8 +153,9 @@ else
   if [ $? -eq 0 ]; then
     echo "    OK: /usr/bin/yacc starts bison"
   else
-    grep "exec /usr/bin/bison" /usr/bin/yacc >/dev/null 2>&1
-    if [ $? -eq 0 ]; then
+    egrep "exec /usr/bin/bison|exec '/usr/bin/bison'" /usr/bin/yacc >/dev/null 2>&1
+    ret=$?
+    if [ $ret -eq 0 ]; then
       echo "    OK: yacc starts bison"
     else
       test -h /usr/bin/yacc && echo "    FAIL: yacc -> `readlink -f /usr/bin/yacc`"
@@ -292,7 +294,7 @@ fi
 
 # Check glibc
 if [ ! -e /lib/libc.so.6 ]; then
-  echo "    FAIL: /lib/libc.so.6 not found. Need glibc version>=$VGLIBC."
+  echo "    FAIL: /lib/libc.so.6 not found. Need glibc $VGLIBC<=version<=$VGLIBCM."
     OK=1
 else
   WORK=`/lib/libc.so.6 --version 2>&1| head -1 | sed -e 's/.* version \([0-9.][0-9.]*\),.*/\1/'`
@@ -300,10 +302,27 @@ else
   TGLIBC=`echo $*|awk '{printf("%2.2d%2.2d%2.2d\n", $1, $2, $3)}'`
   IFS=$OIFS
   if [[ $TGLIBC < $CGLIBC || $TGLIBC > $CGLIBCM ]]; then
-    echo "    FAIL: glibc v$WORK seems too old (<$VGLIBC)"
+    echo "    FAIL: glibc v$WORK FAILED ($VGLIBC-$VGLIBCM)"
     OK=1
   else
-    echo "    OK: glibc v$WORK seems new enough (>=$VGLIBC)"
+    echo "    OK: glibc v$WORK seems OK (>=$VGLIBC, <=$VGLIBCM)"
+  fi
+fi
+
+# Check grep
+if [ ! -e /bin/grep -a ! -e /usr/bin/grep ]; then
+  echo "    FAIL: not found in /bin or /usr/bin. Need grep version>=$VGREP."
+    OK=1
+else
+  WORK=`grep --version 2>&1| head -1 | sed -e 's/[^0-9.]*\(.*\)/\1/'`
+  OIFS=$IFS; IFS="."; set $WORK
+  TGREP=`echo $*|awk '{printf("%2.2d%2.2d%2.2d\n", $1, $2, $3)}'`
+  IFS=$OIFS
+  if [[ $TGREP < $CGREP ]]; then
+    echo "    FAIL: grep v$WORK seems too old (<$VGREP)"
+    OK=1
+  else
+    echo "    OK: grep v$WORK seems new enough (>=$VGREP)"
   fi
 fi
 

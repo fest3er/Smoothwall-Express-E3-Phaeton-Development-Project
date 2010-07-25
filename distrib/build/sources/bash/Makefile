@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = bash
-VERSION = 3.2.48
+VERSION = 4.1
 
 BASE_URL = ftp://ftp.gnu.org/gnu/bash/
 
@@ -18,8 +18,7 @@ BUILD = --build=i686-pc-linux-gnu
 endif
 
 ifeq ($(BUILD_PHASE), Stage_3)
-CONFIG_OPTS = --prefix=/tools --without-bash-malloc \
-	ac_cv_func_working_mktime=yes
+CONFIG_OPTS = --prefix=${TOOLS_DIR} --without-bash-malloc
 
 INSTALL = yes
 install: compile

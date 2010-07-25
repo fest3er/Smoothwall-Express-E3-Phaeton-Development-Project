@@ -176,19 +176,19 @@ sub display_interface
 	print qq{
 		<table style='width: 100%;'>
 		<tr>
-			<td style='width: 25%;'>$tr{'physical interface'}</td>
+			<td class='base' style='width: 25%;'>$tr{'physical interface'}</td>
 			<td style='width: 25%;'>$interface</td>
-			<td style='width: 25%;'>$tr{'ip addressc'}</td>
+			<td class='base' style='width: 25%;'>$tr{'ip addressc'}</td>
 			<td style='width: 25%;'><input type='text' name='${prefix}_ADDRESS' value='$settings{"${prefix}_ADDRESS"}' id='${prefix}address' @{[jsvalidip("${prefix}address",'true')]}></td>
 		</tr>
 		<tr>
-			<td>$tr{'nic type'}</td>
+			<td class='base'>$tr{'nic type'}</td>
 			<td>$settings{"${prefix}_DISPLAYDRIVER"}</td>
-			<td>$tr{'netmaskc'}</td>
+			<td class='base'>$tr{'netmaskc'}</td>
 			<td><input type='text'  name='${prefix}_NETMASK' value='$settings{"${prefix}_NETMASK"}' id='${prefix}mask' @{[jsvalidmask("${prefix}mask",'true')]}></td>
 		</tr>
 		<tr>
-			<td>$tr{'mac addressc'}</td>
+			<td class='base'>$tr{'mac addressc'}</td>
 			<td>$macaddress</td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
@@ -222,9 +222,9 @@ sub display_red_interface
 	print qq{
 		<table style='width: 100%;'>
 		<tr>
-			<td style='width: 25%;'>$tr{'physical interface'}</td>
+			<td class='base' style='width: 25%;'>$tr{'physical interface'}</td>
 			<td style='width: 25%;'>$interface</td>
-			<td style='width: 25%;'>$tr{'connection method'}:</td>
+			<td class='base' style='width: 25%;'>$tr{'connection method'}:</td>
 			<td style='width: 25%;'>
 			<script>
 function optify( field )
@@ -263,21 +263,21 @@ function optify( field )
 
 		</tr>
 		<tr>
-			<td>$tr{'nic type'}</td>
+			<td class='base'>$tr{'nic type'}</td>
 			<td>$settings{"RED_DISPLAYDRIVER"}</td>
-			<td>$tr{'dhcp hostname'}</td>
+			<td class='base'>$tr{'dhcp hostname'}</td>
 			<td><input type='text' id='hostname' name='RED_DHCP_HOSTNAME' value='$settings{'RED_DHCP_HOSTNAME'}'></td>
 		</tr>
 		<tr>
-			<td>$tr{'mac addressc'}</td>
+			<td class='base'>$tr{'mac addressc'}</td>
 			<td>$macaddress</td>
-			<td>$tr{'ip addressc'}</td>
+			<td class='base'>$tr{'ip addressc'}</td>
 			<td><input id='ipaddress'  @{[jsvalidip('ipaddress')]}  type='text' name='RED_ADDRESS' value='$settings{"RED_ADDRESS"}'></td>
 		</tr>
 		<tr>
 			<td></td>
 			<td></td>
-			<td>$tr{'netmaskc'}</td>
+			<td class='base'>$tr{'netmaskc'}</td>
 			<td><input id='netmask' type='text'  @{[jsvalidip('netmask')]}  name='RED_NETMASK' value='$settings{"RED_NETMASK"}'></td>
 		</tr>
 		</table>
@@ -290,15 +290,15 @@ function optify( field )
 	print qq{
 		<table style='width: 100%;'>
 		<tr>
-			<td style='width: 25%;'>$tr{'default gateway'}</td>
+			<td class='base' style='width: 25%;'>$tr{'default gateway'}</td>
 			<td style='width: 25%;'><input id='gateway'  @{[jsvalidip('gateway','true')]}  type='text' name='DEFAULT_GATEWAY' value='$settings{"DEFAULT_GATEWAY"}'></td>
-			<td style='width: 25%;'>$tr{'primary dns'}</td>
+			<td class='base' style='width: 25%;'>$tr{'primary dns'}</td>
 			<td style='width: 25%;'><input id='primary'  @{[jsvalidip('primary','true')]}  type='text' name='DNS1' value='$settings{"DNS1"}'></td>
 		</tr>
 		<tr>
 			<td></td>
 			<td></td>
-			<td>$tr{'secondary dns'}</td>
+			<td class='base'>$tr{'secondary dns'}</td>
 			<td style='width: 25%;'><input id='secondary'  @{[jsvalidip('secondary','true')]}  type='text' name='DNS2' value='$settings{"DNS2"}'></td>
 		</tr>
 		</table>

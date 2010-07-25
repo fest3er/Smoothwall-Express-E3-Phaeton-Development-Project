@@ -6,7 +6,7 @@
 
 include ../../../Makefile.versions
 
-CC=gcc 
+CC=gcc -g
 
 LD=ld
 LDFLAGS=-i

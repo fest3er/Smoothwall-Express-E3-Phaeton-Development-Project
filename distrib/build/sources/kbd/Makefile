@@ -7,8 +7,8 @@
 include ../Makefile.conf
 
 PACKAGE = kbd
-VERSION = 1.12
+VERSION = 1.15.2
 
-BASE_URL = ftp://ftp.win.tue.nl/pub/linux-local/utils/kbd/
+BASE_URL = http://www.kernel.org/pub/linux/utils/kbd/
 
 include ../Makefile.rules

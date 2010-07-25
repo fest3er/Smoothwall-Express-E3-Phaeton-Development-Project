@@ -6,23 +6,22 @@
 # where to find the external stuff - you will probably have to change this
 IPTABLES_SRC_DIR=/build/sources/iptables/iptables-$(IPTABLES_VERSION)
 IPROUTE_INC_DIR=/build/sources/iproute2/iproute2/include
+ACCOUNT_INC_DIR=/build/sources/xtables-addons/xtables-addons-$(XTA_VER)/extensions/ACCOUNT
 IPT_LIB_DIR=$(LIB_IPT_DIR)
 KERNEL_DIR=/build/sources/kernel-phaeton/linux-$(KERNEL_VER)
 IPROUTE_LIB_DIR=/build/sources/iproute2/iproute2/lib
-IPTABLES_OBJS= $(IPTABLES_SRC_DIR)/iptables.o \
-	$(IPTABLES_SRC_DIR)/libipq/libipq.a \
-	$(IPTABLES_SRC_DIR)/libiptc/libiptc.a
+IPTABLES_OBJS= $(IPTABLES_SRC_DIR)/iptables.o
 
 # COPT_FLAGS=-O2
 # COPT_FLAGS:=-g
-MYCFLAGS=-DMODSWROOT=\"$(MODSWROOT)\" -DIPTABLES_VERSION=\"$(IPTABLES_VERSION)\" -Wall -Wunused -I/usr/include/smoothwall -I$(KERNEL_DIR)/include -I$(IPTABLES_SRC_DIR)/include/ -I$(IPROUTE_INC_DIR)  -I. 
+MYCFLAGS=-DMODSWROOT=\"$(MODSWROOT)\" -DIPTABLES_VERSION=\"$(IPTABLES_VERSION)\" -Wall -Wunused -I/usr/include/smoothwall -I$(KERNEL_DIR)/include -I$(IPTABLES_SRC_DIR)/include/ -I$(IPROUTE_INC_DIR)  -I$(ACCOUNT_INC_DIR) -I. 
 
 
 OBJS= trafstats_core.o trafstats_iptables.o traffic_config.o
 
 # LDFLAGS      = -lsmoothwall -L$(IPROUTE_LIB_DIR) -rdynamic
 LDFLAGS      = -lsmoothd -L$(IPROUTE_LIB_DIR) -rdynamic
-LDLIBS       = -lipt_ACCOUNT -lcurses -lnetlink -ldl -lnsl -lxtables
+LDLIBS       = -lxt_ACCOUNT_cl -lcurses -lnetlink -ldl -lnsl -lxtables -lipq -liptc
 
 
 

@@ -22,7 +22,7 @@ if [ "$STORAGE_DRIVER" != "" ]; then
 #!/bin/sash
 
 -echo "Loading $1 driver"
-/bin/insmod /lib/scsi/libata.ko
+/bin/insmod /lib/scsi/libata.ko atapi_enabled=1
 /bin/insmod /lib/scsi/scsi_transport_spi.ko
 /bin/insmod /lib/$STORAGE_DRIVER $STORAGE_DRIVER_OPTIONS
 END

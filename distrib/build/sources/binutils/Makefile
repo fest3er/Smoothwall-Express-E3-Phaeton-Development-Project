@@ -8,7 +8,7 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = binutils
-VERSION = 2.19.1
+VERSION = 2.20
 
 BASE_URL = http://ftp.gnu.org/gnu/binutils
 EXTENSION = .tar.gz
@@ -28,41 +28,41 @@ COMPILE_DIR = $(DIR)-compile
 #
 ifeq ($(BUILD_PHASE), Stage_1)
 
-PRE_CONFIGURE = CC="gcc -B/usr/bin"
-
-CONFIG_OPTS = --prefix=$(TOOLS_DIR) --disable-nls --disable-werror
+CONFIG_OPTS = --target=$(SWE_TGT) --prefix=$(TOOLS_DIR) \
+	      --disable-nls --disable-werror
 
 COMPILE = yes
 compile: configure
-	@make -C $(COMPILE_DIR) configure-host
-	@make $(JOBS) -C $(COMPILE_DIR) LDFLAGS="-all-static"
+	make $(JOBS) -C $(COMPILE_DIR)
 
 INSTALL = yes
 install: compile
-	@mkdir -p $(TOOLS_DIR)/lib
 ifdef BITS_64
-	(cd $(TOOLS_DIR); ln -s lib lib64)
+	@mkdir -p $(TOOLS_DIR)/lib
+	@cd $(TOOLS_DIR); ln -s lib lib64
 endif
 	make -C $(COMPILE_DIR) install
 	
-	@ # Get ready for first adjusting
-	make -C $(COMPILE_DIR)/ld clean
-	make $(JOBS) -C $(COMPILE_DIR)/ld LDFLAGS="-all-static" LIB_PATH=$(TOOLS_DIR)/lib
-	cp -v $(COMPILE_DIR)/ld/ld-new $(TOOLS_DIR)/bin
-
 endif # Stage 1
 
 
 # Tool Chain Build Stage_2
 #
 ifeq ($(BUILD_PHASE), Stage_2)
+PRE_CONFIGURE = CC="$(SWE_TGT)-gcc -B$(TOOLS_DIR)/lib" \
+                AR=$(SWE_TGT)-ar RANLIB=$(SWE_TGT)-ranlib
 
 CONFIG_OPTS = --prefix=$(TOOLS_DIR) --disable-nls \
-	      --with-lib-path=$(TOOLS_DIR)/lib
+              --with-lib-path=$(TOOLS_DIR)/lib
+
+COMPILE = yes
+compile: configure
+#	@make $(JOBS) -C $(COMPILE_DIR)
+	make -C $(COMPILE_DIR)
 
 INSTALL = yes
 install: compile
-	@make -C $(COMPILE_DIR) install
+	make -C $(COMPILE_DIR) install
 	
 	@ # Get ready for second adjusting
 	make -C $(COMPILE_DIR)/ld clean
@@ -74,7 +74,8 @@ endif # Stage 2
 # SWE Final Build Stage
 #
 ifeq ($(BUILD_PHASE), Final)
-CONFIG_OPTS = --prefix=$(PKG_ROOT)$(PKG_DIR) --enable-shared
+#CONFIG_OPTS = --prefix=$(PKG_ROOT)$(PKG_DIR) --enable-shared
+CONFIG_OPTS = --prefix=$(PKG_DIR) --enable-shared
 
 DOWNLOAD = yes
 download:
@@ -92,12 +93,12 @@ patch: $(DIR)/
 
 COMPILE = yes
 compile: configure
-	@make ${JOBS} -C $(COMPILE_DIR) tooldir=$(PKG_ROOT)$(PKG_DIR)
+	@make ${JOBS} -C $(COMPILE_DIR) tooldir=$(PKG_DIR)
 	
 INSTALL = yes
 install: compile
 	@mkdir -p $(PKG_ROOT)$(PKG_DIR)/include
-	@make ${JOBS} -C $(COMPILE_DIR) tooldir=$(PKG_ROOT)$(PKG_DIR) install
+	@make ${JOBS} -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) tooldir=$(PKG_DIR) install
 	@cp -v $(DIR)/include/libiberty.h $(PKG_ROOT)$(PKG_DIR)/include
 
 adjust:
@@ -106,7 +107,7 @@ adjust:
 	  GCC_LIBNAMDIR=`dirname $${GCC_LIBNAM}`; \
 	  rm -fv $${GCC_LIBNAMDIR}/specs
 
-	make -C $(COMPILE_DIR)/ld INSTALL=$(TOOLS_DIR)/bin/install install
+	make -C $(COMPILE_DIR)/ld INSTALL=$(PKG_ROOT)$(PKG_DIR)/bin/install install
 endif # Final
 
 include ../Makefile.rules

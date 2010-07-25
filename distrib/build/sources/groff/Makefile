@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = groff
-VERSION = 1.18.1.4
+VERSION = 1.20.1
 
 BASE_URL = ftp://ftp.gnu.org/gnu/groff
 
@@ -15,11 +15,11 @@ PRE_CONFIGURE = PAGE=letter
 
 CONFIG_OPTS = --prefix=$(PKG_DIR) --enable-multibyte
 
-PATCH_URL1 = http://www.linuxfromscratch.org/patches/lfs/6.4/groff-1.18.1.4-debian_fixes-1.patch
-PATCH_FILE1 = groff-1.18.1.4-debian_fixes-1.patch
+#PATCH_URL1 = http://www.linuxfromscratch.org/patches/lfs/6.4/groff-1.18.1.4-debian_fixes-1.patch
+#PATCH_FILE1 = groff-1.18.1.4-debian_fixes-1.patch
 
-PATCH = yes
-patch: $(DIR)/
+#PATCH = yes
+old-patch: $(DIR)/
 	cp $(DOWNLOADS_DIR)/`basename $(PATCH_URL1)` ./
 	cd $(DIR); \
 	FILENAME=../$(PATCH_FILE1); \

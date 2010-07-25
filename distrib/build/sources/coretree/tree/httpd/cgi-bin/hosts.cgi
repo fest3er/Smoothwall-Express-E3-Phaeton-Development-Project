@@ -137,7 +137,7 @@ print <<END
 	<TD><INPUT TYPE='text' NAME='HOSTNAME' VALUE='$cgiparams{'HOSTNAME'}' id='hostname' @{[jsvalidregex('hostname','^[a-zA-Z_0-9-\.]+$')]}></TD>
 </TR>
 <TR>
-	<td>$tr{'commentc'}</td>
+	<td class='base'>$tr{'commentc'}</td>
 	<td colspan='3'><input type='text' style='width: 80%;' name='COMMENT' id='comment' @{[jsvalidcomment('comment')]} value='$cgiparams{'COMMENT'}'></td>
 </tr>
 </TABLE>

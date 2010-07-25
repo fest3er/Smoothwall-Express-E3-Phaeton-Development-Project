@@ -1,0 +1,11 @@
+--- eciadsl-usermode-0.12/pul.c	2010-06-09 22:33:08.000000000 -0400
++++ eciadsl-usermode-0.12/pusb-linux.c	2010-06-09 22:33:40.000000000 -0400
+@@ -29,7 +29,7 @@
+ #include <string.h>
+ 
+ #include "pusb-linux.h"
+-#include <asm/page.h>
++#include <sys/user.h>
+ 
+ #include "pusb.h"
+ 

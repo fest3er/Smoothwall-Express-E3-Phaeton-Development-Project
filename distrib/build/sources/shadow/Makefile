@@ -7,9 +7,9 @@
 include ../Makefile.conf
 
 PACKAGE = shadow
-VERSION = 4.0.18.1
+VERSION = 4.1.4.2
 
-BASE_URL = ftp://ftp.pld.org.pl/software/shadow
+BASE_URL = ftp://pkg-shadow.alioth.debian.org/pub/pkg-shadow
 
 INSTALL = yes
 

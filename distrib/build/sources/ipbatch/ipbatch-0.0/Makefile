@@ -11,7 +11,7 @@ COPT_FLAGS:=$(CFLAGS) -g -DDEBUG
 CFLAGS:=$(COPT_FLAGS) -DIPTABLES_VERSION=\"$(IPTABLES_VER)\" -Wall -Wunused -I$(KERNEL_DIR)/include -I$(IPTABLES_SRC_DIR)/include/ -I.
 
 LDFLAGS      = -rdynamic
-LDLIBS       = -ldl -lnsl -lxtables
+LDLIBS       = -ldl -lnsl -lxtables -liptc
 
 PROGS = ipbatch
 
@@ -25,6 +25,6 @@ clean :
 ipbatch.o: ipbatch.c $(IPTABLES_SRC_DIR)/include/iptables.h
 	$(CC) -c $(CFLAGS) -DIPT_LIB_DIR=\"$(IPT_LIB_DIR)\" ipbatch.c 
 
-ipbatch: ipbatch.o $(IPTABLES_SRC_DIR)/iptables.o $(IPTABLES_SRC_DIR)/libiptc/libiptc.a
+ipbatch: ipbatch.o $(IPTABLES_SRC_DIR)/iptables.o $(IPTABLES_SRC_DIR)/xshared.o
 	$(CC) $(CFLAGS) -DIPT_LIB_DIR=\"$(IPT_LIB_DIR)\" $(LDFLAGS) -o $@ $^ $(LDLIBS)
 

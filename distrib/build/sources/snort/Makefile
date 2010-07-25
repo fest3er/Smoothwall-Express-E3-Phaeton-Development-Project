@@ -10,12 +10,12 @@ PACKAGE = snort
 
 # Deal with snort: get the latest version number dynamically. :)
 #
-VERSION := $(shell ./get-snort-ver.sh)
+VERSION := $(shell ./get-snort-ver.sh -v)
+URL := $(shell ./get-snort-ver.sh -u)
 
-BASE_URL = http://dl.snort.org/snort-current
+BASE_URL = http://dl.snort.org
 
 PATCH_FILE1 = snort-pidfix.patch
-#PATCH_FILE2 = snort.conf.patch
 
 # You're looking in here because the build system failed to find
 # the snort source package or it failed to build.
@@ -23,10 +23,18 @@ PATCH_FILE1 = snort-pidfix.patch
 # This makefile should always get the latest version of snort, whatever it is.
 # However, the build might fail if the pidfile fix patch is no longer correct.
 
-CONFIG_OPTS = --prefix=$(PKG_DIR)
+DOWNLOAD = yes
+download:
+	@if [ ! -e ../../downloads/$(TARBALL)$(EXTENSION).done ]; then \
+	  wget -O ../../downloads/$(TARBALL)$(EXTENSION) $(BASE_URL)$(URL); \
+	  touch ../../downloads/$(TARBALL)$(EXTENSION).done; \
+	fi
+
+PREPARE = yes
+$(DIR)/: download
+	@tar -zxvf $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
 
 INSTALL = yes
-
 install: compile
 	-mkdir $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install

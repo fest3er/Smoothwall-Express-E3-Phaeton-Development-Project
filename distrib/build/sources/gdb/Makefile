@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = gdb
-VERSION = 6.6
+VERSION = 7.1
 
 BASE_URL = ftp://ftp.gnu.org/gnu/gdb
 

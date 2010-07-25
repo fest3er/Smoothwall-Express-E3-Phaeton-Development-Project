@@ -11,6 +11,12 @@ nobody:x:99:
 floppy:x:19:nobody
 console:x:31:
 utmp:x:22:
+dialout:x:51:nobody
+video:x:52:
+lp:x:53:
+cdrom:x:54:nobody
+tape:x:55:
+audio:x:56:
 squid:x:100:
 snort:x:101:
 sshd:x:102:

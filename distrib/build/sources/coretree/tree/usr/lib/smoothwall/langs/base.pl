@@ -702,7 +702,7 @@
 # ids.cgi
 'snort is enabled' => 'Snort is enabled',
 'snort is disabled' => 'Snort is disabled',
-'intrusion detection system2' => 'Intrusion Detection System:',
+'intrusion detection system2' => 'Intrusion Detection System (Snort):',
 'oink code must be 40 hex digits' => 'Oink code must be 40 hex digits.',
 'rules not available' => 'Rules not available.',
 'unable to fetch rules' => 'Unable to fetch rules.',

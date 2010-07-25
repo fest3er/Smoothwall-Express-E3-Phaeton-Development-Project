@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Starting ExampleMod"
+/var/smoothwall/mods/ExampleMod/

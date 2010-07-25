@@ -102,9 +102,9 @@ print "<form method='post'>\n";
 print <<END
 <table width='100%'>
 <tr>
-<td width='25%'>$tr{'enabled'}</td>
+<td class='base' width='25%'>$tr{'enabled'}</td>
 <td width='25%'><input type='checkbox' name='ENABLE' $checked{'ENABLE'}{'on'}></td>
-<td width='25%'>$tr{'modec'}</td>
+<td class='base' width='25%'>$tr{'modec'}</td>
 <td width='25%'>
 <select name='MODE'>
 <option value='ALLOW' $selected{'MODE'}{'ALLOW'}>$tr{'allow at specified times'}
@@ -123,7 +123,7 @@ print <<END
 <div align='center'>
 <table width='50%'>
 <tr>
-<td width='15%'>$tr{'fromc'}</td>
+<td class='base' width='15%'>$tr{'fromc'}</td>
 <td width='35%'><select name='START_HOUR'>
 END
 ;
@@ -146,7 +146,7 @@ for (my $min = 0; $min < 60; $min++)
 print <<END
 </select>
 </td>
-<td width='15%'>$tr{'toc'}</td>
+<td class='base' width='15%'>$tr{'toc'}</td>
 <td width='35%'><select name='END_HOUR'>
 END
 ;
@@ -178,8 +178,8 @@ END
 for (my $day = 0; $day < 7; $day++)
 {
 	print <<END
-<td>$tr{"day $day"}:</td>
-<td><input type='checkbox' name='DAY_$day' $checked{"DAY_${day}"}{'on'}></td>
+<td class='base' style='padding-right:0'>$tr{"day $day"}:</td>
+<td style='text-align:left; padding:0 1em 0 0'><input type='checkbox' name='DAY_$day' $checked{"DAY_${day}"}{'on'}></td>
 END
 	;
 }

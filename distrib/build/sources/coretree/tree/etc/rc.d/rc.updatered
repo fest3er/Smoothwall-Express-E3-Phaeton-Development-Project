@@ -31,3 +31,8 @@ echo "$DNSMASQ_DNS2" >/var/smoothwall/red/dns2
 /usr/bin/smoothwall/setddns.pl
 
 /etc/rc.d/rc.vpn.up
+
+echo "Looking for system updates and registering your system."
+/usr/bin/smoothwall/updatelists.pl
+/etc/rc.d/rc.machineregister
+

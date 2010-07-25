@@ -456,7 +456,7 @@ char *english_tr[] = {
 /* TR_NETWORK_CONFIGURATION_TYPE */
 "Network configuration type",
 /* TR_DRIVERS_AND_CARD_ASSIGNMENTS */
-"Drivers and card assignments",
+"Card assignments",
 /* TR_ADDRESS_SETTINGS */
 "Address settings",
 /* TR_DNS_AND_GATEWAY_SETTINGS */

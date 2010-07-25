@@ -5,6 +5,7 @@
  #define MAX_ARGS 100
  
 +extern char *lib_dir;
++typedef struct iptc_handle *iptc_handle_t;
  static char * table = "filter";
  static iptc_handle_t handle = NULL;
  static char prev_table_name[BUFFER_SIZE] = "";

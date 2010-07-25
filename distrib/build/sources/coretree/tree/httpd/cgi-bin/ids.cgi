@@ -72,7 +72,7 @@ print "<FORM METHOD='POST'>\n";
 print <<END
 <TABLE WIDTH='100%'>
 <TR>
-	<TD WIDTH='25%' CLASS='base'>Snort:</TD>
+	<TD WIDTH='25%' CLASS='base'>$tr{'enabled'}</TD>
 	<TD WIDTH='25%'><INPUT TYPE='checkbox' NAME='ENABLE_SNORT' $checked{'ENABLE_SNORT'}{'on'}></TD>
 	<TD WIDTH='25%'>&nbsp;</TD>
 	<TD WIDTH='35%'>&nbsp;</TD>
@@ -98,11 +98,11 @@ END
 print <<END
 <TABLE WIDTH='100%'>
 <TR>
-	<TD WIDTH='25%'>$tr{'oink code'}</TD>
+	<TD class='base' WIDTH='25%'>$tr{'oink code'}</TD>
 	<TD WIDTH='75%'><INPUT TYPE='text' NAME='OINK' SIZE='42' MAXLENGTH='40' VALUE='$snortsettings{OINK}' id='OINK' @{[jsvalidregex('OINK','^([0-9a-fA-F]){40}$')]}></TD>
 </TR>
 <TR>
-	<TD>$tr{'rule age'}</TD><TD>$ruleage</TD>
+	<TD class='base'>$tr{'rule age'}</TD><TD>$ruleage</TD>
 </TR>
 </TABLE>
 END
@@ -160,14 +160,29 @@ print "</FORM>\n";
 	
 if ($snortsettings{'ACTION'} eq $tr{'save and update rules'} and !$errormessage)
 {
-	my $snortversion = &readvalue('/usr/lib/smoothwall/snortversion');
-	$snortversion =~ /^(\d+\.\d+)/;
-	$snortversion = $1;
+	my $origsnortversion = &readvalue('/usr/lib/smoothwall/snortversion');
 
+	my $snortversion = $origsnortversion;
+	
+	$snortversion =~ s/\.//g;
+	
+	while (length $snortversion < 4) {
+		$snortversion = $snortversion.'0'; }
+	
 	&runoinkmaster($snortversion);
-
-	if (!$errormessage) {
-
+	
+	if ($errormessage)
+	{
+		$snortversion = $origsnortversion;
+		
+		$snortversion =~ /^(\d+\.\d+)/;
+		$snortversion = $1;
+		
+		&runoinkmaster($snortversion);
+	}
+	
+	if (!$errormessage)
+	{	
 		my $success = message('snortrestart');
 
 		if (not defined $success) {
@@ -199,7 +214,8 @@ END
 sub runoinkmaster
 {
 	my $v = $_[0];
-	my $url = 'http://www.snort.org/pub-bin/oinkmaster.cgi/' . $snortsettings{'OINK'} . "/snortrules-snapshot-$v.tar.gz";
+	if (defined $_[1]) {my $attempt = $_[1];}
+	my $url = "http://www.snort.org/reg-rules/snortrules-snapshot-$v.tar.gz/" . $snortsettings{'OINK'};
 
 	my $curdir = getcwd;
 	chdir "${swroot}/snort/";
@@ -223,6 +239,7 @@ document.getElementById('progress').style.background = "#a0a0ff";
 END
 		while(<FD>)
 		{
+			print STDERR $_;
 			$errormessage = '';
 			if (/(\d{1,3})%/) {
 				my $percent = $1;
@@ -249,6 +266,16 @@ END
 
 		if ($?) {
 			$errormessage = $tr{'unable to fetch rules'}; } 
+			if (not defined $attempt)
+			{
+				($v1, $v2, $v3, $v4) = split(//, $v);
+				if ($v4 > 0)
+			       	{
+					# Try again, but once only.
+					$v4--;
+					&runoinkmaster (join('', $v1, $v2, $v3, $v4), 1);
+				}
+			}
 		else
 		{
 			open (FILE, ">${swroot}/snort/ruleage");

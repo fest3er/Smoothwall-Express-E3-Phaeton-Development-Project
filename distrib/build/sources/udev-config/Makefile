@@ -7,11 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = udev-config
-VERSION = 20090523
+VERSION = 20100128
 
 EXTENSION = .tar.bz2
 
-BASE_URL = http://www.linuxfromscratch.org/lfs/downloads/6.5/
+BASE_URL = http://www.linuxfromscratch.org/lfs/downloads/6.6/
 
 INSTALL = yes
 install: patch

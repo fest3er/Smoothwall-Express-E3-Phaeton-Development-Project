@@ -338,14 +338,14 @@ sub showstats
 	if ( open ( $iface_file, "</var/smoothwall/red/local-ipaddress" )){
 		my $ip = <$iface_file>;
 		chomp $ip;
-		print "<tr><td><strong>Local:</strong></td><td>$ip</td></tr>";
+		print "<tr><td class='base'><strong>Local:</strong></td><td>$ip</td></tr>";
 		close $iface_file;
 	}
 
 	if ( open ( $iface_file, "</var/smoothwall/red/remote-ipaddress" )){
 		my $ip = <$iface_file>;
 		chomp $ip;
-		print "<tr><td><strong>Remote:</strong></td><td>$ip</td></tr>";
+		print "<tr><td class='base'><strong>Remote:</strong></td><td>$ip</td></tr>";
 		close $iface_file;
 	}
 
@@ -409,9 +409,9 @@ sub showstats
 		$monthstatsout = &rerange( $monthstatsout );
 
 		print <<END
-		<tr><td>Current:</td><td>$rateout / $ratein (Out / In)</td></tr> 
-		<tr><td>Today:</td><td>$daystatsout / $daystatsin (Out / In)</td></tr>
-		<tr><td>Month:</td><td>$monthstatsout / $monthstatsin (Out / In)</td></tr>
+		<tr><td class='base'>Current:</td><td>$rateout / $ratein (Out / In)</td></tr> 
+		<tr><td class='base'>Today:</td><td>$daystatsout / $daystatsin (Out / In)</td></tr>
+		<tr><td class='base'>Month:</td><td>$monthstatsout / $monthstatsin (Out / In)</td></tr>
 END
 ;
 	}

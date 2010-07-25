@@ -102,12 +102,9 @@ function build_tc_stage_2() {
   set_build_environment
 
   export JOBS=$JOBS_MP
-  buildenv tcl 1
-  buildenv expect 1
-  buildenv dejagnu 1
+  buildenv binutils 2
   buildenv gcc 2
   check 2 gcc
-  buildenv binutils 2
 }
 
 
@@ -119,6 +116,9 @@ function build_tc_stage_3() {
   set_build_environment
 
   export JOBS=$JOBS_MP
+  buildenv tcl 1
+  buildenv expect 1
+  buildenv dejagnu 1
   buildenv ncurses 1
   buildenv flex 1
   buildenv bash 1
@@ -235,7 +235,12 @@ other_cmd()
     else
       echo "    $2"
     fi
-    ( docommand "$2" "$3") > "$4" 2>&1
+    if [ "$5" == "tee" ]; then
+      ( docommand "$2" "$3") 2>&1 | /usr/bin/tee "$4"
+    else
+      ( docommand "$2" "$3") > "$4" 2>&1
+    fi
+    
     status=$?
     if [ $status -eq 0 ]; then
       touch "$1" ;

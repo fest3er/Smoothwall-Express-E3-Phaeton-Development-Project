@@ -87,21 +87,21 @@ print "<FORM METHOD='POST'>\n";
 print <<END
 <TABLE WIDTH='100%'>
 <TR>
-	<TD WIDTH='25%' CLASS='base'>$tr{'init string'}&nbsp;<IMG SRC='/ui/img/blob.gif'></TD>
+	<TD WIDTH='25%' CLASS='base'><IMG SRC='/ui/img/blob.gif'>&nbsp;$tr{'init string'}</TD>
 	<TD WIDTH='25%'><INPUT TYPE='text' NAME='INIT' VALUE='$modemsettings{'INIT'}' id='init' @{[jsvalidregex('init','^[a-zA-Z0-9\.,\(\)@$!\%\^\&\*=\+_ ]*$')]}></TD>
-	<TD WIDTH='25%' CLASS='base'>$tr{'hangup string'}&nbsp;<IMG SRC='/ui/img/blob.gif'></TD>
+	<TD WIDTH='25%' CLASS='base'><IMG SRC='/ui/img/blob.gif'>&nbsp;$tr{'hangup string'}</TD>
 	<TD WIDTH='25%'><INPUT TYPE='text' NAME='HANGUP' VALUE='$modemsettings{'HANGUP'}' id='hangup' @{[jsvalidregex('hangup','^[a-zA-Z0-9\.,\(\)@$!\%\^\&\*=\+_ ]*$')]} ></TD>
 </TR>
 <TR>
-	<TD CLASS='base'>$tr{'speaker on'}&nbsp;<IMG SRC='/ui/img/blob.gif'></TD>
+	<TD CLASS='base'><IMG SRC='/ui/img/blob.gif'>&nbsp;$tr{'speaker on'}</TD>
 	<TD><INPUT TYPE='text' NAME='SPEAKER_ON' VALUE='$modemsettings{'SPEAKER_ON'}' id='speakeron' @{[jsvalidregex('speakeron','^[a-zA-Z0-9\.,\(\)@$!\%\^\&\*=\+_ ]*$')]} ></TD>
-	<TD CLASS='base'>$tr{'speaker off'}&nbsp;<IMG SRC='/ui/img/blob.gif'></TD>
+	<TD CLASS='base'><IMG SRC='/ui/img/blob.gif'>&nbsp;$tr{'speaker off'}</TD>
 	<TD><INPUT TYPE='text' NAME='SPEAKER_OFF' VALUE='$modemsettings{'SPEAKER_OFF'}' id='speakeroff' @{[jsvalidregex('speakeroff','^[a-zA-Z0-9\.,\(\)@$!\%\^\&\*=\+_ ]*$')]} ></TD>
 </TR>
 <TR>
-	<TD CLASS='base'>$tr{'tone dial'}&nbsp;<IMG SRC='/ui/img/blob.gif'></TD>
+	<TD CLASS='base'><IMG SRC='/ui/img/blob.gif'>&nbsp;$tr{'tone dial'}</TD>
 	<TD><INPUT TYPE='text' NAME='TONE_DIAL' VALUE='$modemsettings{'TONE_DIAL'}' id='tone' @{[jsvalidregex('tone','^[a-zA-Z0-9\.,\(\)@$!\%\^\&\*=\+_ ]*$')]} ></TD>
-	<TD CLASS='base'>$tr{'pulse dial'}&nbsp;<IMG SRC='/ui/img/blob.gif'></TD>
+	<TD CLASS='base'><IMG SRC='/ui/img/blob.gif'>&nbsp;$tr{'pulse dial'}</TD>
 	<TD><INPUT TYPE='text' NAME='PULSE_DIAL' VALUE='$modemsettings{'PULSE_DIAL'}' id='pulse' @{[jsvalidregex('pulse','^[a-zA-Z0-9\.,\(\)@$!\%\^\&\*=\+_ ]*$')]} ></TD>
 </TR>
 <TR>

@@ -7,13 +7,13 @@
 include ../Makefile.conf
 
 PACKAGE = vim
-VERSION = 7.0
+VERSION = 7.2
 
 EXTENSION = .tar.bz2
 
 BASE_URL = ftp://ftp.vim.org/pub/vim/unix/
 
-DIR = vim70
+DIR = $(PACKAGE)72
 
 INSTALL = yes
 

@@ -31,13 +31,14 @@ configure: patch
 	@true
 	
 compile: configure
-	@make -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=/$(PKG_DIR) FINALCONFDIR=/$(PKG_DIR)/etc FINALRCDIR=/$(PKG_DIR)/bin programs
+	@make -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin programs
 
 install: compile
 ifeq ($(BUILD_PHASE), Final)
-	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)${PKG_DIR}
 endif
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT)/ INC_USRLOCAL=/$(PKG_DIR) FINALCONFDIR=/$(PKG_DIR)/etc FINALRCDIR=/$(PKG_DIR)/bin install
-	@rm -rf $(PKG_ROOT)$(PKG_DIR)/rc*
+	@rm -rf $(PKG_ROOT)$(PKG_DIR)/rc* $(PKG_ROOT)$(PKG_DIR)/etc/ipsec.conf $(PKG_ROOT)/var
+
 
 include ../Makefile.rules

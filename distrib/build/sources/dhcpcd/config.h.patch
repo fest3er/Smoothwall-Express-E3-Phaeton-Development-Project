@@ -1,0 +1,20 @@
+--- dhcpcd-3.2.3.orig/config.H	2010-07-17 12:50:44.000000000 -0400
++++ dhcpcd-3.2.3.orig/config.h	2010-07-17 12:50:18.000000000 -0400
+@@ -31,7 +31,7 @@
+  * You would only do this to try and shrink the end binary if dhcpcd
+  * was running on a low memory device */
+ 
+-#define ENABLE_ARP
++/*#define ENABLE_ARP*/
+ #define ENABLE_NTP
+ #define ENABLE_NIS
+ #define ENABLE_INFO
+@@ -40,7 +40,7 @@
+ 
+ /* IPV4LL, aka ZeroConf, aka APIPA, aka RFC 3927.
+  * Needs ARP. */
+-#define ENABLE_IPV4LL
++/*#define ENABLE_IPV4LL*/
+ 
+ /* We will auto create a DUID_LLT file if it doesn't exist.
+  * You can always create your own DUID file that just contains the

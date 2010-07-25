@@ -3,3 +3,4 @@
 /dev/harddisk3		/var/log		ext3	defaults	1 2
 /dev/harddisk4          /                       ext3    defaults        1 1
 none                    /proc                   proc    defaults        0 0
+devpts			/dev/pts		devpts	defaults	0 0

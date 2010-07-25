@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# $Id: install-SmoothInstall 411 2009-09-26 05:52:42Z steve@domesticsecurity.com.au $
+
+# Fix bug in default alertboxes.base.pl
+sed -i 's/$revision \. //g' /usr/lib/smoothwall/langs/alertboxes.base.pl
+
+# Install Current Version
+if [ -e "./SmoothInstall-install.bz2" ]; then
+        /usr/bin/tar -jxvf ./SmoothInstall-install.bz2 -C / >/dev/null
+        /bin/mv -f ./SmoothInstall-install.bz2 /var/smoothwall/mods/SmoothInstall/archives
+fi
+if [ -e "/tmp/SmoothInstall-install.bz2" ]; then
+        /usr/bin/tar -jxvf /tmp/SmoothInstall-install.bz2 -C / >/dev/null
+        /bin/mv -f /tmp/SmoothInstall-install.bz2 /var/smoothwall/mods/SmoothInstall/archives
+fi
+
+/var/smoothwall/mods/SmoothInstall/install-SmoothInstall.pl

@@ -7,8 +7,10 @@
 include ../Makefile.conf
 
 PACKAGE = file
-VERSION = 5.03
+VERSION = 5.04
 
 BASE_URL = ftp://ftp.astron.com/pub/file/
+
+CONFIG_OPTS = --prefix=$(PKG_DIR)
 
 include ../Makefile.rules

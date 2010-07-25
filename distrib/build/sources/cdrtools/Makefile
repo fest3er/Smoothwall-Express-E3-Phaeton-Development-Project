@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = cdrtools
-VERSION = 2.01
+VERSION = 3.00
 
 BASE_URL = ftp://ftp.berlios.de/pub/cdrecord/
 

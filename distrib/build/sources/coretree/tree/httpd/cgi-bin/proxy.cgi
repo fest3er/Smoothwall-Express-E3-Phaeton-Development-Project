@@ -121,13 +121,13 @@ print <<END
 <TR>
 	<TD WIDTH='25%' CLASS='base'>$tr{'cache size'}</TD>
 	<TD WIDTH='25%'><INPUT TYPE='text' NAME='CACHE_SIZE' VALUE='$proxysettings{'CACHE_SIZE'}' SIZE='5'></TD>
-	<TD WIDTH='25%' CLASS='base'>$tr{'remote proxy'}&nbsp;<IMG SRC='/ui/img/blob.gif'></TD>
+	<TD WIDTH='25%' CLASS='base'><IMG SRC='/ui/img/blob.gif'>&nbsp;$tr{'remote proxy'}</TD>
 	<TD WIDTH='25%'><INPUT TYPE='text' NAME='UPSTREAM_PROXY' VALUE='$proxysettings{'UPSTREAM_PROXY'}'></TD>
 </TR>
 <TR>
-	<TD CLASS='base'>$tr{'remote proxy username'}&nbsp;<IMG SRC='/ui/img/blob.gif'></TD>
+	<TD CLASS='base'><IMG SRC='/ui/img/blob.gif'>&nbsp;$tr{'remote proxy username'}</TD>
 	<TD><INPUT TYPE='text' NAME='PEER_USERNAME' VALUE='$proxysettings{'PEER_USERNAME'}'></TD>
-	<TD CLASS='bae'>$tr{'remote proxy password'}</TD>
+	<TD CLASS='base'>$tr{'remote proxy password'}</TD>
 	<TD><INPUT TYPE='password' NAME='PEER_PASSWORD' VALUE='$proxysettings{'PEER_PASSWORD'}'></TD>
 </TR>
 <TR>

@@ -61,8 +61,8 @@ struct keyvalue
 /* for stuff in net.c */
 struct nic
 {
-	char *description;
-	char *modulename;
+	char description[STRING_SIZE];
+	char modulename[STRING_SIZE];
 };
 
 /* main.c */

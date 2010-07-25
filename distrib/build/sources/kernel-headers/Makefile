@@ -15,17 +15,26 @@ download:
 
 install: download
 	@tar -jxvf $(DOWNLOADS_DIR)/linux-$(KERNEL_VER).tar.bz2
-	@(cd linux-$(KERNEL_VER); \
-        make mrproper; \
-        make include/linux/version.h; \
-        make include/asm; \
-        mkdir -p $(PKG_ROOT); \
-        mkdir -p $(PKG_ROOT)$(PKG_DIR)/include/asm; \
-        cp -v include/asm/* $(PKG_ROOT)$(PKG_DIR)/include/asm; \
-        cp -Rv include/asm-generic $(PKG_ROOT)$(PKG_DIR)/include; \
-        cp -Rv include/linux $(PKG_ROOT)$(PKG_DIR)/include; \
-        touch $(PKG_ROOT)$(PKG_DIR)/include/linux/autoconf.h)
-
+ifeq ($(BUILD_PHASE), Stage_1)
+	cd linux-$(KERNEL_VER); \
+	  make mrproper; \
+	  cp ../../kernel.config-phaeton-$(KERNEL_VER) .config &&\
+	  make headers_check &&\
+	  make INSTALL_HDR_PATH=dest headers_install &&\
+	  cp -rv dest/include/* $(TOOLS_DIR)/include
+endif
+ifeq ($(BUILD_PHASE), Final)
+	cd linux-$(KERNEL_VER); \
+	  make mrproper
+	cd linux-$(KERNEL_VER); \
+	  cp ../../kernel.config-phaeton-$(KERNEL_VER) .config
+	cd linux-$(KERNEL_VER); \
+	  make prepare
+	cd linux-$(KERNEL_VER); \
+	  make INSTALL_HDR_PATH=$(PKG_ROOT)$(PKG_DIR) headers_install
+	cd linux-$(KERNEL_VER); \
+	  find $(PKG_ROOT)$(PKG_DIR)/include \( -name .install -o -name ..install.cmd \) -delete
+endif
 
 build-tarball: install
 	@(cd $(PKG_ROOT); \
@@ -37,4 +46,3 @@ clean:
 	@rm -rf linux-$(KERNEL_VER)
 
 all: build-tarball
-	

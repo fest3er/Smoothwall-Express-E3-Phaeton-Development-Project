@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = iana-etc
-VERSION = 2.20
+VERSION = 2.30
 
 EXTENSION = .tar.bz2
 

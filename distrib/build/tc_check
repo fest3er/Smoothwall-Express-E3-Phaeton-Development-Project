@@ -1,0 +1,20 @@
+#! /bin/bash
+
+# Must have one argument: the stage #
+echo $*
+if [ $# -ne 1 ]; then
+  echo "You must specify the build stage # (-3)"
+  exit 1
+fi
+
+# Compile an empty program and see if it uses the right loader
+echo 'main(){}' > dummy.c && \
+  $SWE_TGT-gcc -B/tools/lib dummy.c && 
+  readelf -l a.out | grep ': /tools/lib/ld-linux.so.2' > /dev/null
+
+# If the right loader wasn't found, quit in disgust
+STATUS=$?; if [ $STATUS -ne 0 ]; then exit $STATUS; fi
+
+# It was found, so put it in the trail of crumbs
+readelf -l a.out | grep "program interpreter" | \
+  sed -e 's/.*interpreter/ProgInterp/' -e 's/]//' > crumbs/tc_stage_${1}-ld_linux.out

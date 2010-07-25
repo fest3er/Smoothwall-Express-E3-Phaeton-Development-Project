@@ -43,7 +43,7 @@ int handledefaults(void)
 		return 0;
 	}
 	
-	strncpy(openness, "halfopen", STRING_SIZE - 1);
+	strncpy(openness, "closed", STRING_SIZE - 1);
 	findkey(kv, "OPENNESS", openness);
 	
 	choice = 0;

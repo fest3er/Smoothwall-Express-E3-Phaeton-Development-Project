@@ -7,11 +7,13 @@
 include ../Makefile.conf
 
 PACKAGE = patch
-VERSION = 2.5.4
+VERSION = 2.6.1
 
 BASE_URL = ftp://ftp.gnu.org/gnu/patch
 
-CONFIG_OPTS = --host=linux
+ifeq ($(BUILD_PHASE), Phase_3)
+CONFIG_OPTS = --prefix=$(TOOLS_DIR)
+endif
 
 INSTALL = yes
 

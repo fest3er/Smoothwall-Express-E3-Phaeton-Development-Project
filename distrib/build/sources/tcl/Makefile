@@ -28,17 +28,29 @@ CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
-configure: patch
-	@(cd $(DIR)/unix; ./configure --prefix=$(PKG_DIR) $(CONFIG_OPTS))
-
 compile: configure
 	@make -C $(DIR)/unix
 
+ifeq ($(BUILD_PHASE), Stage_3)
+configure: patch
+	@(cd $(DIR)/unix; ./configure --prefix=$(TOOLS_DIR) $(CONFIG_OPTS))
+
 install: compile
-ifeq ($(BUILD_PHASE), Final)
-	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+	make -C $(DIR)/unix install
+	chmod -v u+w ${TOOLS_DIR}/lib/libtcl8.5.so
+	make -C $(DIR)/unix install-private-headers
+	rm -f $(TOOLS_DIR)/bin/tclsh
+	ln -sv tclsh8.5 $(TOOLS_DIR)/bin/tclsh
 endif
+
+ifeq ($(BUILD_PHASE), Final)
+configure: patch
+	@(cd $(DIR)/unix; ./configure --prefix=$(PKG_DIR) $(CONFIG_OPTS))
+
+install: compile
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
 	@make -C $(DIR)/unix INSTALL_ROOT=$(PKG_ROOT) install
 	@ln -s tclsh8.4 $(PKG_ROOT)$(PKG_DIR)/bin/tclsh
+endif
 
 include ../Makefile.rules

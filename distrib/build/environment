@@ -13,6 +13,7 @@ function set_build_environment() {
   umask 022
   export JOBS
   export LC_ALL=POSIX
+  export SWE_TGT=i686-swe-linux-gnu
 
   # DISTRIB_PATH is the 'root' of the SWE tree; it is the same for building
   #   the tool chain and for the final build.
@@ -61,14 +62,6 @@ function set_build_environment() {
       # PKG_DIR is the configure-like 'prefix' where the package ends up installed
       export PKG_DIR="$TOOLS_DIR"
 
-# For debugging
-(
-echo -e "\nset_build_environment():"
-tput smso;echo SET;tput rmso;set;echo
-tput smso;echo ENV;tput rmso;env|sort;echo
-tput smso;echo EXPORT;tput rmso;export;echo
-) >> crumbs/tc-$BUILD_PHASE.debug
-
       # Now report the environment
       #
       echo "    Environment:"
@@ -96,14 +89,6 @@ tput smso;echo EXPORT;tput rmso;export;echo
       # PKG_DIR is the configure-like 'prefix' where the package ends up installed
       export PKG_DIR="/usr"
 
-# For debugging
-(
-echo -e "\nset_build_environment():"
-tput smso;echo SET;tput rmso;set;echo
-tput smso;echo ENV;tput rmso;env|sort;echo
-tput smso;echo EXPORT;tput rmso;export;echo
-) >> crumbs/$BUILD_PHASE.debug
-
       # Now report the environment
       #
       echo "    Environment:"
@@ -113,6 +98,12 @@ tput smso;echo EXPORT;tput rmso;export;echo
       echo "      PATH=$PATH; "
       echo "$LDLINUX"
       echo
+      ;;
+
+    Media)
+      # assembling/finishing install media
+      # ROOT is equivalent to LFS' $LFS
+      export ROOT="$DISTRIB_PATH"
       ;;
 
     *)

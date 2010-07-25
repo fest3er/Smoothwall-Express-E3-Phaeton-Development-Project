@@ -46,17 +46,28 @@ cpu_count
 # This is the tool chain boot strap, where '/' is the real system root.
 # /tools MUST point to the correct .../distrib/tools.
 #
-FROM_TOOLS="`ls -l /tools | sed -e 's/.*-> //'`"
 THISDIR=`/bin/pwd`
 FROM_PWD="`dirname \"$THISDIR\"`/tools"
-if [ "$FROM_TOOLS" != "$FROM_PWD" ]; then
-  echo "su-ing to root to remove & create the /tools symlink on the host"
-  sudo su -c "rm -f /tools >/dev/null 2>&1; cd ../; ln -sv $FROM_PWD /tools" || \
-    (echo "/tools link creation failure!"; exit -1)
+if [ `id -u` -eq 0 ]; then CMD="bash"; else CMD="sudo su"; fi
+if [ -L "/tools" ]; then
+  FROM_TOOLS="`readlink /tools 2>/dev/null`"
+  if [ "$FROM_TOOLS" != "$FROM_PWD" ]; then
+    echo "correcting the /tools symlink on the host"
+    ${CMD} -c "rm -f /tools >/dev/null 2>&1; cd ../; ln -sv $FROM_PWD /tools" \
+      || (echo "/tools link creation failure!"; exit -1)
+    if [ $? -ne 0 ]; then
+      exit $?
+    fi
+  fi
+else
+  echo "creating the /tools symlink on the host"
+  ${CMD} -c "rm -f /tools >/dev/null 2>&1; cd ../; ln -sv $FROM_PWD /tools" \
+      || (echo "/tools link creation failure!"; exit -1)
   if [ $? -ne 0 ]; then
     exit $?
   fi
 fi
+  
 unset FROM_TOOLS THISDIR FROM_PWD
 
 # Build the tool chain stage as specified by $1

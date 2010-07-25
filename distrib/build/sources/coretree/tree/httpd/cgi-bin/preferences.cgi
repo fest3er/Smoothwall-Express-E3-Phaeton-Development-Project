@@ -47,7 +47,7 @@ print "<form method='post'>\n";
 print <<END
 <table style='width: 100%;'>
 <tr>
-	<td style='width: 25%;'>$tr{'drop down menus'}</td>
+	<td class='base' style='width: 25%;'>$tr{'drop down menus'}</td>
 	<td style='width: 25%;'><input type='checkbox' name='MENU' $checked{'MENU'}{'on'}></td>
 	<td style='width: 25%;'>&nbsp;</td>
 	<td style='width: 25%;'>&nbsp;</td>

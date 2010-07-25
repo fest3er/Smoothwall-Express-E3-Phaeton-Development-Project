@@ -1,0 +1,82 @@
+#!/bin/sh
+# CheckSI
+# Check for and install any Updates to the SmoothInstall Module
+# (c) 2009 Steve McNeill
+#
+# $Id: CheckSI 409 2009-09-21 05:49:33Z steve@domesticsecurity.com.au $
+#
+
+. /var/smoothwall/main/productdata
+red=`/usr/bin/tput setf 4`
+green=`/usr/bin/tput setf 2`
+norm=`/usr/bin/tput sgr0`
+echo
+
+# Check for Internet Connectivity
+NOTCONNECTED=/bin/true
+for d in a b c
+do
+	if /usr/bin/ping -c 2 code.google.com >/dev/null
+	then
+		NOTCONNECTED=/bin/false
+		break
+	fi
+done
+if $NOTCONNECTED
+then
+	echo
+	echo "$red*** WARNING ***$norm"
+	echo "Internet Connectivity not detected!"
+	echo "This mod needs to download additional packages to complete successfully"
+	echo "Please either connect to the Internet or download and install the latest"
+	echo "SmoothInstall Pacakge from \"${green}http://code.google.com/p/smoothwallmods/downloads/list?q=SmoothInstall*-$ARCH.run${norm}\""
+	echo "And install it on your smoothwall with \"${green}sh SmoothInstall-${norm}VERSION${green}-$PRODUCT-$VERSION-$ARCH.run${norm}\""
+	echo "(Where VERSION matches the file you downloaded)"
+	echo
+	exit 1
+fi
+
+WGET=`/usr/bin/wget --no-cache -q http://smoothwallmods.googlecode.com/svn/wiki/SW3ModBuildSystemSmoothInstallVersion.wiki -O /tmp/si.ver`
+CURRENT=`/bin/cat /tmp/si.ver`
+HEADER=`/bin/cat /usr/lib/smoothwall/header.pm | /bin/grep \\$Id`
+SMOOTHTYPE=`/bin/cat /usr/lib/smoothwall/smoothtype.pm | /bin/grep \\$Id`
+SYSINIT=`/bin/cat /etc/rc.d/rc.sysinit | grep "Starting Mod run level scripts"`
+HTTPD=`/bin/cat /etc/httpd/conf/httpd.conf | grep -E "Add Support for Mods|Patch-si1-insert"`
+
+if [ -e "/var/smoothwall/mods/SmoothInstall/cron.md5" ]; then
+	CRON=$(md5sum -c /var/smoothwall/mods/SmoothInstall/cron.md5)
+	CRON=$?
+fi
+if [ -e "/var/smoothwall/mods/SmoothInstall/smoothd.md5" ]; then
+	SMOOTHD=$(md5sum -c /var/smoothwall/mods/SmoothInstall/smoothd.md5)
+	SMOOTHD=$?
+fi
+
+#echo "{$HEADER}{$SMOOTHTYPE}{$CRON}{$SMOOTHD}"
+if [ -e "/usr/lib/smoothwall/SmoothInstall.pm" ] && [ "$HEADER" != "" ] && [ "$SMOOTHTYPE" != "" ] && [ "$CRON" -eq 0 ] && [ "$SMOOTHD" -eq 0 ] && [ "$SYSINIT" != "" ] && [ "$HTTPD" != "" ]; then
+	INSTALLED=`/usr/bin/perl -I/usr/lib/smoothwall -MSmoothInstall -e 'print "$SmoothInstall::VERSION"'`
+	echo "Found SmoothInstall Version $INSTALLED"
+	echo "Current Version is $CURRENT"
+	CHECKNEW=$(/usr/bin/expr $CURRENT \> $INSTALLED)
+	if [ $CHECKNEW -ne 0 ]; then
+		echo "Please wait while it is upgraded...."
+		/usr/bin/wget --no-cache -q http://smoothwallmods.googlecode.com/files/SmoothInstall-$CURRENT-$PRODUCT-$VERSION-$ARCH.run
+		/bin/sh ./SmoothInstall-$CURRENT-$PRODUCT-$VERSION-$ARCH.run 
+	fi
+else
+	echo "SmoothInstall not found.......Installing (SmoothInstall-$CURRENT-$PRODUCT-$VERSION-$ARCH.run)"
+	TEST=$( /usr/bin/wget --no-cache -S http://smoothwallmods.googlecode.com/files/SmoothInstall-$CURRENT-$PRODUCT-$VERSION-$ARCH.run 2>&1 >/dev/null | /bin/grep "ERROR" )
+	
+	if [ "$TEST" != "" ]; then
+		echo
+		echo "${red}*** WARNING ***$norm"
+		echo "SmoothInstall Package for Smoothwall Version ${green} $VERSION ${norm} and ${green} $ARCH ${norm} Not Available."
+		echo "Unable to Install Any Mods That Utilise SmoothInstall."
+		echo
+		exit 1
+	fi
+	/bin/sh ./SmoothInstall-$CURRENT-$PRODUCT-$VERSION-$ARCH.run 
+fi
+
+/bin/rm -f ./SmoothInstall-$CURRENT-$PRODUCT-$VERSION-$ARCH.run*
+/bin/rm -f /tmp/si.ver

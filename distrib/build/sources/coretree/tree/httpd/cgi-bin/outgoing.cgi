@@ -266,7 +266,7 @@ foreach $interface (keys(%interfaces))
 	
 	print qq{
 	<tr>
-	<td style='width: 25%;'>$tr{'traffic is 1'}$interface$tr{'traffic is 2'}</td>
+	<td class='base' style='width: 25%;'>$tr{'traffic is 1'}$interface$tr{'traffic is 2'}</td>
 	<td style='width: 25%;'>
 		<select name=\"$interface\">
 			<option $selected{"$interface"}{'REJECT'} value='REJECT'>$tr{'allowed'}</option>
@@ -296,7 +296,7 @@ print qq{
 <form method='post'>
 <table style='width: 100%;'>
 <tr>
-	<td style='width: 25%;'>$tr{'interface'}</td>
+	<td class='base' style='width: 25%;'>$tr{'interface'}</td>
 	<td style='width: 25%;'>
 	<select name='INTERFACE'>
 };
@@ -317,11 +317,11 @@ print qq{
 	@{[&portlist('SERVICE', $tr{'application servicec'}, 'PORT', $tr{'portc'}, $service)]}
 </tr>
 <tr>
-	<td>$tr{'commentc'}</td>
+	<td class='base'>$tr{'commentc'}</td>
 	<td colspan='3'><input type='text' style='width: 80%;' name='RULECOMMENT' value='$cgiparams{'RULECOMMENT'}' id='rulecomment' @{[jsvalidcomment('rulecomment')]}  ></td>
 </tr>
 <tr>
-	<td style='width: 25%;'>$tr{'enabled'}</td>
+	<td class='base' style='width: 25%;'>$tr{'enabled'}</td>
 	<td style='width: 25%;'><input type='checkbox' name='RULEENABLED' $checked{$cgiparams{'RULEENABLED'}}></td>
 	<td colspan='2' style='text-align: center;'>
 		<input type="submit" name="ACTION" value="$tr{'add'}">
@@ -401,17 +401,17 @@ print qq{
 <form method='post'>
 <table style='width: 100%;'>
 <tr>
-	<td style='width: 25%;'>$tr{'ip addressc'}</td>
+	<td class='base' style='width: 25%;'>$tr{'ip addressc'}</td>
 	<td style='width: 25%;'><input type='text' name='MACHINE' id='address' @{[jsvalidip('address')]} value='$cgiparams{'MACHINE'}'/></td>
 	<td style='width: 25%;'></td>
 	<td style='width: 25%;'></td>	
 </tr>
 <tr>
-	<td>$tr{'commentc'}</td>
+	<td class='base'>$tr{'commentc'}</td>
 	<td colspan='3'><input type='text' style='width: 80%;' name='MACHINECOMMENT' value='$cgiparams{'MACHINECOMMENT'}' id='machinecomment' @{[jsvalidcomment('machinecomment')]}  ></td>
 </tr>
 <tr>
-	<td>$tr{'enabled'}</td>
+	<td class='base'>$tr{'enabled'}</td>
 	<td><input type='checkbox' name='MACHINEENABLED' $checked{$cgiparams{'MACHINEENABLED'}}></td>
 	<td colspan='2' style='text-align: center;'><input type='submit' name='MACHINEACTION' value='$tr{'add'}'></td>
 </tr>

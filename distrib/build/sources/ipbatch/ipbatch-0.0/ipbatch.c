@@ -11,10 +11,15 @@
 #define BUFFER_SIZE 1024
 #define MAX_ARGS 100
 
-extern char *lib_dir;
+/*extern char *lib_dir;*/
 static char * table = "filter";
-static iptc_handle_t handle = NULL;
+static struct iptc_handle *handle = NULL;         /*static iptc_handle_t handle = NULL;*/
 static char prev_table_name[BUFFER_SIZE] = "";
+struct xtables_globals iptables_globals;
+
+#define program_name iptables_globals.program_name
+#define program_version iptables_globals.program_version
+
 
 
 int table_changed(char *buf)
@@ -65,15 +70,26 @@ int execute( char * commands )
 int main ( int argc, char * argv[] )
 {
 	int have_committed = 1; // prevent double commits, 'clean' state to begin with
+        int c;
+
+	program_name = argv[0];
+	program_name = "ipbatch CLI";
+	// this is really important for locating shared libs
+	program_version = IPTABLES_VERSION;
+        c = xtables_init_all(&iptables_globals, NFPROTO_IPV4);
+        if (c < 0) {
+                fprintf(stderr, "%s/%s Failed to initialize xtables\n",
+                                program_name,
+                                program_version);
+                exit(1);
+        }
+
 
 	openlog( "SmoothIPSubsys", LOG_NDELAY | LOG_CONS, LOG_DAEMON );
 	
-	program_name = argv[0];
-	// this is really important for locating shared libs
-	program_version = IPTABLES_VERSION;
-        lib_dir = getenv("IPTABLES_LIB_DIR");
-	if (!lib_dir)
-		lib_dir = IPT_LIB_DIR;
+/*        lib_dir = getenv("IPTABLES_LIB_DIR");*/
+/*	if (!lib_dir)*/
+/*		lib_dir = IPT_LIB_DIR;*/
 
 	/* read lines from STDIN */
 
@@ -101,7 +117,9 @@ int main ( int argc, char * argv[] )
 
 		if ( strcmp( buffer, "commit" ) == 0 ){
 			/* commit changes */
-			error = iptc_commit(&handle);
+			error = iptc_commit(handle);
+			iptc_free(handle);
+			handle = NULL;
 			have_committed = 1;
 		} else {
 			/* excute the command */
@@ -109,11 +127,13 @@ int main ( int argc, char * argv[] )
 
 				if(table_changed(buffer)) {   
 					//syslog( LOG_ERR, "Table change for %s", buffer );
-					error = iptc_commit(&handle);
+					error = iptc_commit(handle);
+					iptc_free(handle);
+					handle = NULL;
 					have_committed = 1;
 				}
 			}
-			if(buffer && *buffer)
+			if(*buffer)
 			    error = execute( buffer );
 			have_committed = 0;
 		}
@@ -133,7 +153,9 @@ int main ( int argc, char * argv[] )
 	/* the iptables buffer               */
 
 	if(!have_committed) {
-		error = iptc_commit(&handle);
+		error = iptc_commit(handle);
+		iptc_free(handle);
+		handle = NULL;
 		syslog( LOG_ERR, "Unable to commit IPTables rules \"%s\"", iptc_strerror( errno ) );
 	}
 

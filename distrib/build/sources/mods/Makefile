@@ -1,4 +1,2 @@
-PACKAGE = mods
-
 clean:
-	@echo -n " $(PACKAGE)"
+	@echo -n " mods"

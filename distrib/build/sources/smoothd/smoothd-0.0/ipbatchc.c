@@ -11,6 +11,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <iptables.h>
+#include <xtables.h>
 #include <errno.h>
 #include <syslog.h>
 
@@ -19,10 +20,14 @@
 // no iptables command can have more parts to it than this!
 #define MAX_ARGS 100
 
-extern char *lib_dir;
 static char * table = "filter";
-static iptc_handle_t handle = NULL;
+static struct iptc_handle *handle = NULL;
 static char prev_table_name[TABLE_NAME_SIZE] = "";
+struct xtables_globals iptables_globals;
+
+
+#define program_name iptables_globals.program_name
+#define program_version iptables_globals.program_version
 
 // see what table is mentioned in this command - if it is different need to
 // flush anything we already have before changing to new table.
@@ -62,7 +67,7 @@ int execute( char * commands )
 	char * current_reference;
 	int counter;
 	
-	// syslog(LOG_WARNING, "executing %s\n", commands); 
+	// syslog(LOG_WARNING, "execute: %s\n", commands); 
 	for (counter=0, current_reference = strtok( commands, " " );
 			 counter < MAX_ARGS && current_reference != NULL;
 			 current_reference = strtok( NULL, " " ) )
@@ -71,7 +76,7 @@ int execute( char * commands )
 	
 	// call down to iptables
 	rval = do_command( counter, arguments, &table, &handle );
-	// syslog(LOG_WARNING, "executing %s rval = %d\n", commands, rval);
+	// syslog(LOG_WARNING, "execute: %s rval = %d\n", commands, rval);
 	return rval;
 	
 }
@@ -87,15 +92,18 @@ int dobatch(char *store)
 	char *pos;
 	int error = 0;
 	int linelen;
+        int c;
 
 	if(size <= 0 || store == NULL)
 		return 1;
-	program_name = "ipbatch";
-	// this is really important for locating shared libs
+
+	program_name = "ipbatchc.c";
 	program_version = IPTABLES_VERSION;
-	lib_dir = getenv("IPTABLES_LIB_DIR");
-	if (!lib_dir)
-		lib_dir = IPT_LIB_DIR;
+
+	// this is really important for locating shared libs
+/*	lib_dir = getenv("IPTABLES_LIB_DIR");*/
+/*	if (!lib_dir)*/
+/*		lib_dir = IPT_LIB_DIR;*/
 	pos = store; // start at beginning
 	while(pos < &store[size] && (eol = index(pos,'\n')) != NULL) {
 		linelen = eol - pos;
@@ -104,20 +112,32 @@ int dobatch(char *store)
 			strncpy(linebuf, pos, linelen);
 
 			linebuf[linelen] = 0;
-			// syslog(LOG_WARNING, "linebuf %s\n", linebuf);
+			// syslog(LOG_WARNING, "dobatch: linebuf %s\n", linebuf);
+	c = xtables_init_all(&iptables_globals, NFPROTO_IPV4);
+	if (c < 0) {
+		syslog (LOG_CRIT, "do_batch: %s/%s Failed to initialize xtables; couldn't execute \"%s\".\n",
+		program_name,
+		program_version,
+		store);
+		exit(1);
+	}
 			if((pos + linelen) < &store[size])
 				pos += linelen + 1;
 			else
 				pos = store + size;
 			if(!have_committed) {
 				if(table_changed(linebuf)) {
-					error =  iptc_commit(&handle);
+					error =  iptc_commit(handle);
+					iptc_free(handle);
+					handle = NULL;
 					have_committed = 1;
 				}
 			}
 			if(strlen(linebuf) > 0) {
 				error = execute(linebuf);
-				// syslog(LOG_WARNING, "have execed 1\n");
+				if (error == 0) {
+				}
+				// syslog(LOG_WARNING, "do_batch: have execed 1\n");
 			}
 			have_committed = 0;
 		}
@@ -132,8 +152,10 @@ int dobatch(char *store)
 	}
 
 	if(!have_committed) {
-		error =  iptc_commit(&handle);
-		// syslog(LOG_WARNING, "have committed 2\n");
+		error =  iptc_commit(handle);
+		iptc_free(handle);
+		handle = NULL;
+		// syslog(LOG_WARNING, "do_batch: have committed 2\n");
 	}
 	      
 	return !error;

@@ -51,7 +51,13 @@ int main(int argc, char *argv[])
 		automode = 1;
 	
 	fprintf(flog, "Setup program started.\n");
-		
+
+	if (initnicdevices() < 0)
+	{
+		printf("Unable to initialize the NIC device driver list.");
+		goto EXIT;
+	}
+
 	kv = initkeyvalues();
 	if (!(readkeyvalues(kv, CONFIG_ROOT "main/settings")))
 	{
@@ -160,8 +166,6 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		mysystem("/bin/mount -t usbfs none /proc/bus/usb");
-		
 		usbfail = 1;
 		if (!stat("/proc/bus/usb/devices", &statbuf))
 			usbfail = 0;
@@ -230,9 +234,6 @@ int main(int argc, char *argv[])
 		if (!(handlerootpassword()))
 			goto EXIT;
 	
-		if (!usbfail)
-			mysystem("/bin/umount /proc/bus/usb");
-
 		autook = 1;
 	}
 

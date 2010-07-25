@@ -92,11 +92,15 @@ echo "Module dependancies"
 echo "Clearing old files"
 chmod 660 /dev/ttyS*
 chmod 660 /dev/ttyI*
+chmod 1777 /tmp
 find /var/run -name '*.pid' -type f -exec rm -f '{}' \;
 rm -f /usr/etc/dhcpc/*.pid
 rm -f /var/smoothwall/red/*
 rm -f /var/lock/LCK..ttyS*
 rm -f /var/run/pppd*.tdb
+
+# enable the deprecated NF_CONNTRACK
+sysctl net.netfilter.nf_conntrack_acct=1
 
 echo "Setting drive DMA settings"
 /sbin/hdparm -d 1 -c 1 -u 1 /dev/harddisk
@@ -145,12 +149,13 @@ echo "Starting syslogd"
 echo "Starting klogd"
 /usr/sbin/klogd
 
-echo "Loading USB subsystem"
-/sbin/modprobe usbcore 2> /dev/null
-/sbin/modprobe ohci-hcd 2> /dev/null
-/sbin/modprobe uhci-hcd 2> /dev/null
-/sbin/modprobe usbhid 2> /dev/null
-mount -t usbfs usbfs /proc/bus/usb
+echo "Loading USBFS"
+#/sbin/modprobe usbcore 2> /dev/null
+#/sbin/modprobe ehci-hcd 2> /dev/null
+#/sbin/modprobe ohci-hcd 2> /dev/null
+#/sbin/modprobe uhci-hcd 2> /dev/null
+#/sbin/modprobe usbhid 2> /dev/null
+if [ -e /proc/bus/usb ]; then mount -t usbfs usbfs /proc/bus/usb; fi
 
 echo "Loading filesystems"
 /sbin/modprobe msdos
@@ -162,13 +167,6 @@ echo "Loading IPSEC"
 
 echo "Starting smoothd"
 /usr/sbin/smoothd
-
-echo "Silencing kernel, syslog output on tty12"
-echo "View the log files in /var/log to trace errors."
-echo "1 4 1 7" >/proc/sys/kernel/printk
-
-echo "Saving dmesg buffer to /var/log/dmesg-pre-network"
-dmesg >/var/log/dmesg-pre-network
 
 echo "Running /etc/rc.d/rc.network"
 . /etc/rc.d/rc.network
@@ -194,12 +192,12 @@ echo "Starting Clam Anti-Virus (if enabled)"
 echo "Starting POP3 scanner (if enabled)"
 /usr/bin/smoothcom p3scanrestart
 
-echo "Saving dmesg buffer to /var/log/dmesg-post-network"
-dmesg >/var/log/dmesg-post-network
+echo "Silencing kernel, syslog output on tty12"
+echo "View the log files in /var/log to trace errors."
+echo "1 4 1 7" >/proc/sys/kernel/printk
 
-echo "Looking for system updates and registering your system."
-/usr/bin/smoothwall/updatelists.pl
-/etc/rc.d/rc.machineregister
+echo "Saving dmesg buffer to /var/log/dmesg"
+dmesg >/var/log/dmesg
 
 logger -t smoothwall "SmoothWall started."
 

@@ -22,6 +22,7 @@
 #include <sys/wait.h>
 #include <csignal>
 #include <cstdlib>
+#include <cstdio>
 #include <cerrno>
 
 #include <dirent.h>
@@ -106,14 +107,14 @@ int set_user_and_group( uid_t userID, gid_t groupID )
 	success = setgid( groupID );
 	
 	if ( success ){
-		syslog( LOG_ERR, "Unable to change permissions to appropriate group level (%s), aborting", strerror( errno ) );
+		syslog( LOG_ERR, "Unable to change group permissions to appropriate group level (%s), aborting", strerror( errno ) );
 		return ( 1 );
 	}
 
 	success = setuid( userID );
 		
 	if ( success ){
-		syslog( LOG_ERR, "Unable to change permissions to appropriate user level (%s), aborting", strerror( errno ) );
+		syslog( LOG_ERR, "Unable to change user permissions to appropriate user level (%s), aborting", strerror( errno ) );
 		return ( 1 );
 	}
 	return 0;
@@ -189,7 +190,7 @@ Client::Client( fd_set & master, int & maxfd, ModuleMap & nfunctions, const char
 	listener.reset();
 
 	if ( listener.bind( socket.c_str() )) {  // bind to file
-		syslog( LOG_CRIT, "Unable to listen for incoming commands, aborting" );
+		syslog( LOG_CRIT, "Unable to bind incoming command socket, aborting" );
 		exit( 1 );
         }
 
@@ -237,7 +238,7 @@ int Client::process( ) {
        	}
 
 	if (!FD_ISSET( listenfd, &fdcpy)) {
-		syslog( LOG_ERR, "wrong set" );
+		syslog( LOG_ERR, "wrong fd set" );
 		return 0;
 	}
 

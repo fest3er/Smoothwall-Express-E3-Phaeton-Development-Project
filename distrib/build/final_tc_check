@@ -1,6 +1,5 @@
-#! /bin/bash -x
+#! /bin/bash
 
-set -x
 echo
 echo "Final toolchain check"
 echo
@@ -14,6 +13,10 @@ set_build_environment
 #
 STATUS=0
 
+# Get GCC version
+#
+set `egrep "^VERSION" sources/gcc/Makefile`
+VERSION=$3
 #################
 
 # Check for gcc environs problems. These must all be correct
@@ -63,8 +66,8 @@ done
 grep -B3 '^ /usr/include' dummy.log >/tmp/a.a
 cat >/tmp/b.b <<END
 #include <...> search starts here:
- /usr/lib/gcc/i686-pc-linux-gnu/4.3.2/include
- /usr/lib/gcc/i686-pc-linux-gnu/4.3.2/include-fixed
+ /usr/lib/gcc/i686-pc-linux-gnu/${VERSION}/include
+ /usr/lib/gcc/i686-pc-linux-gnu/${VERSION}/include-fixed
  /usr/include
 END
 diff /tmp/a.a /tmp/b.b >/dev/null 2>&1
@@ -79,8 +82,7 @@ rm /tmp/a.a /tmp/b.b
 #
 grep 'SEARCH.*/usr/lib' dummy.log |sed 's|; |\n|g' >/tmp/a.a
 cat >/tmp/b.b <<END
-SEARCH_DIR("/build/buildroot/binutils/usr/i686-pc-linux-gnu/lib")
-SEARCH_DIR("/build/buildroot/binutils/usr/lib")
+SEARCH_DIR("/usr/i686-pc-linux-gnu/lib")
 SEARCH_DIR("/usr/local/lib")
 SEARCH_DIR("/lib")
 SEARCH_DIR("/usr/lib");

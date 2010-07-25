@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# sed changes this to the currently used kernel version
+#
+KERNEL_VER=KeRnElVeRsIoN
+
 /bin/iowrap /dev/tty7 /bin/bash&
 MYBASHPID=$!
 
@@ -23,7 +27,7 @@ echo "Tweaking udev"
     echo
     
     echo "    CD/DVD symlinks" >/dev/tty1
-    echo "# CD/DVD drive's symlink"
+    echo "# CD/DVD/Install drive's symlink"
     echo "KERNEL==\"${cd_dev[$CD]}\", SYMLINK+=\"cdrom cdrom0 sr0 dvd dvd0\""
     echo
   ) > /etc/udev/rules.d/10-Smoothwall.rules
@@ -160,7 +164,10 @@ echo
   do_or_die "swapon /dev/harddisk2"
 
   echo "Mounting CD/DVD"
-  do_or_die "mount -t iso9660 /dev/cdrom /cdrom"
+  mount -t iso9660 /dev/${cd_dev[$CD]} /cdrom > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    do_or_die "mount -t vfat /dev/${cd_dev[$CD]}1 /cdrom"
+  fi
 
   if [ $filesys -eq 1 ]; then FS="-t ext3"; else FS="-t reiserfs"; fi
   echo "Mounting new root filesystem"
@@ -191,40 +198,25 @@ echo
     do_or_die "mkdir -p -m 755 /harddisk/etc/udev/rules.d"
     do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /harddisk/etc/udev/rules.d/"
 
-  echo "  creating new fstab, modules"
+  echo "  creating new fstab, modules and mtab"
   set -- $FS
 
   echo >/dev/tty2
-  case $2 in
-    reiserfs) 
-      (
-        echo "proc		/proc		proc		defaults	0	0"
-        echo "sys		/sys		sysfs		defaults	0	0"
-        echo "dev		/dev		tmpfs		defaults	0	0"
-        echo "/dev/harddisk2	none		swap		sw		0	0"
-        echo
-        echo "/dev/harddisk4	/		reiserfs	notail		0	1"
-        echo "/dev/harddisk1	/boot		reiserfs	defaults	0	2"
-        echo "/dev/harddisk5	/var/log	reiserfs	defaults	0	2"
-      ) >/harddisk/etc/fstab
-      echo "reiserfs" >/harddisk/etc/modules
-      ;;
-    ext3)
-      (
-        echo "proc		/proc		proc		defaults	0	0"
-        echo "sys		/sys		sysfs		defaults	0	0"
-        echo "dev		/dev		tmpfs		defaults	0	0"
-        echo "/dev/harddisk2	none		swap		sw		0	0"
-        echo
-        echo "/dev/harddisk4	/		ext3		defaults	0	1"
-        echo "/dev/harddisk1	/boot		ext3		defaults	0	2"
-        echo "/dev/harddisk5	/var/log	ext3		defaults	0	2"
-      ) >/harddisk/etc/fstab
-      ;;
-  esac
+  FSTYPE=$2
+  (
+    echo "proc		/proc		proc		defaults	0	0"
+    echo "sys		/sys		sysfs		defaults	0	0"
+    echo "dev		/dev		devfs		defaults	0	0"
+    echo "devpts		/dev/pts	devpts		defaults	0	0"
+    echo "/dev/harddisk2	none		swap		sw		0	0"
+    echo
+    echo "/dev/harddisk4	/		$FSTYPE		notail		0	1"
+    echo "/dev/harddisk1	/boot		$FSTYPE		defaults	0	2"
+    echo "/dev/harddisk5	/var/log	$FSTYPE		defaults	0	2"
+  ) >/harddisk/etc/fstab
+  echo "$FTYPE" >/harddisk/etc/modules
   cat /harddisk/etc/fstab >/dev/tty2
 
-  echo "  creating new mtab"
   do_or_die ">/harddisk/etc/mtab; chmod 644 /harddisk/etc/mtab"
   do_or_die "/bin/chroot /harddisk /bin/mount -f /proc"
   do_or_die "/bin/chroot /harddisk /bin/mount -f /sys"
@@ -253,6 +245,7 @@ END
 
   echo "  adjusting runtime initramfs"
   set -- $FS
+  FSTYPE=$2
 
   OPWD=`pwd`
   mkdir -p /runtimeroot; cd /runtimeroot
@@ -262,24 +255,15 @@ END
   do_or_die "mkdir -p -m 755 /runtimeroot/etc/udev/rules.d"
   do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /runtimeroot/etc/udev/rules.d/"
 
-  case $2 in
-    reiserfs) 
-      (
-        echo "/dev/${hd_dev[$hd]}4	/harddisk	reiserfs	notail		0	1"
-      ) >/runtimeroot/etc/fstab
-      echo "reiserfs" >/runtimeroot/etc/modules
-      ;;
-    ext3)
-      (
-        echo "/dev/${hd_dev[$hd]}4	/harddisk	ext3		defaults	0	1"
-      ) >/runtimeroot/etc/fstab
-      ;;
-  esac
+  (
+    echo "/dev/${hd_dev[$hd]}4	/harddisk	$FSTYPE	notail		0	1"
+  ) >/runtimeroot/etc/fstab
+  echo "$FSTYPE" >/runtimeroot/etc/modules
   do_or_die "/bin/chroot /runtimeroot /sbin/depmod -a"
 
   echo "    re-pack"
-  do_or_die "cd /runtimeroot; find . | cpio -o -H newc | gzip > /harddisk/boot/initrd-2.6.26.8-phaeton.gz"
-  do_or_die "chmod 444 /harddisk/boot/initrd-2.6.26.8-phaeton.gz"
+  do_or_die "cd /runtimeroot; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz"
+  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz"
 
   echo "  installing boot loader"
   do_or_die "mount --bind /proc /harddisk/proc"
@@ -301,14 +285,14 @@ color green/white light-green/black
 # The first entry is for Smoothwall.
 title Smoothwall Express 3.0 (Phaeton Project)
 root (hd0,0)
-kernel /vmlinuz-2.6.26.8-phaeton root=/dev/harddisk4 ro quiet
-initrd /initrd-2.6.26.8-phaeton.gz
+kernel /vmlinuz-${KERNEL_VER}-phaeton root=/dev/harddisk4 ro quiet
+initrd /initrd-${KERNEL_VER}-phaeton.gz
 
 # The second entry is for booting Smoothwall into single-user mode.
 title Smoothwall Express 3.0 (Phaeton Project) Single-User
 root (hd0,0)
-kernel /vmlinuz-2.6.26.8-phaeton root=/dev/harddisk4 ro single
-initrd /initrd-2.6.26.8-phaeton.gz
+kernel /vmlinuz-${KERNEL_VER}-phaeton root=/dev/harddisk4 ro single
+initrd /initrd-${KERNEL_VER}-phaeton.gz
 END
 
     do_or_die "/sbin/chroot /harddisk /usr/sbin/grub-install /dev/harddisk"

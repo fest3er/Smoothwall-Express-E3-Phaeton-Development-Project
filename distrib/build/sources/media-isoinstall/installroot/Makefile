@@ -12,9 +12,9 @@ PROGS = bootdiskprogs
 INSTALL_ROOT = installroot
 BB = /opt/busybox
 BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
-	  chattr chgrp chmod chown chroot chvt clear cmp cp cpio cut date dd \
+	  chattr chgrp chmod chown chroot chvt clear cmp cp cut date dd \
 	  df diff dirname dmesg du echo ed egrep eject env expr false fdisk find \
-	  findfs fsck grep gunzip gzip halt hdparm head ifconfig init insmod \
+	  findfs fsck grep gunzip halt hdparm head ifconfig init insmod \
 	  ipcrm ipcs kill killall less ln ls lsattr lsmod mdev microcom \
 	  mkdir mkdosfs mkfifo mkfs.vfat mknod mkswap mktemp modprobe \
 	  more mount mv nohup od patch pipe_progress poweroff ps pwd \
@@ -22,10 +22,18 @@ BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
 	  runlevel sed sh sleep sort start-stop-daemon strings stty su \
 	  swapoff swapon switch_root sync tail tar test time top touch \
 	  true tty umount uname uniq unzip usleep vi wc wget which yes zcat
+BBPROGS_UNUSED = cpio gzip
+
+EXCLUDE_DRIVERS = bluetooth connector gpu infiniband mfd misc mtd parport \
+	  pcmcia platform power spi ssb telephony thermal uio video w1 \
+	  hwmon net/wireless net/wan net/irda net/hamradio net/pcmcia \
+	  atm clocksource cpufreq crypto edac isdn leds \
+	  memstick mmc
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-SWE_PKGS = udev udev-config grub pciutils bash reiserfsprogs
+SWE_PKGS = udev grub pciutils bash reiserfsprogs
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr
+GZIP_PKGS = gunzip
 
 bin:
 	@mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin
@@ -38,14 +46,15 @@ lib:
 	@cp -aR /lib/* tmp/lib
 	@cp -aR /lib/lib* tmp/lib
 	@cp -aR /usr/lib/libncurses* tmp/lib/
-	@(tar -cf - -C / \
-	  /lib/modules/$(K_SWE_VERSION) \
-	| \
-	  tar -xf - -C tmp) > /dev/null 2>&1
+	@tar xfz /build/target/smoothwall-kernel-phaeton.tar.gz -C tmp ./lib/modules > /dev/null 2>&1
+	@cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
+	@cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
+	  rm -rf $(EXCLUDE_DRIVERS)
 
 klibc:
-	@cp -aR /build/buildroot/klibc/lib/klibc-*.so tmp/lib
+	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
 	@cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
+	@rm -f tmp/usr/lib/klibc/bin/{cpio,gzip}
 	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
 
 all: clean bin lib klibc
@@ -55,6 +64,9 @@ all: clean bin lib klibc
 	@ln -s bin tmp/sbin
 	@cp -aR $(BB)/bin/busybox tmp/bin
 	@cd tmp/bin; for FILE in $(BBPROGS); do ln -s busybox $$FILE; done
+	@for i in cpio gzip; do \
+	  tar xvfz /build/target/smoothwall-$$i.tar.gz -C tmp/; \
+	done
 	@#cd tmp; ln -s /bin/busybox init
 	@cd tmp; cp ../etc/inst-init init; chmod 555 init
 
@@ -74,10 +86,14 @@ all: clean bin lib klibc
 	  cp -aR ../etc/install.rc etc; chmod 755 etc/install.rc; \
 	  cp -aR ../etc/config-install.rc etc; chmod 755 etc/config-install.rc; \
 	  cp -aR ../etc/exec-install.rc etc; chmod 755 etc/exec-install.rc; \
+	  sed -i -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' etc/exec-install.rc; \
 	  cp -aR ../etc/halt etc; chmod 755 etc/halt; \
 	  cp -aR ../etc/modules.conf etc; \
 	  cp -aR ../etc/storagedevices etc; \
 	) > /dev/null 2>&1
+	(cd tmp; \
+	  cp -aRv lib/udev/rules.d etc/udev; \
+	)
 	@(cd tmp/etc; \
 	  gawk -f ../../etc/fill-pci-ids.awk < /usr/share/pci.ids > filled.pci.ids;\
 	) > /dev/null 2>&1
@@ -101,6 +117,8 @@ all: clean bin lib klibc
 	  ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
 	  ln -sf proc/kcore /lib/udev/devices/core; \
 	) > /dev/null 2>&1
+	@(cd tmp; mkdir -p local; cd local; \
+	  tar xfz /build/target/smoothwall-gzip.tar.gz)
 
 ifdef BITS_64
 	@(cd tmp; ln -s lib lib64)

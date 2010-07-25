@@ -51,6 +51,12 @@ table.mainmenu {
 	margin-right: auto;
 }
 
+td[class=base] {
+	text-align: right;
+        padding-right: .5em;
+}
+
+
 td {
         font-size : 11px;
 	font-family: Arial, Helvetica, sans-serif;

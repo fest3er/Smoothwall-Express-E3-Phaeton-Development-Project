@@ -11,11 +11,10 @@ export IPT_LIB_DIR = $(IPT_LIBEXEC)
 
 OBJS=
 LIB_OBJS = module.o UDSocket.o pid.o setuid.o config.o ipbatch.o ipbatchc.o \
-	$(IPTABLES_SRC_DIR)/iptables.o \
-	$(IPTABLES_SRC_DIR)/libiptc/libiptc.a
+	$(IPTABLES_SRC_DIR)/iptables.o $(IPTABLES_SRC_DIR)/xshared.o
 
 MAIN = main.cpp
-LIBS = -ldl /usr/lib/libsmoothd.so  -lxtables
+LIBS = -ldl /usr/lib/libsmoothd.so -lxtables -liptc
 BIN = smoothd
 
 MODULES = sysshutdown sysinstall sysim sysp3scan sysalcatel sysdhcpd \
@@ -34,13 +33,13 @@ libsmoothd : $(LIB_OBJS)
 	@install -D ./libsmoothd.so /usr/lib/libsmoothd.so
 
 smoothd: $(OBJS) 
-	$(CXX) -o $(BIN) $(CXXFLAGS) $(DFLAGS) $(MAIN) $(OBJS) $(LIBS)
+	$(CXX) -o $(BIN) $(CXXFLAGS) $(DFLAGS) $(MAIN) ipbatchc.o $(OBJS) $(LIBS)
 
 ipbatchtest: $(OBJS) 
 	$(CXX) -o ipbatchtest $(CXXFLAGS) $(DFLAGS) ipbatchtest.cpp $(OBJS) $(LIBS) 
 
 smoothcom:
-	$(CXX) -o smoothcom $(CXXFLAGS) smoothcom.cpp -ldl -lxtables /usr/lib/libsmoothd.so 
+	$(CXX) -o smoothcom $(CXXFLAGS) smoothcom.cpp -ldl -lxtables -liptc /usr/lib/libsmoothd.so 
 
 clean:
 	rm -f $(OBJS) $(BIN) *.o *.so modules smoothcom ipbatchtest

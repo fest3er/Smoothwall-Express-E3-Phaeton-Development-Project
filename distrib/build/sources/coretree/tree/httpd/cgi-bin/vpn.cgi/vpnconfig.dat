@@ -180,7 +180,7 @@ print <<END
 <TR>
 <TD WIDTH='25%' CLASS='base'>$tr{'namec'}</TD>
 <TD WIDTH='25%'><INPUT TYPE='TEXT' NAME='NAME' VALUE='$cgiparams{'NAME'}' id='name' @{[jsvalidregex('name','^[a-zA-Z]+$')]}></TD>
-<TD WIDTH='25%'>Compression:</tD>
+<TD class='base' WIDTH='25%'>Compression:</tD>
 <TD WIDTH='25%'><INPUT TYPE='CHECKBOX' NAME='COMPRESSION' $checked{'COMPRESSION'}{'on'}></TD>
 <TR>
 <TD CLASS='base'>$tr{'leftc'}</TD>
@@ -205,14 +205,14 @@ print <<END
 <INPUT TYPE='PASSWORD' NAME='SECRET2' VALUE='$cgiparams{'SECRET2'}' SIZE='40' id='secret2' @{[jsvalidpassword('secret2','secret1','^[a-zA-Z0-9\.,\(\)@$!\%\^\&\*=\+_ ]*$')]} ></TD>
 </TR>
 <tr>
-	<td>$tr{'commentc'}</td>
+	<td class='base'>$tr{'commentc'}</td>
 	<td colspan='3'><input type='text' style='width: 80%;' name='COMMENT' value='$cgiparams{'COMMENT'}' id='comment' @{[jsvalidcomment('comment')]}  ></td>
 </tr>
 </TABLE>
 <TABLE WIDTH='100%'>
 <TR>
-<TD WIDTH='25%' ALIGN='CENTER'>$tr{'enabled'}</TD>
-<TD WIDTH='25%' ALIGN='CENTER'><INPUT TYPE='CHECKBOX' NAME='ENABLED' $checked{'ENABLED'}{'on'}></TD>
+<TD class='base' WIDTH='25%' ALIGN='CENTER'>$tr{'enabled'}</TD>
+<TD WIDTH='25%'><INPUT TYPE='CHECKBOX' NAME='ENABLED' $checked{'ENABLED'}{'on'}></TD>
 <TD WIDTH='50%' colspan='2' ALIGN='CENTER'><INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$tr{'add'}'></TD>
 </TR>
 </TABLE>

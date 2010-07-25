@@ -8,7 +8,7 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = gcc
-VERSION = 4.3.2
+VERSION = 4.4.3
 
 BASE_URL = ftp://ftp.gnu.org/gnu/gcc/gcc-$(VERSION)
 
@@ -32,11 +32,12 @@ download:
 #
 ifeq ($(BUILD_PHASE), Stage_1)
 
-PRE_CONFIGURE = CC="gcc -B/usr/bin"
+CONFIG_OPTS = --target=$(SWE_TGT) --prefix=$(TOOLS_DIR) \
+	      --disable-nls --disable-shared --disable-multilib \
+	      --disable-decimal-float --disable-threads \
+	      --disable-libmudflap --disable-libssp \
+	      --disable-libgomp --enable-languages=c
 
-CONFIG_OPTS = --prefix=$(TOOLS_DIR) --with-local-prefix=$(TOOLS_DIR) \
-              --disable-nls --disable-shared --disable-ssp \
-              --enable-languages=c
 
 
 PATCH = yes
@@ -50,38 +51,47 @@ compile: configure
 
 INSTALL = yes
 install: compile
-	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
-	cd $(COMPILE_DIR); ln -vs libgcc.a `gcc -print-libgcc-file-name \
+	make -C $(COMPILE_DIR) install
+	cd $(COMPILE_DIR); \
+          ln -vs libgcc.a `$(SWE_TGT)-gcc -print-libgcc-file-name \
 	    | sed -e 's/libgcc/&_eh/'`
-	ln -vs gcc $(TOOLS_DIR)/bin/cc
 endif
 
 
 # Tool Chain Build Stage 2
 #
 ifeq ($(BUILD_PHASE), Stage_2)
+PRE_CONFIGURE = CC="$(SWE_TGT)-gcc -B$(TOOLS_DIR)/lib" \
+                AR=$(SWE_TGT)-ar RANLIB=$(SWE_TGT)-ranlib
 
 CONFIG_OPTS = --prefix=$(TOOLS_DIR) --with-local-prefix=$(TOOLS_DIR) \
 	--enable-clocale=gnu --enable-shared --enable-threads=posix  \
 	--enable-__cxa_atexit --enable-languages=c,c++ \
-	--disable-libstdcxx-pch --disable-bootstrap
+	--disable-libstdcxx-pch --disable-multilib \
+        --disable-bootstrap
+
+PATCH_FILE1 = gcc-4.4.3-startfiles_fix-1.patch
 
 PATCH = yes
 patch: $(DIR)/
-	cd $(DIR); tar jxfv ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
-	cd $(DIR); tar jxfv ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
-	set -x; cd $(DIR); \
+	cd $(DIR); \
+	  patch -Np1 -i ../$(PATCH_FILE1); \
 	  cp -v gcc/Makefile.in{,.orig}; \
 	  sed 's@\./fixinc\.sh@-c true@' gcc/Makefile.in.orig > gcc/Makefile.in.tmp; \
-	  sed 's/^XCFLAGS =$$/& -fomit-frame-pointer/' gcc/Makefile.in.tmp > gcc/Makefile.in;
-	set -x; cd $(DIR); \
-	for file in `find gcc/config -name linux64.h -o -name linux.h`; do \
+	  sed 's/^T_CFLAGS =$$/& -fomit-frame-pointer/' gcc/Makefile.in.tmp > gcc/Makefile.in;
+	cd $(DIR); \
+	for file in `find gcc/config -name linux64.h \
+                                  -o -name linux.h \
+                                  -o -name sysv4.h`; do \
 	  cp -uv $$file{,.orig}; \
 	  (  sed -e 's@/lib\(64\)\?\(32\)\?/ld@$(TOOLS_DIR)&@g' \
 	       -e 's@/usr@$(TOOLS_DIR)@g' "$$file.orig"; \
-	     echo -e "\n#undef STANDARD_INCLUDE_DIR\n#define STANDARD_INCLUDE_DIR 0") > "$$file"; \
+	     echo -e '\n#undef STANDARD_INCLUDE_DIR\n#define STANDARD_INCLUDE_DIR 0\n#define STANDARD_STARTFILE_PREFIX_1 ""\n#define STANDARD_STARTFILE_PREFIX_2 ""' \
+          ) > "$$file"; \
 	  /bin/touch "$$file.orig"; \
 	done
+	cd $(DIR); tar jxfv ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
+	cd $(DIR); tar jxfv ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
 
 COMPILE = yes
 compile: configure
@@ -90,7 +100,8 @@ compile: configure
 
 INSTALL = yes
 install:  compile
-	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
+	@make -C $(COMPILE_DIR) install
+	@ln -vsf gcc $(TOOLS_DIR)/bin/cc
 endif
 
 
@@ -98,7 +109,7 @@ endif
 #
 ifeq ($(BUILD_PHASE), Final)
 
-CONFIG_OPTS =  --prefix=/usr \
+CONFIG_OPTS =  --prefix=$(PKG_DIR) \
 	--libexecdir=/usr/lib --enable-shared \
 	--enable-threads=posix --enable-__cxa_atexit \
 	--enable-clocale=gnu --enable-languages=c,c++ \
@@ -117,14 +128,14 @@ CONFIGURE = yes
 configure: patch
 	@(if [ ! -e $(COMPILE_DIR) ]; then mkdir $(COMPILE_DIR); fi)
 ifneq ($(DIR), $(COMPILE_DIR))
-	@(cd $(COMPILE_DIR); ../$(DIR)/configure --prefix=$(PKG_DIR) $(CONFIG_OPTS))
+	@(cd $(COMPILE_DIR); ../$(DIR)/configure $(CONFIG_OPTS))
 else
-	@(cd $(COMPILE_DIR); ./configure --prefix=$(PKG_DIR) $(CONFIG_OPTS))
+	@(cd $(COMPILE_DIR); ./configure $(CONFIG_OPTS))
 endif
 
 COMPILE = yes
 compile: configure
-	@make -C $(COMPILE_DIR)
+	@make $(JOBS) -C $(COMPILE_DIR)
 #	@make -C $(COMPILE_DIR) -k check
 
 INSTALL = yes

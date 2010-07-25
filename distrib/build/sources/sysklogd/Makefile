@@ -7,12 +7,12 @@
 include ../Makefile.conf
 
 PACKAGE = sysklogd
-VERSION = 1.4.1
+VERSION = 1.5
 
 BASE_URL = http://www.infodrom.org/projects/sysklogd/download/
 
 #PATCH_FILE1 = sysklogd-1.4.1-security.patch
-PATCH_FILE1 = sysklogd-1.4.1-fc3.patch
+#PATCH_FILE1 = sysklogd-1.4.1-fc3.patch
 
 CONFIGURE = yes
 COMPILE = yes

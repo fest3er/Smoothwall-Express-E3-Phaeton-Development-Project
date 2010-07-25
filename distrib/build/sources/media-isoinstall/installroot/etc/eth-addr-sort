@@ -1,0 +1,25 @@
+#! /bin/bash
+
+typeset -i j
+j=0
+cd /sys/class/net
+
+mkdir -p /etc/udev/rules.d
+
+# Every IF that has a MAC address is assumed to be a NIC, even bridges
+for i in *; do
+  addr=`cat $i/address`
+  if [ "$addr" != "" -a "$addr" != "00:00:00:00:00:00" ]; then
+    echo "$addr $i"
+  fi
+done | sort | while read addr eth; do
+  driver=`readlink $eth/device/driver`
+  driver=`basename $driver`
+  udev_comment="# PCI device `cat $eth/device/vendor`:`cat $eth/device/device` ($driver)"
+  udev_line="SUBSYSTEM==\"net\", ACTION==\"add\", DRIVERS==\"?*\", ATTR{address}==\"$addr\", ATTR{dev_id}==\"0x0\","
+  udev_line="$udev_line ATTR{type}==\"1\", KERNEL==\"eth*\", NAME=\"eth$j\""
+  echo
+  echo $udev_comment
+  echo $udev_line
+  j=j+1
+done > /etc/udev/rules.d/70-persistent-net.rules

@@ -7,9 +7,13 @@
 include ../Makefile.conf
 
 PACKAGE = ntp
-VERSION = 4.2.4p2
+VERSION = 4.2.6p1
 
-CONFIG_OPTS = --enable-linuxcaps --with-privsep=ntpd
+PATCH_FILE1 = mod_nano.patch
+
+#CONFIG_OPTS = --enable-linuxcaps --with-privsep=ntpd
+CONFIG_OPTS = --prefix=${PKG_DIR} --sysconfdir=/etc \
+		--with-binsubdir=sbin
 
 BASE_URL = http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/
 

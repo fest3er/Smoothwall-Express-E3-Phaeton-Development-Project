@@ -7,9 +7,10 @@
 include ../Makefile.conf
 
 PACKAGE = util-linux-ng
-VERSION = 2.15.1
+VERSION = 2.14.2
+VERDIR = 2.14
 
-BASE_URL = http://www.kernel.org/pub/linux/utils/util-linux-ng/v2.15/
+BASE_URL = http://www.kernel.org/pub/linux/utils/util-linux-ng/v$(VERDIR)/
 
 ifeq ($(BUILD_PHASE), Stage_3)
 
@@ -18,19 +19,14 @@ COMPILE = yes
 INSTALL = yes
 
 configure: $(DIR)/
-	@(cd $(DIR); \
-	cp configure configure.backup; \
-	sed "s@/usr/include@/tools/include@g" configure.backup > configure; \
-	./configure --prefix=$(PKG_DIR) $(CONFIG_OPTS));
+	cd $(DIR); ./configure --prefix=$(TOOLS_DIR)
 
 compile: configure
-	@make -C $(COMPILE_DIR)/lib
-	@make -C $(COMPILE_DIR)/mount mount umount
-	@make -C $(COMPILE_DIR)/text-utils more
+	make $(JOBS) -C $(COMPILE_DIR)/mount BLKID_LIBS="-lblkid -luuid" mount umount
+	make $(JOBS) -C $(COMPILE_DIR)/text-utils more
 
 install: compile
-	@cp $(DIR)/mount/umount $(DIR)/mount/mount \
-		$(DIR)/text-utils/more $(PKG_ROOT)$(PKG_DIR)/bin
+	cd $(COMPILE_DIR); cp mount/umount mount/mount text-utils/more $(TOOLS_DIR)/bin
 endif
 
 

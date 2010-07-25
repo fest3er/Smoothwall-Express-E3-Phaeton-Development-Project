@@ -7,8 +7,8 @@
 include ../Makefile.conf
 
 PACKAGE = udev
-VERSION = 145
-TARBALL = udev-145
+VERSION = 151
+TARBALL = $(PACKAGE)-$(VERSION)
 
 BASE_URL = http://www.us.kernel.org/pub/linux/utils/kernel/hotplug/
 
@@ -18,15 +18,16 @@ PKG_DIR =
 
 CONFIG_OPTS = --prefix=/usr --with-rootlibdir=/lib --libexecdir=/lib/udev \
 	      --sysconfdir=/etc --sbindir=/sbin --libdir=/usr/lib \
-	      --docdir=/usr/share/doc/udev-145 --disable-extras
+	      --docdir=/usr/share/doc/$(PACKAGE)-$(VERSION) --disable-extras \
+	      --disable-introspection
 
 COMPILE = yes
 INSTALL = yes
 
 compile: configure
 	@# Remove and create needed links and targets
-	-mkdir $(PKG_ROOT)
-	cd $(PKG_ROOT); \
+	-mkdir $(PKG_ROOT)$(PKG_DIR)
+	cd $(PKG_ROOT)$(PKG_DIR); \
 	rm -rf lib/firmware lib/udev; \
 	install -dv lib/firmware; \
 	install -dv lib/udev/devices/pts; \
@@ -50,11 +51,9 @@ install: compile
 	( \
 	  cd $(COMPILE_DIR); \
 	  install -m644 -vD rules/packages/64-*.rules \
-	      $(PKG_ROOT)/lib/udev/rules.d/; \
-	  install -m644 -vD rules/packages/40-pilot-links.rules \
-	      $(PKG_ROOT)/lib/udev/rules.d/; \
-	  install -m644 -vD docs/writing_udev_rules/index.html \
-	      $(PKG_ROOT)/usr/share/doc/udev-$(VERSION)/index.html; \
+	      $(PKG_ROOT)$(PKG_DIR)/lib/udev/rules.d/; \
+	  install -m644 -vD rules/packages/40-isdn.rules \
+	      $(PKG_ROOT)$(PKG_DIR)/lib/udev/rules.d/; \
 	)
 
 include ../Makefile.rules

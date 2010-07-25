@@ -15,7 +15,7 @@ TARBALL = $(PACKAGE)_$(VERSION).orig
 
 DIR =  $(PACKAGE)-$(VERSION).orig
 
-CONFIG_OPTS = --prefix=$(PKG_DIR)
+PATCH_FILE1 = config.h.patch
 
 CONFIGURE = yes
 

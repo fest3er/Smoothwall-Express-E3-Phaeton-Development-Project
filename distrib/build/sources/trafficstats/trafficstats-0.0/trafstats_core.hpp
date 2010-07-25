@@ -6,6 +6,9 @@
 
 #include <sys/time.h>
 #include <asm/types.h>
+#include <linux/types.h>
+#include <netinet/in.h> 
+#include <stdint.h>
 #include <linux/pkt_sched.h>
 #include <string>
 #include <iostream>
@@ -16,7 +19,7 @@
 #include <sstream>
 #include <syslog.h>
 #include <smoothwall/config.h>
-#include <ipt_ACCOUNT_cl.h>
+#include <libxt_ACCOUNT_cl.h>
 #include "traffic_config.hpp"
 #include "timestamp.hpp"
 

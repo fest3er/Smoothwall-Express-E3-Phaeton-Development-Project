@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = sed
-VERSION = 4.0.9
+VERSION = 4.2.1
 
 BASE_URL = ftp://ftp.gnu.org/gnu/sed
 

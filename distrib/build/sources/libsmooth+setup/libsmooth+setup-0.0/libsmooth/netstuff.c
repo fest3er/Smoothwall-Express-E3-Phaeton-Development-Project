@@ -304,90 +304,57 @@ int interfacecheck(struct keyvalue *kv, char *colour)
 	}
 	return 1;
 }
-	
 
 /* Network probing! */
+	
+#define MAX_NIC_DEVICES 200
+#define NIC_DEVICES_FILENAME "/etc/nicdevices"
 
-struct nic nics[] = {
-	{ "3Com EtherLink III", "3c509" },
-	{ "3Com 3c501", "3c501" },
-	{ "3Com ISA EtherLink XL", "3c515" },
-	{ "3Com 3c503 and 3c503/16", "3c503" },
-	{ "3Com EtherLink Plus (3c505)", "3c505" },
-	{ "3Com EtherLink 16", "3c507" },
-	{ "\"Corkscrew\" 3Com EtherLink PCI III/XL, etc.", "3c59x" },
-	{ "PCI NE2000 cards, RealTEk RTL-8029, etc", "ne2k-pci" },
-	{ "NE1000 / NE2000 (non-pci)", "ne" },
-	{ "Intel i82557/i82558 PCI EtherExpressPro", "eepro100" },
-	{ "Intel i82595 ISA EtherExpressPro10/10+ driver" ,"eepro" },
-	{ "Intel EtherExpress 16 (i82586)", "eexpress" },
-	{ "AMD LANCE/PCnetAllied Telesis AT1500, HP J2405A, etc", "lance" },
-	{ "AMD PCnet32 and AMD PCnetPCI", "pcnet32" },
-	{ "Apricot 680x0 VME, 82596 chipset", "82596" },
-	{ "Cabletron E2100 seies ethercards", "e2100" },
-	{ "Crystal LAN CS8900/CS8920", "cs89x0" },
-	{ "Compaq Netelligent 10/100 TX PCI UTP, etc", "tlan" },
-	{ "100VG-AnyLan Network Adapters, HP J2585B, J2585A, etc", "hp100" },
-	{ "VIA Rhine PCI Fast Ethernet, etc", "via-rhine" },
-	{ "DIGITAL DEPCA & EtherWORKS,DEPCA, DE100, etc", "depca" },
-	{ "Digi Intl. RightSwitch SE-X EISA and PCI", "dgrs" },
-	{ "EtherWORKS 3 (DE203, DE204 and DE205)", "ewrk3" },
-	{ "HP PCLAN/plus", "hp-plus" },
-	{ "HP LAN ethernet", "hp" },
-	{ "ICL EtherTeam 16i/32" ,"eth16i" },
-	{ "MiCom-Interlan NI5010 ethercard", "ni5010" },
-	{ "NI5210 card (i82586 Ethernet chip)", "ni52" }, 
-	{ "NI6510, ni6510 EtherBlaster", "ni65" },
-	{ "RealTek cards using RTL8129 or RTL8139 chipsets", "8139too" },
-	{ "SMC Ultra and SMC EtherEZ ISA ethercard", "smc-ultra" },
-	{ "SMC Ultra32 EISA ethernet card (32K)", "smc-ultra32" },
-	{ "SMC 9000 series of ethernet cards", "smc9194" },
-	{ "PureData PDUC8028,WD8003 and WD8013 compatibles", "wd" },
-	{ "SiS 900 PCI", "sis900" },
-	{ "AT1700/1720", "at1700" },
-	{ "Ansel Communications EISA 3200", "ac3200" },
-	{ "Mylex EISA LNE390A/B", "lne390", },
-	{ "Novell/Eagle/Microdyne NE3210 EISA", "ne3210" },
-	{ "Racal-Interlan EISA ES3210", "es3210" },
-	{ "SMC EtherPower II", "epic100" },
-	{ "FA-311 (National Semiconductor DP83815)", "natsemi" },
-        { "Adaptec Starfire (or DuraLAN)", "starfire" },
-        { "Intel EtherExpress Pro10000", "e1000" },
-	{ "Alteon AceNIC Gigabit Ethernet and others", "acenic" },
-	{ "Advanced  Micro Devices Inc. AMD8111E", "amd8111e" },
-	{ "Broadcom 4400 Ethernet", "b44" },
-	{ "Broadcom NX2 Ethernet", "bnx2" },
-	{ "Myson MTD-8xx 100/10M Ethernet PCI", "fealnx"},
-	{ "NVidia NForce", "forcedeth" },
-	{ "Intel Professional Workstation/panther Ethernet", "lp486e" },
-	{ "RealTek RTL-8169 Gigabit Ethernet", "r8169" },
-	{ "SEEQ 8005 chipset", "seeq8005" },
-	{ "Sundance ST201 Ethernet", "sundance" },
-	{ "Broadcom Tigon3 Ethernet", "tg3" },
-	{ "3Com 3CR990 family of NICs", "typhoon" },
-	{ "DL2000-based Gigabit Ethernet Adapter", "dl2k" },
-	{ "Intel Etherexpress Pro100 (alternative)", "e100" },
-	{ "National Semiconductor 83820 based 10/100/1000 Ethernet", "ns83820" },
-	{ "Silicon Integrated Systems SiS190 Ethernet", "sis190" },
-	{ "GEnesis, PCI Gigabit Ethernet", "sk98lin" },
-	{ "Marvell Yukon chipset and SysKonnect Gigabit Ethernet", "skge" },
-	{ "Marvell Yukon 2 Ethernet", "sky2" },
-	{ "Sun GEM Ethernet", "sungem" },
-	{ "Sparc HME/BigMac 10/100baseT Ethernet", "sunhme" },
-	{ "VIA Networking Velocity Family Gigabit Ethernet", "via-velocity" },
-	{ "Packet Engines G-NIC Ethernet", "yellowfin" },
-	{ "Zenith Z-Note Ethernet", "znet" },
-	{ "Davicom DM9102/DM9102A/DM9102A+DM9801/DM9102A+DM9802 NIC", "dmfe" },
-	{ "DIGITAL DC21x4x DECchip and DE425/DE434/DE435/DE450/DE500", "de4x5" },
-	{ "Winbond W89c840 Ethernet", "winbond-840" },
-	{ "Digital 21x4x Tulip PCI ethernet cards, etc.", "tulip" },
-	{ "Realtek 8169 gigabit", "r8168" },
-	{ NULL, NULL }
-};
+struct nic nics[MAX_NIC_DEVICES];
+
+int initnicdevices(void)
+{
+	FILE *hfile = NULL;
+	int c = 0;
+	char s[STRING_SIZE];
+	char *result = NULL;
+	int count = 0;
+
+	memset(s, 0, STRING_SIZE);
+	memset(&nics, 0, sizeof(struct nic) * MAX_NIC_DEVICES);
+
+	if (!(hfile = fopen(NIC_DEVICES_FILENAME, "r")))
+		return -1;
+	
+	while (fgets(s, STRING_SIZE, hfile) != NULL && c < MAX_NIC_DEVICES - 1)
+	{
+		if (s[strlen(s) - 1] == '\n')
+			s[strlen(s) - 1] = '\0'; 
+		result = strtok(s, "|");
+		count = 0;
+		
+		while (result)
+		{
+			if (count == 0)
+				strncpy(nics[c].description, result, STRING_SIZE - 1);
+			else if (count == 1)
+				strncpy(nics[c].modulename, result, STRING_SIZE - 1);
+			count++;
+			result = strtok(NULL, "|");
+		}
+		c++;
+	}
+
+	fclose(hfile);
+
+	return c;
+}    
 
 /* Funky routine for loading all drivers (cept those are already loaded.). */
 int probecards(char *driver, char *driveroptions, int *pc)
 {
+  return (0);
+
 	int c;
 	char message[1000];
 	char commandstring[STRING_SIZE];
@@ -395,7 +362,7 @@ int probecards(char *driver, char *driveroptions, int *pc)
 	
 	c = *pc;
 
-	while (nics[c].modulename)
+	while (strlen(nics[c].modulename))
 	{
 		if (!checkformodule(nics[c].modulename))
 		{
@@ -456,7 +423,7 @@ int choosecards(char *driver, char *driveroptions)
 	
 	/* Count 'em */
 	c = 0; drivercount = 0;
-	while (nics[c].modulename)
+	while (strlen(nics[c].modulename))
 	{
 		drivercount++;
 		c++;
@@ -468,7 +435,7 @@ int choosecards(char *driver, char *driveroptions)
 	c = 0;
 	sections[c] = ctr[TR_MANUAL];
 	c++;
-	while (nics[c - 1].modulename)
+	while (strlen(nics[c - 1].modulename))
 	{
 		sections[c] = nics[c - 1].description;
 		c++;
@@ -588,28 +555,9 @@ int manualdriver(char *driver, char *driveroptions)
 /* Returns the total number of nics current available as ethX devices. */
 int countcards(void)
 {
- 	FILE *file;
-	char buffer[STRING_SIZE];
-	char *start;
-	int niccount = 0;
-	
-	if (!(file = fopen("/proc/net/dev", "r")))
-	{
-		fprintf(flog, "Unable to open /proc/net/dev in countcards()\n");
-		return 0;
-	}
-	
-	while (fgets(buffer, STRING_SIZE, file))
-	{
-		start = buffer;
-		while (*start == ' ') start++;
-		if (strncmp(start, "eth", strlen("eth")) == 0)
-			niccount++;
-	}
-	
-	fclose(file);
-	
-	return niccount;
+	int rc;
+	rc = runcommandwithstatus("/bin/bash -c \"exit `ls -C1d /sys/class/net/eth*|wc -l`\"", "Count NICs");
+	return (rc>>8);
 }
 
 /* Finds the listed module name and copies the card description back. */
@@ -617,7 +565,7 @@ int findnicdescription(char *modulename, char *description)
 {
 	int c = 0;
 	
-	while (nics[c].description)
+	while (strlen(nics[c].description))
 	{
 		if (strcmp(nics[c].modulename, modulename) == 0)
 		{
@@ -633,36 +581,23 @@ int findnicdescription(char *modulename, char *description)
 }
 
 /* Returns MAC address string given the device. */
+/* Now using SYSFS */
 int getnicmac(char *dest, int size, char *dev)
 {
 	int fd = 0;
 	int found = 0;
-	struct ifreq req;
+	char nicAddressFileName[50];
 
 	strcpy(dest, "");
+	sprintf(nicAddressFileName, "/sys/class/net/%s/address", dev);
 
-	/* Create socket to do ioctl. */
-	if ((fd = socket(PF_INET, SOCK_DGRAM, 0)))
+
+	if ((fd = open(nicAddressFileName, O_RDONLY)))
 	{
-		/* Set ifrn_name to device name eg. "eth0" */
-		snprintf(req.ifr_ifrn.ifrn_name, IFNAMSIZ, dev);
-
-		/* Do ioctl to get hardware address (MAC) */
-		if (!(ioctl(fd, SIOCGIFHWADDR, &req)))
-		{
-			/* Format MAC into colon seperated string format. */
-			snprintf(dest, size, "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X",
-			req.ifr_ifru.ifru_hwaddr.sa_data[0] & 0xff, 
-			req.ifr_ifru.ifru_hwaddr.sa_data[1] & 0xff, 
-			req.ifr_ifru.ifru_hwaddr.sa_data[2] & 0xff, 
-			req.ifr_ifru.ifru_hwaddr.sa_data[3] & 0xff, 
-			req.ifr_ifru.ifru_hwaddr.sa_data[4] & 0xff, 
-			req.ifr_ifru.ifru_hwaddr.sa_data[5] & 0xff);
-			found = 1;
-		}
+		read(fd, dest, 17);
+		close (fd);
+		dest[17] = 0;
+		found = 1;
 	}
-
-	if (fd) close(fd);
-
 	return (found);
 }

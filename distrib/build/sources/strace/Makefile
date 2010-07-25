@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = strace
-VERSION = 4.5.15
+VERSION = 4.5.20
 
 EXTENSION = .tar.bz2
 

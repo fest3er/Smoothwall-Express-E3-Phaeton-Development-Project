@@ -143,9 +143,9 @@ print "<FORM METHOD='POST'>\n";
 print <<END
 <table style='width: 100%;'>
 <tr>
-	<td>$tr{'source ip or networkc'}</td>
+	<td class='base'>$tr{'source ip or networkc'}</td>
 	<td><input type='text' name='SRC_IP' value='$cgiparams{'SRC_IP'}'id='iaddress' @{[jsvalidipormask('iaddress')]}></td>
-	<td>$tr{'protocolc'}</td>
+	<td class='base'>$tr{'protocolc'}</td>
 	<td>
 		<SELECT NAME='PROTOCOL'>
 			<OPTION VALUE='udp' $selected{'PROTOCOL'}{'udp'}>UDP
@@ -154,22 +154,21 @@ print <<END
 	</td>
 </tr>
 <tr>
-	<td>$tr{'destination ip or networkc'}</td>
+	<td class='base'>$tr{'destination ip or networkc'}</td>
 	<td><input type='text' name='DEST_IP' value='$cgiparams{'DEST_IP'}' id='dstiaddress' @{[jsvalidipormask('dstiaddress')]}></td>
 </tr>
 <tr>
 	@{[&portlist('SERVICE', $tr{'application servicec'}, 'DEST_PORT', $tr{'destination portc'}, $service, { blank => 'true'} )]}
 </tr>
 <tr>
-	<td>$tr{'commentc'}</td>
+	<td class='base'>$tr{'commentc'}</td>
 	<td colspan='3'><input type='text' style='width: 80%;' name='COMMENT' value='$cgiparams{'COMMENT'}' id='comment' @{[jsvalidcomment('comment')]}  ></td>
 </tr>
-</table>
-<table style='width: 100%;'>
-	<tr>
-		<td style='width: 50%; text-align: center;'>$tr{'enabled'}<input type='checkbox' name='ENABLED' $checked{'ENABLED'}{'on'}></td>
-		<td style='text-align: center;'><input type='submit' name='ACTION' value='$tr{'add'}'></td>
-	</tr>
+<tr>
+	<td class='base'>$tr{'enabled'}</td>
+        <td><input type='checkbox' name='ENABLED' $checked{'ENABLED'}{'on'}></td>
+	<td colspan=2 style='text-align: left;'><input type='submit' name='ACTION' value='$tr{'add'}'></td>
+</tr>
 </table>
 END
 ;

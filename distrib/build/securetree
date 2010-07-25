@@ -16,5 +16,6 @@ fi
 cd $DIR
 
 chmod -R ug-s .
+chmod 1777 tmp
 
 exit 0

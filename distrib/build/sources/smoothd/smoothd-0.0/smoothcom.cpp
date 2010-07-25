@@ -38,7 +38,7 @@ int main(int argsc, char* argsv[])
 	std::string success = message(messageString);
 	int found = success.find( "Error:", 0 );
 
-	syslog(LOG_ERR, "This is smoothcom with '%s', %d", success.c_str(), found);
+	// syslog(LOG_ERR, "'%s' response: '%s', %d", messageString.c_str(), success.c_str(), found);
 
 	closelog();
 	

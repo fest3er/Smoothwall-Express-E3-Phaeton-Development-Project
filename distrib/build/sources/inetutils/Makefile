@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = inetutils
-VERSION = 1.5
+VERSION = 1.7
 
 BASE_URL = ftp://ftp.gnu.org/gnu/inetutils/
 

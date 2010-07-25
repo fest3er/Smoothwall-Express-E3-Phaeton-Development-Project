@@ -13,6 +13,8 @@ BASE_URL = http://heanet.dl.sourceforge.net/project/oinkmaster/oinkmaster/$(VERS
 
 INSTALL = yes
 
+PATCH_FILE1 = oinkmaster.pl.patch
+
 install: patch
 	@install -D $(COMPILE_DIR)/oinkmaster.pl $(PKG_ROOT)/usr/bin/oinkmaster.pl
 	@install -D $(COMPILE_DIR)/oinkmaster.conf $(PKG_ROOT)/usr/lib/smoothwall/oinkmaster.conf

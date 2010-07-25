@@ -8,4 +8,5 @@
 
   newroot=`bash ./distrib_root`
   newpath="$PATH:/tools/bin:/build"
-  sudo su root -c "ROOT=$newroot; PATH=$newpath; ${CMD}"
+  if [ `id -u` -eq 0 ]; then BCMD="bash"; else BCMD="sudo su"; fi
+  ${BCMD} -c "ROOT=$newroot; PATH=$newpath; ${CMD}"

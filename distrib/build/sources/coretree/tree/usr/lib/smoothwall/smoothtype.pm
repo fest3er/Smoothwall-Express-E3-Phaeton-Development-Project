@@ -70,7 +70,7 @@ sub portlist
 	my $blob = $options->{'blob'};
 	
 	my $blobgif;
-	if ($blob eq 'true') { $blobgif = '<img src=\'/ui/img/blob.gif\'>'; }
+	if ($blob eq 'true') { $blobgif = '<img src=\'/ui/img/blob.gif\'>&nbsp;'; }
 
 	$allowblank = 'false' if ( not defined $allowblank or $allowblank ne 'true' );
 
@@ -95,7 +95,7 @@ sub portlist
 	}
 
 	my $response = qq{
-	<td>$selectfieldname</td>
+	<td class='base'>$selectfieldname</td>
 	<td><select name='$selectfield' id='$selectfield' onChange="portlist('$selectfield','$inputfield','user',$allowblank);">
 		<option value='user'>$tr{'user defined'}</option>
 	};
@@ -138,7 +138,7 @@ sub portlist
 
 	$response .= qq{
 	</select></td>
-	<td>$inputfieldname $blobgif</td>
+	<td class='base'>$blobgif$inputfieldname</td>
 	<td><input type='text' id='$inputfield' name='$inputfield' @{[script("validport('$inputfield', $allowblank);")]} value='$found'/></td>
 	};
 
