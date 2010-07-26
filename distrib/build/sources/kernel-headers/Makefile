@@ -27,7 +27,7 @@ ifeq ($(BUILD_PHASE), Final)
 	cd linux-$(KERNEL_VER); \
 	  make mrproper
 	cd linux-$(KERNEL_VER); \
-	  cp ../../kernel.config-phaeton-$(KERNEL_VER) .config
+	  cp ../../kernel.config-phaeton-i686 .config
 	cd linux-$(KERNEL_VER); \
 	  make prepare
 	cd linux-$(KERNEL_VER); \

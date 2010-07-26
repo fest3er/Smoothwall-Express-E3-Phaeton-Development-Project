@@ -24,6 +24,10 @@ endif
 
 COMPILE = yes
 compile: configure
-	ln -s /bin/env /usr/bin/env
-	make $(JOBS) -C $(COMPILE_DIR)
-	rm -f /usr/bin/env
+	if [ ! -f /usr/bin/env ]; then \
+	  ln -s /bin/env /usr/bin/env; \
+	  make $(JOBS) -C $(COMPILE_DIR); \
+	  rm -f /usr/bin/env; \
+	else \
+	  make $(JOBS) -C $(COMPILE_DIR); \
+	fi
