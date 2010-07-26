@@ -18,7 +18,7 @@ install: download
 ifeq ($(BUILD_PHASE), Stage_1)
 	cd linux-$(KERNEL_VER); \
 	  make mrproper; \
-	  sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../kernel.config$(SWETYPE)-$(ARCH) > linux/.config && \
+	  sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../../kernel.config$(SWETYPE)-$(ARCH) > .config && \
 	  make headers_check && \
 	  make INSTALL_HDR_PATH=dest headers_install && \
 	  cp -rv dest/include/* $(TOOLS_DIR)/include
@@ -27,7 +27,7 @@ ifeq ($(BUILD_PHASE), Final)
 	cd linux-$(KERNEL_VER); \
 	  make mrproper
 	cd linux-$(KERNEL_VER); \
-	  sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../kernel.config$(SWETYPE)-$(ARCH) > linux/.config
+	  sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../../kernel.config$(SWETYPE)-$(ARCH) > .config
 	cd linux-$(KERNEL_VER); \
 	  make prepare
 	cd linux-$(KERNEL_VER); \
