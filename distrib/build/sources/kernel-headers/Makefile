@@ -18,18 +18,20 @@ install: download
 ifeq ($(BUILD_PHASE), Stage_1)
 	cd linux-$(KERNEL_VER); \
 	  make mrproper; \
-	  cp ../../kernel.config-phaeton-i686 .config &&\
-	  make headers_check &&\
-	  make INSTALL_HDR_PATH=dest headers_install &&\
+	  sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../kernel.config$(SWETYPE)-$(ARCH) > linux/.config && \
+	  make headers_check && \
+	  make INSTALL_HDR_PATH=dest headers_install && \
 	  cp -rv dest/include/* $(TOOLS_DIR)/include
 endif
 ifeq ($(BUILD_PHASE), Final)
 	cd linux-$(KERNEL_VER); \
 	  make mrproper
 	cd linux-$(KERNEL_VER); \
-	  cp ../../kernel.config-phaeton-i686 .config
+	  sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../kernel.config$(SWETYPE)-$(ARCH) > linux/.config
 	cd linux-$(KERNEL_VER); \
 	  make prepare
+	cd linux-$(KERNEL_VER); \
+	  make headers_check
 	cd linux-$(KERNEL_VER); \
 	  make INSTALL_HDR_PATH=$(PKG_ROOT)$(PKG_DIR) headers_install
 	cd linux-$(KERNEL_VER); \

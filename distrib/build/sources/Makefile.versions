@@ -4,11 +4,12 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
-# Change both of these as required!!!
+# The system's kernel.
 KERNEL_MMR = 2.6.32
 KERNEL_VER = $(KERNEL_MMR).16
 
-# The kernel version needed to build klibc-2.6.18
+# The kernel version headers needed to build klibc-2.6.18
+# Unrelated to the system's kernel
 KLIBKERNVER = 2.6.33.6
 
 SWETYPE = -phaeton
