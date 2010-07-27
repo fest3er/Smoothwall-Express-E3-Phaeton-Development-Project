@@ -210,7 +210,9 @@ else
       build apache
       build smoothd
       build cron
+      JOBS=$JOBS_UP
       build at
+      JOBS=$JOBS_MP
       build cgilib
       build freetype
       build libart_lgpl
