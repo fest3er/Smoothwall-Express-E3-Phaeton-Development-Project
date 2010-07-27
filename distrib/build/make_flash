@@ -1,6 +1,7 @@
 #! /bin/bash
 
 export ORIG_DIR=${PWD}
+export MTOOLS_SKIP_CHECK=1
 
 # Function to unmount and clean up
 function cleanup {
