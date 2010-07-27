@@ -38,6 +38,7 @@ install: compile
 	do \
 		mv $(PKG_ROOT)$(PKG_DIR)/bin/$$FILE $(PKG_ROOT)/bin; \
 	done);
+	ln -s /bin/env $(PKG_ROOT)$(PKG_DIR)/bin/env
 endif
 	         
 include ../Makefile.rules
