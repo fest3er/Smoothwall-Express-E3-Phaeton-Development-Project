@@ -78,11 +78,15 @@ read isoname
 
 fldev=${fldev1}
 
-[ -b "/dev/$fldev" ] || \
-    (echo "Device '/dev/${fldev}' does not exist. Try again."; exit 1)
+if [ ! -b "/dev/$fldev" ]; then
+  echo "Device '/dev/${fldev}' does not exist. Try again."
+  exit 1
+fi
 
-[ -f "$isoname" ] || \
-    (echo "ISO image '$isoname' does not exist. Try again."; exit 1)
+if [ ! -f "$isoname" ]; then
+  echo "ISO image '$isoname' does not exist. Try again."
+  exit 1
+fi
 
 echo "Will continue in 10 seconds..."
 countdown 10
