@@ -103,7 +103,7 @@ echo
 echo "Preparing..."
 
 # Be sure loop device is availabe
-modprobe loop || \
+/sbin/modprobe loop || \
     (echo "Couldn't modprobe loop device!"; exit 1)
 
 # Make it bootable
