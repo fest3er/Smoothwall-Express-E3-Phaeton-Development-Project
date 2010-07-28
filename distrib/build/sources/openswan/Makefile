@@ -25,6 +25,9 @@ COMPILE = yes
 INSTALL = yes
 
 configure: patch
+	rm -f /tools/bin/xmlto
+	cp xmlto /tools/bin
+	chmod 555 /tools/bin/xmlto
 	@true
 	
 CFLAGS:=$(CFLAGS) -fno-strict-aliasing
