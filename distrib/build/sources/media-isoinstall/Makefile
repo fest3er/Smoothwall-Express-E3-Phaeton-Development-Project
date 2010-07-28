@@ -171,6 +171,8 @@ cdrom/smoothwall.tgz:
 	#@rm -f distrib/etc/resolv.conf
 	@find distrib -name .gitignore -exec rm -f {} \;
 	@cp ../../make_flash cdrom
+	@rm distrib/usr/lib/menu/4000_VPN/*
+	@rm distrib/var/smoothwall/vpn/*
 
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
 	@tar -zcf cdrom/smoothwall.tgz -C distrib .
