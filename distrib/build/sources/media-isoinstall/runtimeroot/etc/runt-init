@@ -56,6 +56,8 @@ for proc in /proc/[0-9]*; do
     [ "$(/usr/lib/klibc/bin/readlink $proc/exe)" != /bin/udevd ] || kill ${proc#/proc/}
 done
 
+echo "1 4 1 7" >/proc/sys/kernel/printk
+
 mount -n -o move /dev /harddisk/dev
 
 /usr/lib/klibc/bin/nuke /dev
@@ -63,7 +65,5 @@ ln -s /harddisk/dev /dev
 
 mount -n -o move /sys /harddisk/sys
 mount -n -o move /proc /harddisk/proc
-
-echo "1 4 1 7" >/proc/sys/kernel/printk
 
 exec /usr/lib/klibc/bin/run-init /harddisk /sbin/init </harddisk/dev/console >/harddisk/dev/console 2>&1
