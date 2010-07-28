@@ -25,11 +25,9 @@ COMPILE = yes
 INSTALL = yes
 
 configure: patch
-	rm -f /tools/bin/xmlto
-	cp xmlto /tools/bin
-	chmod 555 /tools/bin/xmlto
 	@true
 	
+CFLAGS:=$(CFLAGS) -fno-strict-aliasing
 compile: configure
 	@make -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin programs
 
@@ -37,7 +35,7 @@ install: compile
 ifeq ($(BUILD_PHASE), Final)
 	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)${PKG_DIR}
 endif
-	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT)/ INC_USRLOCAL=/$(PKG_DIR) FINALCONFDIR=/$(PKG_DIR)/etc FINALRCDIR=/$(PKG_DIR)/bin install
+	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT)/ INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin install
 	@rm -rf $(PKG_ROOT)$(PKG_DIR)/rc* $(PKG_ROOT)$(PKG_DIR)/etc/ipsec.conf $(PKG_ROOT)/var
 
 
