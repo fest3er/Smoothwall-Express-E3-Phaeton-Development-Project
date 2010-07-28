@@ -8,7 +8,6 @@
 
 # Mirror root
 MIRROR_ROOT=http://downloads.smoothwall.org/buildmirror
-MIRROR_ROOT2=http://murent.us/misc/swe3/downloads
 
 DIRECTORY=$1
 URL=$2
