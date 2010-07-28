@@ -80,23 +80,23 @@ crumbs/tc_prep.built:
 # build stage 1
 #
 crumbs/tc_stage_1.built: crumbs/tc_prep.built
-	$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 1
-	$(TOOLCHAIN_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 1
-	rm -f dummy.c a.out
-	touch crumbs/tc_stage_1.built
+	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 1
+	@$(TOOLCHAIN_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 1
+	@rm -f dummy.c a.out
+	@touch crumbs/tc_stage_1.built
 
 # build stage 2
 #
 crumbs/tc_stage_2.built: crumbs/tc_stage_1.built
-	$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 2
-	$(TOOLCHAIN_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 2
-	rm -f dummy.c a.out
-	touch crumbs/tc_stage_2.built
+	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 2
+	@$(TOOLCHAIN_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 2
+	@rm -f dummy.c a.out
+	@touch crumbs/tc_stage_2.built
 
 # build stage 3
 #
 crumbs/tc_stage_3.built: crumbs/tc_stage_2.built
-	$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 3
+	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 3
 	@touch crumbs/tc_stage_3.built
 
 
@@ -134,7 +134,7 @@ media:
 	@echo -e "\nMaking ISO image..."; sleep 1
 	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'cd build;bash make_media'"
 	@echo -e "\nMaking FLASH content..."; sleep 1
-	sudo su -c "./make_flash"
+	@sudo su -c "./make_flash"
 
 # after a successful build, this will do everything
 #
@@ -145,7 +145,7 @@ package: clean savesources predownload build media
 # Get tossed in the pokey with the proper environment
 #
 chroot:
-	env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc ./as_chroot
+	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc ./as_chroot
 
 # Pre-fetch source tarballs from internet
 #
