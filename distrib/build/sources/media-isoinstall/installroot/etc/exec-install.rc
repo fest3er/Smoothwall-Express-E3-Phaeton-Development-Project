@@ -252,6 +252,11 @@ END
   echo "  adjusting runtime initramfs"
   set -- $FS
   FSTYPE=$2
+  if [ "$FSTYPE" == "reiserfs" ]; then
+    OPTION="notail	"
+  else
+    OPTION="defaults"
+  fi
 
   OPWD=`pwd`
   mkdir -p /runtimeroot; cd /runtimeroot
@@ -262,7 +267,7 @@ END
   do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /runtimeroot/etc/udev/rules.d/"
 
   (
-    echo "/dev/${hd_dev[$hd]}4	/harddisk	$FSTYPE	notail		0	1"
+    echo "/dev/${hd_dev[$hd]}4	/harddisk	$FSTYPE	$OPTION		0	1"
   ) >/runtimeroot/etc/fstab
   echo "$FSTYPE" >/runtimeroot/etc/modules
   do_or_die "/bin/chroot /runtimeroot /sbin/depmod -a"
