@@ -15,7 +15,7 @@ BASE_URL = ftp://ftp.gnu.org/gnu/gcc/gcc-$(VERSION)
 BASE_GMP = ftp://ftp.gnu.org/gnu/gmp
 TAR_GMP = gmp-$(GMP_VER).tar.bz2
 
-BASE_MPFR = http://www.mpfr.org/mpfr-current
+BASE_MPFR = http://www.mpfr.org/mpfr-$(MPFR_VER)
 TAR_MPFR = mpfr-$(MPFR_VER).tar.bz2
 
 COMPILE_DIR = $(DIR)-compile
