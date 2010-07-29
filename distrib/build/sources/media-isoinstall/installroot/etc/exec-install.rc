@@ -41,6 +41,7 @@ echo "Tweaking udev"
     echo "# Persistent NIC names"
     # not doing custom NIC names for now
     #
+    cat /etc/udev/rules.d/70-persistent-net.rules
     if [ 1 -lt 0 ]; then
     typeset -i i
     i=1
@@ -203,6 +204,11 @@ echo
 
   echo >/dev/tty2
   FSTYPE=$2
+  if [ "$FSTYPE" == "reiserfs" ]; then
+    OPTION="notail	"
+  else
+    OPTION="defaults"
+  fi
   (
     echo "proc		/proc		proc		defaults	0	0"
     echo "sys		/sys		sysfs		defaults	0	0"
@@ -210,7 +216,7 @@ echo
     echo "devpts		/dev/pts	devpts		defaults	0	0"
     echo "/dev/harddisk2	none		swap		sw		0	0"
     echo
-    echo "/dev/harddisk4	/		$FSTYPE		notail		0	1"
+    echo "/dev/harddisk4	/		$FSTYPE		$OPTION		0	1"
     echo "/dev/harddisk1	/boot		$FSTYPE		defaults	0	2"
     echo "/dev/harddisk5	/var/log	$FSTYPE		defaults	0	2"
   ) >/harddisk/etc/fstab
