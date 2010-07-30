@@ -56,14 +56,19 @@ function undo_alot {
   umount /harddisk >/dev/null 2>&1
   umount /cdrom >/dev/null 2>&1
 
-  # Stop udevd, we may miss a few events while we run init, but we'll catch up
-  for proc in /proc/[0-9]*; do
-    [ -x $proc/exe ] || continue
-    [ "$(/usr/lib/klibc/bin/readlink $proc/exe)" != /bin/udevd ] || kill ${proc#/proc/}
-  done
+  kill_udev
 
   swapoff -a >/dev/null 2>&1
   umount /proc/bus/usb /dev /sys /proc >/dev/null 2>&1
+}
+
+
+function kill_udev() {
+  # Stop udevd, we may miss a few events while we run init, but we'll catch up
+  for proc in /proc/[0-9]*; do
+    [ -x $proc/exe ] || continue
+    [ "$(/usr/lib/klibc/bin/readlink $proc/exe)" == /bin/udevd ] && kill ${proc#/proc/}
+  done
 }
 
 
@@ -119,8 +124,17 @@ echo "Marking root as mounted"
 mount -f /
 
 # Mounting and populating dev
-bash eth_addr_sort
 /etc/udev.rc
+#killall udevd
+bash /etc/eth-addr-sort
+#/etc/udev.rc
+/sbin/udevadm trigger
+/sbin/udevadm settle
+(cd /sys/class/net
+for i in eth*; do
+  echo "$i: `cat $i/address`"
+done)
+sleep 2
 
 echo "Mounting /proc/bus/usb"
 [ -d /proc/bus/usb ] && /bin/mount -t usbfs procbususb /proc/bus/usb

@@ -35,14 +35,11 @@ echo "used and must be formatted with FAT-16 or FAT-32. Prepare it now if necess
 echo
 echo "The contents of the flash device's first partition will be lost."
 echo
-echo "You must know the device node name of the portable flash drive you will be"
-echo "using. It will be something like '/dev/sdd'. Check it now."
-echo
 echo "If you are careless, you will erase the wrong thing. So be"
-echo "  TRIPLY sure you have the correct node name! Then check it again."
+echo "  TRIPLY sure you select the correct node name! Then check it again."
 echo
 echo "You will be prompted to enter the node name (without the '/dev/')."
-echo "You will be prompted to enter the downloaded ISO filename."
+echo "You will be prompted to enter an ISO pathname."
 echo
 echo -n "Enter 'yes' to continue or press <ENTER> to skip this step: "
 read ans </dev/tty
@@ -62,10 +59,29 @@ sleep 3
 echo
 echo
 
-echo -n "Enter the flash node name(e.g. 'sdd'): "
+(
+  cd /sys/block
+  echo "Available nodes (dev:MB)"
+  typeset -i SIZE
+  for i in *; do
+    if test -e $i/device/modalias; then
+      MODALIAS=`cat $i/device/modalias`
+      if test `cat $i/device/modalias` == 'scsi:t-0x00' -o \
+              `cat $i/device/modalias` == 'ide:m-disk'; then
+        SIZE=`cat $i/size` > /dev/null 2>&1
+        if test $SIZE -ne 0; then
+          SIZE=SIZE*512/1000/1000
+          echo "$i $SIZE"
+        fi
+      fi
+    fi
+  done | gawk '{printf("    %s:%s\n", $1, $2);}'
+)
+
+echo -n "Enter the flash node name: "
 read fldev1
 
-echo -n "                     Enter it again! : "
+echo -n "         Enter it again! : "
 read fldev2
 
 if [ "$fldev1" != "$fldev2" ]; then
@@ -73,7 +89,10 @@ if [ "$fldev1" != "$fldev2" ]; then
   exit 1
 fi
 
-echo -n "               Enter the ISO filename: "
+echo -e "\nPhaeton ISO(s)"
+ls target/isos/*.iso | sed -e 's/^/    /'
+
+echo -n "   Enter the ISO filename: "
 read isoname
 
 fldev=${fldev1}

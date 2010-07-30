@@ -86,13 +86,15 @@ all: clean bin lib klibc
 	  cp -aR ../etc/install.rc etc; chmod 755 etc/install.rc; \
 	  cp -aR ../etc/config-install.rc etc; chmod 755 etc/config-install.rc; \
 	  cp -aR ../etc/exec-install.rc etc; chmod 755 etc/exec-install.rc; \
+	  cp -aR ../etc/eth-addr-sort etc; chmod 755 etc/eth-addr-sort; \
 	  sed -i -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' etc/exec-install.rc; \
 	  cp -aR ../etc/halt etc; chmod 755 etc/halt; \
 	  cp -aR ../etc/modules.conf etc; \
 	  cp -aR ../etc/storagedevices etc; \
 	) > /dev/null 2>&1
 	(cd tmp; \
-	  cp -aRv lib/udev/rules.d etc/udev; \
+	  mkdir -p etc/udev/rules.d; \
+	  cp -aRv lib/udev/rules.d/* etc/udev/rules.d/; \
 	)
 	@(cd tmp/etc; \
 	  gawk -f ../../etc/fill-pci-ids.awk < /usr/share/pci.ids > filled.pci.ids;\

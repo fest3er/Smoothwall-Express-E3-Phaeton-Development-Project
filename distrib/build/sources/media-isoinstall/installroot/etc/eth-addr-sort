@@ -2,6 +2,7 @@
 
 typeset -i j
 j=0
+
 cd /sys/class/net
 
 mkdir -p /etc/udev/rules.d
@@ -13,13 +14,7 @@ for i in *; do
     echo "$addr $i"
   fi
 done | sort | while read addr eth; do
-  driver=`readlink $eth/device/driver`
-  driver=`basename $driver`
-  udev_comment="# PCI device `cat $eth/device/vendor`:`cat $eth/device/device` ($driver)"
-  udev_line="SUBSYSTEM==\"net\", ACTION==\"add\", DRIVERS==\"?*\", ATTR{address}==\"$addr\", ATTR{dev_id}==\"0x0\","
-  udev_line="$udev_line ATTR{type}==\"1\", KERNEL==\"eth*\", NAME=\"eth$j\""
-  echo
-  echo $udev_comment
-  echo $udev_line
+  sed -i -e '/'$addr'/ s/NAME="[^"]*"/NAME="eth'$j'"/' /etc/udev/rules.d/70-persistent-net.rules
+  echo "  $eth -> eth$j"
   j=j+1
-done > /etc/udev/rules.d/70-persistent-net.rules
+done
