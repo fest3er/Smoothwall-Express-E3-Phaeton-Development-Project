@@ -32,7 +32,7 @@ if ($cgiparams{'ACTION_ADMIN'} eq $tr{'save'})
 		}
 		elsif (length($password1) >= 6)
 		{
-			system('/usr/bin/htpasswd', '-m', '-b', "${swroot}/auth/users", 'admin', "${password1}");
+			system('/usr/apache2/sbin/htpasswd', '-m', '-b', "${swroot}/auth/users", 'admin', "${password1}");
 			&log($tr{'admin user password has been changed'});
 		}
 		else {
@@ -52,7 +52,7 @@ if ($cgiparams{'ACTION_DIAL'} eq $tr{'save'})
 			$errormessage = $tr{'password contains illegal characters'}; }
 		elsif (length($password1) >= 6)
 		{
-			system('/usr/bin/htpasswd', '-m', '-b', "${swroot}/auth/users", 'dial', "${password1}"); 
+			system('/usr/apache2/sbin/htpasswd', '-m', '-b', "${swroot}/auth/users", 'dial', "${password1}"); 
 			&log($tr{'dial user password has been changed'});
 		}
 		else {

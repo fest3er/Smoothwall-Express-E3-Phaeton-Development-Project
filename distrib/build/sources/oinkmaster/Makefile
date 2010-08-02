@@ -9,7 +9,9 @@ include ../Makefile.conf
 PACKAGE = oinkmaster
 VERSION = 2.0
 
-BASE_URL = http://heanet.dl.sourceforge.net/project/oinkmaster/oinkmaster/$(VERSION)
+BASE_URL = http://heanet.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/$(VERSION)
+
+PATCH_FILE1 = wget-no-check-certificate.patch
 
 INSTALL = yes
 

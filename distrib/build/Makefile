@@ -59,6 +59,7 @@ default:
 	@echo
 	@echo "  predownload       Download sourcecode packages in advance."
 	@echo "  savesources       Make a tarball of the sources used to build."
+	@echo "  reprep-final      Prepare to rebuild final stage *only*."
 	@echo "  clean:            Clean everything in preparation for a fresh build from scratch."
 	@echo
 	@echo "Please view Makefile for other targets."
@@ -124,10 +125,6 @@ build: crumbs/host.checked crumbs/Final.built
 
 rebuild: clean predownload build
 
-redo-final:
-	@if [ `id -u` -eq 0 ]; then CMD="bash"; else CMD="sudo su"; fi \
-	   $$CMD -c "make clean-distrib clean-final-crumbs"
-
 # prepare the installation media
 #
 media:
@@ -180,6 +177,12 @@ packageinfos.html:
 	done);
 	-make -C sources/modules packageinfos.html
 	@echo "</ul>" >>/tmp/packageinfo.html
+
+# Prepare to rebuild the final stage
+reprep-final:
+	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'cd /build; bash make_final --unwind'"
+	@if [ `id -u` -eq 0 ]; then CMD="bash"; else CMD="sudo su"; fi; \
+	   $$CMD -c "make clean-distrib clean-final-crumbs clean-buildroot clean-target"
 
 # Clean the entire directory back to pristine plus downloaded tarballs
 clean:

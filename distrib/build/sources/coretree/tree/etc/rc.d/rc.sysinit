@@ -174,7 +174,7 @@ echo "Running /etc/rc.d/rc.network"
 echo "Starting cron"
 /usr/sbin/cron
 echo "Starting httpd"
-/usr/sbin/httpd -DSSL
+/usr/apache2/sbin/httpd -DSSL -DDEFLATE
 echo "Starting dhcpd (if enabled)"
 /usr/bin/smoothcom dhcpdrestart
 echo "Starting sshd (if enabled)"

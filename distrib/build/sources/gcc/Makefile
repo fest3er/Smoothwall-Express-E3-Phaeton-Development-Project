@@ -141,10 +141,10 @@ compile: configure
 INSTALL = yes
 install: compile
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
-	@(cd $(PKG_ROOT)$(PKG_DIR)/bin; ln -s gcc cc);
-	@(cd $(PKG_ROOT)$(PKG_DIR)/lib; ln -s $(PKG_DIR)/bin/cpp);
-	@(cd /bin; ln -s gcc cc);
-	@(cd /lib; ln -s /usr/bin/cpp);
+	(cd $(PKG_ROOT)$(PKG_DIR)/bin; ln -s gcc cc);
+	(cd $(PKG_ROOT)$(PKG_DIR)/lib; ln -s $(PKG_DIR)/bin/cpp);
+	(cd /bin; ln -s gcc cc);
+	(cd /lib; ln -s /usr/bin/cpp);
 endif
 
 libgcc:

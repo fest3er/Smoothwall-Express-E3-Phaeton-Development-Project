@@ -1,7 +1,17 @@
 #! /bin/bash
 
 echo
-echo "Final toolchain adjustment"
+if [ "$1" == "--unwind" ]; then
+  echo "Unwinding final toolchain adjustment to rebuild the final stage"
+  # Initialize STATUS
+  #
+  STATUS=2
+else
+  echo "Final toolchain adjustment"
+  # Initialize STATUS
+  #
+  STATUS=0
+fi
 echo
 
 # Get environs
@@ -9,142 +19,164 @@ echo
 . ./environment
 set_build_environment
 
-# Initialize STATUS
+# Are we making the final adjustment, or unwinding?
 #
-STATUS=0
-#################
+if [ $STATUS -eq 0 ]; then
 
-# First, perform the adjustment
+  #################
 
-# Tweak loader from last toolchain compile
-#
-mv -v ${TOOLS_DIR}/bin/{ld,ld-old}
-mv -v ${TOOLS_DIR}/$(gcc -dumpmachine)/bin/{ld,ld-old}
-mv -v ${TOOLS_DIR}/bin/{ld-new,ld}
-ln -sv ${TOOLS_DIR}/bin/ld ${TOOLS_DIR}/$(gcc -dumpmachine)/bin/ld
+  # First, perform the adjustment
 
-# Tweak gcc specs
-#
-gcc -dumpspecs | sed \
-  -e 's@'${TOOLS_DIR}'/lib/ld-linux.so.2@/lib/ld-linux.so.2@g' \
-  -e '/\*startfile_prefix_spec:/{n;s@.*@/usr/lib/ @}' \
-  -e '/\*cpp:/{n;s@$@ -isystem /usr/include@}' > \
-`dirname $(gcc --print-libgcc-file-name)`/specs
+  # Tweak loader from last toolchain compile
+  #
+  mv -v ${TOOLS_DIR}/bin/{ld,ld-old}
+  mv -v ${TOOLS_DIR}/$(gcc -dumpmachine)/bin/{ld,ld-old}
+  mv -v ${TOOLS_DIR}/bin/{ld-new,ld}
+  ln -sv ${TOOLS_DIR}/bin/ld ${TOOLS_DIR}/$(gcc -dumpmachine)/bin/ld
 
-#################
+  # Tweak gcc specs
+  #
+  gcc -dumpspecs | sed \
+    -e 's@'${TOOLS_DIR}'/lib/ld-linux.so.2@/lib/ld-linux.so.2@g' \
+    -e '/\*startfile_prefix_spec:/{n;s@.*@/usr/lib/ @}' \
+    -e '/\*cpp:/{n;s@$@ -isystem /usr/include@}' > \
+  `dirname $(gcc --print-libgcc-file-name)`/specs
 
-# Now check for gcc environs problems. These must all be correct
-#   before proceeding to finish the final build!
+  #################
 
-# Does 'cc' exist as symlink?
-if [ "`readlink -n -s ${TOOLS_DIR}/bin/cc`" != "gcc" ]; then
-  echo "cc as symlink to gcc not found!"
-  STATUS=1
-fi
+  # Now check for gcc environs problems. These must all be correct
+  #   before proceeding to finish the final build!
 
-# Verify that the final build environment is correct.
-
-# compile an empty program
-#
-echo 'main(){}' > dummy.c
-cc dummy.c -v -Wl,--verbose &> dummy.log
-
-# Right program interpreter?
-#
-readelf -l a.out | grep ': /lib' >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "gcc uses wrong program interpreter!"
-  readelf -l a.out | grep "Requesting program interpreter" | sed -e 's/^/    /'
-  STATUS=1
-fi
-
-# GCC using correct startfiles?
-#
-for i in 1 i n; do
-  grep "/usr/lib.*/crt${i}.o succeeded" dummy.log >/dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    echo "crt${i} startfile is wrong!"
-    grep "/crt${i}.o succeeded" | sed -e 's/^/    /'
+  # Does 'cc' exist as symlink?
+  if [ "`readlink -n -s ${TOOLS_DIR}/bin/cc`" != "gcc" ]; then
+    echo "cc as symlink to gcc not found!"
     STATUS=1
   fi
-done
 
-# GCC searching for correct header files?
-#
-grep -B1 '^ /usr/include' dummy.log >/tmp/a.a
-cat >/tmp/b.b <<END
+  # Verify that the final build environment is correct.
+
+  # compile an empty program
+  #
+  echo 'main(){}' > dummy.c
+  cc dummy.c -v -Wl,--verbose &> dummy.log
+
+  # Right program interpreter?
+  #
+  readelf -l a.out | grep ': /lib' >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "gcc uses wrong program interpreter!"
+    readelf -l a.out | grep "Requesting program interpreter" | sed -e 's/^/    /'
+    STATUS=1
+  fi
+
+  # GCC using correct startfiles?
+  #
+  for i in 1 i n; do
+    grep "/usr/lib.*/crt${i}.o succeeded" dummy.log >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+      echo "crt${i} startfile is wrong!"
+      grep "/crt${i}.o succeeded" | sed -e 's/^/    /'
+      STATUS=1
+    fi
+  done
+
+  # GCC searching for correct header files?
+  #
+  grep -B1 '^ /usr/include' dummy.log >/tmp/a.a
+  cat >/tmp/b.b <<END
 #include <...> search starts here:
  /usr/include
 END
-diff /tmp/a.a /tmp/b.b >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "gcc is searching for the wrong header files!"
-  sed -e 's/^/    /' /tmp/a.a
-  STATUS=1
-fi
-rm /tmp/a.a /tmp/b.b
+  diff /tmp/a.a /tmp/b.b >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "gcc is searching for the wrong header files!"
+    sed -e 's/^/    /' /tmp/a.a
+    STATUS=1
+  fi
+  rm /tmp/a.a /tmp/b.b
 
-# Loader using correct search paths?
-#
-grep 'SEARCH.*/usr/lib' dummy.log |sed 's|; |\n|g' >/tmp/a.a
-cat >/tmp/b.b <<END
+  # Loader using correct search paths?
+  #
+  grep 'SEARCH.*/usr/lib' dummy.log |sed 's|; |\n|g' >/tmp/a.a
+  cat >/tmp/b.b <<END
 SEARCH_DIR("${TOOLS_DIR}/i686-pc-linux-gnu/lib")
 SEARCH_DIR("/usr/lib")
 SEARCH_DIR("/lib");
 END
-diff /tmp/a.a /tmp/b.b >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "Loader is using incorrect search paths:"
-  sed -e 's/^/    /' /tmp/a.a
-  STATUS=1
-fi
-rm /tmp/a.a /tmp/b.b
+  diff /tmp/a.a /tmp/b.b >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "Loader is using incorrect search paths:"
+    sed -e 's/^/    /' /tmp/a.a
+    STATUS=1
+  fi
+  rm /tmp/a.a /tmp/b.b
 
-# Using correct libc?
-#
-grep "attempt to open /lib/libc.so.6" dummy.log >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "Loader is using incorrect libc:"
-  egrep "attempt to open.*/libc\.so\." dummy.log | sed -e 's/^/    /'
-  STATUS=1
-fi
+  # Using correct libc?
+  #
+  grep "attempt to open /lib/libc.so.6" dummy.log >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "Loader is using incorrect libc:"
+    egrep "attempt to open.*/libc\.so\." dummy.log | sed -e 's/^/    /'
+    STATUS=1
+  fi
 
-# Using correct dynamic linker?
-#
-grep "found ld-linux.so.2 at /lib/ld-linux.so.2" dummy.log >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "Wrong or no dynamic linker found!"
-  grep "found" dummy.log | sed -e 's/^/    /'
-  STATUS=1
-fi
+  # Using correct dynamic linker?
+  #
+  grep "found ld-linux.so.2 at /lib/ld-linux.so.2" dummy.log >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "Wrong or no dynamic linker found!"
+    grep "found" dummy.log | sed -e 's/^/    /'
+    STATUS=1
+  fi
 
-#################
+  #################
+
+fi  # making final adjustment
+
+
 
 # Now clean up and finish up, reversing the adjustment if needed
 
-# Reverse adjustment if errors are found
+
+# If adjustment succeeded, clean and exit with success
+#
+if [ $STATUS -eq 0 ]; then
+  # All is well; it is safe to proceed!
+  #
+  rm -f dummy.c dummy.log a.out
+  exit 0
+fi
+
+# If errors found during the adjustment, notify the user
 #
 if [ $STATUS -eq 1 ]; then
   echo
   echo
   echo "Errors found! Reversing adjustment..."
   echo
-
-  # Delete specs file
-  #
-  rm -v `dirname $(gcc --print-libgcc-file-name)`/specs
-
-  mv -v ${TOOLS_DIR}/bin/{ld,ld-new}
-  mv -v ${TOOLS_DIR}/$(gcc -dumpmachine)/bin/{ld-old,ld}
-  mv -v ${TOOLS_DIR}/bin/{ld-old,ld}
-
-  exit 1
-
-else
-
-  # All is well; it is safe to proceed!
-  #
-  rm -f dummy.c dummy.log a.out
-  exit 0
-
 fi
+
+# If errors found or if unwinding, revert the changes
+#
+if [ $STATUS -eq 1 -o $STATUS -eq 2 ]; then
+  # Delete specs file
+    rm -vf `dirname $(gcc --print-libgcc-file-name)`/specs
+  # revert other adjustments
+  if [ -f ${TOOLS_DIR}/bin/ld-old ]; then
+    mv -v ${TOOLS_DIR}/bin/{ld,ld-new}
+    mv -v ${TOOLS_DIR}/$(gcc -dumpmachine)/bin/{ld-old,ld}
+    mv -v ${TOOLS_DIR}/bin/{ld-old,ld}
+  fi
+fi
+
+# If unwinding, exit with success
+#
+[ $STATUS == 2 ] && exit 0
+
+# If adjustment failed, or STATUS is unknown value, exit with failure
+#
+if [ $STATUS -ne 1 ]; then
+  echo "Error: STATUS='$STATUS'. Wall ?"
+fi
+
+exit 1

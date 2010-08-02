@@ -29,7 +29,8 @@ is to apply for must also be selected.  This enables you to perform your blockin
 
 <p>The timed access controls are only performed on the listed <strong>Machines</strong>.
 You should enter one IP address or network with netmask per line in the supplied
-text box.</p>
+text box. For example, 192.168.168.0/24 will block/allow the entire
+range of 192.168.168.0 through 192.168.168.255.</p>
 
 <p>Press <strong>Save</strong> to enable or disable the timed access rules.</p>
 

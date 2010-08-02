@@ -582,7 +582,7 @@ char *english_tr[] = {
 /* TR_DOMAIN_NAME_SUFFIX */
 "Domain name suffix:",
 /* TR_CONFIGURE_DHCP */
-"Configure the DHCP server by entering the settings information.",
+"Configure the DHCP server for the GREEN network by entering the settings information.",
 /* TR_START_ADDRESS_CR */
 "Start address\n",
 /* TR_END_ADDRESS_CR */

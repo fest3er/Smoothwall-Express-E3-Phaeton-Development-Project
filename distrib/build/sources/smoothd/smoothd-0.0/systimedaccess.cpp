@@ -7,6 +7,8 @@
 /* Refactored by    : Steven L. Pittman                                    */
 /* Modified to add logging of rejected packets                             */
 /* 09-07-08         : Steven L. Pittman                                    */
+/* 10-06-26  add check for red interface active                            */
+/*                  : Steven L. Pittman                                    */
 
 /* include the usual headers.  iostream gives access to stderr (cerr)      */
 /* module.h includes vectors and strings which are important               */
@@ -52,6 +54,19 @@ int timed_access(std::vector<std::string> & parameters, std::string & response)
 	static bool modeset = true;
 	static bool setmode = true;
 	static bool firstset = false;
+
+	/* Let's check to see if the red IP is active, if it is not, no need to set */
+	if (!firstset)
+	{
+		FILE *varhandle;
+		if (!(varhandle = fopen("/var/smoothwall/red/active", "r")))
+		{
+			response = "The red interface is inactive, aborting making changes.";
+			syslog(LOG_INFO, "Timed access: %s", response.c_str());
+			return error;
+		}
+		fclose(varhandle);
+	}
 
 	ConfigVAR settings("/var/smoothwall/timedaccess/settings");
 
@@ -156,6 +171,8 @@ bool indaterange(ConfigVAR &settings)
 	if (hour < starthour || hour > endhour) return false;
 	if (hour == starthour && min < startmin) return false;
 	if (hour == endhour && min >= endmin) return false;
+
+	/* if we get to here then we are within the selected window of time. */
 	return true;
 
 }

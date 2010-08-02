@@ -40,6 +40,13 @@ echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close
 /sbin/iptables -t mangle -F
 /sbin/iptables -t mangle -X
 
+# Link Local routing blocker
+/sbin/iptables -N lldrop
+/sbin/iptables -A lldrop -j LOG
+/sbin/iptables -A lldrop -j DROP
+/sbin/iptables -A FORWARD -s 169.254.0.0/16 -j lldrop
+/sbin/iptables -A FORWARD -d 169.254.0.0/16 -j lldrop
+
 # IP blocker
 /sbin/iptables -N ipblock
 /sbin/iptables -A INPUT -i ppp0 -j ipblock

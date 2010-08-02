@@ -24,7 +24,6 @@ fi
 #
 trap "echo; echo \"Unmounting /proc\"; umount /proc" EXIT
 
-
 # If an argument specified, build only that item. Otherwise, build everything.
 #
 if [ "$#" -eq 2 ]; then
@@ -62,16 +61,25 @@ export JOBS_MP
 cpu_count
 
 
+# If unwinding, do so and exit
+#
+if [ "$TO_BUILD" == "--unwind" ]; then
+  bash final_tc_adjustment --unwind
+  exit $?
+fi
+
+# If building only a specific package, do so and exit
+#
 if [ "$TO_BUILD" != "" ]; then
 
   # Build only the specified package
   JOBS=$JOBS_MP
   build $TO_BUILD $THE_TARGET
-  exit
+  exit $?
+fi
 
-else
-
-  # Build all of it
+# Must be building all of the final stage
+#
   JOBS=$JOBS_MP
 
   if [ -e crumbs/Final.compiled ]; then
@@ -207,7 +215,8 @@ else
       build dosfstools
       build syslinux
       build openssh
-      build apache
+      #build apache
+      build httpd
       build smoothd
       build cron
       JOBS=$JOBS_UP
@@ -315,4 +324,3 @@ else
     touch crumbs/Final.compiled
   fi
   echo
-fi
