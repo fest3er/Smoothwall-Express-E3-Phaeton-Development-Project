@@ -7,9 +7,9 @@
 include ../Makefile.conf
 
 PACKAGE = nasm
-VERSION = 0.98.39
+VERSION = 2.08.02
 
-BASE_URL = http://heanet.dl.sourceforge.net/sourceforge/nasm
+BASE_URL = http://www.nasm.us/pub/$(PACKAGE)/releasebuilds/$(VERSION)
 
 INSTALL = yes
 
