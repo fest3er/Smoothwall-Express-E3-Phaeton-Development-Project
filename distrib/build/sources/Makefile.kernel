@@ -39,7 +39,7 @@ prepare: unpack
 
 	make -C linux CC=$(COMPILER) clean prepare
 
-	for i in openswan-2.6.27/patches/kernel/2.6.32/*.patch; do \
+	for i in $(FREESWAN_TYPE)-$(FREESWAN_VER)/patches/kernel/$(KERNEL_MMR)/*.patch; do \
 	  patch -p1 -dlinux < $$i; \
 	done
 
