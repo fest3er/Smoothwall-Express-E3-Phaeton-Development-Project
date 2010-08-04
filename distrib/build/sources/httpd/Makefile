@@ -27,4 +27,5 @@ install: compile
 	@make -C $(DIR) DESTDIR=$(PKG_ROOT) install
 	@rm -rf $(PKG_ROOT)/{etc,var}
 
+
 include ../Makefile.rules
