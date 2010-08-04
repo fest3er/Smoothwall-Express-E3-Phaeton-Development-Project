@@ -251,6 +251,7 @@ clean-distrib:
         else \
 	  tput smso; echo "cleaning distrib"; tput rmso; \
 	  cd ..; rm -rf `ls -C1 . | egrep -v "build|tools"` ; \
+	  ls -ls ..; \
 	fi
 
 # Sweep up the trail of bread crumbs

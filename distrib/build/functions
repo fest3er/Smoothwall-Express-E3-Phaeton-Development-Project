@@ -266,7 +266,7 @@ function prepare_final_tree() {
   # Creates files needed to start the building of the tree.
 
   # Basic parts of the working tree
-  rm -rf /bin /lib /root /sbin /tmp /usr /var /etc/dev/proc
+  rm -rf /bin /lib /root /sbin /tmp /usr /var /etc /dev /proc
   mkdir -pv /bin /lib /root /sbin /tmp /usr /usr/bin /usr/include /usr/lib /var
   mkdir -pv /etc /dev /proc /build/target/isos /build/buildroot/other
 
