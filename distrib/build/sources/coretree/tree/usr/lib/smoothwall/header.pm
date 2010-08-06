@@ -41,6 +41,9 @@ my $span = 0;
 
 $swroot = '/var/smoothwall';
 $thisscript = basename($ENV{'SCRIPT_NAME'});
+use Net::Domain qw(hostname hostfqdn hostdomain);
+my $hostname = hostname();
+
 
 # customised settings (such as languages)
 
@@ -193,7 +196,7 @@ END
 
 <tr>
 	<td colspan='2'>
-	<br/>
+	<p style="margin: 0 0 2pt 9pt; font-weight:bold; font-size:8pt; font-family:Arial,sans-serif">($hostname)</p>
 END
 	;
 
@@ -261,9 +264,6 @@ sub openpage
 	$menu = $_[1];
 	$extrahead = $_[2];
 	$thissection = $_[3];
-
-	use Net::Domain qw(hostname hostfqdn hostdomain);
-	$hostname = hostname();
 
 	if ($menu == 1) { $colspan = 2; } else { $colspan = 1; }
 
