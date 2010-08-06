@@ -299,6 +299,11 @@ root (hd0,0)
 kernel /vmlinuz-${KERNEL_VER}-phaeton root=/dev/harddisk4 ro quiet
 initrd /initrd-${KERNEL_VER}-phaeton.gz
 
+title Smoothwall Express 3.0 (Phaeton Project) ttyS0 SERIAL CONSOLE!
+root (hd0,0)
+kernel /vmlinuz-${KERNEL_VER}-phaeton root=/dev/harddisk4 ro quiet console=ttyS0,115200
+initrd /initrd-${KERNEL_VER}-phaeton.gz
+
 # The second entry is for booting Smoothwall into single-user mode.
 title Smoothwall Express 3.0 (Phaeton Project) Single-User
 root (hd0,0)
