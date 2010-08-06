@@ -262,6 +262,9 @@ sub openpage
 	$extrahead = $_[2];
 	$thissection = $_[3];
 
+	use Net::Domain qw(hostname hostfqdn hostdomain);
+	$hostname = hostname();
+
 	if ($menu == 1) { $colspan = 2; } else { $colspan = 1; }
 
 	print <<END
@@ -269,7 +272,7 @@ sub openpage
 <html>
 <head>
 	$extrahead
-	<title>$title - SmoothWall Express</title>
+	<title>($hostname) $title - SmoothWall Express</title>
 	<script language='javascript' SRC='/ui/js/script.js'></script>
 	<link href='/ui/css/style.css' rel='stylesheet' type='text/css'>
 </head>
