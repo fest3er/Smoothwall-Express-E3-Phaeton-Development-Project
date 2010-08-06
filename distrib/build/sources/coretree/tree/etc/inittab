@@ -9,6 +9,7 @@ si::sysinit:/etc/rc.d/rc.sysinit
 ca::ctrlaltdel:/sbin/shutdown -h now
 
 # Run gettys in standard runlevels
+S0:2345:respawn:/sbin/agetty 115200 ttyS0
 1:2345:respawn:/sbin/agetty 38400 tty1
 2:2345:respawn:/sbin/agetty 38400 tty2
 3:2345:respawn:/sbin/agetty 38400 tty3
