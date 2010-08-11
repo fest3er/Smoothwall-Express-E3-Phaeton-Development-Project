@@ -8,7 +8,7 @@ PACKAGE = smoothd
 VERSION = 0.0
 
 compile:
-	@(IPTABLES_VER=$(IPTABLES_VER) make -C $(COMPILE_DIR))
+	@(IPTABLES_VER=$(IPTABLES_VER) make $(JOBS) -C $(COMPILE_DIR))
 
 install: compile
 	@install -D $(COMPILE_DIR)/libsmoothd.so $(PKG_ROOT)/usr/lib/libsmoothd.so
@@ -37,7 +37,7 @@ install: compile
 	@install -D $(COMPILE_DIR)/sysupnpd.so $(PKG_ROOT)/usr/lib/smoothd/sysupnpd.so 
 	@install -D $(COMPILE_DIR)/sysadvnet.so $(PKG_ROOT)/usr/lib/smoothd/sysadvnet.so 
 	@install -D $(COMPILE_DIR)/sysipblock.so $(PKG_ROOT)/usr/lib/smoothd/sysipblock.so 
-	@install -D $(COMPILE_DIR)/sysxtaccess.so $(PKG_ROOT)/usr/lib/smoothd/sysxtaccess.so 
+	@install -D $(COMPILE_DIR)/sysfullfirewall.so $(PKG_ROOT)/usr/lib/smoothd/sysfullfirewall.so 
 	@install -D $(COMPILE_DIR)/sysupdown.so $(PKG_ROOT)/usr/lib/smoothd/sysupdown.so 
 	@install -D $(COMPILE_DIR)/sysipsec.so $(PKG_ROOT)/usr/lib/smoothd/sysipsec.so 
 	@install -D $(COMPILE_DIR)/systimeset.so $(PKG_ROOT)/usr/lib/smoothd/systimeset.so 

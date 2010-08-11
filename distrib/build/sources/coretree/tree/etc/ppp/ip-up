@@ -51,7 +51,9 @@ system('/bin/touch', "${swroot}/red/active");
 system('/usr/bin/sounds/onlinesound');
 
 message('dnsproxyrestart', $primarydns, $secondarydns);
-message('setincoming');
+message('ifaliasup');
+message('setportfw');
+message('setxtaccess');
 message('snortrestart');
 message('upnpdrestart');
 message('trafficrestart');

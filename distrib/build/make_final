@@ -138,6 +138,8 @@ fi
       build iputils
       build traceroute
       build perl
+      build Net-Netmask
+      build NetAddr-IP
       build HTML-Parser
       build HTML-Tagset
       build URI

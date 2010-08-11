@@ -19,7 +19,7 @@ BIN = smoothd
 
 MODULES = sysshutdown sysinstall sysim sysp3scan sysalcatel sysdhcpd \
 	sysdnsproxy sysntpd syssnort syssquid syssshd sysupnpd sysadvnet \
-	sysipblock sysxtaccess sysupdown sysipsec systimeset sysiptables \
+	sysipblock sysfullfirewall sysupdown sysipsec systimeset sysiptables \
 	systraffic syssip sysclamav systimedaccess
 
 MODULEFLAGS = $(CXXFLAGS) -shared -Wl,-soname,$@.so -o $@.so $@.cpp $(LIBS)
@@ -74,7 +74,7 @@ sysadvnet : $(OBJS)
 	$(CXX) $(MODULEFLAGS)
 sysipblock : $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysxtaccess : $(OBJS)  
+sysfullfirewall : $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
 sysupdown : $(OBJS)  
 	$(CXX) $(MODULEFLAGS)

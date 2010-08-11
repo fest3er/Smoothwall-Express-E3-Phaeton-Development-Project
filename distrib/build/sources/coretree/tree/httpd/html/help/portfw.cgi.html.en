@@ -1,38 +1,89 @@
-<P><FONT SIZE='3'><B><U>Port Forwarding</U></B></FONT></P>
+<P><FONT SIZE='3'><B><U>Multiple IP Addresses Section</U></B></FONT></P>
 
-<P>SmoothWall is able to forward incoming connection requests to machines
-that are behind it, on either the DMZ (ORANGE) network or on the local
-(GREEN or PURPLE) network. Those behind a dialup link probably do not
-require this feature, although it is still available to them.</P>
+<P>This page is used to set up multiple IP addresses on the red interface.
+Traffic to those IP addresses can then be forwarded to addresses on other
+interfaces using the Full Firewall Control section.</P>
 
-<P>Securitywise, it is extremely risky to put your externally visible
-servers on your GREEN or PURPLE network because a cracker who manages to
-break into such a server will afterwards have access to your entire local
-network. It is therefore prudent to use an additional network (a DMZ or
-De-Militarised Zone on the ORANGE interface), just for the purpose of
-serving external requests.</P>
+<P><B>Please note:</B> Securitywise, it is extremely risky to put your externally visible
+servers on your GREEN network because a hacker who manages to break into
+such a server will afterwards have access to your entire local network. It
+is therefore prudent to use an additional network (a DMZ or De-Militarized
+Zone on the ORANGE interface), just for the purpose of serving external
+requests.</P>
+
+<P><B>Example: Small network connected via ADSL</B><BR>
+Static public IP addresses from ISP: 1.2.3.80 to 1.2.3.87<BR>
+ADSL router IP: 1.2.3.81<BR>
+Smoothwall RED IP: 1.2.3.82<BR>
+Smoothwall GREEN IP: 192.168.0.1</P>
+
+<P>In this example, Multiple IP Addresses will allow you to add 1.2.3.83-86 (1.2.3.80 and
+1.2.3.87 are the network and broadcast addresses) to Smoothwall's
+RED interface, and then forward incoming traffic on those IP addresses
+to machines on the GREEN interface.</P>
+
+<P>To add an IP address, enter the IP address and netmask, and press the Add button.
+The page will refresh and the new IP address should now appear in the list of current IP 
+addresses. The number of aliases created is determined by the netmask you enter. For example,
+if you use a netmask of 255.255.255.255 exactly one alias with the IP you entered will be
+created. If you use a netmask of 255.255.255.0 then 254 aliases will be created. Be careful
+of what netmask you uese to determine the number of Red aliases you need. Once you have created
+your Red aliases, you can go back and edit or remove those aliases you don't need or own.
+When editing an existing alias, the netmask will automatically fill in as 255.255.255.255 so it
+will limit you to editing that one alias. Alises that you enter will appear in the aliases display
+table as RED:1, RED:2 etc.</P>
+
+<P>If you wish to map a specific internal IP address (for example a server) to a specific Red alias
+you would enter the internal LAN address to be associated with the Red alias address you have entered
+when creating or editing the alias. This will setup the situation where any outbound traffic from
+that IP address through the Red alias will return through the proper Red alias and not to the actual
+Red IP address. If you do not need to map a specific server to a specific alias, then leave the internal
+IP address field blank when creating the alias.</P>
+
+<P>To forward traffic on these new IP addresses, use the Full Firewall Control section to enter a new rule.
+The new IP address you have entered (e.g RED:1) should be listed in the Source Interface drop-down box.
+You will need to select this, and then enter the IP address of the machine that the traffic should be
+forwarded to in the Destination IP or Network box, as well as specifying a Destination port if required
+(N.B. If no destination port is entered, traffic on ALL ports will be forwarded).</P>
+
+<P>Please note: With any "outbound server masking/mapping" those masked servers will not be able to use
+any of SmoothWall's proxy services (i.e. squid web proxy). The proxies will still work as usual with the
+non-masked IPs through the real Red IP as well as Red aliases. Only if the addresses are "masked" will the
+proxies not function FOR THOSE ADDRESSES.</P>
+
+<P><B>How multiple IP addresses work with existing external access</B></P>
+<P>Existing external access will be limited to the existing RED IP address
+if static IP addresses are being used.</P>
+
+<P><FONT SIZE='3'><B><U>Full Firewall Control Section</U></B></FONT></P>
+
+<P>SmoothWall is able to control the access to/from any interface based on the
+IP/MAC address and ports. Using this, you can control WAN (RED/PPP/etc.), 
+DMZ (ORANGE), LAN (GREEN), etc. access as well as forwarding ports between them.
+Those behind a dialup link probably do not require this feature, although it
+is still available to them. However, for Internal LAN interface to Internal LAN interface
+(ie Orange to Green) it is recommended you use the stock internal pinholes (internal page) and
+not FFC for those internal forwards. Since bouncing port forwards are now working as they should
+and with the introduction of the internal port forwarding page, it is not really necessary
+to use FFC for this any longer as it was with SmoothWall Express 2.0.</P>
 
 <P>Note that the connection is only forwarded if the <B>External source
 IP</B> matches.  If you leave this field blank, then any host on the outside
-will be able to utilise the forward.</P>
+will be able to utilise the forward. <B>Note:</B></P>
 
 <P>When an Internet host connects to this port, the connection will be
 forwarded to a host behind SmoothWall. The connection can be directed to any
-IP address and port. For example, suppose you wish to run a web server behind
-your SmoothWall. The web server is on your DMZ, at IP address 192.168.2.60.
+IP address and port. For example: suppose you wish to run a webserver behind
+your SmoothWall. The webserver is on your DMZ, at IP address 192.168.2.60.
 You would forward from port 80, connecting again to port 80 on the
 192.168.2.60.</P>
 
-<p>Ports may be specified either manually using a <strong>User defined</strong>
-port, or from a list in the <strong>Port or range</strong> drop-down.</p>
-
 <P>To forward a range of ports, use the format A:B for the <B>Source
 port</B>. If a <B>Destination port</B> is not given, then the same port
-will be used on the target. So, forwarding, say 6667:7000 with
+will be used on the target. So forwarding, say 6667:7000 with
 no destination will use the same port as the connection was made for the
-target. The alternative is to specify a port on the destination. So, if you
+target. The alternative is to specify a port on the destination. So if you
 were to forward 6667:7000 to 7000, every connection on that
 port range would be on 7000. It is not possible to map a port range to
 another port range. Note that not specifying a destination
 port works equally well for a single Source port.</P>
-

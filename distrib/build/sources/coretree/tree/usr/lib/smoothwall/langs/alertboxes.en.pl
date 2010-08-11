@@ -22,7 +22,7 @@ firewall.  Further information on your SmoothWall Express is available from <a h
 'ddns.cgi' 		=> 'Especially suited when your ISP assigs you a different IP address every time you connect, you can configure your SmoothWall to manage and update your dynamic DNS names from several popular services.',
 'ids.cgi' 		=> 'Enable the Snort IDS service to detect potential security breach attempts from outside your network.  Note that Snort <strong>does not</strong> prevent these attempts &mdash; your port forwarding and access rules are used to allow and deny inbound access from the outside.<br>Snort is no longer shipped with any rules. In order to fetch rules you need to visit <a href="http://www.snort.org" target="_new">www.snort.org</a> and register for an Oink code',
 'remote.cgi' 		=> 'Enable Secure Shell access to your SmoothWall, and restrict access based upon referral URL to ignore external links to your SmoothWall.',
-'portfw.cgi' 		=> 'Forward ports from your external IP address to ports on machines inside your local networks.',
+'portfw.cgi' 		=> 'Add multiple static IPs to existing interfaces and forward ports and protocols from any interface to any interface.',
 'xtaccess.cgi' 		=> 'Allow access to admin services running on the SmoothWall to external hosts.',
 'dmzholes.cgi' 		=> 'Enable access from a host on your ORANGE or PURPLE networks to a port on a host on your GREEN network.',
 'pppsetup.cgi' 		=> 'Configure username, password and other details for up to five PPP, PPPoA or PPPoE connections.',

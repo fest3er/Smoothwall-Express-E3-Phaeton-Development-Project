@@ -42,6 +42,7 @@ if [ "$CONFIG_TYPE" = "2" -o "$CONFIG_TYPE" = "3" -o "$CONFIG_TYPE" = "6" -o "$C
 			/usr/sbin/dhcpcd -h $RED_DHCP_HOSTNAME -R $RED_DEV -c /etc/rc.d/rc.updatered
 		elif [ "$RED_TYPE" = "STATIC" ]; then
 			/sbin/ifconfig $RED_DEV $RED_ADDRESS netmask $RED_NETMASK broadcast $RED_BROADCAST up
+			/etc/rc.d/rc.updatered
 			if [ "$DEFAULT_GATEWAY" != "" ]; then
 				/sbin/route add default gw $DEFAULT_GATEWAY
 			fi
@@ -55,6 +56,8 @@ fi
 
 echo "Setting up firewall"
 . /etc/rc.d/rc.firewall.up
+echo "Starting smoothd"
+/usr/sbin/smoothd
 echo "Starting traffic stats collector"
 /usr/sbin/trafficlogger
 echo "Setting DMZ pinholes"
@@ -63,11 +66,6 @@ echo "Setting up advanced networking features"
 /usr/bin/smoothcom setadvnet
 echo "Setting up IP block"
 /usr/bin/smoothcom setipblock
-
-if [ "$RED_DEV" != "" -a "$RED_TYPE" == "STATIC" ]; then
-	/etc/rc.d/rc.updatered
-fi
-
 echo "Setting external access rules"
 /usr/bin/smoothcom setxtaccess
 echo "Setting up outgoing filter"

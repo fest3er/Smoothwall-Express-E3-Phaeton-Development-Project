@@ -102,8 +102,10 @@ rm -f /var/run/pppd*.tdb
 # enable the deprecated NF_CONNTRACK
 sysctl net.netfilter.nf_conntrack_acct=1
 
-echo "Setting drive DMA settings"
-/sbin/hdparm -d 1 -c 1 -u 1 /dev/harddisk
+if readlink /dev/harddisk | egrep "hd."; then
+  echo "Setting IDE drive params"
+  /sbin/hdparm -d 1 -c 1 -u 1 /dev/harddisk
+fi
 
 echo "Setting the clock"
 /sbin/hwclock --hctosys
@@ -150,11 +152,6 @@ echo "Starting klogd"
 /usr/sbin/klogd
 
 echo "Loading USBFS"
-#/sbin/modprobe usbcore 2> /dev/null
-#/sbin/modprobe ehci-hcd 2> /dev/null
-#/sbin/modprobe ohci-hcd 2> /dev/null
-#/sbin/modprobe uhci-hcd 2> /dev/null
-#/sbin/modprobe usbhid 2> /dev/null
 if [ -e /proc/bus/usb ]; then mount -t usbfs usbfs /proc/bus/usb; fi
 
 echo "Loading filesystems"
@@ -164,9 +161,6 @@ echo "Loading filesystems"
 
 echo "Loading IPSEC"
 /sbin/modprobe ipsec
-
-echo "Starting smoothd"
-/usr/sbin/smoothd
 
 echo "Running /etc/rc.d/rc.network"
 . /etc/rc.d/rc.network
