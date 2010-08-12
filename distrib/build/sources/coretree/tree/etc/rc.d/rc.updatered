@@ -22,9 +22,13 @@ echo "$DNSMASQ_DNS2" >/var/smoothwall/red/dns2
 
 /usr/bin/smoothcom dnsproxyrestart $DNSMASQ_DNS1 $DNSMASQ_DNS2
 
+echo "Bringing up interface aliases (if they exist)"
 /usr/bin/smoothcom ifaliasup
-/usr/bin/smoothcom setxtaccess
+echo "Setting up full firewall rules"
 /usr/bin/smoothcom setportfw
+echo "Setting up external access rules"
+/usr/bin/smoothcom setxtaccess
+/usr/bin/smoothcom setincoming
 /usr/bin/smoothcom snortrestart
 /usr/bin/smoothcom upnpdrestart
 /usr/bin/smoothcom trafficrestart

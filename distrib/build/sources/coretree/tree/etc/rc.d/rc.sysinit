@@ -162,6 +162,9 @@ echo "Loading filesystems"
 echo "Loading IPSEC"
 /sbin/modprobe ipsec
 
+echo "Starting smoothd"
+/usr/sbin/smoothd
+
 echo "Running /etc/rc.d/rc.network"
 . /etc/rc.d/rc.network
 

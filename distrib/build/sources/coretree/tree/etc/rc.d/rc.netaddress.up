@@ -2,7 +2,20 @@
 
 . /var/smoothwall/ethernet/settings
 
-. /etc/rc.d/rc.firewall.down
+echo "Setting up firewall"
+. /etc/rc.d/rc.firewall.up
+echo "Starting traffic stats collector"
+/usr/sbin/trafficlogger
+echo "Setting DMZ pinholes"
+/usr/bin/smoothcom setinternal
+echo "Setting up advanced networking features"
+/usr/bin/smoothcom setadvnet
+echo "Setting up IP block"
+/usr/bin/smoothcom setipblock
+echo "Setting up outgoing filter"
+/usr/bin/smoothcom setoutgoing
+echo "Setting up timed access rules"
+/usr/bin/smoothcom settimedaccess
 
 echo "Poking udev"
 /sbin/udevadm trigger
@@ -54,22 +67,4 @@ if [ "$CONFIG_TYPE" = "2" -o "$CONFIG_TYPE" = "3" -o "$CONFIG_TYPE" = "6" -o "$C
 	fi
 fi
 
-echo "Setting up firewall"
-. /etc/rc.d/rc.firewall.up
-echo "Starting smoothd"
-/usr/sbin/smoothd
-echo "Starting traffic stats collector"
-/usr/sbin/trafficlogger
-echo "Setting DMZ pinholes"
-/usr/bin/smoothcom setinternal
-echo "Setting up advanced networking features"
-/usr/bin/smoothcom setadvnet
-echo "Setting up IP block"
-/usr/bin/smoothcom setipblock
-echo "Setting external access rules"
-/usr/bin/smoothcom setxtaccess
-echo "Setting up outgoing filter"
-/usr/bin/smoothcom setoutgoing
-echo "Setting up timed access rules"
-/usr/bin/smoothcom settimedaccess
 

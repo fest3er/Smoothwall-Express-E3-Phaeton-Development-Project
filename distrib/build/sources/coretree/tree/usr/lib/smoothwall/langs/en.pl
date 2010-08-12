@@ -468,7 +468,7 @@
 'running' => 'RUNNING',
 'swapped' => 'SWAPPED',
 
-# portfw.cgi and dmzhole.cgi and xtaccess.cgi
+# Full Firewall Control and External Access
 'ffc section' => 'Port and protocol forwarding section',
 'ffc-multi add' => 'Add Alias',
 'ffc-enable rule' => 'Enable/Disable Rule',
@@ -515,7 +515,7 @@
 'destination ip bad orange' => 'Destination IP/MAC is not within your ORANGE subnet',
 'destination ip bad blue' => 'Destination IP/MAC is not within your BLUE subnet',
 'destination ip bad red' => 'Destination IP/MAC is not within the RED network',
-'error source-destination port protocol any' => 'You can not have a source or destination port with a protocol selection of Any. ',
+'error source-destination port protocol any' => 'You can not have a source or destination port with a protocol selection of Any.',
 'error source-destination port destination any' => 'You can not have a source or destination port with a destination of Any (blank).',
 'ffc-port and protocol' => 'You cannot specify a port with that protocol!',
 'multi-ip section' => 'Multiple static IPs section',
@@ -550,7 +550,8 @@
 'multi-ip iface error' => 'You cannot edit or remove a configured interface!',
 'add new alias' => 'Add a new alias:',
 'ffc-valid prefix' => 'Not a valid source IP or MAC prefix. "!" is the only valid prefix allowed',
-# Old section
+
+# Old portfw.cgi, dmzhole.cgi and xtaccess.cgi
 'source port numbers' => 'Source port must be a number.',
 'source ip bad' => 'Not a valid IP address or a network address.',
 'destination ip bad' => 'Invalid destination IP',

@@ -66,12 +66,11 @@ fi
 /sbin/iptables -A timedaction -j LOG --log-prefix Denied-by-Timed-Access:-
 /sbin/iptables -A timedaction -j REJECT
 
+
 # Apply the time rules to deny the traffic.
 /sbin/iptables -A INPUT -j timedaccess
 /sbin/iptables -A FORWARD -j timedaccess
 
-# Allow the traffic we know about to pass through
-/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j accept
 # For IGMP and multicast
 /sbin/iptables -N advnet
 /sbin/iptables -A INPUT -i ppp0 -j advnet
@@ -79,6 +78,13 @@ fi
 if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A INPUT -i $RED_DEV -j advnet
 fi
+
+# Port forwarding
+/sbin/iptables -N portfwf
+/sbin/iptables -N portfwi
+/sbin/iptables -N subnetchk
+/sbin/iptables -A FORWARD -m state --state NEW -j portfwf
+/sbin/iptables -A INPUT -m state --state NEW -j portfwi
 
 # Spoof protection for RED (rp_filter does not work with FreeS/WAN)
 /sbin/iptables -N spoof
@@ -201,23 +207,42 @@ if [ "$PURPLE_DEV" != "" ]; then
 	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $PURPLE_DEV -m state --state ESTABLISHED,RELATED -j ACCEPT
 fi
 
+# Allow packets that we know about through.
+/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -o ppp0 -j ACCEPT
+/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -i ppp0 -j ACCEPT
 /sbin/iptables -A FORWARD -m state --state NEW -o ppp0 -j outbound
+/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -o ippp0 -j ACCEPT
+/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -i ippp0 -j ACCEPT
 /sbin/iptables -A FORWARD -m state --state NEW -o ippp0 -j outbound
 if [ "$RED_DEV" != "" ]; then
+	/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -o $RED_DEV -j ACCEPT
+	/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -i $RED_DEV -j ACCEPT
 	/sbin/iptables -A FORWARD -m state --state NEW -o $RED_DEV -j outbound
 fi
 
-# Port forwarding
-/sbin/iptables -N portfwf
-/sbin/iptables -A FORWARD -j portfwf
-/sbin/iptables -N portfwi
-/sbin/iptables -A INPUT -j portfwf
+# Port forwarding & Bouncing portforwards
+# /sbin/iptables -N portfwf
+# /sbin/iptables -A FORWARD -i ppp0 -j portfwf
+# /sbin/iptables -A FORWARD -i ippp0 -j portfwf
+# if [ "$RED_DEV" != "" ]; then
+# 	/sbin/iptables -A FORWARD -i $RED_DEV -j portfwf
+# fi
+# /sbin/iptables -A FORWARD -m mark --mark 1 -j portfwf
+# if [ "$ORANGE_DEV" != "" ]; then
+# 	/sbin/iptables -A FORWARD -m mark --mark 2 -j portfwf
+# fi
+# if [ "$PURPLE_DEV" != "" ]; then
+# 	/sbin/iptables -A FORWARD -m mark --mark 3 -j portfwf
+# fi
 
 /sbin/iptables -N dmzholes
 
 # Allow GREEN to talk to ORANGE.
 if [ "$ORANGE_DEV" != "" ]; then
-	/sbin/iptables -A FORWARD -i $GREEN_DEV -o $ORANGE_DEV -m state --state NEW -j ACCEPT
+	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $GREEN_DEV -m state \
+		--state ESTABLISHED,RELATED -j ACCEPT
+	/sbin/iptables -A FORWARD -i $GREEN_DEV -o $ORANGE_DEV -m state \
+		--state NEW,ESTABLISHED,RELATED -j ACCEPT
 	# dmz pinhole chain.  setdmzholes setuid prog adds rules here to allow
 	# ORANGE to talk to GREEN.
 	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $GREEN_DEV -j dmzholes
@@ -225,7 +250,10 @@ fi
 
 # Allow GREEN to talk to PURPLE.
 if [ "$PURPLE_DEV" != "" ]; then
-	/sbin/iptables -A FORWARD -i $GREEN_DEV -o $PURPLE_DEV -m state --state NEW -j ACCEPT
+	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $GREEN_DEV -m state \
+		--state ESTABLISHED,RELATED -j ACCEPT
+	/sbin/iptables -A FORWARD -i $GREEN_DEV -o $PURPLE_DEV -m state \
+		--state NEW,ESTABLISHED,RELATED -j ACCEPT
 	# dmz pinhole chain.  setdmzholes setuid prog adds rules here to allow
 	# PURPLE to talk to GREEN.
 	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $GREEN_DEV -j dmzholes
@@ -233,7 +261,10 @@ fi
 
 # Allow PURPLE to talk to ORANGE.
 if [ "$PURPLE_DEV" != "" -a "$ORANGE_DEV" != "" ]; then
-	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $ORANGE_DEV -m state --state NEW -j ACCEPT
+	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $PURPLE_DEV -m state \
+		--state ESTABLISHED,RELATED -j ACCEPT
+	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $ORANGE_DEV -m state \
+		--state NEW,ESTABLISHED,RELATED -j ACCEPT
 	# dmz pinhole chain.  setdmzholes setuid prog adds rules here to allow
 	# ORANGE to talk to PURPLE.
 	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $PURPLE_DEV -j dmzholes
@@ -321,9 +352,6 @@ if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -t nat -A POSTROUTING -o $RED_DEV -j MASQUERADE
 fi
 
-/sbin/iptables -t nat -N portfw_post
-/sbin/iptables -t nat -A POSTROUTING -o ! $RED_DEV -j portfw_post
-
 # Bouncing port forwards
 /sbin/iptables -t nat -A POSTROUTING -o $GREEN_DEV -m mark --mark 1 -j SNAT --to-source $GREEN_ADDRESS
 if [ "$ORANGE_DEV" != "" ]; then
@@ -406,5 +434,12 @@ done
 /sbin/iptables -t mangle -N trafficforward
 /sbin/iptables -t mangle -A FORWARD -j trafficforward
 /sbin/iptables -t mangle -N trafficpostrouting
+
+# Port forwarding
+/sbin/iptables -t nat -N portfw_pre
+/sbin/iptables -t nat -I PREROUTING -j portfw_pre
+/sbin/iptables -t nat -N portfw_post
+/sbin/iptables -t nat -I POSTROUTING -j portfw_post
+
 /sbin/iptables -t mangle -A POSTROUTING -j trafficpostrouting
 
