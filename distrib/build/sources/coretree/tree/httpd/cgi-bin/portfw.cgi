@@ -1548,7 +1548,7 @@ my %render_settings =
   ]
 );
 
-&dispaliastab($filename, \%render_settings, $cgiparams{'ORDER_TWO'}, $cgiparams{'COLUMN_TWO'} );
+&dispaliastab(11, $filename, \%render_settings, $cgiparams{'ORDER_TWO'}, $cgiparams{'COLUMN_TWO'} );
 
 print <<END
 
@@ -1675,7 +1675,7 @@ my %render_settings =
   ]
 );
 
-&dispaliastab($aliasfile, \%render_settings, $cgiparams{'ORDER_ONE'}, $cgiparams{'COLUMN_ONE'} );
+&dispaliastab(6, $aliasfile, \%render_settings, $cgiparams{'ORDER_ONE'}, $cgiparams{'COLUMN_ONE'});
 
 print <<END
 
@@ -1809,7 +1809,7 @@ sub protocolmap
 
 sub dispaliastab
 {
-  my ( $filename, $settings, $order, $selected_column, $id ) = @_;
+  my ( $col_count, $filename, $settings, $order, $selected_column, $id ) = @_;
 
   # 'id' can be used to give us a different name, *iff* we are repeating the
   # widget.	
@@ -1840,7 +1840,7 @@ sub dispaliastab
 
     if ( defined $column->{'break'} ){
       print "</tr><tr>";
-      $span = " colspan='".scalar(@columns)."'";
+      $span = " colspan='".$col_count."'";
       $class = "listcomment";
     }
 
@@ -2018,7 +2018,7 @@ sub dispaliastab
     # do we need to render any comments etc ?
     foreach my $reference ( @breaks ){
       if ( defined $cols[$reference] and $cols[$reference] ne "" ){
-        print "</tr><tr class='list'><td style='$colour' class='listcomment' colspan='".scalar(@cols)."'$styles[$entry]>$cols[$reference]</td>\n";
+        print "</tr><tr class='list'><td style='$colour' class='listcomment' colspan='".$col_count."'$styles[$entry]>$cols[$reference]</td>\n";
       }
     }
 
