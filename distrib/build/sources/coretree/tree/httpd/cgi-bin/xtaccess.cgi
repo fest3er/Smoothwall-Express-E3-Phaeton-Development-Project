@@ -475,10 +475,10 @@ my %render_settings =
 	]
 );
 
-&displaytable($filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
+&disptabcolcnt(6, $filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
 
 print <<END
-<table class='blank'>
+<table class='blank' style='margin:6pt 0'>
 <tr>
 <td style='text-align: center; width: 33%;'><input type='submit' name='ACTION' value='$tr{'remove'}'></td>
 <TD WIDTH='34%' ALIGN='CENTER'><INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$tr{'ffc-enable rule'}'></TD>
@@ -488,21 +488,21 @@ print <<END
 END
 ;
 &closebox();
-&openbox();
-print <<END
-<br>
-<table width='100%'>
-<tr>
-	<td width='70%' align='right'>For help please visit the <a href=$ModDetails{'MOD_FORUM'}>SmoothWall Community Forums</a></td>
-	<td width='30%' align='right'>Mod version: $ModDetails{'MOD_VERSION'}</td>
-</tr>
-</table>
-</FORM>
-
-END
-;
-
-&closebox();
+#&openbox();
+#print <<END
+#<br>
+#<table width='100%'>
+#<tr>
+	#<td width='70%' align='right'>For help please visit the <a href=$ModDetails{'MOD_FORUM'}>SmoothWall Community Forums</a></td>
+	#<td width='30%' align='right'>Mod version: $ModDetails{'MOD_VERSION'}</td>
+#</tr>
+#</table>
+#</FORM>
+#
+#END
+#;
+#
+#&closebox();
 
 &alertbox('add', 'add');
 

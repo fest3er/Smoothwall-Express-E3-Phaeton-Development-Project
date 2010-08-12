@@ -16,7 +16,7 @@ use header qw(:standard);
 @EXPORT_OK    = qw( 
 	ipcompare
 	portmap
-	tooltip portlist displaytable 
+	tooltip portlist displaytable disptabcolcnt
 	jsvalidip jsvalidmask jsvalidipormask jsvalidipandmask jsvalidport jsvalidportrange jsvalidmac jsvalidhostname jsvalidregex jsvalidpassword jsvalidnumber jsvalidcomment
 	);
 %EXPORT_TAGS  = (
@@ -370,6 +370,230 @@ sub displaytable
 		foreach my $reference ( @breaks ){
 			if ( defined $cols[$reference] and $cols[$reference] ne "" ){
 				print "</tr><tr class='list'><td style='$colour' class='listcomment' colspan='".scalar(@cols)."'$styles[$entry]>$cols[$reference]</td>\n";
+			}
+		}
+
+		$i++;
+		print "</tr>\n";
+		if ( $colour eq "background-color: $table1colour;" ){
+			$colour = "background-color: $table2colour;";
+		} else {
+			$colour = "background-color: $table1colour;";
+		}
+	}
+	
+
+	# and end the table
+	print qq{
+		</table>
+	};
+
+}
+
+
+sub disptabcolcnt
+{
+	my ( $col_count, $filename, $settings, $order, $selected_column, $id ) = @_;
+
+	# 'id' can be used to give us a different name, *iff* we are repeating the
+	# widget.	
+
+	print qq{
+		<table class='list'>
+			<tr>
+	};
+	# display the header information, that is the list of columns etc.
+	# whilst we're doing this, we can generate a mapping of which column to 
+	# display where.
+
+	my @columns;
+	my @styles;
+	my @translations;
+	my @breaks;
+	my $i = 0;
+	my $sort;
+	my $colourtranslations;
+	my $colourcolumn = 0;
+
+	my ( $table1colour, $table2colour ) = ( '#f0f0f0', '#e0e0e0' );
+
+	foreach my $column ( @{$settings->{'columns'}} ){
+		my $span = "";
+		my $style = "";
+		my $class = "list";
+
+		if ( defined $column->{'break'} ){
+			print "</tr><tr>";
+			$span = " colspan='".$col_count."'";
+			$class = "listcomment";
+		}
+
+		if ( defined $column->{'size'} ){
+			$style .= "width: $column->{'size'}%;";
+		}
+
+		my $arrow;
+		my $url = $settings->{'url'};
+		$i++;
+		$url =~s/\[%COL%\]/$i/;		
+
+		if ( $i == $selected_column ){
+			if ( $order eq $tr{'log ascending'} ){
+				$url =~s/\[%ORD%\]/$tr{'log descending'}/;
+				$arrow = "&nbsp;<img src='/ui/img/down.jpg' alt='change direction'>";
+			} else {
+				$url =~s/\[%ORD%\]/$tr{'log ascending'}/;
+				$arrow = "&nbsp;<img src='/ui/img/up.jpg' alt='change direction'>";
+			}
+
+			# choose a sorting algorithm
+			if ( defined $column->{'sort'} ){
+				$sort = $column->{'sort'};
+			}
+
+		} else {
+			$url =~s/\[%ORD%\]/$tr{'log ascending'}/;
+		}
+
+		if ( not defined $column->{'colour'} ){
+			print qq {
+				<th$span class='$class' style='$style'>
+					<a href="$url">$column->{'title'}$arrow</a>
+				</th>
+			};
+		}
+
+		$style = "";
+
+		if ( defined $column->{'align'} ){
+			$style = "text-align: $column->{'align'};";
+		}
+
+		if ( defined $column->{'break'} ){
+			push @breaks, $column->{'column'};
+		} elsif ( defined $column->{'colour'} ){
+			$colourcolumn = $column->{'column'};
+			$colourtranslations = $column->{'tr'};
+		} else {
+			# Incase no column has been specified, assume column 0.
+			if ( not defined $column->{'column'} ){
+				push @columns, "0,$column->{'mark'}";
+			} elsif ( defined $column->{'mark'} ){
+				push @columns, "$column->{'column'},$column->{'mark'}";
+			} else {
+				push @columns, $column->{'column'};
+			}
+		}
+
+		push @styles, $style;
+		push @translations, $column->{'tr'};
+	}
+	
+	print qq{
+		</tr>
+	};
+
+	# now we can render the content
+
+	my $colour = "background-color: $table1colour;";
+	$i = 0;
+	my @lines;
+
+	if ( ref $filename ){
+		@lines = (@$filename);
+	} elsif ( open my $input, "$filename" ){
+		my $position = 1;
+		while( my $line = <$input> ){
+			chomp $line;
+			my @cols = ( $position++, (split /,/, $line) );
+			push @lines, \@cols;
+		}
+		close $input;
+	} else {
+		print "</table>\n";
+		return;
+	}
+	
+	# sort the lines according to the relevant selected row.
+	my @sorted_lines;
+
+	if ( ref $sort ){
+		# an overridden sort function.
+		if ( $order eq $tr{'log ascending'} ){
+			@sorted_lines = sort { &{$sort}( $a->[$columns[$selected_column-1]], $b->[$columns[$selected_column-1]] ) } @lines;
+		} else {
+			@sorted_lines = sort { &{$sort}( $b->[$columns[$selected_column-1]], $a->[$columns[$selected_column-1]] ) } @lines;
+		}
+	} elsif ( $sort eq "<=>" ){
+		if ( $order eq $tr{'log ascending'} ){
+			@sorted_lines = sort { $a->[$columns[$selected_column-1]] <=> $b->[$columns[$selected_column-1]] } @lines;
+		} else {
+			@sorted_lines = sort { $b->[$columns[$selected_column-1]] <=> $a->[$columns[$selected_column-1]] } @lines;
+		}
+	} else {
+		if ( $order eq $tr{'log ascending'} ){
+			@sorted_lines = sort { $a->[$columns[$selected_column-1]] cmp $b->[$columns[$selected_column-1]] } @lines;
+		} else {
+			@sorted_lines = sort { $b->[$columns[$selected_column-1]] cmp $a->[$columns[$selected_column-1]] } @lines;
+		}	
+	}
+
+	# slice the information up at all ?
+	my $sliced = 0;
+
+	if ( defined $settings->{'slice'} and ref $settings->{'slice'} ){
+		my $start = $settings->{'slice'}->{'start'};
+		my $end   = $settings->{'slice'}->{'end'};
+		$sliced   = scalar @sorted_lines;
+		my @slice = splice( @sorted_lines, $start, $end);
+		@sorted_lines = @slice;
+	}
+
+	foreach my $line (@sorted_lines){
+		my @cols = @{$line};
+		print "<tr class='list'>\n";
+		my $entry = 0;
+
+		foreach my $reference ( @columns ){
+			unless ( $reference =~ /,/ ){
+			# are we supposed to tranlate this at all ?
+				my $text = $cols[$reference];
+				if ( defined $translations[$entry] ){
+					my $type = ref $translations[$entry];
+					if ( not $type ) {
+						if ( $translations[$entry] eq "onoff" ){
+							if ( $cols[$reference] eq "on" ){
+								$text = "<img alt='on' src='/ui/img/on.gif'>";
+							} else {
+								$text = "<img alt='off' src='/ui/img/off.gif'>";
+							}
+						}
+					} elsif ( $type eq "HASH" and defined $translations[$entry]->{$cols[$reference]} ){
+						$text = $translations[$entry]->{$cols[$reference]};
+					} elsif ( $type eq "ARRAY" and defined $translations[$entry]->[$cols[$reference]] ){
+						$text = $translations[$entry]->[$cols[$reference]];
+					}
+				}
+				if ( $colourcolumn != 0 ){
+					$text = "<span class='$colourtranslations->{$cols[$colourcolumn]}'>$text</span>";
+				}
+				print "<td class='list' style='$colour$styles[$entry]' onclick=\"toggle_row('$id_$cols[0]');\" >$text</td>\n";
+			} else {
+				# this is a "mark" field, i.e. a checkbox
+				my ($column, $mark) = split( /,/, $reference );
+				my $newmark = "";
+				if ( $mark ne " " ){
+					$newmark = $mark;
+				}
+				print "<td class='list' style='$colour$styles[$entry]'><input id ='$id_$cols[$column]' type='checkbox' name='$newmark$cols[$column]'></td>";
+			}
+			$entry++;
+		}
+
+		# do we need to render any comments etc ?
+		foreach my $reference ( @breaks ){
+			if ( defined $cols[$reference] and $cols[$reference] ne "" ){
+				print "</tr><tr class='list'><td style='$colour' class='listcomment' colspan='".$col_count."'$styles[$entry]>$cols[$reference]</td>\n";
 			}
 		}
 
