@@ -59,6 +59,7 @@ firewall.  Further information on your SmoothWall Express is available from <a h
 'bandwidthbars.cgi'	=> 'Shows realtime network bandwidth usage bars.',
 'trafficmonitor.cgi'	=> 'Shows realtime network bandwidth usage graphs.',
 'register.cgi'		=> 'Shows information about your SmoothWall Express system.',
+'smoothinfo.cgi'        => 'Use this page to generate a report about your Smoothwall Express 3.0 Phaeton/Roadster. This will provide a base for forum support requests.',
 
 );
 
