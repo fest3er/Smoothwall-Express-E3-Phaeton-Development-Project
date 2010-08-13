@@ -353,7 +353,7 @@ sub displaytable
 				if ( $colourcolumn != 0 ){
 					$text = "<span class='$colourtranslations->{$cols[$colourcolumn]}'>$text</span>";
 				}
-				print "<td class='list' style='$colour$styles[$entry]' onclick=\"toggle_row('$id_$cols[0]');\" >$text</td>\n";
+				print "<td class='list' style='$colour$styles[$entry]' onclick=\"toggle_row('${id}_$cols[0]');\" >$text</td>\n";
 			} else {
 				# this is a "mark" field, i.e. a checkbox
 				my ($column, $mark) = split( /,/, $reference );
@@ -361,7 +361,7 @@ sub displaytable
 				if ( $mark ne " " ){
 					$newmark = $mark;
 				}
-				print "<td class='list' style='$colour$styles[$entry]'><input id ='$id_$cols[$column]' type='checkbox' name='$newmark$cols[$column]'></td>";
+				print "<td class='list' style='$colour$styles[$entry]'><input id ='${id}_$cols[$column]' type='checkbox' name='$newmark$cols[$column]'></td>";
 			}
 			$entry++;
 		}
@@ -580,7 +580,7 @@ sub dispaliastab
         if ( $colourcolumn != 0 ){
           $text = "<span class='$colourtranslations->{$cols[$colourcolumn]}'>$text</span>";
         }
-        print "<td class='list' style='$colour$styles[$entry]' onclick=\"toggle_row('$id_$cols[0]');\" >$text</td>\n";
+        print "<td class='list' style='$colour$styles[$entry]' onclick=\"toggle_row('${id}_$cols[0]');\" >$text</td>\n";
       } else {
         # this is a "mark" field, i.e. a checkbox
         my $text;
@@ -594,7 +594,7 @@ sub dispaliastab
         } else {
           $text = 'DISABLED';
         }
-        print "<td class='list' style='$colour$styles[$entry]'><input id ='$id_$cols[$column]' type='checkbox' name='$newmark$cols[$column]' $text></td>";
+        print "<td class='list' style='$colour$styles[$entry]'><input id ='${id}_$cols[$column]' type='checkbox' name='$newmark$cols[$column]' $text></td>";
       }
       $entry++;
     }

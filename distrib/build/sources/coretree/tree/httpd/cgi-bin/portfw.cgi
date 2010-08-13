@@ -1378,7 +1378,7 @@ print <<END
           <INPUT TYPE='CHECKBOX' NAME='ENABLED' $checked{'ENABLED'}{'on'}>
         </TD>
         <TD style='width:50%; text-align:center'>
-          <INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$buttontext' onclick='return validate();>
+          <INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$buttontext' onclick='return validate();'>
           <INPUT TYPE='HIDDEN' NAME='OLDID' VALUE='$cgiparams{'OLDID'}'>
         </TD>
       </TR>
