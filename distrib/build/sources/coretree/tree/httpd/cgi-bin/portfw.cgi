@@ -1548,7 +1548,7 @@ my %render_settings =
   ]
 );
 
-&dispaliastab(11, $filename, \%render_settings, $cgiparams{'ORDER_TWO'}, $cgiparams{'COLUMN_TWO'} );
+&dispaliastab($filename, \%render_settings, $cgiparams{'ORDER_TWO'}, $cgiparams{'COLUMN_TWO'} );
 
 print <<END
 
@@ -1675,7 +1675,7 @@ my %render_settings =
   ]
 );
 
-&dispaliastab(6, $aliasfile, \%render_settings, $cgiparams{'ORDER_ONE'}, $cgiparams{'COLUMN_ONE'});
+&dispaliastab($aliasfile, \%render_settings, $cgiparams{'ORDER_ONE'}, $cgiparams{'COLUMN_ONE'});
 
 print <<END
 

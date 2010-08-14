@@ -475,7 +475,7 @@ my %render_settings =
 	]
 );
 
-&dispaliastab(6, $filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
+&dispaliastab($filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
 
 print <<END
 <table class='blank' style='margin:6pt 0'>

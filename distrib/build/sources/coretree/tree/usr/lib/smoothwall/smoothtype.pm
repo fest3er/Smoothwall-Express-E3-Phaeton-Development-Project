@@ -190,6 +190,7 @@ sub displaytable
 	my $sort;
 	my $colourtranslations;
 	my $colourcolumn = 0;
+	my $colcont;
 
 	my ( $table1colour, $table2colour ) = ( '#f0f0f0', '#e0e0e0' );
 
@@ -200,7 +201,8 @@ sub displaytable
 
 		if ( defined $column->{'break'} ){
 			print "</tr><tr>";
-			$span = " colspan='".scalar(@columns)."'";
+			$colcount = scalar(@columns);
+			$span = " colspan='$colcount'";
 			$class = "listcomment";
 		}
 
@@ -369,7 +371,7 @@ sub displaytable
 		# do we need to render any comments etc ?
 		foreach my $reference ( @breaks ){
 			if ( defined $cols[$reference] and $cols[$reference] ne "" ){
-				print "</tr><tr class='list'><td style='$colour' class='listcomment' colspan='".scalar(@cols)."'$styles[$entry]>$cols[$reference]</td>\n";
+				print "</tr><tr class='list'><td style='$colour' class='listcomment' colspan='$colcount'$styles[$entry]>$cols[$reference]</td>\n";
 			}
 		}
 
@@ -414,6 +416,7 @@ sub dispaliastab
   my $sort;
   my $colourtranslations;
   my $colourcolumn = 0;
+  my $colcount;
 
   my ( $table1colour, $table2colour ) = ( '#f0f0f0', '#e0e0e0' );
 
@@ -424,7 +427,8 @@ sub dispaliastab
 
     if ( defined $column->{'break'} ){
       print "</tr><tr>";
-      $span = " colspan='".$col_count."'";
+      $colcount = scalar(@columns);
+      $span = " colspan='$colcount'";
       $class = "listcomment";
     }
 
@@ -602,7 +606,7 @@ sub dispaliastab
     # do we need to render any comments etc ?
     foreach my $reference ( @breaks ){
       if ( defined $cols[$reference] and $cols[$reference] ne "" ){
-        print "</tr><tr class='list'><td style='$colour' class='listcomment' colspan='".$col_count."'$styles[$entry]>$cols[$reference]</td>\n";
+        print "</tr><tr class='list'><td style='$colour' class='listcomment' colspan='$colcount'$styles[$entry]>$cols[$reference]</td>\n";
       }
     }
 
