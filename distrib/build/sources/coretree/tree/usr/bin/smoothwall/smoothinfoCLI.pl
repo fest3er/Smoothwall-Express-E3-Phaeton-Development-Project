@@ -4,6 +4,9 @@
 
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
+
+$SIdir="${swroot}/smoothinfo";
+
 my %smoothinfosettings;
 
 my $ColourRed = "\033[31;1m";
@@ -21,8 +24,8 @@ $smoothinfosettings{'DISKSPACE'} = 'on';
 $smoothinfosettings{'MEMORY'} = 'on';
 $smoothinfosettings{'WRAP'} = 100;
 
-system ("${swroot}/smoothinfo/bin/getchains.pl");
-open (FILE, "<${swroot}/smoothinfo/etc/chains");
+system ("/usr/bin/smoothwall/getchains.pl");
+open (FILE, "<${SIdir}/etc/chains");
 my @chains = (@chains,<FILE>);
 chomp @chains;
 
@@ -99,12 +102,12 @@ if ($response =~ /y/i) { $smoothinfosettings{'MODLIST'} = 'on'; } else { $smooth
 
 print $ColourCyan . "\nGenerating report...\n\n";
 
-&writehash("${swroot}/smoothinfo/etc/settings", \%smoothinfosettings);
+&writehash("${SIdir}/etc/settings", \%smoothinfosettings);
 wait();
-system '/var/smoothwall/smoothinfo/bin/smoothinfo.pl';
+system '/usr/bin/smoothwall/smoothinfo.pl';
 
 print $ColourGreen . "Done!\n\n";
 
-print $ColourNorm . "Now copy/paste the contents of " . $ColourYellow . "${swroot}/smoothinfo/etc/report.txt " . $ColourNorm . "\"AS IS\"\ninto your post edit box.\n\n";
+print $ColourNorm . "Now copy/paste the contents of " . $ColourYellow . "${SIdir}/etc/report.txt " . $ColourNorm . "\"AS IS\"\ninto your post edit box.\n\n";
 
-unlink ("${swroot}/smoothinfo/etc/chains");
+unlink ("${SIdir}/etc/chains");

@@ -15,12 +15,14 @@ use header qw( :standard );
 use smoothd qw( message );
 use smoothtype qw(:standard);
 
-include "$swroot/smoothinfo/about.ph";
+require "$swroot/smoothinfo/about.ph";
+
+$MODDIR = "$swroot/smoothinfo/etc";
 
 my (%smoothinfosettings, %checked);
 my $version = $ModDetails{'MOD_LONG_NAME'} . " v. " . $ModDetails{'MOD_VERSION'};
-my $filename = "$MODDIR/etc/report.txt";
-my $settingsfile = "$MODDIR/etc/settings";
+my $filename = "$MODDIR/report.txt";
+my $settingsfile = "$MODDIR/settings";
 my @chains = ('All chains');
 my @items = ('MEMORY', 'TOP', 'LOADEDMODULES', 'CPU', 'IRQs', 'DISKSPACE', 'CONNTYPE', 'ADAPTERS', 'NETCONF1', 'NETCONF2', 'ROUTE', 'CONNTRACKS', 'MODLIST', 'DHCPINFO', 'PORTFW', 'CONFIG', 'DMESG', 'APACHE', 'MESSAGES', 'SERVICES', 'MODSERVICES');
 my @ASCII_items = ('SWITCH1', 'SWITCH2', 'SWITCH3', 'WAP1', 'WAP2', 'WAP3', 'WAP4', 'WAP5', 'WAP6', 'MODEM', 'ROUTER');
@@ -35,7 +37,7 @@ if (not defined $success) {
 $errormessage = $tr{'smoothd failure'};
 }
 
-open (FILE, "<$MODDIR/etc/chains");
+open (FILE, "<$MODDIR/chains");
 my @chains = (@chains,<FILE>);
 chomp @chains;
 
@@ -80,7 +82,7 @@ if ($smoothinfosettings{'LINES3'} eq ''
 
 if ($smoothinfosettings{'SCREENSHOTS'} =~ /a href/i) {$errormessage = $tr{'smoothinfo-bad-link'};}
 
-unlink ("$MODDIR/etc/schematic");
+unlink ("$MODDIR/schematic");
 
 if ($smoothinfosettings{'SWITCH1'} eq 'on'
  || $smoothinfosettings{'SWITCH2'} eq 'on'
@@ -92,7 +94,7 @@ if ($smoothinfosettings{'SWITCH1'} eq 'on'
  || $smoothinfosettings{'WAP5'} eq 'on'
  || $smoothinfosettings{'WAP6'} eq 'on'
  ||  $smoothinfosettings{'MODEM'} eq 'on'
- || $smoothinfosettings{'ROUTER'} eq 'on') { system("/bin/touch $MODDIR/etc/schematic"); }
+ || $smoothinfosettings{'ROUTER'} eq 'on') { system("/bin/touch $MODDIR/schematic"); }
 
 unless ($smoothinfosettings{'MEMORY'} eq 'on'
  && $smoothinfosettings{'LOADEDMODULES'} eq 'on'
@@ -113,14 +115,14 @@ unless ($smoothinfosettings{'MEMORY'} eq 'on'
  && $smoothinfosettings{'MESSAGES'} eq 'on') {$smoothinfosettings{'CHECKALL'} = 'off'}
 
 if ($smoothinfosettings{'CLIENTIP'} ne '') {
-open (TMP,">$MODDIR/etc/clientip") || die 'Unable to open file';
+open (TMP,">$MODDIR/clientip") || die 'Unable to open file';
 print TMP "$smoothinfosettings{'CLIENTIP'}";
 delete $smoothinfosettings{'CLIENTIP'};
 close (TMP);
 }
 else
 {
-unlink ("$MODDIR/etc/clientip");
+unlink ("$MODDIR/clientip");
 }
 
 open (OUT, ">",\$smoothinfosettings{'CHAINS'});
@@ -131,7 +133,7 @@ print OUT "$_,";}
 
 if ($smoothinfosettings{'OTHER'} ne '') {
 if ($smoothinfosettings{'SECTIONTITLE'} eq '') { $errormessage = $tr{'smoothinfo-no-section-title'}; }
-open (TMP,">$MODDIR/etc/otherinfo") || die 'Unable to open file';
+open (TMP,">$MODDIR/otherinfo") || die 'Unable to open file';
 print TMP "$smoothinfosettings{'SECTIONTITLE'}\n";
 print TMP "$smoothinfosettings{'OTHER'}";
 delete $smoothinfosettings{'SECTIONTITLE'};
@@ -140,7 +142,7 @@ close (TMP);
 }
 else
 {
-unlink ("$MODDIR/etc/otherinfo");
+unlink ("$MODDIR/otherinfo");
 }
 
 unless ($errormessage) {
