@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # Perl script to gather the info requested  in the UI.
 # smoothinfo.pl v. 2.2b (c) Pascal Touch (nanouk) on Smoothwall forums
 # Improved mods sorting routine and the list is now numbered.
@@ -88,11 +88,28 @@ my @IRQs = '';
 my $warning = '';
 my @files = sort { lc($a) > lc($b) } (grep { /^\d+$/ } readdir DIR);
 foreach (@files) {
-chdir ("/proc/irq/$_");
-$device = `ls -m`;
-chomp $device;
-if ($device) { if ($device =~ /,/) { push (@IRQs, "IRQ $_ used by $device\t<==\n"); $warning = "There seems to be at least one shared IRQ in your system!\n"; } else { push (@IRQs, "IRQ $_ used by $device\n"); } }
+  opendir (IRQS, "/proc/irq/$_");
+  $device = "";
+  foreach (readdir IRQS) {
+    next if /\./;
+    next if /\.\./;
+    next if /smp_affinity/;
+    next if /spurious/;
+    print "$_\n";
+    $device = "$_, ";
+  }
+  closedir (IRQS);
+  chop ($device); chop ($device);
+  if ($device) {
+    if ($device =~ /,/) {
+      push (@IRQs, "IRQ $_ used by $device\t<==\n");
+      $warning = "There seems to be at least one shared IRQ in your system!\n";
+    } else {
+      push (@IRQs, "IRQ $_ used by $device\n");
+    }
+  }
 }
+closedir (DIR);
 
 #CONNTRACKS
 my $conntracks = `cat /proc/net/ip_conntrack|wc -l`;

@@ -1,3 +1,7 @@
+input {
+	margin: 0;
+}
+
 body {
 	font-size : 11px;
 	font-family: Arial, Helvetica, sans-serif;
@@ -51,9 +55,16 @@ table.mainmenu {
 	margin-right: auto;
 }
 
+
 td[class=base] {
 	text-align: right;
-        padding-right: .5em;
+	padding: 4pt .5em 4pt 1em;
+}
+
+
+td[class=tightbase] {
+	text-align: right;
+	padding: 4pt .5em 4pt 1em;
 }
 
 
@@ -63,6 +74,7 @@ td {
         font-weight : normal;
         color : #000000;
         text-decoration : none;
+	padding-left:0;
 }
 
 td.activetab {
