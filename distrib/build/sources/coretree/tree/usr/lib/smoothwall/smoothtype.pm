@@ -395,7 +395,7 @@ sub displaytable
 
 sub dispaliastab
 {
-  my ( $col_count, $filename, $settings, $order, $selected_column, $id ) = @_;
+  my ( $filename, $settings, $order, $selected_column, $id ) = @_;
 
   # 'id' can be used to give us a different name, *iff* we are repeating the
   # widget.	
