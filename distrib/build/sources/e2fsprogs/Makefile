@@ -9,7 +9,7 @@ include ../Makefile.conf
 PACKAGE = e2fsprogs
 VERSION = 1.41.12
 
-BASE_URL = http://internap.dl.sourceforge.net/sourceforge/e2fsprogs/
+BASE_URL = http://heanet.dl.sourceforge.net/sourceforge/e2fsprogs/
 
 COMPILE_DIR = $(DIR)-compile
 
