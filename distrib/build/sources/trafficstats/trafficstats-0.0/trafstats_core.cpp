@@ -788,7 +788,7 @@ Vtraf_stat list_account() {
 			traf_stat outstat;
 
 			outstat.account_table = instat.account_table = table;
-			outstat.net_ip = instat.net_ip = entry->ip;
+			outstat.net_ip = instat.net_ip = ntohl(entry->ip);
 			outstat.direction = "up";
 			outstat.stats.bytes = (__u64)entry->src_bytes;
 			outstat.stats.packets = (__u32)entry->src_packets;
