@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = e2fsprogs
-VERSION = 1.41.10
+VERSION = 1.41.12
 
 BASE_URL = http://internap.dl.sourceforge.net/sourceforge/e2fsprogs/
 
