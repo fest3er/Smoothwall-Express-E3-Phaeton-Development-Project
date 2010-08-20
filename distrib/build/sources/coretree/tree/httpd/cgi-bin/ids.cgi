@@ -73,6 +73,17 @@ if ($snortsettings{'ACTION'} eq $tr{'save'} and
   }
 }
 
+if ($formdownload eq 'on')
+{
+  $oink_display = "inline-block";
+  $oink_display_not = "none";
+}
+else
+{
+  $oink_display = "none";
+  $oink_display_not = "inline-block";
+}
+
 
 ############################
 # Preparations
@@ -96,10 +107,12 @@ if (-e "${swroot}/snort/DL-age")
   {
     $idslastdownload = "$idslastDLdays $tr{'ids days ago'}";
   }
+  $enable_disabled = "";
 }
 else
 {
   $idslastdownload = "($tr{'ids never downloaded'})";
+  $enable_disabled = " disabled='disabled'";
 }
 
 # Extract rule age from rule files
@@ -162,7 +175,8 @@ print "
     $tr{'ids enable'}
   </div>
   <div style='margin-right:.2em; display:inline-block; width:20%; '>
-    <input type='checkbox' name='ENABLE_SNORT' style='margin:0' $checked{'ENABLE_SNORT'}{'on'}>
+    <input type='checkbox' name='ENABLE_SNORT' style='margin:0'
+           ${enable_disabled}$checked{'ENABLE_SNORT'}{'on'}>
   </div>
   <div class='base' style='text-align:right; margin-right:.2em; display:inline-block; width:20%; '>
     $tr{'rule age'}
@@ -171,11 +185,17 @@ print "
     <b>$ruleage</b>
   </div>
   <br />
-  <div class='base' style='text-align:right; margin-right:.2em; display:inline-block; width:20%; '>
+  <div class='base' style='text-align:right; margin-right:.2em; display:inline-block; width:20%;'>
     $tr{'ids download label'}
   </div>
   <div style='margin-right:.2em; display:inline-block; width:20%; '>
-    <input type='checkbox' name='DOWNLOAD' style='margin:0' $checked{'DOWNLOAD'}{'on'}>
+    <input type='checkbox' name='DOWNLOAD'
+           onchange='tmp=getElementById(\"OINK-input\").style.display;
+                     tmpNot=getElementById(\"OINK-text\").style.display;
+                     getElementById(\"OINK-input\").style.display=tmpNot;
+                     getElementById(\"OINK-text\").style.display=tmp;
+                     return true;'
+           style='margin:0' $checked{'DOWNLOAD'}{'on'}>
     <span style='margin-left:18pt; margin-right:.5em'>$tr{'ids debug'}</span>
     <span>
       <input type='checkbox' name='DEBUG' style='margin:0'>
@@ -187,6 +207,19 @@ print "
   <div style='margin-right:.2em; display:inline-block; width:20%; '>
     <b>$idslastdownload</b>
   </div>
+  <div style='height:3em'>
+    <div class='base' style='text-align:right; margin-right:.2em; display:inline-block; width:20%'>
+      $tr{'oink code'}
+    </div>
+    <div id='OINK-input' style='margin:0 .2em 0 0; display:$oink_display; width:50%'>
+      <input type='text' name='OINK' size='45' maxlength='40'
+             value='$snortsettings{OINK}'
+             onchange='getElementById(\"OINK-text\").innerHTML=this.value;'
+             id='OINK' @{[jsvalidregex('OINK','^([0-9a-fA-F]){40}$')]}>
+    </div>
+    <div id='OINK-text' style='margin:0 .2em 0 0; display:$oink_display_not; width:50%'>
+      <span>$snortsettings{OINK}</span>
+    </div>
 </div>
 ";
 
@@ -203,16 +236,6 @@ print "
 
 print "
 <table width='100%'>
-  <tr>
-    <td class='base' width='20%'>
-      $tr{'oink code'}
-    </td>
-    <td width='75%'>
-      <input type='text' name='OINK' size='42' maxlength='40'
-             value='$snortsettings{OINK}'
-             id='OINK' @{[jsvalidregex('OINK','^([0-9a-fA-F]){40}$')]}>
-    </td>
-  </tr>
   <tr>
     <td class='base' width='20%'>
       $tr{'ids download progress'}
