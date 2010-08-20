@@ -119,12 +119,12 @@ cdrom/smoothwall.tgz:
 	) | sed -u -e 's/^/  /'
 
 	@mkdir -p distrib/var/smoothwall/main
-	@echo "  PRODUCT='$(PRODUCT_NAME)'" > distrib/var/smoothwall/main/productdata
-	@echo "  VERSION='$(PRODUCT_VERSION)$(SWETYPE)'" >> distrib/var/smoothwall/main/productdata
-	@echo "  REVISION='$(REVISION)'" >> distrib/var/smoothwall/main/productdata
-	@echo "  UI_VERSION='$(UI_VERSION)'" >> distrib/var/smoothwall/main/productdata
-	@echo "  FIXES='$(FIXES_NUMBER)'" >> distrib/var/smoothwall/main/productdata
-	@echo "  ARCH='$(ARCH)'" >> distrib/var/smoothwall/main/productdata
+	@echo "PRODUCT='$(PRODUCT_NAME)'" > distrib/var/smoothwall/main/productdata
+	@echo "VERSION='$(PRODUCT_VERSION)$(SWETYPE)'" >> distrib/var/smoothwall/main/productdata
+	@echo "REVISION='$(REVISION)'" >> distrib/var/smoothwall/main/productdata
+	@echo "UI_VERSION='$(UI_VERSION)'" >> distrib/var/smoothwall/main/productdata
+	@echo "FIXES='$(FIXES_NUMBER)'" >> distrib/var/smoothwall/main/productdata
+	@echo "ARCH='$(ARCH)'" >> distrib/var/smoothwall/main/productdata
 
 	@chown nobody:nobody distrib/var/smoothwall/main/productdata
 

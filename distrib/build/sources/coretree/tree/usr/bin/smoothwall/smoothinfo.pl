@@ -439,7 +439,7 @@ my $purpledev = (grep /PURPLE_DEV=eth/, @ethersettings)[0];
 # WRITING OUTPUT
 open (FILE,">$outputfile") || die 'Unable to open file';
 print FILE "[color=purple][u][b][i]$tr{'smoothinfo-generated'} $modversion:[/i][/b][/u][/color]\n\n";
-print FILE "[info=\"$tr{'smoothinfo-smoothwall-version'}\"]\[code\]$swe_version\[/code\]\[/info\]";
+print FILE "[info=\"$tr{'smoothinfo-smoothwall-version'}\"]\[code\]$productdata{'VERSION'}\[/code\]\[/info\]";
 
 if ($smoothinfosettings{'CONFIG'} eq 'on') {
   if ($reddev) {$RED = 'RED'} else { $RED = 'RED(modem)'}
