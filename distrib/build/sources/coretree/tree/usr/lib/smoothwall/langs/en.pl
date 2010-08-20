@@ -13,6 +13,8 @@
 'save' => 'Save', # button
 'refresh' => 'Refresh', # button
 'restore' => 'Restore', # button
+'proceed' => 'Proceed', # button
+'upload' => 'Upload', # button
 'error messages' => 'Error messages:',
 'back' => 'BACK',
 'help' => 'Help',
@@ -31,7 +33,6 @@
 'smoothd failure' => 'Unable to run command.',
 'log ascending' => 'ascending',
 'log descending' => 'descending',
-'upload' => 'Upload', # button
 
 # header.pl
 'sshome' => 'home',
@@ -792,9 +793,21 @@
 'rule retreval' => 'Rule retrieval:',
 'oink code' => 'Oink code:',
 'rule age' => 'Rule age:',
+'enable' => 'Enable:',
+'ids download label' => 'Download Rules:',
+'ids download status' => 'Status:',
+'ids download progress' => 'Progress:',
+'last download' => 'Last Download:',
 'save and update rules' => 'Save and update rules',
-'days' => 'days',
+'ids debug' => 'Debug:',
+'ids days' => 'days',
+'ids day ago' => 'day ago',
+'ids days ago' => 'days ago',
 'long download' => 'This process can take a long time depending on the speed of your Internet connection. While downloading please do not close this browser window or navigate away from this page.',
+'ids enable' => 'Enable:',
+'ids enabled' => 'Enabled',
+'ids disabled' => 'Disabled',
+'ids never downloaded' => 'never downloaded',
 
 # time.cgi
 'time settings' => 'Time settings',              
