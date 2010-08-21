@@ -159,14 +159,14 @@ fi
 # If errors found or if unwinding, revert the changes
 #
 if [ $STATUS -eq 1 -o $STATUS -eq 2 ]; then
-  # Delete specs file
-    rm -vf `dirname $(gcc --print-libgcc-file-name)`/specs
   # revert other adjustments
   if [ -f ${TOOLS_DIR}/bin/ld-old ]; then
     mv -v ${TOOLS_DIR}/bin/{ld,ld-new}
     mv -v ${TOOLS_DIR}/$(gcc -dumpmachine)/bin/{ld-old,ld}
     mv -v ${TOOLS_DIR}/bin/{ld-old,ld}
   fi
+  # Delete specs file
+    rm -vf `dirname $(gcc --print-libgcc-file-name)`/specs
 fi
 
 # If unwinding, exit with success
