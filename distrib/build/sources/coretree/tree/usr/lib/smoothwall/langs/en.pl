@@ -1121,4 +1121,5 @@
 'smoothinfo-both-fields-cannot-be-blank' => 'Both fields <b>cannot</b> be blank.',
 'smoothinfo-no-section-title' => 'Please provide a section title in the "Other information section".',
 
+'ssglovebox' => 'glovebox',
 );
