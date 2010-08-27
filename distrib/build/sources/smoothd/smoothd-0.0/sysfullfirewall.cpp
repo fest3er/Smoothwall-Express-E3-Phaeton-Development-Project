@@ -98,14 +98,14 @@
 /* "Abort".  Moved the subnet check rule generator to a subfunction.  Changed   */
 /* ifaliasup to create an up to date list of HOME_NET for snort (also correct   */
 /* long standing error for DNS_SERVERS, meant to be local DNS servers) in       */
-/* /var/smoothwall/mods/fullfirewall/portfw/snort.var                           */
+/* /var/smoothwall/portfw/snort.var                                             */
 /* a few other syntax changes.     Version 3.2.0          10/03/31        --slp */
 /* ============================================================================ */
 /* Error in External Access.       Version 3.2.1          10/06/02        --slp */
 /* ============================================================================ */
 /* Allow DHCP to bypass the subnet checks. Version 3.2.2  10/06/25        --slp */
 /* ============================================================================ */
-/* Phaeton version                 Version 3.2.2  10/08/11                --slp */
+/* ifaliasup check and update aliases      Version 3.3.0  10/08/18        --slp */
 /* ============================================================================ */
 
 #include <iostream>
@@ -139,10 +139,13 @@ extern "C"
  int set_portfw(std::vector<std::string>   & parameters, std::string          & response);
  int ifaliasup(std::vector<std::string>    & parameters, std::string          & response);
  int ifaliasdown(std::vector<std::string>  & parameters, std::string          & response);
- int get_alias(std::vector<std::string>    & response);
+ int get_alias(std::vector<std::string>    & parameters);
  int rmdupes(std::vector<std::string>      & parameters, const std::string    & newparm);
  int errrpt(const std::string              & parameter);
  int snet2cidr(const std::string           & parameters);
+ int readether(std::vector<std::string>    & parameters, std::string    & target);
+ int chkaliases(std::vector<std::string>   & parameters);
+ int wrtaliases(std::string                & response);
 }
 
 //#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
@@ -155,10 +158,10 @@ int load(std::vector<CommandFunctionPair> & pairs)
           int group that is switched to during execution,
           int version will supersede earlier .so versions);
  */
- CommandFunctionPair set_xtaccess_function ("setxtaccess","set_xtaccess",0,0,321);
- CommandFunctionPair set_portfw_function   ("setportfw",    "set_portfw",0,0,321);
- CommandFunctionPair ifalias_down_function ("ifaliasdown", "ifaliasdown",0,0,321);
- CommandFunctionPair ifalias_up_function   ("ifaliasup",     "ifaliasup",0,0,321);
+ CommandFunctionPair set_xtaccess_function ("setxtaccess","set_xtaccess",0,0,330);
+ CommandFunctionPair set_portfw_function   ("setportfw",    "set_portfw",0,0,330);
+ CommandFunctionPair ifalias_down_function ("ifaliasdown", "ifaliasdown",0,0,330);
+ CommandFunctionPair ifalias_up_function   ("ifaliasup",     "ifaliasup",0,0,330);
 
  pairs.push_back(set_xtaccess_function);
  pairs.push_back(set_portfw_function);
@@ -172,20 +175,19 @@ int load(std::vector<CommandFunctionPair> & pairs)
 int set_xtaccess(std::vector<std::string> & parameters, std::string & response)
 {
  std::string ifacefile    = "/var/smoothwall/red/iface";
- ConfigSTR ifacef(ifacefile);
-
  std::string configfile   = "/var/smoothwall/xtaccess/config";
- ConfigCSV   config(configfile);
-
  std::string aliasfile    = "/var/smoothwall/portfw/aliases";
+
+ ConfigSTR ifacef(ifacefile);
+ ConfigCSV config(configfile);
  ConfigCSV aliases(aliasfile);
 
  std::vector<std::string> ipb;
- std::string red_ip       = "";
- std::string iface        = ifacef.str();
- std::string destination  = "";
- std::string dport_out    = "";
- int error = 0;
+ std::string red_ip            = "";
+ std::string iface             = ifacef.str();
+ std::string destination       = "";
+ std::string dport_out         = "";
+ int error                     = 0;
 
  // preset the response to a success, changed only on error, always return zero
 
@@ -284,19 +286,15 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
  std::vector<std::string>ipb;
 
  std::string localipfile = "/var/smoothwall/red/local-ipaddress";
- ConfigSTR localip(localipfile);
-
  std::string ifacefile = "/var/smoothwall/red/iface";
- ConfigSTR red_iface(ifacefile);
-
  std::string configfile = "/var/smoothwall/portfw/config";
- ConfigCSV fwdconf(configfile);
-
  std::string aliasfile = "/var/smoothwall/portfw/aliases";
- ConfigCSV aliases(aliasfile);
-
  std::string sncheckfile = "/var/smoothwall/portfw/subcheck";
- ConfigVAR subnetcheck(sncheckfile);
+ ConfigSTR   localip(localipfile);
+ ConfigSTR   red_iface(ifacefile);
+ ConfigCSV   fwdconf(configfile);
+ ConfigCSV   aliases(aliasfile);
+ ConfigVAR   subnetcheck(sncheckfile);
 
  std::string greencheck  = subnetcheck["GREEN"];
  std::string purplecheck = subnetcheck["PURPLE"];
@@ -883,6 +881,110 @@ int snet2cidr(const std::string & argc)
 }
 
 //#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
+int wrtaliases(std::string & response)
+{
+ int error = 0;
+ unsigned int i = 0;
+ std::string varfile   = "/var/smoothwall/portfw/aliases";
+ std::vector<std::string> argv;
+ FILE * varhandle;
+
+ error = chkaliases(argv);
+
+ if (!(varhandle = fopen(varfile.c_str(), "w")))
+ {
+  response = "Abort, could not create or open (" + varfile + ") file";
+  return errrpt(response);
+ }
+
+ while ( i < argv.size() )
+ {
+  fputs((char*) argv[i++].c_str(), varhandle);
+ }
+ fclose(varhandle);
+
+ response = "Successfully updated aliases file.";
+
+ return errrpt(response);
+}
+
+//#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
+int chkaliases(std::vector<std::string> & argv)
+{
+ std::string aliasfile      = "/var/smoothwall/portfw/aliases";
+ ConfigCSV   aliases(aliasfile);
+ std::string args = "RED";
+ int error = 0;
+
+ error += readether(argv, args);
+ args   = "GREEN";
+ error += readether(argv, args);
+ args   = "ORANGE";
+ error += readether(argv, args);
+ args   = "PURPLE";
+ error += readether(argv, args);
+
+ for (int line = aliases.first(); line == 0; line = aliases.next())
+ {
+  if (aliases[0].find_first_of(":") != std::string::npos)
+  {
+	std::string larg;
+
+  	larg  = aliases[0] + ",";
+  	larg += aliases[1] + ",";
+  	larg += aliases[2] + ",";
+  	larg += aliases[3] + ",";
+  	larg += aliases[4] + ",";
+  	larg += aliases[5] + ",";
+  	larg += aliases[6] + ",";
+  	larg += aliases[7] + ",";
+   larg += aliases[8] + ",";
+   larg += aliases[9] + "\n";
+   argv.push_back(larg);
+  }
+ }
+ return 0;
+}
+
+//#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
+int readether(std::vector<std::string> & argv, std::string & args)
+{
+ std::string localipfile    = "/var/smoothwall/red/local-ipaddress";
+ std::string redfile        = "/var/smoothwall/red/iface";
+ std::string etherfile      = "/var/smoothwall/ethernet/settings";
+ std::string buildit        = "";
+ char between[32]           = "";
+
+ ConfigVAR   ether(etherfile);
+ ConfigSTR   localip(localipfile);
+ ConfigSTR   rediface(redfile);
+
+ buildit += args + ",";
+ if (args == "RED")
+ {
+  buildit += rediface.str() + ",";
+  buildit += rediface.str() + ",";
+  buildit += localip.str() + ",";
+ }
+ else
+ {
+  sprintf((char *)between, "%s%s", args.c_str(), "_DEV");
+  buildit += ether[(const char *) between] + ",";
+  buildit += ether[(const char *) between] + ",";
+  sprintf((char *)between, "%s%s", args.c_str(), "_ADDRESS");
+  buildit += ether[(const char *) between] + ",";
+ }
+ sprintf((char *)between, "%s%s", args.c_str(), "_NETMASK");
+ buildit += ether[(const char *) between] + ",";
+ sprintf((char *)between, "%s%s", args.c_str(), "_BROADCAST");
+ buildit += ether[(const char *) between] + ",";
+ buildit += "on,on,,\n";
+ argv.push_back(buildit);
+
+return 0;
+}
+
+//#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
 int ifaliasdown(std::vector<std::string> & parameters, std::string & response)
 {
  std::vector<std::string> argc;
@@ -906,7 +1008,7 @@ int ifaliasdown(std::vector<std::string> & parameters, std::string & response)
   error += simplesecuresysteml("/sbin/ifconfig", argc[i++].c_str(), "down", NULL);
  }
 
- response = "Alias interfaces brought down successfully";
+ response = "Successfully brought down alias interfaces.";
 
  if (error) response = "Abort while bringing down alias interfaces";
 
@@ -947,10 +1049,21 @@ int get_alias(std::vector<std::string> &argc)
 int ifaliasup(std::vector<std::string> & parameters, std::string & response)
 {
  int error = 0;
+
+ error = wrtaliases (response);
+ if (error) return errrpt(response);
+
  std::vector<std::string> argv;
 
- std::string localipfile  = "/var/smoothwall/red/local-ipaddress";
- ConfigSTR   localip(localipfile);
+ std::string varfile        = "/var/smoothwall/portfw/snort.var";
+ std::string localipfile    = "/var/smoothwall/red/local-ipaddress";
+ std::string aliasfile      = "/var/smoothwall/portfw/aliases";
+ ConfigCSV   aliases(aliasfile);
+	ConfigSTR   localip(localipfile);
+ std::string::size_type n;
+ char home_net[5000] = "";
+ char * hnptr = home_net;
+ FILE * varhandle;
 
  if (localip.str() == "")
  {
@@ -962,20 +1075,11 @@ int ifaliasup(std::vector<std::string> & parameters, std::string & response)
   response = "Abort, bad local IP: " + localip.str();
   return errrpt (response);
  }
-
- std::string homenet = "var HOME_NET " + localip.str();
- std::string aliasfile = "/var/smoothwall/portfw/aliases";
- ConfigCSV aliases(aliasfile);
-
- std::string varfile   = "/var/smoothwall/portfw/snort.var";
- std::string::size_type n;
- char home_net[5000] = "";
- char * hnptr = home_net;
- FILE * varhandle;
+ std::string homenet = "var HOME_NET [" + localip.str();
 
  response = "Bringing alias interfaces up";
  error = errrpt(response);
- hnptr += sprintf(hnptr, "[%s/32,", homenet.c_str());
+ hnptr += sprintf(hnptr, "%s/32,", homenet.c_str());
 
  for (int line = aliases.first(); line == 0; line = aliases.next())
  {
@@ -1009,7 +1113,7 @@ int ifaliasup(std::vector<std::string> & parameters, std::string & response)
 
  if (!(varhandle = fopen(varfile.c_str(), "w")))
  {
-  response = "Abort, could not create (" + varfile + ") file";
+  response = "Abort, could not create or open (" + varfile + ") file";
   return errrpt(response);
  }
  fputs((char*) home_net, varhandle);
@@ -1018,7 +1122,7 @@ int ifaliasup(std::vector<std::string> & parameters, std::string & response)
  errrpt("NOTE:  snort should be restarted manually to update its HOME_NET value");
  errrpt("NOTE:  /etc/snort.conf can be further customized for each scenario");
 
- response = "Alias interfaces brought up successfully";
+ response = "Successfully brought up alias interfaces.";
  if (error) response = "Abort while bringing up alias interfaces";
 
  return errrpt(response);
