@@ -91,6 +91,7 @@ my %netsettings;
 
 # my $filedir = "${swroot}/mods/fullfirewall";
 my $aliasfile = "${swroot}/portfw/aliases";
+my @aliases;
 my $settings = "${swroot}/ethernet/settings";
 my @colours = ("RED", "GREEN");
 if ($netsettings{'ORANGE_DEV'}) {
@@ -180,10 +181,13 @@ if (defined $cgiparams{'ACTION'} and
     my $size = $block->size();
     my $counta = 1;
 
-    open(FILE, "$aliasfile") or die 'Unable to open alias file';
-    my @tempa = <FILE>;
-    close FILE;
-
+    my @tempa;
+    if (open(FILE, "$aliasfile"))
+    {
+      @tempa = <FILE>;
+      close FILE;
+    }
+    
     foreach my $linea (@tempa) {
       if ($linea =~ /^RED:/) {
         $counta++;
@@ -197,9 +201,11 @@ if (defined $cgiparams{'ACTION'} and
     my @ipsplit = split(/\./, $cgiparams{'ADDRESS'});
     my $lastnum = $ipsplit[3] - 1;
     my $broadcast = "$ipsplit[0]\.$ipsplit[1]\.$ipsplit[2]\.255";
-    open(FILE, "$aliasfile") or die 'Unable to open';
-    @aliases = <FILE>;
-    close FILE;
+    if (open(FILE, "$aliasfile"))
+    {
+      @aliases = <FILE>;
+      close FILE;
+    }
 
     # Check for update action first
     my $noupdate = 1;
@@ -281,10 +287,13 @@ if (defined $cgiparams{'ACTION'} and
      $cgiparams{'ACTION'} eq $tr{'multi-ip enable alias'})) {
   my ($count, $count2, $id, $line, $line2, @split);
 
-  open(FILE, "$aliasfile") or die 'Unable to open aliases file.';
-  my @current = <FILE>;
-  close(FILE);
-
+  my @current;
+  if (open(FILE, "$aliasfile"))
+  {
+    @current = <FILE>;
+    close FILE;
+  }
+  
   $count = 0;
   $id = 0;
   foreach $line (@current)
@@ -387,10 +396,13 @@ if (defined $cgiparams{'ACTION'} and
     close FILE;
 
     # Reorder the aliases
-    open(FILE, "$aliasfile") or die 'Unable to open aliases file.';
-    flock FILE, 2;
-    @current = <FILE>;
-    close FILE;
+    my @current;
+    if (open(FILE, "$aliasfile"))
+    {
+      flock FILE, 2;
+      @current = <FILE>;
+      close FILE;
+    }
 
     open(FILE, ">$aliasfile") or die 'Unable to open aliases file.';
     flock FILE, 2;
@@ -1104,64 +1116,46 @@ print qq{
     <td>
 };
 
-# Create aliases file if it doesn't exist yet
-if (!(-e "$aliasfile") or -z "$aliasfile") {
-  open(ALIASES, ">$aliasfile") or die 'Unable to open';
-  unless ($netsettings{'RED_TYPE'} eq "PPPOE") {
-    my $block = new Net::Netmask ($redip, $netsettings{'RED_NETMASK'});
-    print ALIASES "RED,$reddev,$reddev,$redip,$netsettings{'RED_NETMASK'},$netsettings{'RED_BROADCAST'},off,on,,$intadd\n";
-  } else {
-    print ALIASES "RED,$reddev,$reddev,$redip,N/A,N/A,off,on,,N/A,\n";
-  }
-  $block = new Net::Netmask ($netsettings{'GREEN_ADDRESS'}, $netsettings{'GREEN_NETMASK'});
-  print ALIASES "GREEN,$netsettings{'GREEN_DEV'},$netsettings{'GREEN_DEV'},$netsettings{'GREEN_ADDRESS'},$netsettings{'GREEN_NETMASK'},$netsettings{'GREEN_BROADCAST'},off,on,,$intadd\n";
-  if ($netsettings{'ORANGE_DEV'}) {
+# Update interfaces
+if (open(FILE, "$aliasfile"))
+{
+  @aliases = <FILE>;
+  close FILE;
+}
+
+open(ALIASES, ">$aliasfile") or die 'Unable to open';
+flock ALIASES, 2;
+foreach $line (@aliases) {
+  chomp $line;
+  @temp = split(/\,/, $line);
+  unless (($temp[0] eq "RED") or ($temp[0] eq "GREEN") or ($temp[0] eq "ORANGE") or ($temp[0] eq "PURPLE")) {
+    print ALIASES "$line\n";
+  } elsif ($temp[0] eq "RED") {
+    unless ($netsettings{'RED_TYPE'} eq "PPPOE") {
+      my $block = new Net::Netmask ($redip, $netsettings{'RED_NETMASK'});
+      print ALIASES "RED,$reddev,$reddev,$redip,$netsettings{'RED_NETMASK'},$netsettings{'RED_BROADCAST'},off,on,,$intadd\n";
+    } else {
+      print ALIASES "RED,$reddev,$reddev,$redip,N/A,N/A,off,on,,N/A\n";
+    }
+  } elsif ($temp[0] eq "GREEN") {
+    $block = new Net::Netmask ($netsettings{'GREEN_ADDRESS'}, $netsettings{'GREEN_NETMASK'});
+    print ALIASES "GREEN,$netsettings{'GREEN_DEV'},$netsettings{'GREEN_DEV'},$netsettings{'GREEN_ADDRESS'},$netsettings{'GREEN_NETMASK'},$netsettings{'GREEN_BROADCAST'},off,on,,$intadd\n";
+  } elsif ($temp[0] eq "ORANGE") {
     $block = new Net::Netmask ($netsettings{'ORANGE_ADDRESS'}, $netsettings{'ORANGE_NETMASK'});
     print ALIASES "ORANGE,$netsettings{'ORANGE_DEV'},$netsettings{'ORANGE_DEV'},$netsettings{'ORANGE_ADDRESS'},$netsettings{'ORANGE_NETMASK'},$netsettings{'ORANGE_BROADCAST'},off,on,,$intadd\n";
-  }
-  if ($netsettings{'PURPLE_DEV'}) {
+  } elsif ($temp[0] eq "PURPLE") {
     $block = new Net::Netmask ($netsettings{'PURPLE_ADDRESS'}, $netsettings{'PURPLE_NETMASK'});
     print ALIASES "PURPLE,$netsettings{'PURPLE_DEV'},$netsettings{'PURPLE_DEV'},$netsettings{'PURPLE_ADDRESS'},$netsettings{'PURPLE_NETMASK'},$netsettings{'PURPLE_BROADCAST'},off,on,,$intadd\n";
   }
-  close ALIASES;
-} else {
-  # Update interfaces
-  open(ALIASES, "$aliasfile") or die 'Unable to open';
-  @aliases = <ALIASES>;
-  close ALIASES;
-
-  open(ALIASES, ">$aliasfile") or die 'Unable to open';
-  flock ALIASES, 2;
-  foreach $line (@aliases) {
-    chomp $line;
-    @temp = split(/\,/, $line);
-    unless (($temp[0] eq "RED") or ($temp[0] eq "GREEN") or ($temp[0] eq "ORANGE") or ($temp[0] eq "PURPLE")) {
-      print ALIASES "$line\n";
-    } elsif ($temp[0] eq "RED") {
-      unless ($netsettings{'RED_TYPE'} eq "PPPOE") {
-        my $block = new Net::Netmask ($redip, $netsettings{'RED_NETMASK'});
-        print ALIASES "RED,$reddev,$reddev,$redip,$netsettings{'RED_NETMASK'},$netsettings{'RED_BROADCAST'},off,on,,$intadd\n";
-      } else {
-        print ALIASES "RED,$reddev,$reddev,$redip,N/A,N/A,off,on,,N/A\n";
-      }
-    } elsif ($temp[0] eq "GREEN") {
-      $block = new Net::Netmask ($netsettings{'GREEN_ADDRESS'}, $netsettings{'GREEN_NETMASK'});
-      print ALIASES "GREEN,$netsettings{'GREEN_DEV'},$netsettings{'GREEN_DEV'},$netsettings{'GREEN_ADDRESS'},$netsettings{'GREEN_NETMASK'},$netsettings{'GREEN_BROADCAST'},off,on,,$intadd\n";
-    } elsif ($temp[0] eq "ORANGE") {
-      $block = new Net::Netmask ($netsettings{'ORANGE_ADDRESS'}, $netsettings{'ORANGE_NETMASK'});
-      print ALIASES "ORANGE,$netsettings{'ORANGE_DEV'},$netsettings{'ORANGE_DEV'},$netsettings{'ORANGE_ADDRESS'},$netsettings{'ORANGE_NETMASK'},$netsettings{'ORANGE_BROADCAST'},off,on,,$intadd\n";
-    } elsif ($temp[0] eq "PURPLE") {
-      $block = new Net::Netmask ($netsettings{'PURPLE_ADDRESS'}, $netsettings{'PURPLE_NETMASK'});
-      print ALIASES "PURPLE,$netsettings{'PURPLE_DEV'},$netsettings{'PURPLE_DEV'},$netsettings{'PURPLE_ADDRESS'},$netsettings{'PURPLE_NETMASK'},$netsettings{'PURPLE_BROADCAST'},off,on,,$intadd\n";
-    }
-  }
-  close ALIASES;
 }
+close ALIASES;
 
 # Check for running interfaces
-open(FILE, "$aliasfile") or die 'Unable to open';
-my @aliases = <FILE>;
-close FILE;
+if (open(FILE, "$aliasfile"))
+{
+  @aliases = <FILE>;
+  close FILE;
+}
 
 open(FILE, ">$aliasfile") or die 'Unable to open';
 foreach $line (@aliases) {
@@ -1192,9 +1186,12 @@ print <<END
 END
 ;
 
-open(FILE, "$aliasfile") or die 'Unable to open alias file';
-my @temp3 = <FILE>;
-close FILE;
+my @temp3;
+if (open(FILE, "$aliasfile"))
+{
+  @temp3 = <FILE>;
+  close FILE;
+}
 
 foreach $dev (sort(keys(%availablenetdevices))) {
   $dev =~ /(\:\d{1,3})/;
@@ -1768,7 +1765,8 @@ sub ifcolormap
 {
   my %ifcolors;
   
-  open(FILE, $aliasfile) or die 'Unable to open aliases file';
+  open(FILE, $aliasfile) or return %ifcolors;
+
   while ( my $line = <FILE> ){
     chomp $line;
     next if ( $line eq "" );

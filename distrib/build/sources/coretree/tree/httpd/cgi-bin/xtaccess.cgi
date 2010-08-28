@@ -190,37 +190,6 @@ if (-e "${swroot}/red/local-ipaddress") {
   close(FILE);
 }
 
-if (!(-e "$aliasfile") or -z "$aliasfile") {
-  open(ALIASES, ">$aliasfile") or die 'Unable to open';
-  unless ($netsettings{'RED_TYPE'} eq "PPPOE") {
-    my $block = new Net::Netmask ($redip, $netsettings{'RED_NETMASK'});
-    print ALIASES "RED,$reddev,$reddev,$redip,$netsettings{'RED_NETMASK'},";
-    print ALIASES "$netsettings{'RED_BROADCAST'},off,on,,$intadd\n";
-  } else {
-    print ALIASES "RED,$reddev,$reddev,$redip,N/A,N/A,off,on,,N/A,\n";
-  }
-  $block = new Net::Netmask ($netsettings{'GREEN_ADDRESS'},
-                             $netsettings{'GREEN_NETMASK'});
-  print ALIASES "GREEN,$netsettings{'GREEN_DEV'},$netsettings{'GREEN_DEV'},";
-  print ALIASES "$netsettings{'GREEN_ADDRESS'},$netsettings{'GREEN_NETMASK'},";
-  print ALIASES "$netsettings{'GREEN_BROADCAST'},off,on,,$intadd\n";
-  if ($netsettings{'ORANGE_DEV'}) {
-    $block = new Net::Netmask ($netsettings{'ORANGE_ADDRESS'},
-                               $netsettings{'ORANGE_NETMASK'});
-    print ALIASES "ORANGE,$netsettings{'ORANGE_DEV'},$netsettings{'ORANGE_DEV'},";
-    print ALIASES "$netsettings{'ORANGE_ADDRESS'},$netsettings{'ORANGE_NETMASK'},";
-    print ALIASES "$netsettings{'ORANGE_BROADCAST'},off,on,,$intadd\n";
-  }
-  if ($netsettings{'PURPLE_DEV'}) {
-    $block = new Net::Netmask ($netsettings{'PURPLE_ADDRESS'},
-                               $netsettings{'PURPLE_NETMASK'});
-    print ALIASES "PURPLE,$netsettings{'PURPLE_DEV'},$netsettings{'PURPLE_DEV'},";
-    print ALIASES "$netsettings{'PURPLE_ADDRESS'},$netsettings{'PURPLE_NETMASK'},";
-    print ALIASES "$netsettings{'PURPLE_BROADCAST'},off,on,,$intadd\n";
-  }
-  close ALIASES;
-}
-
 my $reddev;
 # Determine red interface type
 if ($netsettings{'RED_TYPE'} eq "PPPOE") {
@@ -365,10 +334,13 @@ print <<END
 END
 ;
 
-open(FILE, "$aliasfile") or die 'Unable to open alias file';
-my @temp3 = <FILE>;
-close FILE;
-
+  my @temp3;
+  if (open(FILE, "$aliasfile"))
+  {
+    @temp3 = <FILE>;
+    close FILE;
+  }
+  
 foreach $dev (sort(keys(%availablenetdevices))) {
 	$dev =~ /(\:\d{1,3})/;
 	my $devifacesub = $1;
@@ -565,7 +537,7 @@ sub ifcolormap
 {
 	my %ifcolors;
 	
-	open(FILE, $aliasfile) or die 'Unable to open aliases file';
+	open(FILE, $aliasfile) or return %ifcolors;
 	while ( my $line = <FILE> ){
 		chomp $line;
 		next if ( $line eq "" );

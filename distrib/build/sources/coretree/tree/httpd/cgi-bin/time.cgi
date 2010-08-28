@@ -182,15 +182,17 @@ my @now = localtime(time);
 
 &alertbox($errormessage);
 
-print "<FORM METHOD='POST'>\n";
+print "<form method='post'>\n";
 
 &openbox($tr{'timezonec'});
 print <<END
-<TABLE WIDTH='100%'>
-<TR>
-	<TD WIDTH='25%' CLASS='base'>$tr{'timezonec'}</TD>
-	<TD WIDTH='75%'>
-	<SELECT NAME='TIMEZONE'>
+  <table width='100%'>
+    <tr>
+      <td width='25%' class='base'>
+        $tr{'timezonec'}
+      </td>
+      <td width='75%'>
+        <select name='TIMEZONE'>
 END
 ;
 foreach (@timezones)
@@ -198,106 +200,108 @@ foreach (@timezones)
 	chomp;
 	$file = $_;
 	s/_/ /g;
-	print "<OPTION VALUE='$file' $selected{'TIMEZONE'}{$file}>$_\n";
+	print "          <option value='$file' $selected{'TIMEZONE'}{$file}>$_\n";
 }
 print <<END
-	</SELECT>
-	</TD>
-	<TD WIDTH='10%'>&nbsp;</TD>
-	<TD WIDTH='35%'>&nbsp;</TD>
-</TR>
-</TABLE>
+        </select>
+      </td>
+      <td width='10%'>&nbsp;</td>
+      <td width='35%'>&nbsp;</td>
+    </tr>
+  </table>
 END
 ;
 &closebox();
 
 &openbox($tr{'time and datec'});
 print <<END
-<TABLE WIDTH='100%'>
-<TR>
-	<TD WIDTH='10%' CLASS='base'>
-	$tr{'setc'}<INPUT TYPE='checkbox' NAME='TIME_CHANGE'>
-	</TD>
-	<TD WIDTH='10%' CLASS='base'>$tr{'timec'}</TD>
-	<TD WIDTH='35%'>
-	<SELECT NAME='HOUR'>
+  <table width='100%'>
+    <tr>
+      <td width='10%' class='base'>
+        <span style='margin:0 .5em 0 0'>$tr{'setc'}</span>
+        <input type='checkbox' name='TIME_CHANGE'>
+      </td>
+      <td width='10%' class='base'>$tr{'timec'}</td>
+      <td width='35%'>
+        <select name='HOUR'>
 END
 ;
 	for ($hour = 0; $hour < 24; $hour++)
 	{
-		if ($hour == $now[2]) { $sel = 'SELECTED'; }
+		if ($hour == $now[2]) { $sel = 'selected'; }
 		else { $sel = ''; }
-		print "<OPTION VALUE='$hour' $sel>$hour\n";
+		print "        <option valuE='$hour' $sel>$hour\n";
 	}
 print <<END
-	</SELECT>
+        </select>
 	:
-	<SELECT NAME='MINUTE'>
+	<select name='MINUTE'>
 END
 ;
 	for ($minute = 0; $minute < 60; $minute++)
 	{
 		if ($minute < 10) { $minutestr = "0$minute"; }
 		else { $minutestr = $minute; }
-		if ($minute == $now[1]) { $sel = 'SELECTED'; }
+		if ($minute == $now[1]) { $sel = 'selected'; }
 		else { $sel = ''; }
-		print "<OPTION VALUE='$minute' $sel>$minutestr\n";
+		print "          <option value='$minute' $sel>$minutestr\n";
 	}
 print <<END
-	</SELECT>
+        </select>
 	:
-	<SELECT NAME='SECOND'>
+        <select name='SECOND'>
 END
 ;
 	for ($second = 0; $second < 60; $second++)
 	{
 		if ($second < 10) { $secondstr = "0$second"; }
 		else { $secondstr = $second; }
-		if ($second == $now[0]) { $sel = 'SELECTED'; }
+		if ($second == $now[0]) { $sel = 'selected'; }
 		else { $sel = ''; }
-		print "<OPTION VALUE='$second' $sel>$secondstr\n";
+		print "          <option value='$second' $sel>$secondstr\n";
 	}
 print <<END
-	</SELECT>
-	<TD WIDTH='10%' CLASS='base'>$tr{'datec'}</TD>
-	<TD WIDTH='35%'>
-	<SELECT NAME='DAY'>
+	</select>
+      </td>
+      <td width='10%' class='base'>$tr{'datec'}</td>
+      <td width='35%'>
+        <select name='DAY'>
 END
 ;
 	for ($day = 1; $day <= 31; $day++)
 	{
-		if ($day == $now[3]) { $sel = 'SELECTED'; }
+		if ($day == $now[3]) { $sel = 'selected'; }
 		else { $sel = ''; }
-		print "<OPTION VALUE='$day' $sel>$day\n";
+		print "          <option value='$day' $sel>$day\n";
 	}
 print <<END
-	</SELECT>
-	<SELECT NAME='MONTH'>
+        </select>
+	<select name='MONTH'>
 END
 ;
 	for ($month = 0; $month < 12; $month++)
 	{
-		if ($month == $now[4]) { $sel = 'SELECTED'; }
+		if ($month == $now[4]) { $sel = 'selected'; }
 		else { $sel = ''; }
-		print "<OPTION VALUE='$month' $sel>$shortmonths[$month]\n";
+		print "          <option value='$month' $sel>$shortmonths[$month]\n";
 	}
 	print <<END
-	</SELECT>
-	<SELECT NAME='YEAR'>
+        </select>
+        <select name='YEAR'>
 END
 	;
 	for ($year = 101; $year < 130; $year++)
 	{
-		if ($year == $now[5]) { $sel = 'SELECTED'; }
+		if ($year == $now[5]) { $sel = 'selected'; }
 		else { $sel = ''; }
 		$yearstr = $year + 1900;
-		print "<OPTION VALUE='$year' $sel>$yearstr\n";
+		print "          <option value='$year' $sel>$yearstr\n";
 	}
 	print <<END
-	</SELECT>
-	</TD>
-</TR>
-</TABLE>
+        </select>
+      </td>
+    </tr>
+  </table>
 END
 ;
 
@@ -318,31 +322,35 @@ else {
 	$nextupdate = $tr{'less than one hour'}; }
 
 print <<END
-<TABLE WIDTH='100%'>
-<TR>
-<TD WIDTH='25%' CLASS='base'>$tr{'enabled'}</TD>
-<TD WIDTH='25%'><INPUT TYPE='checkbox' NAME='ENABLED' $checked{'ENABLED'}{'on'}></TD>
-<TD WIDTH='25%' CLASS='base'>$tr{'interval'}</TD>
-<TD WIDTH='25%'>
-<SELECT NAME='NTP_INTERVAL'>
-<OPTION VALUE='1' $selected{'NTP_INTERVAL'}{'1'}>$tr{'one hour'}
-<OPTION VALUE='2' $selected{'NTP_INTERVAL'}{'2'}>$tr{'two hours'}
-<OPTION VALUE='3' $selected{'NTP_INTERVAL'}{'3'}>$tr{'three hours'}
-<OPTION VALUE='6' $selected{'NTP_INTERVAL'}{'6'}>$tr{'six hours'}
-<OPTION VALUE='12' $selected{'NTP_INTERVAL'}{'12'}>$tr{'twelve hours'}
-<OPTION VALUE='24' $selected{'NTP_INTERVAL'}{'24'}>$tr{'one day'}
-<OPTION VALUE='48' $selected{'NTP_INTERVAL'}{'48'}>$tr{'two days'}
-<OPTION VALUE='72' $selected{'NTP_INTERVAL'}{'72'}>$tr{'three days'}
-</SELECT>
-</TD>
-</TR>
-<TR>
-<TD CLASS='base'>$tr{'save time to rtc'}</TD>
-<TD><INPUT TYPE='checkbox' NAME='NTP_RTC' $checked{'NTP_RTC'}{'on'}></TD>
-<TD CLASS='base'>$tr{'next update in'}</TD>
-<TD>$nextupdate</TD>
-</TR>
-</TABLE>
+  <table width='100%'>
+    <tr>
+      <td width='25%' class='base'>$tr{'enabled'}</td>
+      <td width='25%'>
+        <input type='checkbox' name='ENABLED' $checked{'ENABLED'}{'on'}>
+      </td>
+      <td width='25%' class='base'>$tr{'interval'}</td>
+      <td width='25%'>
+        <select name='NTP_INTERVAL'>
+          <option value='1' $selected{'NTP_INTERVAL'}{'1'}>$tr{'one hour'}
+          <option value='2' $selected{'NTP_INTERVAL'}{'2'}>$tr{'two hours'}
+          <option value='3' $selected{'NTP_INTERVAL'}{'3'}>$tr{'three hours'}
+          <option value='6' $selected{'NTP_INTERVAL'}{'6'}>$tr{'six hours'}
+          <option value='12' $selected{'NTP_INTERVAL'}{'12'}>$tr{'twelve hours'}
+          <option value='24' $selected{'NTP_INTERVAL'}{'24'}>$tr{'one day'}
+          <option value='48' $selected{'NTP_INTERVAL'}{'48'}>$tr{'two days'}
+          <option value='72' $selected{'NTP_INTERVAL'}{'72'}>$tr{'three days'}
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class='base'>$tr{'save time to rtc'}</td>
+      <td>
+        <input type='checkbox' name='NTP_RTC' $checked{'NTP_RTC'}{'on'}>
+      </td>
+      <td class='base'>$tr{'next update in'}</td>
+      <td>$nextupdate</td>
+    </tr>
+  </table>
 END
 ;
 
@@ -351,35 +359,44 @@ END
 &openbox($tr{'network time servers'});
 
 print <<END
-<TABLE>
-<TR>
-<TD CLASS='base' style='text-align:left; padding-left:5em'>
-<INPUT TYPE='radio' NAME='NTP_SERVER_TYPE' VALUE='RANDOM' $selected{'NTP_SERVER_TYPE'}{'RANDOM'}>
+  <table>
+    <tr>
+      <td class='base' style='text-align:left; padding-left:5em'>
+        <input type='radio' name='NTP_SERVER_TYPE'
+               value='RANDOM' $selected{'NTP_SERVER_TYPE'}{'RANDOM'}>
 $tr{'multiple random public servers'}
-</TD>
-<TD 
-</TR>
-<TR>
-<TD CLASS='base' style='text-align:left; padding-left:5em'>
-<INPUT TYPE='radio' NAME='NTP_SERVER_TYPE' VALUE='SELECTED' $selected{'NTP_SERVER_TYPE'}{'SELECTED'}>
-$tr{'selected single public server'}
-</TD>
-<TD>
-<SELECT NAME='NTP_SERVER_SELECTED'>
+      </td>
+    </tr>
+    <tr>
+      <td class='base' style='text-align:left; padding-left:5em'>
+        <input type='radio' name='NTP_SERVER_TYPE'
+               value='selected' $selected{'NTP_SERVER_TYPE'}{'SELECTED'}>
+        $tr{'selected single public server'}
+      </td>
+      <td>
+        <select name='NTP_SERVER_SELECTED'>
 END
 ;
 foreach $desc (sort keys %timeservers) {
-	print "<OPTION VALUE='$timeservers{$desc}' $selected{'NTP_SERVER_SELECTED'}{$timeservers{$desc}}>$desc\n"; }
+	print "<option value='$timeservers{$desc}' $selected{'NTP_SERVER_SELECTED'}{$timeservers{$desc}}>$desc\n"; }
 print <<END
-</SELECTED>
-</TD>
-</TR>
-<TD CLASS='base' style='text-align:left; padding-left:5em'>
-<INPUT TYPE='radio' NAME='NTP_SERVER_TYPE' VALUE='USERDEFINED' $selected{'NTP_SERVER_TYPE'}{'USERDEFINED'}>
-$tr{'user defined single public or local server'}
-</TD>
-<TD><INPUT TYPE='text' SIZE='35' NAME='NTP_SERVER_USERDEFINED' VALUE='$timesettings{'NTP_SERVER_USERDEFINED'}' id='ntp_server_userdefined' @{[jsvalidregex('ntp_server_userdefined','^[a-zA-Z0-9\.,\(\)@$!\%\^\&\*=\+_ ]*$')]}></TD>
-</TABLE>
+        </selected>
+      </td>
+    </tr>
+    <tr>
+      <td class='base' style='text-align:left; padding-left:5em'>
+        <input type='radio' name='NTP_SERVER_TYPE' value='USERDEFINED'
+               $selected{'NTP_SERVER_TYPE'}{'USERDEFINED'}>
+          $tr{'user defined single public or local server'}
+      </td>
+      <td>
+        <input type='text' SIZE='35' name='NTP_SERVER_USERDEFINED'
+               value='$timesettings{'NTP_SERVER_USERDEFINED'}'
+               id='ntp_server_userdefined'
+               @{[jsvalidregex('ntp_server_userdefined','^[a-zA-Z0-9\.,\(\)@$!\%\^\&\*=\+_ ]*$')]}>
+      </td>
+    </tr>
+  </table>
 END
 ;
 
@@ -387,30 +404,32 @@ END
 
 &openbox('Time server:');
 print <<END
-<TABLE WIDTH='100%'>
-<TR>
-<TD WIDTH='25%' CLASS='base'>$tr{'enabled'}</TD>
-<TD WIDTH='25%'><INPUT TYPE='checkbox' NAME='NTPD' $checked{'NTPD'}{'on'}></TD>
-<TD WIDTH='25%'>&nbsp;</TD>
-<TD WIDTH='25%'>&nbsp;</TD>
-</TR>
-</TABLE>
+  <table width='100%'>
+    <tr>
+      <td width='25%' class='base'>$tr{'enabled'}</td>
+      <td width='25%'><input type='checkbox' name='NTPD' $checked{'NTPD'}{'on'}></td>
+      <td width='25%'>&nbsp;</td>
+      <td width='25%'>&nbsp;</td>
+    </tr>
+  </table>
 END
 ;
 &closebox();
 
 print <<END
-<DIV ALIGN='CENTER'>
-<TABLE WIDTH='60%'>
-<TR>
-	<TD ALIGN='CENTER'><INPUT TYPE='submit' NAME='ACTION' VALUE='$tr{'save'}'></TD>
-</TR>
-</TABLE>
-</DIV>
+  <div style='text-align:center'>
+    <table width='60%'>
+      <tr>
+        <td style='text-align:center'>
+          <input type='submit' name='ACTION' value='$tr{'save'}'>
+        </td>
+      </tr>
+    </table>
+  </div>
 END
 ;
 
-print "</FORM>\n";
+print "</form>\n";
 
 &alertbox('add', 'add');
 

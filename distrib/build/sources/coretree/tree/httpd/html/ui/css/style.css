@@ -1,6 +1,17 @@
 input {
 	margin: 0;
+	font-weight: bold;
 }
+
+input[type=submit] {
+	background-color: #d4dfd4;
+	font-weight: bold;
+}
+
+input[type=text],option,select {
+	font-family: Courier New; Courier, fixed;
+}
+
 
 body {
 	font-size : 11px;

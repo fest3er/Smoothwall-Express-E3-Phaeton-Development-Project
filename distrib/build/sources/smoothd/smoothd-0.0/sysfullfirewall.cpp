@@ -903,6 +903,8 @@ int wrtaliases(std::string & response)
  }
  fclose(varhandle);
 
+ error += simplesecuresysteml("/bin/chown", "nobody:nobody", varfile.c_str(), NULL);
+
  response = "Successfully updated aliases file.";
 
  return errrpt(response);
@@ -929,16 +931,12 @@ int chkaliases(std::vector<std::string> & argv)
   if (aliases[0].find_first_of(":") != std::string::npos)
   {
 	std::string larg;
+   unsigned int i = 0;
 
-  	larg  = aliases[0] + ",";
-  	larg += aliases[1] + ",";
-  	larg += aliases[2] + ",";
-  	larg += aliases[3] + ",";
-  	larg += aliases[4] + ",";
-  	larg += aliases[5] + ",";
-  	larg += aliases[6] + ",";
-  	larg += aliases[7] + ",";
-   larg += aliases[8] + ",";
+   while (i < 9)
+   {
+  	 larg += aliases[i++] + ",";
+   }
    larg += aliases[9] + "\n";
    argv.push_back(larg);
   }
@@ -960,6 +958,7 @@ int readether(std::vector<std::string> & argv, std::string & args)
  ConfigSTR   rediface(redfile);
 
  buildit += args + ",";
+
  if (args == "RED")
  {
   buildit += rediface.str() + ",";
@@ -969,16 +968,19 @@ int readether(std::vector<std::string> & argv, std::string & args)
  else
  {
   sprintf((char *)between, "%s%s", args.c_str(), "_DEV");
+  if (ether[(const char *) between] == "") return 0;
   buildit += ether[(const char *) between] + ",";
   buildit += ether[(const char *) between] + ",";
   sprintf((char *)between, "%s%s", args.c_str(), "_ADDRESS");
   buildit += ether[(const char *) between] + ",";
  }
+ 
  sprintf((char *)between, "%s%s", args.c_str(), "_NETMASK");
  buildit += ether[(const char *) between] + ",";
  sprintf((char *)between, "%s%s", args.c_str(), "_BROADCAST");
  buildit += ether[(const char *) between] + ",";
  buildit += "on,on,,\n";
+
  argv.push_back(buildit);
 
 return 0;
