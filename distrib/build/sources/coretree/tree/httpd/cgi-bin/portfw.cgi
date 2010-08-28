@@ -177,8 +177,16 @@ if (defined $cgiparams{'ACTION'} and
     my $aladd = $cgiparams{'ADDRESS'};
     my $netmask = $cgiparams{'NETMASK'};
     my $intadd = $cgiparams{'INTADDRESS'};
-    my $block = new Net::Netmask ($aladd, $netmask);
-    my $size = $block->size();
+    my $block = new2 Net::Netmask ($aladd, $netmask);
+    if (defined $block)
+    {
+      $size = $block->size();
+    }
+    else
+    {
+      $size = 0;
+      $errormessage = "$tr{'multi-ip invalid'} $tr{'multi-ip netmask'}  (Net::Netmask::error)";
+    }
     my $counta = 1;
 
     my @tempa;
