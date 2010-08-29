@@ -1118,7 +1118,9 @@ print "<FORM METHOD='POST' NAME='FIREWALL'>\n";
 print qq{
 <TABLE WIDTH='100%' CLASS='box' style='margin-top:8pt; margin-bottom:8pt'>
   <TR>
-    <TD ALIGN='center' CLASS='boldbase'><B>$tr{'ffc section'}</B></TD>
+    <TD ALIGN='center' CLASS='boldbase'>
+      <B>$tr{'ffc section'}</B>
+    </TD>
   </TR>
   <tr>
     <td>
@@ -1136,24 +1138,32 @@ flock ALIASES, 2;
 foreach $line (@aliases) {
   chomp $line;
   @temp = split(/\,/, $line);
-  unless (($temp[0] eq "RED") or ($temp[0] eq "GREEN") or ($temp[0] eq "ORANGE") or ($temp[0] eq "PURPLE")) {
+  unless (($temp[0] eq "RED") or ($temp[0] eq "GREEN") or \
+          ($temp[0] eq "ORANGE") or ($temp[0] eq "PURPLE")) {
     print ALIASES "$line\n";
   } elsif ($temp[0] eq "RED") {
     unless ($netsettings{'RED_TYPE'} eq "PPPOE") {
       my $block = new Net::Netmask ($redip, $netsettings{'RED_NETMASK'});
-      print ALIASES "RED,$reddev,$reddev,$redip,$netsettings{'RED_NETMASK'},$netsettings{'RED_BROADCAST'},off,on,,$intadd\n";
+      print ALIASES "RED,$reddev,$reddev,$redip,$netsettings{'RED_NETMASK'},";
+      print ALIASES "$netsettings{'RED_BROADCAST'},off,on,,$intadd\n";
     } else {
       print ALIASES "RED,$reddev,$reddev,$redip,N/A,N/A,off,on,,N/A\n";
     }
   } elsif ($temp[0] eq "GREEN") {
     $block = new Net::Netmask ($netsettings{'GREEN_ADDRESS'}, $netsettings{'GREEN_NETMASK'});
-    print ALIASES "GREEN,$netsettings{'GREEN_DEV'},$netsettings{'GREEN_DEV'},$netsettings{'GREEN_ADDRESS'},$netsettings{'GREEN_NETMASK'},$netsettings{'GREEN_BROADCAST'},off,on,,$intadd\n";
+    print ALIASES "GREEN,$netsettings{'GREEN_DEV'},$netsettings{'GREEN_DEV'},";
+    print ALIASES "$netsettings{'GREEN_ADDRESS'},$netsettings{'GREEN_NETMASK'},";
+    print ALIASES "$netsettings{'GREEN_BROADCAST'},off,on,,$intadd\n";
   } elsif ($temp[0] eq "ORANGE") {
     $block = new Net::Netmask ($netsettings{'ORANGE_ADDRESS'}, $netsettings{'ORANGE_NETMASK'});
-    print ALIASES "ORANGE,$netsettings{'ORANGE_DEV'},$netsettings{'ORANGE_DEV'},$netsettings{'ORANGE_ADDRESS'},$netsettings{'ORANGE_NETMASK'},$netsettings{'ORANGE_BROADCAST'},off,on,,$intadd\n";
+    print ALIASES "ORANGE,$netsettings{'ORANGE_DEV'},$netsettings{'ORANGE_DEV'},";
+    print ALIASES "$netsettings{'ORANGE_ADDRESS'},$netsettings{'ORANGE_NETMASK'},";
+    print ALIASES "$netsettings{'ORANGE_BROADCAST'},off,on,,$intadd\n";
   } elsif ($temp[0] eq "PURPLE") {
     $block = new Net::Netmask ($netsettings{'PURPLE_ADDRESS'}, $netsettings{'PURPLE_NETMASK'});
-    print ALIASES "PURPLE,$netsettings{'PURPLE_DEV'},$netsettings{'PURPLE_DEV'},$netsettings{'PURPLE_ADDRESS'},$netsettings{'PURPLE_NETMASK'},$netsettings{'PURPLE_BROADCAST'},off,on,,$intadd\n";
+    print ALIASES "PURPLE,$netsettings{'PURPLE_DEV'},$netsettings{'PURPLE_DEV'},";
+    print ALIASES "$netsettings{'PURPLE_ADDRESS'},$netsettings{'PURPLE_NETMASK'},";
+    print ALIASES "$netsettings{'PURPLE_BROADCAST'},off,on,,$intadd\n";
   }
 }
 close ALIASES;
@@ -1180,19 +1190,24 @@ foreach $line (@aliases) {
       $running = "off";
     }
   }
-  print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$running,$temp[7],$temp[8],$temp[9]\n";
+  print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],";
+  print FILE "$temp[5],$running,$temp[7],$temp[8],$temp[9]\n";
 }
 close FILE;
  
 &openbox($boxtext);
-print <<END
-<TABLE WIDTH='100%' BORDER='$border'>
-  <TR>
-    <TD CLASS='base' WIDTH='25%'>$tr{'source ifacec'}</TD>
-              <TD WIDTH='25%'><SELECT style='color: red' onchange="ffoxSelectUpdate(this);" NAME='SRC_IFACE'>
-                   <OPTION style='color: black' VALUE='any' $selected{'SRC_IFACE'}{'any'}>Any</OPTION>
-END
-;
+print "
+<table width='100%' border='$border'>
+  <tr>
+    <td class='base' width='25%'>
+      $tr{'source ifacec'}
+    </td>
+    <td width='25%'>
+      <select style='color: red' onchange='ffoxSelectUpdate(this);' name='SRC_IFACE'>
+        <option style='color: black' value='any' $selected{'SRC_IFACE'}{'any'}>
+          Any
+        </option>
+";
 
 my @temp3;
 if (open(FILE, "$aliasfile"))
@@ -1213,30 +1228,52 @@ foreach $dev (sort(keys(%availablenetdevices))) {
       $redaliasip = $split[3];
     }
   }	
+
   if ($netsettings{'GREEN_DEV'} && ($dev =~ /$netsettings{'GREEN_DEV'}/)) {
-    print "<OPTION style='color: green' VALUE='$dev' $selected{'SRC_IFACE'}{$dev}>GREEN$devifacesub - $dev</OPTION>";
+    print "        <option style='color: green' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "          GREEN$devifacesub - $dev\n";
+    print "        </option>\n";
+
   } elsif ($netsettings{'ORANGE_DEV'} && ($dev =~ /$netsettings{'ORANGE_DEV'}/)) {
-    print "<OPTION style='color: orange' VALUE='$dev' $selected{'SRC_IFACE'}{$dev}>ORANGE$devifacesub - $dev</OPTION>";
+    print "        <option style='color: orange' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "          ORANGE$devifacesub - $dev\n";
+    print "        </option>\n";
+
   } elsif ($netsettings{'PURPLE_DEV'} && ($dev =~ /$netsettings{'PURPLE_DEV'}/)) {
-    print "<OPTION style='color: purple' VALUE='$dev' $selected{'SRC_IFACE'}{$dev}>PURPLE$devifacesub - $dev</OPTION>";
+    print "        <option style='color: purple' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "          PURPLE$devifacesub - $dev\n";
+    print "        </option>\n";
+
   } elsif ($reddev && ($dev =~ /$reddev/)) {
-    if ($redaliasip) {
-      print "<OPTION style='color: red' VALUE='$dev' $selected{'SRC_IFACE'}{$dev}>RED$devifacesub $redaliasip</OPTION>";
-    } else {
-      print "<OPTION style='color: red' VALUE='$dev' $selected{'SRC_IFACE'}{$dev}>RED$devifacesub - $dev</OPTION>";
+    print "        <option style='color: red' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    if ($redaliasip)
+    {
+      print "          RED$devifacesub $redaliasip\n";
     }
+    else
+    {
+      print "          RED$devifacesub - $dev\n";
+    }
+      print "        </option>\n";
+
   } else {
-    print "<OPTION style='color: black' VALUE='$dev' $selected{'SRC_IFACE'}{$dev}>$dev</OPTION>";
+    print "        <option style='color: black' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "          $dev\n";
+    print "        </option>\n";
   }
 }
 
-print <<END
-    </SELECT></TD>
-    <TD CLASS='base' WIDTH='25%'>$tr{'destination ifacec'}</TD>
-              <TD WIDTH='25%'><SELECT style='color: green' onchange="ffoxSelectUpdate(this);" NAME='DEST_IFACE'>
-                  <OPTION style='color: black' VALUE='any' $selected{'DEST_IFACE'}{'any'}>Any</OPTION>
-END
-;
+print "      </select>
+    </td>
+    <td class='base' width='25%'>
+      $tr{'destination ifacec'}
+    </td>
+    <td width='25%'>
+      <select style='color: green' onchange='ffoxSelectUpdate(this);' name='DEST_IFACE'>
+        <option style='color: black' value='any' $selected{'DEST_IFACE'}{'any'}>
+          Any
+        </option>
+";
 
 foreach $dev (sort(keys(%availablenetdevices))) {
   $dev =~ /(\:\d{1,3})/;
@@ -1250,161 +1287,206 @@ foreach $dev (sort(keys(%availablenetdevices))) {
       $redaliasip = $split[3];
     }
   }	
-  if ($netsettings{'GREEN_DEV'} && ($dev =~ /$netsettings{'GREEN_DEV'}/)) {
-    print "<OPTION style='color: green' VALUE='$dev' $selected{'DEST_IFACE'}{$dev}>GREEN$devifacesub - $dev</OPTION>";
-  } elsif ($netsettings{'ORANGE_DEV'} && ($dev =~ /$netsettings{'ORANGE_DEV'}/)) {
-    print "<OPTION style='color: orange' VALUE='$dev' $selected{'DEST_IFACE'}{$dev}>ORANGE$devifacesub - $dev</OPTION>";
-  } elsif ($netsettings{'PURPLE_DEV'} && ($dev =~ /$netsettings{'PURPLE_DEV'}/)) {
-    print "<OPTION style='color: purple' VALUE='$dev' $selected{'DEST_IFACE'}{$dev}>PURPLE$devifacesub - $dev</OPTION>";
-  } elsif ($reddev && ($dev =~ /$reddev/)) {
-    if ($redaliasip) {
-      print "<OPTION style='color: red' VALUE='$dev' $selected{'DEST_IFACE'}{$dev}>RED$devifacesub $redaliasip</OPTION>";
-    } else {
-      print "<OPTION style='color: red' VALUE='$dev' $selected{'DEST_IFACE'}{$dev}>RED$devifacesub - $dev</OPTION>";
-    }
-  } else {
-    print "<OPTION style='color: black' VALUE='$dev' $selected{'DEST_IFACE'}{$dev}>$dev</OPTION>";
-  }
 
+  if ($netsettings{'GREEN_DEV'} && ($dev =~ /$netsettings{'GREEN_DEV'}/)) {
+    print "        <option style='color: green' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "          GREEN$devifacesub - $dev\n";
+    print "        </option>\n";
+
+  } elsif ($netsettings{'ORANGE_DEV'} && ($dev =~ /$netsettings{'ORANGE_DEV'}/)) {
+    print "        <option style='color: orange' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "          ORANGE$devifacesub - $dev\n";
+    print "        </option>\n";
+
+  } elsif ($netsettings{'PURPLE_DEV'} && ($dev =~ /$netsettings{'PURPLE_DEV'}/)) {
+    print "        <option style='color: purple' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "          PURPLE$devifacesub - $dev\n";
+    print "        </option>\n";
+
+  } elsif ($reddev && ($dev =~ /$reddev/)) {
+    print "        <option style='color: red' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    if ($redaliasip)
+    {
+      print "          RED$devifacesub $redaliasip\n";
+    }
+    else
+    {
+      print "          RED$devifacesub - $dev\n";
+    }
+      print "        </option>\n";
+
+  } else {
+    print "        <option style='color: black' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "          $dev\n";
+    print "        </option>\n";
+  }
 }
 
-print <<END
-    </SELECT></TD>
+print "      </select>
+    </td>
+  </tr>
+  <tr>
+    <td class='base' nowrap='nowrap'>
+      <img src='/ui/img/blob.gif' valign='top'>
+      $tr{'source ippfc'}
+    </td>
+    <td>
+      <input type='text' name='SRC_IPMAC' value='$sourceipmac' size='18'>
+    </td>
+    <td class='base' nowrap='nowrap'>
+      <img src='/ui/img/blob.gif' valign='top'>
+      $tr{'destination ippfc'}
+    </td>
+    <td>
+      <input type='text' name='DEST_IPMAC' value='$destinationipmac' size='18'>
+    </td>
+  </tr>
+  <tr>
+    <td class='base' width='12%' nowrap='nowrap'>
+      <img src='/ui/img/blob.gif' valign='top'>
+      $tr{'source port or rangec'}
+    </td>
+    <td>
+      <input type='text' name='DEST_PORT' value='$sourceport' SIZE='11'>
+    </td>
+    <td class='base' nowrap='nowrap'>
+      <img src='/ui/img/blob.gif' valign='top'>
+      <img src='/ui/img/blob.gif' valign='top'>
+      $tr{'destination portc'}
+    </td>
+    <td>
+      <input type='text' name='NEW_DEST_PORT' value='$destinationport' size='11'>
+    </td>
+  </tr>
+  <tr>
+    <td colspan='6'>
 
-</TR>
-<TR>
-    <TD CLASS='base' NOWRAP='nowrap'><IMG SRC='/ui/img/blob.gif' VALIGN='top'>&nbsp;$tr{'source ippfc'}</TD>
-    <TD><INPUT TYPE='TEXT' NAME='SRC_IPMAC' VALUE='$sourceipmac' SIZE='18'></TD>
-    <TD CLASS='base' NOWRAP='nowrap'><IMG SRC='/ui/img/blob.gif' VALIGN='top'>&nbsp;$tr{'destination ippfc'}</TD>
-    <TD><INPUT TYPE='TEXT' NAME='DEST_IPMAC' VALUE='$destinationipmac' SIZE='18'></TD>
-</TR>
-  <TR>
-    <TD CLASS='base' WIDTH='12%' NOWRAP='nowrap'><IMG SRC='/ui/img/blob.gif' VALIGN='top'>&nbsp;$tr{'source port or rangec'}</TD>
-    <TD><INPUT TYPE='TEXT' NAME='DEST_PORT' VALUE='$sourceport' SIZE='11'></TD>
-    <TD CLASS='base' NOWRAP='nowrap'><IMG SRC='/ui/img/blob.gif' VALIGN='top'><IMG SRC='/ui/img/blob.gif' VALIGN='top'>&nbsp;$tr{'destination portc'}</TD>
-    <TD><INPUT TYPE='TEXT' NAME='NEW_DEST_PORT' VALUE='$destinationport' SIZE='11'></TD>
-
-</TR>
-<TR>
-  <TD COLSPAN='6'>
-    <TABLE WIDTH='100%' border=$border style="margin:6pt 0">
-      <TR>
-        <td class='base'>$tr{'protocol long'}</td>
-        <td><SELECT NAME='PROTOCOL'>
-END
-;
-        if ($cgiparams{'PROTOCOL'} eq 'all') {
-          print "<OPTION VALUE='all' SELECTED>All</OPTION>";
+      <table width='100%' border=$border style='margin:6pt 0'>
+        <tr>
+          <td class='base'>$tr{'protocol long'}</td>
+          <td>
+            <select name='PROTOCOL'>
+";
+        my $protocol = $cgiparams{'PROTOCOL'};
+        if ($protocol eq 'all') {
+          print "              <option value='all' selected>All</option>\n";
         } else {
-          print "<OPTION VALUE='all'>All</OPTION>";
+          print "              <option value='all'>All</OPTION>\n";
         }
 
-        if ($cgiparams{'PROTOCOL'} eq '6') {
-          print "<OPTION VALUE='6' SELECTED>$availableprotocols{6}</OPTION>";
+        if ($protocol eq '6') {
+          print "              <option value='6' selected>$availableprotocols{6}</option>\n";
         } else {
-          print "<OPTION VALUE='6'>$availableprotocols{6}</OPTION>";
+          print "              <option value='6'>$availableprotocols{6}</option>\n";
         }
 
-        if ($cgiparams{'PROTOCOL'} eq '17') {
-          print "<OPTION VALUE='17' SELECTED>$availableprotocols{17}</OPTION>";
+        if ($protocol eq '17') {
+          print "              <option value='17' selected>$availableprotocols{17}</option>\n";
         } else {
-          print "<OPTION VALUE='17'>$availableprotocols{17}</OPTION>";
+          print "              <option value='17'>$availableprotocols{17}</option>\n";
         }
 
-        if ($cgiparams{'PROTOCOL'} eq 'TCP & UDP') {
-          print "<OPTION VALUE='TCP & UDP' SELECTED>TCP & UDP</OPTION>";
+        if ($protocol eq 'TCP & UDP') {
+          print "              <option value='TCP & UDP' selected>TCP & UDP</option>\n";
         } else {
-          print "<OPTION VALUE='TCP & UDP'>TCP & UDP</OPTION>";
+          print "              <option value='TCP & UDP'>TCP & UDP</option>\n";
         }
 
-        if ($cgiparams{'PROTOCOL'} eq '1') {
-          print "<OPTION VALUE='1' SELECTED>$availableprotocols{1}</OPTION>";
+        if ($protocol eq '1') {
+          print "              <option value='1' selected>$availableprotocols{1}</option>\n";
         } else {
-          print "<OPTION VALUE='1'>$availableprotocols{1}</OPTION>";
+          print "              <option value='1'>$availableprotocols{1}</option>\n";
         }
 
-        if ($cgiparams{'PROTOCOL'} eq '47') {
-          print "<OPTION VALUE='47' SELECTED>$availableprotocols{47}</OPTION>";
+        if ($protocol eq '47') {
+          print "              <option value='47' selected>$availableprotocols{47}</option>\n";
         } else {
-          print "<OPTION VALUE='47'>$availableprotocols{47}</OPTION>";
+          print "              <option value='47'>$availableprotocols{47}</option>\n";
         }
 
-        if ($cgiparams{'PROTOCOL'} eq '50') {
-          print "<OPTION VALUE='50' SELECTED>$availableprotocols{50}</OPTION>";
+        if ($protocol eq '50') {
+          print "              <option value='50' selected>$availableprotocols{50}</option>\n";
         } else {
-          print "<OPTION VALUE='50'>$availableprotocols{50}</OPTION>";
+          print "              <option value='50'>$availableprotocols{50}</option>\n";
         }
 
-        if ($cgiparams{'PROTOCOL'} eq '51') {
-          print "<OPTION VALUE='51' SELECTED>$availableprotocols{51}</OPTION>";
+        if ($protocol eq '51') {
+          print "              <option value='51' selected>$availableprotocols{51}</option>\n";
         } else {
-          print "<OPTION VALUE='51'>$availableprotocols{51}</OPTION>";
+          print "              <option value='51'>$availableprotocols{51}</option>\n";
         }
 
-print <<END
-        </SELECT></TD>
-        <td class='base'>$tr{'ffc-target'}</td>
-        <TD>
-        <SELECT NAME='TARGET'>
-          <OPTION VALUE='ACCEPT' $selected{'TARGET'}{'ACCEPT'}>$tr{'target accept'}</OPTION>
-          <OPTION VALUE='REJECT' $selected{'TARGET'}{'REJECT'}>$tr{'target reject'}</OPTION>
-          <OPTION VALUE='DROP' $selected{'TARGET'}{'DROP'}>$tr{'target drop'}</OPTION>
-          <OPTION VALUE='LOG' $selected{'TARGET'}{'LOG'}>$tr{'target log'}</OPTION>
-        </SELECT></TD>
-        <td class='base'>$tr{'order number'}</td>
-        <TD>
-        <SELECT NAME='ORDER_NUMBER'>
-END
-;
+print "            </select>
+          </td>
+          <td class='base'>$tr{'ffc-target'}</td>
+          <td>
+            <select name='TARGET'>
+              <option value='ACCEPT' $selected{'TARGET'}{'ACCEPT'}>$tr{'target accept'}</option>
+              <option value='REJECT' $selected{'TARGET'}{'REJECT'}>$tr{'target reject'}</option>
+              <option value='DROP' $selected{'TARGET'}{'DROP'}>$tr{'target drop'}</option>
+              <option value='LOG' $selected{'TARGET'}{'LOG'}>$tr{'target log'}</option>
+            </select></td>
+          <td class='base'>$tr{'order number'}</td>
+          <td>
+            <select name='ORDER_NUMBER'>
+";
 
         for ($cnt = 1; $cnt < $cgiparams{'RULE_COUNT'} + 1; $cnt++) {
           if ($cnt eq $cgiparams{'ORDER_NUMBER'}) {
-            print "<OPTION VALUE='$cnt' SELECTED>$cnt</OPTION>";
+            print "              <option value='$cnt' selected>$cnt</option>\n";
           } else {
-            print "<OPTION VALUE='$cnt'>$cnt</OPTION>";
+            print "              <option value='$cnt'>$cnt</option>\n";
           }
         }
 
-print <<END
-        </SELECT></TD>
-      </tr>
-      <TR>
-        <TD class='base'>$tr{'descriptionc'}</td>
-        <td colspan='5'>
-          <INPUT TYPE='TEXT' NAME='DESCRIPTION' SIZE='80' VALUE='$cgiparams{'DESCRIPTION'}'
-                 id='description' @{[jsvalidcomment('description')]}>
-        </TD>
-      </TR>
-    </table>
-    <TABLE style='width:100%; margin:6pt 0' border='$border'>
-      <TR>
-        <TD style='width:50%; text-align:center'>
-          $tr{'enabled'}
-          <INPUT TYPE='CHECKBOX' NAME='ENABLED' $checked{'ENABLED'}{'on'}>
-        </TD>
-        <TD style='width:50%; text-align:center'>
-          <INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$buttontext' onclick='return validate();'>
-          <INPUT TYPE='HIDDEN' NAME='OLDID' VALUE='$cgiparams{'OLDID'}'>
-        </TD>
-      </TR>
-    </TABLE>
+print "            </select>
+          </td>
+        </tr>
+        <tr>
+          <td class='base'>$tr{'descriptionc'}</td>
+          <td colspan='5'>
+            <input type='text' name='DESCRIPTION' size='80' value='$cgiparams{'DESCRIPTION'}'
+                   id='description' @{[jsvalidcomment('description')]}>
+          </td>
+        </tr>
+      </table>
 
-    </TD>
-  </TR>
-  <TR>
-    <TD COLSPAN='6' ALIGN='LEFT'><IMG SRC='/ui/img/blob.gif' VALIGN='top'>&nbsp;$tr{'portfw source destination ip'}</TD>
-  </TR>
-  <TR>
-    <TD COLSPAN='5' ALIGN='LEFT'><IMG SRC='/ui/img/blob.gif' VALIGN='top'><IMG SRC='/ui/img/blob.gif' VALIGN='top'>&nbsp;$tr{'portfw destination port'}</TD>
-  </TR>
-</TABLE>
+      <table style='width:100%; margin:6pt 0' border='$border'>
+        <tr>
+          <td style='width:50%; text-align:center'>
+            $tr{'enabled'}
+            <input type='checkbox' name='ENABLED' $checked{'ENABLED'}{'on'}>
+          </td>
+          <td style='width:50%; text-align:center'>
+            <input type='submit' name='ACTION' value='$buttontext' onclick='return validate();'>
+            <input type='hidden' name='OLDID' value='$cgiparams{'OLDID'}'>
+          </td>
+        </tr>
+      </table>
 
-<SCRIPT LANGUAGE='JavaScript' TYPE='text/javascript'>
+    </td>
+  </tr>
+  <tr>
+    <td colspan='6' style='text-align:left'>
+      <img src='/ui/img/blob.gif' valign='top'>
+      $tr{'portfw source destination ip'}
+    </td>
+  </tr>
+  <tr>
+    <td colspan='5' style='text-align:left'>
+      <img src='/ui/img/blob.gif' valign='top'>
+      <img src='/ui/img/blob.gif' valign='top'>
+      $tr{'portfw destination port'}
+    </td>
+  </tr>
+</table>
+
+<script language='JavaScript' type='text/javascript'>
 <!--
   // validate function
   function validate() {
     // Vars
-    var errorMessage = "";
+    var errorMessage = \"\";
 
     // Get form
     var form = document.forms['FIREWALL'];
@@ -1419,27 +1501,27 @@ print <<END
       // Check for a protocol of Any
       if (form.PROTOCOL.selectedIndex == 0) {
         // Add to error message
-        errorMessage += "\\n  - $tr{'error source-destination port protocol any'}";
+        errorMessage += \"\\n  - $tr{'error source-destination port protocol any'}\";
       }
 //
 //			// Check for an empty/Any destination
 //			if (form.DEST_IPMAC.value == '') {
 //				// Add to error message
-//				errorMessage += "\\n  - $tr{'error source-destination port destination any'}";
+//				errorMessage += \"\\n  - $tr{'error source-destination port destination any'}\";
 //			}
     }
 
     // Check for errormessage
     if (errorMessage != '') {
       // Alert and return false
-      alert("The following errors have occured:" + errorMessage);
+      alert(\"The following errors have occured:\" + errorMessage);
       return false;
     }
 
     // Check for source and destination both being blank, warn if so
     if ((form.SRC_IPMAC.value == '') && (form.DEST_IPMAC.value == '')) {
       // Confirm you really want to do this
-      if (!confirm("Are you sure you want to " + form.TARGET.options[form.TARGET.selectedIndex].text + " " + form.PROTOCOL.options[form.PROTOCOL.selectedIndex].text + " traffic from " + form.SRC_IFACE.options[form.SRC_IFACE.selectedIndex].text + " to " + form.DEST_IFACE.options[form.DEST_IFACE.selectedIndex].text + "?")) {
+      if (!confirm(\"Are you sure you want to \" + form.TARGET.options[form.TARGET.selectedIndex].text + \" \" + form.PROTOCOL.options[form.PROTOCOL.selectedIndex].text + \" traffic from \" + form.SRC_IFACE.options[form.SRC_IFACE.selectedIndex].text + \" to \" + form.DEST_IFACE.options[form.DEST_IFACE.selectedIndex].text + \"?\")) {
         // Return false if not wanted
         return false;
       }
@@ -1455,9 +1537,9 @@ print <<END
     return false;
   }
 -->
-</SCRIPT>
-END
-;
+</script>
+";
+
 &closebox();
 
 &openbox($tr{'current rules'});
@@ -1555,27 +1637,30 @@ my %render_settings =
 
 &dispaliastab($filename, \%render_settings, $cgiparams{'ORDER_TWO'}, $cgiparams{'COLUMN_TWO'} );
 
-print <<END
+print "
+<table style='width:100%; margin:6pt 0' border='$border'>
+  <tr>
+    <td width='33%' style='text-align:center'>
+      <input type='submit' name='ACTION' value='$tr{'remove'}'
+             onClick='if(confirm(\"You are about to completely remove port forwarding rules. Are you sure you want to do this?\")) {return true;} return false;'>
+    </td>
+    <td width='34%' style='text-align:center'>
+      <input type='submit' name='ACTION' value='$tr{'ffc-enable rule'}'>
+    </td>
+    <td width='33%' style='text-align:center'>
+      <input type='submit' name='ACTION' value='$tr{'edit'}'>
+    </td>
+  </tr>
+</table>
+";
 
-<TABLE style='width:100%; margin:6pt 0' border='$border'>
-<TR>
-  <TD WIDTH='33%' ALIGN='CENTER'><INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$tr{'remove'}' onClick="if(confirm('You are about to completely remove port forwarding rules. Are you sure you want to do this?')) {return true;} return false;"></TD>
-  <TD WIDTH='34%' ALIGN='CENTER'><INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$tr{'ffc-enable rule'}'></TD>
-  <TD WIDTH='33%' ALIGN='CENTER'><INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$tr{'edit'}'></TD>
-</TR>
-</TABLE>
-END
-;
 &closebox();
 
 # End the P&P Fwd Sect.
-print qq{
-    </TD>
+print "    </TD>
   </TR>
 </TABLE>
-};
-
-print "<FORM METHOD='POST'>\n";
+";
 
 print <<END
 
@@ -1709,6 +1794,8 @@ print qq{
 </TABLE>
 };
 
+print "</FORM>\n";
+
 #&openbox();
 #print <<END
 #<br>
@@ -1718,7 +1805,6 @@ print qq{
 #<td width='30%' align='right'>Mod version: $ModDetails{'MOD_VERSION'}</td>
 #</tr>
 #</table>
-#</FORM>
 #
 #END
 #;
