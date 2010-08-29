@@ -370,7 +370,7 @@ $tr{'multiple random public servers'}
     <tr>
       <td class='base' style='text-align:left; padding-left:5em'>
         <input type='radio' name='NTP_SERVER_TYPE'
-               value='selected' $selected{'NTP_SERVER_TYPE'}{'SELECTED'}>
+               value='SELECTED' $selected{'NTP_SERVER_TYPE'}{'SELECTED'}>
         $tr{'selected single public server'}
       </td>
       <td>
@@ -380,14 +380,14 @@ END
 foreach $desc (sort keys %timeservers) {
 	print "<option value='$timeservers{$desc}' $selected{'NTP_SERVER_SELECTED'}{$timeservers{$desc}}>$desc\n"; }
 print <<END
-        </selected>
+        </select>
       </td>
     </tr>
     <tr>
       <td class='base' style='text-align:left; padding-left:5em'>
-        <input type='radio' name='NTP_SERVER_TYPE' value='USERDEFINED'
-               $selected{'NTP_SERVER_TYPE'}{'USERDEFINED'}>
-          $tr{'user defined single public or local server'}
+        <input type='radio' name='NTP_SERVER_TYPE'
+               value='USERDEFINED' $selected{'NTP_SERVER_TYPE'}{'USERDEFINED'}>
+        $tr{'user defined single public or local server'}
       </td>
       <td>
         <input type='text' SIZE='35' name='NTP_SERVER_USERDEFINED'
