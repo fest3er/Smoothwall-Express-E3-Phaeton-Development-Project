@@ -1452,6 +1452,7 @@ sub list {
   next if /modfiles/;
   next if /updates/;
   next if /smoothinfo/;
+  next if /patches/;
   if (-s "$File::Find::name/installed") {
     open (FILE, "$File::Find::name/installed");
     $ver = <FILE>;
