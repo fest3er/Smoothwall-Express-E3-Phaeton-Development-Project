@@ -364,8 +364,8 @@ sub runoinkmaster
 {
   my $v = $_[0];
   if (defined $_[1]) {my $attempt = $_[1];}
-#  my $url = "http://www.snort.org/reg-rules/snortrules-snapshot-$v.tar.gz/" . $snortsettings{'OINK'};
-  my $url = "http://downloads/snortrules-snapshot-$v.tar.gz/" . $snortsettings{'OINK'};
+  my $url = "http://www.snort.org/reg-rules/snortrules-snapshot-$v.tar.gz/" . $snortsettings{'OINK'};
+#  my $url = "http://downloads/snortrules-snapshot-$v.tar.gz/" . $snortsettings{'OINK'};
 
   my $curdir = getcwd;
   chdir "${swroot}/snort/";
