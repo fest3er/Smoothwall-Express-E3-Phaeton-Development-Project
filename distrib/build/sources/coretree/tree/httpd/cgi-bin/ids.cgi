@@ -6,6 +6,29 @@
 #
 # (c) The SmoothWall Team
 
+sub localdebug
+{
+  $label = $_[0];
+  local (*settings) = @_[1];
+  print "<br><b>$label</b><br>\n";
+  print "&nbsp;&nbsp;&nbsp;&nbsp;<b><i>ENV</i></b><br>\n";
+  foreach $key (sort keys %ENV)
+  {
+    print "$key=>$ENV{$key}<br>\n";
+  }
+  print "<br>\n";
+  print "&nbsp;&nbsp;&nbsp;&nbsp;<b><i>snortsettings</i></b><br>\n";
+  foreach $key (sort keys %settings)
+  {
+    print "$key=>$settings{$key}<br>\n";
+  }
+  print "<br>\n";
+  print "&nbsp;&nbsp;&nbsp;&nbsp;<b><i>others</i></b><br>\n";
+  print "formDOWNLOAD=>$formdownload<br>\n";
+  print "formdebug=>$formdebug<br>\n";
+  print "formoink=>$formoink<br>\n";
+}
+
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
@@ -24,28 +47,33 @@ $snortsettings{'ACTION'} = '';
 &getcgihash(\%snortsettings);
 $formdownload = $snortsettings{'DOWNLOAD'};
 $formdebug = $snortsettings{'DEBUG'};
+$formoink = $snortsettings{'OINK'};
 delete $snortsettings{'DOWNLOAD'};
 delete $snortsettings{'DEBUG'};
 &readhash("${swroot}/snort/settings", \%snortoldsettings);
 
-$errormessage = '';
+
+#&localdebug("initial", \%snortsettings);
+my $errormessage;
 
 
 ############################
 # Early actions
 #
 # Verify OINK code length and content
-if ($snortsettings{'ACTION'} eq $tr{'save'} and \
-    $formdownload eq 'on' and \
-    !$errormessage)
+if ($snortsettings{'ACTION'} eq $tr{'save'} and 
+    $formdownload eq 'on' and 
+    $errormessage eq '')
 {
-  if ($snortsettings{'OINK'} !~ /^([\da-f]){40}$/i)
+  if ($formoink !~ /^([\da-f]){40}$/i)
   {
     $errormessage = $tr{'oink code must be 40 hex digits'};
   }
   else
   {
+  $snortsettings{'OINK'} = $formoink;
   &writehash("${swroot}/snort/settings", \%snortsettings);
+  # &localdebug("saveoink", \%snortsettings);
   }
 }
 
@@ -65,7 +93,7 @@ if ($snortsettings{'ACTION'} eq $tr{'save'} and
     &log($tr{'snort is disabled'});
   }
 
-  my $success = message('snortrestart');
+  my $success = &message('snortrestart');
 
   if (not defined $success)
   {
@@ -73,15 +101,30 @@ if ($snortsettings{'ACTION'} eq $tr{'save'} and
   }
 }
 
+# If download is checked, uncheck and make oink text
 if ($formdownload eq 'on')
 {
-  $oink_display = "inline-block";
-  $oink_display_not = "none";
+  $checked{'DOWNLOAD'}{'off'} = '';
+  $checked{'DOWNLOAD'}{'on'} = '';
+  $oink_display = "none";
+  $oink_display_not = "inline-block";
 }
 else
 {
-  $oink_display = "none";
-  $oink_display_not = "inline-block";
+  # Download is not checked, so pre-check it or not, but
+  # display OINK properly
+  $checked{'DOWNLOAD'}{'off'} = '';
+  $checked{'DOWNLOAD'}{'on'} = '';
+  if (($days==-1 || $days > 30) and ($idslastDLdays > 5)) {
+  $checked{'DOWNLOAD'}{'on'} = 'checked';
+  $oink_display = "inline-block";
+  $oink_display_not = "none";
+  }
+  else
+  {
+    $oink_display = "none";
+    $oink_display_not = "inline-block";
+  }
 }
 
 
@@ -122,7 +165,7 @@ if (-d "${swroot}/snort/rules")
   my $opwd = `pwd`;
   chomp $opwd;
   chdir "${swroot}/snort/rules";
-  my $ruledate = `egrep "\$Id:.*,v.*vrtbuild" * | \
+  my $ruledate = `egrep "\$Id:.*,v.*vrtbuild" * 2>/dev/null | \
                     sed -e 's/.*,v [0-9.]* //' -e's/ .*//' | \
                     sort | tail -1`;
   chomp $ruledate;
@@ -137,13 +180,6 @@ else
 {
   $days = -1;
   $ruleage = "($tr{'ids never downloaded'})";
-}
-
-# Decide if download should be prechecked
-$checked{'DOWNLOAD'}{'off'} = '';
-$checked{'DOWNLOAD'}{'on'} = '';
-if (($days==-1 || $days > 30) and ($idslastDLdays > 5)) {
-  $checked{'DOWNLOAD'}{'on'} = 'checked';
 }
 
 # status at page rendering
@@ -175,7 +211,8 @@ print "
     $tr{'ids enable'}
   </div>
   <div style='margin-right:.2em; display:inline-block; width:20%; '>
-    <input type='checkbox' name='ENABLE_SNORT' style='margin:0'
+    <input id='ENABLE_SNORT' type='checkbox' name='ENABLE_SNORT'
+           style='margin:0'
            ${enable_disabled}$checked{'ENABLE_SNORT'}{'on'}>
   </div>
   <div class='base' style='text-align:right; margin-right:.2em; display:inline-block; width:20%; '>
@@ -287,19 +324,9 @@ if (($snortsettings{'ACTION'} eq $tr{'save'}) &&
   
   &runoinkmaster($snortversion);
   
-  if ($errormessage)
-  {
-    $snortversion = $origsnortversion;
-    
-    $snortversion =~ /^(\d+\.\d+)/;
-    $snortversion = $1;
-    
-    &runoinkmaster($snortversion);
-  }
-  
   if ($snortsettings{'ENABLE_SNORT'} eq 'on' and !$errormessage)
   {  
-    my $success = message('snortrestart');
+    my $success = &message('snortrestart');
 
     if (not defined $success)
     {
@@ -309,18 +336,19 @@ if (($snortsettings{'ACTION'} eq $tr{'save'}) &&
 
   if ($errormessage)
   {
-    print "
-<script>
-  document.getElementById('status').innerHTML = '$errormessage';
-</script>
-";
+	  #print "
+#<script language='javascript' type='text/javascript'>
+#document.getElementById('status').innerHTML = '$errormessage';
+#</script>
+#";
   }
   else
   {
     print "
-<script>
+<script language='javascript' type='text/javascript'>
   document.getElementById('status').innerHTML = 'Installation complete';
   document.getElementById('progress').style.width = '${maxwidth}em';
+  document.getElementById('ENABLE_SNORT').disabled = '';
   //document.location = '/cgi-bin/ids.cgi';
 </script>
 ";
@@ -336,8 +364,8 @@ sub runoinkmaster
 {
   my $v = $_[0];
   if (defined $_[1]) {my $attempt = $_[1];}
-  my $url = "http://www.snort.org/reg-rules/snortrules-snapshot-$v.tar.gz/" . $snortsettings{'OINK'};
-#  my $url = "http://downloads/snortrules-snapshot-$v.tar.gz";
+#  my $url = "http://www.snort.org/reg-rules/snortrules-snapshot-$v.tar.gz/" . $snortsettings{'OINK'};
+  my $url = "http://downloads/snortrules-snapshot-$v.tar.gz/" . $snortsettings{'OINK'};
 
   my $curdir = getcwd;
   chdir "${swroot}/snort/";
@@ -356,8 +384,8 @@ sub runoinkmaster
 
 
     print "
-<script>
-  document.getElementById('status').innerHTML = 'Downloading, please wait';
+<script language='javascript' type='text/javascript'>
+  document.getElementById('status').innerHTML = 'Starting';
   document.getElementById('progress').style.background = '#a0a0ff';
 </script>
 ";
@@ -376,8 +404,8 @@ sub runoinkmaster
         if ($percent == 100)
         {
           print "
-<script>
-  document.getElementById('status').innerHTML = 'Installing, please wait';
+<script language='javascript' type='text/javascript'>
+  document.getElementById('status').innerHTML = 'Unpacking, please wait';
   document.getElementById('progress').style.width = '${maxwidth}em';
 </script>
 ";
@@ -387,11 +415,53 @@ sub runoinkmaster
 #          $message = "Download $percent% complete";
           my $curwidth = $maxwidth * $percent/100;
           print "
-<script>
-document.getElementById('progress').style.width = '${curwidth}em';
+<script language='javascript' type='text/javascript'>
+  document.getElementById('progress').style.width = '${curwidth}em';
 </script>
 ";
         }
+      }
+      elsif (/.*successfully downloaded.*/)
+      {
+        print "
+<script language='javascript' type='text/javascript'>
+  document.getElementById('status').innerHTML = 'Rules unpacked';
+</script>
+";
+      }
+      elsif (/.*successfully downloaded.*|.*Processing.*/)
+      {
+        print "
+<script language='javascript' type='text/javascript'>
+  document.getElementById('status').innerHTML = 'Processing rules';
+</script>
+";
+      }
+      elsif (/.*302 Found.*|.*200 OK.*/)
+      {
+print "
+  <script language='javascript' type='text/javascript'>
+    document.getElementById('status').innerHTML = 'Downloading';
+  </script>
+";
+      }
+      elsif (/.*403 Forbidden.*/)
+      {
+        $errormessage = "You can't download now. Try again later.";
+print "
+  <script language='javascript' type='text/javascript'>
+    document.getElementById('status').innerHTML = 'You can\\'t download now; try later.';
+  </script>
+";
+      }
+      elsif (/.*404 Not Found.*/)
+      {
+        $errormessage = "Rules version $v not found. Try again another day.";
+print "
+  <script language='javascript' type='text/javascript'>
+    document.getElementById('status').innerHTML = 'Rules $v not found; Try again another day.';
+  </script>
+";
       }
     }
     close(FD);
