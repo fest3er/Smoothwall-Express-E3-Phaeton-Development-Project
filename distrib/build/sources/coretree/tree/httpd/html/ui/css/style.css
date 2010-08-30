@@ -1,6 +1,10 @@
-input {
+input,select {
 	margin: 0;
 	font-weight: bold;
+}
+
+input[type=radio] {
+	 margin-right: .3em;
 }
 
 input[type=submit] {

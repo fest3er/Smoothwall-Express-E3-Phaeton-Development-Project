@@ -70,18 +70,15 @@
 #  Final release 06/28/2008
 #  - sysportfw.so completely rewritten by Steve Pittman (aka MtnLion) for improved bouncing port forwards
 #  - and SNAT outbound masking for 1:1 server mapping to an alias
+#  First Phaeton/Roadster working 10/08/30
+
 
 use lib "/usr/lib/smoothwall";
-#use lib "/var/smoothwall/mods/fullfirewall/usr/lib/perl5";
 
 use header qw( :standard );
 use smoothd qw( message );
 use smoothtype qw( :standard );
-#use SmoothInstall qw( :standard );
 use Shell qw(rm touch);
-
-#Init("fullfirewall");
-
 use Socket;
 use NetAddr::IP;
 use Net::Netmask;
@@ -89,7 +86,6 @@ use Net::Netmask;
 my %netsettings;
 &readhash("${swroot}/ethernet/settings", \%netsettings);
 
-# my $filedir = "${swroot}/mods/fullfirewall";
 my $aliasfile = "${swroot}/portfw/aliases";
 my @aliases;
 my $settings = "${swroot}/ethernet/settings";
@@ -128,7 +124,8 @@ $cgiparams{'ORDER_ONE'} = $tr{'log ascending'};
 $cgiparams{'COLUMN_TWO'} = 1;
 $cgiparams{'ORDER_TWO'} = $tr{'log ascending'};
 
-if ($ENV{'QUERY_STRING'} && ( not defined $cgiparams{'ACTION'} or $cgiparams{'ACTION'} eq "" ))
+if ($ENV{'QUERY_STRING'} && 
+    (not defined $cgiparams{'ACTION'} or $cgiparams{'ACTION'} eq "" ))
 {
   my @temp = split(',',$ENV{'QUERY_STRING'});
   $cgiparams{'ORDER_ONE'}  = $temp[1] if ( defined $temp[ 1 ] and $temp[ 1 ] ne "" );
@@ -185,7 +182,7 @@ if (defined $cgiparams{'ACTION'} and
     else
     {
       $size = 0;
-      $errormessage = "$tr{'multi-ip invalid'} $tr{'multi-ip netmask'}  (Net::Netmask::error)";
+      $errormessage = "$tr{'multi-ip invalid'} $tr{'multi-ip netmask'}  ($Net::Netmask::error)";
     }
     my $counta = 1;
 
@@ -225,7 +222,8 @@ if (defined $cgiparams{'ACTION'} and
         unless ($cgiparams{'OLDALIAS'} eq $split[0]) {
           print FILE "$line\n";
         } else {
-          print FILE "$split[0],$split[1],$split[2],$aladd,$netmask,$split[5],$split[6],$split[7],$cgiparams{'COMMENT'},$intadd\n";
+          print FILE "$split[0],$split[1],$split[2],$aladd,$netmask,";
+          print FILE "$split[5],$split[6],$split[7],$cgiparams{'COMMENT'},$intadd\n";
         }
       }
       close FILE;
@@ -247,19 +245,20 @@ if (defined $cgiparams{'ACTION'} and
           last;
         }
         $enabled = "$cgiparams{'ADDRESS_ENABLED'}";
-        print FILE "$coloralias,$ifalias,$ifreal,$octet,255\.255\.255\.0,$broadcast,yes,$enabled,$cgiparams{'COMMENT'},$intadd\n";
+        print FILE "$coloralias,$ifalias,$ifreal,$octet,255\.255\.255\.0,";
+        print FILE "$broadcast,yes,$enabled,$cgiparams{'COMMENT'},$intadd\n";
       }
       close FILE;
     }
 
-    my $success = message('ifaliasup');
+    my $success = &message('ifaliasup');
   
     unless (defined $success) {
       $errormessage = $tr{'smoothd failure'}; }
 
     &log($tr{'multi-ip ip address added or updated'});
 
-    my $success = message('setportfw');
+    my $success = &message('setportfw');
   
     unless (defined $success) {
       $errormessage = $tr{'smoothd failure'};
@@ -310,7 +309,8 @@ if (defined $cgiparams{'ACTION'} and
     if ($cgiparams{$id} eq "on") {
       $count++;
       @split = split(/\,/, $line);
-      if (($split[0] eq "RED") or ($split[0] eq "GREEN") or ($split[0] eq "ORANGE") or ($split[0] eq "PURPLE")) {
+      if (($split[0] eq "RED") or ($split[0] eq "GREEN") or
+          ($split[0] eq "ORANGE") or ($split[0] eq "PURPLE")) {
         $errormessage = $tr{'multi-ip iface error'};
       }
     }
@@ -324,7 +324,7 @@ if (defined $cgiparams{'ACTION'} and
   unless ($errormessage)
   {
     # Bring down the aliases first
-    my $success = message('ifaliasdown');
+    my $success = &message('ifaliasdown');
   
     unless (defined $success) {
       $errormessage = 'Unable to bring down interface aliases!'; }
@@ -340,9 +340,12 @@ if (defined $cgiparams{'ACTION'} and
       $id++;
       chomp($line);
       my @temp = split(/\,/, $line);
-      unless ($cgiparams{$id} eq "on") {
+      if ($cgiparams{$id} ne "on")
+      {
         print FILE "$line\n";
-      } elsif ($cgiparams{'ACTION'} eq $tr{'multi-ip edit'}) {
+      }
+      elsif ($cgiparams{'ACTION'} eq $tr{'multi-ip edit'})
+      {
         $cgiparams{'OLDALIAS'} = $temp[0];
         $cgiparams{'ADDRESS'} = $temp[3];
         $cgiparams{'NETMASK'} = '255.255.255.255';
@@ -365,10 +368,12 @@ if (defined $cgiparams{'ACTION'} and
           chomp $line2;
           @split = split(/\,/, $line2);
           unless (($temp[1] eq $split[1]) or ($temp[1] eq $split[4])) {
-            print TEMP "$count2,$split[1],$split[2],$split[3],$split[4],$split[5],$split[6],$split[7],$split[8],$split[9],$split[10]\n";
+            print TEMP "$count2,$split[1],$split[2],$split[3],$split[4],$split[5],";
+            print TEMP "$split[6],$split[7],$split[8],$split[9],$split[10]\n";
           } else {
             $pfwflag++;
-            print TEMP "$count2,$split[1],$split[2],$split[3],$split[4],$split[5],$split[6],$split[7],$split[8],off,$split[10]\n";
+            print TEMP "$count2,$split[1],$split[2],$split[3],$split[4],$split[5],";
+            print TEMP "$split[6],$split[7],$split[8],off,$split[10]\n";
           }
         }
         close TEMP;
@@ -384,7 +389,8 @@ if (defined $cgiparams{'ACTION'} and
           chomp $line2;
           @split = split(/\,/, $line2);
           unless (($temp[1] eq $split[1]) or ($temp[1] eq $split[4])) {
-            print TEMP "$count2,$split[1],$split[2],$split[3],$split[4],$split[5],$split[6],$split[7],$split[8],$split[9],$split[10]\n";
+            print TEMP "$count2,$split[1],$split[2],$split[3],$split[4],$split[5],";
+            print TEMP "$split[6],$split[7],$split[8],$split[9],$split[10]\n";
           } else {
             $pfwflag++;
           }
@@ -398,7 +404,8 @@ if (defined $cgiparams{'ACTION'} and
           $enabled = "on";
           my $running = "on";
         }
-        print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$running,$enabled,$temp[8],$temp[9]\n";
+        print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],";
+        print FILE "$temp[5],$running,$enabled,$temp[8],$temp[9]\n";
       }
     }
     close FILE;
@@ -427,7 +434,8 @@ if (defined $cgiparams{'ACTION'} and
       my $renabled = $split[7];
       if ($split[0] =~ /^RED:/) {
         $count++;
-        print FILE "RED:$count,$reddev:$count,$reth,$raddress,$rnet,$rbroad,$rrunning,$renabled,$split[8],$split[9]\n";
+        print FILE "RED:$count,$reddev:$count,$reth,$raddress,$rnet,";
+        print FILE "$rbroad,$rrunning,$renabled,$split[8],$split[9]\n";
 
         # Check for alias in portfw config file
         my $pfalias = "$reddev:$count";
@@ -455,10 +463,12 @@ if (defined $cgiparams{'ACTION'} and
 
           if ($alias eq $temp1) {
             $pfwflag++;
-            print TEMP "$temp0,$pfalias,$temp2,$temp3,$temp4,$temp5,$temp6,$temp7,$temp8,$temp9,$temp10\n";
+            print TEMP "$temp0,$pfalias,$temp2,$temp3,$temp4,$temp5,";
+            print TEMP "$temp6,$temp7,$temp8,$temp9,$temp10\n";
           } elsif ($alias eq $temp4) {
             $pfwflag++;
-            print TEMP "$temp0,$temp1,$temp2,$temp3,$pfalias,$temp5,$temp6,$temp7,$temp8,$temp9,$temp10\n";
+            print TEMP "$temp0,$temp1,$temp2,$temp3,$pfalias,$temp5,";
+            print TEMP "$temp6,$temp7,$temp8,$temp9,$temp10\n";
           } else {
             print TEMP "$line2\n";
           }
@@ -470,12 +480,12 @@ if (defined $cgiparams{'ACTION'} and
     }
     close FILE;
 
-    my $success = message('ifaliasup');
+    my $success = &message('ifaliasup');
   
     unless (defined $success) {
       $errormessage = 'Unable to bring up interface alias!'; }
 
-    my $success = message('setportfw');
+    my $success = &message('setportfw');
   
     unless (defined $success) {
       $errormessage = $tr{'smoothd failure'}; }
@@ -483,7 +493,9 @@ if (defined $cgiparams{'ACTION'} and
     unless ($success eq 'Port forwarding rules set') {
       $errormessage = "Error setting portforwarding rules: " . "$success"; }
   }
-  # Cheat to reorder port forwarding rules since I'm too lazy to figure out why it's not ordering them correctly
+
+  # Cheat to reorder port forwarding rules since I'm too lazy to figure
+  # out why it's not ordering them correctly
   my $count1 = 0;
   open (FILE, "$filename") or die 'Unable to open port forward config file';
   @temp = <FILE>;
@@ -495,7 +507,8 @@ if (defined $cgiparams{'ACTION'} and
     $count1++;
     chomp $line;
     @split = split(/\,/, $line);
-    print FILE "$count1,$split[1],$split[2],$split[3],$split[4],$split[5],$split[6],$split[7],$split[8],$split[9],$split[10]\n";
+    print FILE "$count1,$split[1],$split[2],$split[3],$split[4],$split[5],";
+    print FILE "$split[6],$split[7],$split[8],$split[9],$split[10]\n";
   }
   close FILE;
 }
@@ -518,13 +531,17 @@ if ($cgiparams{'ACTION'} eq $tr{'add'} or
   }
 
   if ($cgiparams{'DEST_PORT'}) {
-    unless(&validportrange($cgiparams{'DEST_PORT'})) { $errormessage .= "$tr{'source port numbers'}<BR />"; }
+    unless(&validportrange($cgiparams{'DEST_PORT'})) {
+      $errormessage .= "$tr{'source port numbers'}<BR />";
+    }
   } else {
     $cgiparams{'DEST_PORT'} = 0;
   }
 
   if ($cgiparams{'NEW_DEST_PORT'}) {
-    unless(&validportrange($cgiparams{'NEW_DEST_PORT'})) { $errormessage .= "$tr{'destination port numbers'}<BR />"; }
+    unless(&validportrange($cgiparams{'NEW_DEST_PORT'})) {
+      $errormessage .= "$tr{'destination port numbers'}<BR />";
+    }
   } else {
     $cgiparams{'NEW_DEST_PORT'} = 0;
   }
@@ -540,7 +557,8 @@ if ($cgiparams{'ACTION'} eq $tr{'add'} or
   #################
   # Error checking
   #################
-  unless ( $cgiparams{'PROTOCOL'} eq "6" or $cgiparams{'PROTOCOL'} eq "17" or $cgiparams{'PROTOCOL'} eq "TCP & UDP" ) {
+  unless ($cgiparams{'PROTOCOL'} eq "6" or $cgiparams{'PROTOCOL'} eq "17" or
+          $cgiparams{'PROTOCOL'} eq "TCP & UDP" ) {
     unless ( !($cgiparams{'DEST_PORT'}) and !($cgiparams{'NEW_DEST_PORT'}) ) {
       $errormessage = 'You cannot specify a port with that protocol';
     }
@@ -617,7 +635,9 @@ if ($cgiparams{'ACTION'} eq $tr{'add'} or
     if ($greengwobj eq $srcipaddrobj) {
       $errormessage .= "$tr{'source ip bad gateway'}<BR />";
     } elsif (!($srcipaddrobj eq "")) {
-      if (($orangegwobj eq $srcipaddrobj) || ($purplegwobj eq $srcipaddrobj) || ($redgwobj eq $srcipaddrobj)) {
+      if (($orangegwobj eq $srcipaddrobj) ||
+          ($purplegwobj eq $srcipaddrobj) ||
+          ($redgwobj eq $srcipaddrobj)) {
         $errormessage .= "$tr{'source ip bad gateway'}<BR />";
       }
     }
@@ -627,16 +647,22 @@ if ($cgiparams{'ACTION'} eq $tr{'add'} or
         if (!$greenipobj->contains($srcipaddrobj)) {
           $errormessage .= "$tr{'source ip bad green'}<BR />";
         }
-      } elsif (($netsettings{'ORANGE_ADDRESS'} ne '') && ($cgiparams{'SRC_IFACE'} eq $netsettings{'ORANGE_DEV'})) {
+      } elsif (($netsettings{'ORANGE_ADDRESS'} ne '') &&
+               ($cgiparams{'SRC_IFACE'} eq $netsettings{'ORANGE_DEV'})) {
         if (!$orangeipobj->contains($srcipaddrobj)) {
           $errormessage .= "$tr{'source ip bad orange'}<BR />";
         }
-      } elsif (($netsettings{'PURPLE_ADDRESS'} ne '') && ($cgiparams{'SRC_IFACE'} eq $netsettings{'PURPLE_DEV'})) {
+      } elsif (($netsettings{'PURPLE_ADDRESS'} ne '') &&
+               ($cgiparams{'SRC_IFACE'} eq $netsettings{'PURPLE_DEV'})) {
         if (!$purpleipobj->contains($srcipaddrobj)) {
           $errormessage .= "$tr{'source ip bad purple'}<BR />";
         }
       } elsif (($redip ne '') && ($cgiparams{'SRC_IFACE'} eq $reddev)) {
-        if (($greenipobj->contains($srcipaddrobj)) || ((!($orangeipobj == $defaultipobj)) && $orangeipobj->contains($srcipaddrobj)) || ((!($purpleipobj == $defaultipobj)) && $purpleipobj->contains($srcipaddrobj))) {
+        if (($greenipobj->contains($srcipaddrobj)) ||
+            (($orangeipobj != $defaultipobj) &&
+             ($orangeipobj->contains($srcipaddrobj))) ||
+            (($purpleipobj != $defaultipobj) &&
+             ($purpleipobj->contains($srcipaddrobj)))) {
           $errormessage .= "$tr{'source ip bad red'}<BR />";
         }
       }
@@ -653,7 +679,9 @@ if ($cgiparams{'ACTION'} eq $tr{'add'} or
     if ($greengwobj eq $destipaddrobj) {
       $errormessage .= "$tr{'destination ip bad gateway'}<BR />";
     } elsif (!($destipaddrobj eq "")) {
-      if (($orangegwobj eq $destipaddrobj) || ($purplegwobj eq $destipaddrobj) || ($redgwobj eq $destipaddrobj)) {
+      if (($orangegwobj eq $destipaddrobj) ||
+          ($purplegwobj eq $destipaddrobj) ||
+          ($redgwobj eq $destipaddrobj)) {
         $errormessage .= "$tr{'destination ip bad gateway'}<BR />";
       }
     }
@@ -663,16 +691,22 @@ if ($cgiparams{'ACTION'} eq $tr{'add'} or
         if (!$greenipobj->contains($destipaddrobj)) {
           $errormessage .= "$tr{'destination ip bad green'}<BR />";
         }
-      } elsif (($netsettings{'ORANGE_ADDRESS'} ne '') && ($cgiparams{'DEST_IFACE'} eq $netsettings{'ORANGE_DEV'})) {
+      } elsif (($netsettings{'ORANGE_ADDRESS'} ne '') &&
+               ($cgiparams{'DEST_IFACE'} eq $netsettings{'ORANGE_DEV'})) {
         if (!$orangeipobj->contains($destipaddrobj)) {
           $errormessage .= "$tr{'destination ip bad orange'}<BR />";
         }
-      } elsif (($netsettings{'PURPLE_ADDRESS'} ne '') && ($cgiparams{'DEST_IFACE'} eq $netsettings{'PURPLE_DEV'})) {
+      } elsif (($netsettings{'PURPLE_ADDRESS'} ne '') &&
+               ($cgiparams{'DEST_IFACE'} eq $netsettings{'PURPLE_DEV'})) {
         if (!$purpleipobj->contains($destipaddrobj)) {
           $errormessage .= "$tr{'destination ip bad purple'}<BR />";
         }
       } elsif (($redip ne '') && ($cgiparams{'DEST_IFACE'} eq $reddev)) {
-        if (($greenipobj->contains($destipaddrobj)) || ((!($orangeipobj == $defaultipobj)) && $orangeipobj->contains($destipaddrobj)) || ((!($purpleipobj == $defaultipobj)) && $purpleipobj->contains($destipaddrobj))) {
+        if (($greenipobj->contains($destipaddrobj)) ||
+            (($orangeipobj != $defaultipobj) &&
+             $orangeipobj->contains($destipaddrobj)) ||
+            (($purpleipobj != $defaultipobj) &&
+             $purpleipobj->contains($destipaddrobj))) {
           $errormessage .= "$tr{'destination ip bad red'}<BR />";
         }
       }
@@ -701,7 +735,8 @@ if ($cgiparams{'ACTION'} eq $tr{'add'} or
             chomp $line;
             my @temp = split(/\,/, $line);
             $temp[0]--;
-            print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$temp[6],$temp[7],$temp[8],$temp[9],$temp[10]\n";
+            print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],";
+            print FILE "$temp[6],$temp[7],$temp[8],$temp[9],$temp[10]\n";
           }
         } else {
           print FILE "$line";
@@ -726,13 +761,26 @@ if ($cgiparams{'ACTION'} eq $tr{'add'} or
 
       if ($cnt == $cgiparams{'ORDER_NUMBER'}) {
         if ($cgiparams{'PROTOCOL'} eq "TCP & UDP") {
-          print FILE "$cgiparams{'ORDER_NUMBER'},$cgiparams{'SRC_IFACE'},$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},$cgiparams{'NEW_DEST_PORT'},6,$cgiparams{'TARGET'},$cgiparams{'ENABLED'},$cgiparams{'DESCRIPTION'}\n";
+          print FILE "$cgiparams{'ORDER_NUMBER'},$cgiparams{'SRC_IFACE'},";
+          print FILE "$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},";
+          print FILE "$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},";
+          print FILE "$cgiparams{'NEW_DEST_PORT'},6,$cgiparams{'TARGET'},";
+          print FILE "$cgiparams{'ENABLED'},$cgiparams{'DESCRIPTION'}\n";
           $cnt++;
-          print FILE "$cnt,$cgiparams{'SRC_IFACE'},$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},$cgiparams{'NEW_DEST_PORT'},17,$cgiparams{'TARGET'},$cgiparams{'ENABLED'},$cgiparams{'DESCRIPTION'}\n";
+          print FILE "$cnt,$cgiparams{'SRC_IFACE'},$cgiparams{'SRC_IPMAC'},";
+          print FILE "$cgiparams{'DEST_PORT'},$cgiparams{'DEST_IFACE'},";
+          print FILE "$cgiparams{'DEST_IPMAC'},$cgiparams{'NEW_DEST_PORT'},17,";
+          print FILE "$cgiparams{'TARGET'},$cgiparams{'ENABLED'},";
+          print FILE "$cgiparams{'DESCRIPTION'}\n";
           $notadded = 0;
           $cnt++;
         } else {
-          print FILE "$cgiparams{'ORDER_NUMBER'},$cgiparams{'SRC_IFACE'},$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},$cgiparams{'NEW_DEST_PORT'},$cgiparams{'PROTOCOL'},$cgiparams{'TARGET'},$cgiparams{'ENABLED'},$cgiparams{'DESCRIPTION'}\n";
+          print FILE "$cgiparams{'ORDER_NUMBER'},$cgiparams{'SRC_IFACE'},";
+          print FILE "$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},";
+          print FILE "$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},";
+          print FILE "$cgiparams{'NEW_DEST_PORT'},$cgiparams{'PROTOCOL'},";
+          print FILE "$cgiparams{'TARGET'},$cgiparams{'ENABLED'},";
+          print FILE "$cgiparams{'DESCRIPTION'}\n";
           $notadded = 0;
           $cnt++;
         }
@@ -740,16 +788,30 @@ if ($cgiparams{'ACTION'} eq $tr{'add'} or
 
       chomp $line;
       my @temp = split(/\,/, $line);
-      print FILE "$cnt,$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$temp[6],$temp[7],$temp[8],$temp[9],$temp[10]\n";
+      print FILE "$cnt,$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],";
+      print FILE "$temp[6],$temp[7],$temp[8],$temp[9],$temp[10]\n";
     }
 
     if ($notadded) {
       if ($cgiparams{'PROTOCOL'} eq "TCP & UDP") {
-        print FILE "$cgiparams{'ORDER_NUMBER'},$cgiparams{'SRC_IFACE'},$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},$cgiparams{'NEW_DEST_PORT'},6,$cgiparams{'TARGET'},$cgiparams{'ENABLED'},$cgiparams{'DESCRIPTION'}\n";
+        print FILE "$cgiparams{'ORDER_NUMBER'},$cgiparams{'SRC_IFACE'},";
+        print FILE "$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},";
+        print FILE "$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},";
+        print FILE "$cgiparams{'NEW_DEST_PORT'},6,$cgiparams{'TARGET'},";
+        print FILE "$cgiparams{'ENABLED'},$cgiparams{'DESCRIPTION'}\n";
         $cgiparams{'ORDER_NUMBER'}++;
-        print FILE "$cgiparams{'ORDER_NUMBER'},$cgiparams{'SRC_IFACE'},$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},$cgiparams{'NEW_DEST_PORT'},17,$cgiparams{'TARGET'},$cgiparams{'ENABLED'},$cgiparams{'DESCRIPTION'}\n";
+        print FILE "$cgiparams{'ORDER_NUMBER'},$cgiparams{'SRC_IFACE'},";
+        print FILE "$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},";
+        print FILE "$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},";
+        print FILE "$cgiparams{'NEW_DEST_PORT'},17,$cgiparams{'TARGET'},";
+        print FILE "$cgiparams{'ENABLED'},$cgiparams{'DESCRIPTION'}\n";
       } else {
-        print FILE "$cgiparams{'ORDER_NUMBER'},$cgiparams{'SRC_IFACE'},$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},$cgiparams{'NEW_DEST_PORT'},$cgiparams{'PROTOCOL'},$cgiparams{'TARGET'},$cgiparams{'ENABLED'},$cgiparams{'DESCRIPTION'}\n";
+        print FILE "$cgiparams{'ORDER_NUMBER'},$cgiparams{'SRC_IFACE'},";
+        print FILE "$cgiparams{'SRC_IPMAC'},$cgiparams{'DEST_PORT'},";
+        print FILE "$cgiparams{'DEST_IFACE'},$cgiparams{'DEST_IPMAC'},";
+        print FILE "$cgiparams{'NEW_DEST_PORT'},$cgiparams{'PROTOCOL'},";
+        print FILE "$cgiparams{'TARGET'},$cgiparams{'ENABLED'},";
+        print FILE "$cgiparams{'DESCRIPTION'}\n";
       }
     }
 
@@ -762,7 +824,7 @@ if ($cgiparams{'ACTION'} eq $tr{'add'} or
     }
     ######################################
 
-    my $success = message('setportfw');
+    my $success = &message('setportfw');
   
     unless (defined $success) { $errormessage = "$tr{'smoothd failure'}"; }
 
@@ -826,7 +888,8 @@ elsif ($cgiparams{'ACTION'} eq $tr{'remove'} or
         chomp $line;
         my @temp = split(/\,/, $line);
         $temp[0] = $cnt;
-        print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$temp[6],$temp[7],$temp[8],$temp[9],$temp[10]\n";
+        print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],";
+        print FILE "$temp[5],$temp[6],$temp[7],$temp[8],$temp[9],$temp[10]\n";
         $cnt++;
       } elsif ($cgiparams{'ACTION'} eq $tr{'edit'}) {
         chomp($line);
@@ -856,7 +919,8 @@ elsif ($cgiparams{'ACTION'} eq $tr{'remove'} or
         } else {
           $enabled = "on";
         }
-        print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$temp[6],$temp[7],$temp[8],$enabled,$temp[10]\n";
+        print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],";
+        print FILE "$temp[5],$temp[6],$temp[7],$temp[8],$enabled,$temp[10]\n";
       }
     }
 
@@ -879,7 +943,7 @@ elsif ($cgiparams{'ACTION'} eq $tr{'remove'} or
       $cgiparams{'RULE_COUNT'} = $id;
     }
 
-    my $success = message('setportfw');
+    my $success = &message('setportfw');
   
     unless (defined $success) {
       $errormessage = "$tr{'smoothd failure'}";
@@ -1036,25 +1100,27 @@ delete($availableprotocols{'254'});
 delete($availableprotocols{'255'});
 my @sortedprotocols = sort { $a <=> $b } keys(%availableprotocols);
 
+
+######
+# Start generating HTML
+######
+
 &openpage($tr{'full firewall control'}, 1, '', 'networking');
 
-&openbigbox('100%', 'LEFT');
+&openbigbox('100%', 'left');
 
 &alertbox($errormessage);
 
 # Javascript support lines
-print "<SCRIPT LANGUAGE='javascript' SRC='/ui/js/utility.js'></SCRIPT>";
-
-print <<END
+print "
+<script type='application/javascript' src='/ui/js/utility.js'></script>
 <script>
-function ffoxSelectUpdate(elmt)
-{
-        if(!document.all) elmt.style.cssText =
-        elmt.options[elmt.selectedIndex].style.cssText;
-}
+  function ffoxSelectUpdate(elmt)
+  {
+    if(!document.all) elmt.style.cssText = elmt.options[elmt.selectedIndex].style.cssText;
+  }
 </script>
-END
-;
+";
 
 # Border for debug
 my $border = 0;
@@ -1102,29 +1168,29 @@ if ($aliasupdbutton) {
   $aliasboxtext = $tr{'add new alias'};
 }
 
-print <<END
-<STYLE type="text/css">
-OPTION.red{color:red;}
-OPTION.green{color:green;}
-OPTION.orange{color:orange;}
-OPTION.purple{color:purple;}
-</STYLE>
-END
-;
+print "
+<style type='text/css'>
+  option.red{color:red;}
+  option.green{color:green;}
+  option.orange{color:orange;}
+  option.purple{color:purple;}
+</style>
+";
 
 ##############################################
 
-print "<FORM METHOD='POST' NAME='FIREWALL'>\n";
-print qq{
-<TABLE WIDTH='100%' CLASS='box' style='margin-top:8pt; margin-bottom:8pt'>
-  <TR>
-    <TD ALIGN='center' CLASS='boldbase'>
-      <B>$tr{'ffc section'}</B>
-    </TD>
-  </TR>
+print "<form method='post' name='FIREWALL'>\n";
+print "
+<table width='100%' class='box' style='margin-top:8pt; margin-bottom:8pt'>
+  <tr>
+    <td align='center' class='boldbase'>
+      <b>$tr{'ffc section'}</b>
+    </td>
+  </tr>
   <tr>
     <td>
-};
+
+";
 
 # Update interfaces
 if (open(FILE, "$aliasfile"))
@@ -1138,7 +1204,7 @@ flock ALIASES, 2;
 foreach $line (@aliases) {
   chomp $line;
   @temp = split(/\,/, $line);
-  unless (($temp[0] eq "RED") or ($temp[0] eq "GREEN") or \
+  unless (($temp[0] eq "RED") or ($temp[0] eq "GREEN") or 
           ($temp[0] eq "ORANGE") or ($temp[0] eq "PURPLE")) {
     print ALIASES "$line\n";
   } elsif ($temp[0] eq "RED") {
@@ -1172,6 +1238,8 @@ close ALIASES;
 if (open(FILE, "$aliasfile"))
 {
   @aliases = <FILE>;
+foreach $line (@aliases) {
+}
   close FILE;
 }
 
@@ -1196,6 +1264,35 @@ foreach $line (@aliases) {
 close FILE;
  
 &openbox($boxtext);
+
+# Extract the initial iface color for SRC
+my $SRC_COLOR = 'black';
+$SRC_COLOR = 'green'
+    if ($selected{'SRC_IFACE'}{$netsettings{'GREEN_DEV'}} eq 'SELECTED');
+
+$SRC_COLOR = 'orange'
+    if ($selected{'SRC_IFACE'}{$netsettings{'ORANGE_DEV'}} eq 'SELECTED');
+
+$SRC_COLOR = 'purple'
+    if ($selected{'SRC_IFACE'}{$netsettings{'PURPLE_DEV'}} eq 'SELECTED');
+
+$SRC_COLOR = 'red'
+    if ($selected{'SRC_IFACE'}{$reddev} eq 'SELECTED');
+
+# Extract the initial iface color for DEST
+my $DEST_COLOR = 'black';
+$DEST_COLOR = 'green'
+    if ($selected{'DEST_IFACE'}{$netsettings{'GREEN_DEV'}} eq 'SELECTED');
+
+$DEST_COLOR = 'orange'
+    if ($selected{'DEST_IFACE'}{$netsettings{'ORANGE_DEV'}} eq 'SELECTED');
+
+$DEST_COLOR = 'purple'
+    if ($selected{'DEST_IFACE'}{$netsettings{'PURPLE_DEV'}} eq 'SELECTED');
+
+$DEST_COLOR = 'red'
+    if ($selected{'DEST_IFACE'}{$reddev} eq 'SELECTED');
+
 print "
 <table width='100%' border='$border'>
   <tr>
@@ -1203,7 +1300,7 @@ print "
       $tr{'source ifacec'}
     </td>
     <td width='25%'>
-      <select style='color: red' onchange='ffoxSelectUpdate(this);' name='SRC_IFACE'>
+      <select style='color: $SRC_COLOR' onchange='ffoxSelectUpdate(this);' name='SRC_IFACE'>
         <option style='color: black' value='any' $selected{'SRC_IFACE'}{'any'}>
           Any
         </option>
@@ -1269,7 +1366,7 @@ print "      </select>
       $tr{'destination ifacec'}
     </td>
     <td width='25%'>
-      <select style='color: green' onchange='ffoxSelectUpdate(this);' name='DEST_IFACE'>
+      <select style='color: $DEST_COLOR' onchange='ffoxSelectUpdate(this);' name='DEST_IFACE'>
         <option style='color: black' value='any' $selected{'DEST_IFACE'}{'any'}>
           Any
         </option>
@@ -1289,22 +1386,22 @@ foreach $dev (sort(keys(%availablenetdevices))) {
   }	
 
   if ($netsettings{'GREEN_DEV'} && ($dev =~ /$netsettings{'GREEN_DEV'}/)) {
-    print "        <option style='color: green' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "        <option style='color: green' value='$dev' $selected{'DEST_IFACE'}{$dev}>\n";
     print "          GREEN$devifacesub - $dev\n";
     print "        </option>\n";
 
   } elsif ($netsettings{'ORANGE_DEV'} && ($dev =~ /$netsettings{'ORANGE_DEV'}/)) {
-    print "        <option style='color: orange' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "        <option style='color: orange' value='$dev' $selected{'DEST_IFACE'}{$dev}>\n";
     print "          ORANGE$devifacesub - $dev\n";
     print "        </option>\n";
 
   } elsif ($netsettings{'PURPLE_DEV'} && ($dev =~ /$netsettings{'PURPLE_DEV'}/)) {
-    print "        <option style='color: purple' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "        <option style='color: purple' value='$dev' $selected{'DEST_IFACE'}{$dev}>\n";
     print "          PURPLE$devifacesub - $dev\n";
     print "        </option>\n";
 
   } elsif ($reddev && ($dev =~ /$reddev/)) {
-    print "        <option style='color: red' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "        <option style='color: red' value='$dev' $selected{'DEST_IFACE'}{$dev}>\n";
     if ($redaliasip)
     {
       print "          RED$devifacesub $redaliasip\n";
@@ -1316,7 +1413,7 @@ foreach $dev (sort(keys(%availablenetdevices))) {
       print "        </option>\n";
 
   } else {
-    print "        <option style='color: black' value='$dev' $selected{'SRC_IFACE'}{$dev}>\n";
+    print "        <option style='color: black' value='$dev' $selected{'DEST_IFACE'}{$dev}>\n";
     print "          $dev\n";
     print "        </option>\n";
   }
@@ -1657,55 +1754,88 @@ print "
 &closebox();
 
 # End the P&P Fwd Sect.
-print "    </TD>
-  </TR>
-</TABLE>
+print "
+    </td>
+  </tr>
+</table>
 ";
 
-print <<END
+print "
 
-<TABLE WIDTH='100%' CLASS='box'>
-  <TR>
-    <TD ALIGN='center' CLASS='bolbdbase'><B>$tr{'multi-ip section'}</B></TD>
-  </TR>
-  <TR>
+<table width='100%' class='box'>
+  <tr>
+    <td align='center' class='bolbdbase'>
+      <b>$tr{'multi-ip section'}</b>
+    </td>
+  </tr>
+  <tr>
     <td>
-END
-;
+";
 
 &openbox($aliasboxtext);
 
 my $border = 0;
-print <<END
+print "
 
-<TABLE style='width:100%; margin:6pt 0' border='$border'>
-<TR>
-  <TD class='base'>Red Alias IP:</TD>
-  <TD><INPUT TYPE='TEXT' NAME='ADDRESS' VALUE='$cgiparams{'ADDRESS'}' SIZE=15' id='ifaddress' @{[jsvalidipormask('ifaddress','true')]}></TD>
-  <TD class='base'>$tr{'multi-ip netmask'}:</TD>
-  <TD><INPUT TYPE='TEXT' NAME='NETMASK' VALUE='$cgiparams{'NETMASK'}' SIZE='15' id='ifnetmask' @{[jsvalidipormask('ifnetmask','true')]}></TD>
-  <TD class='base'><IMG SRC='/ui/img/blob.gif' VALIGN='top'>&nbsp;Internal IP:</TD>
-  <TD><INPUT TYPE='TEXT' NAME='INTADDRESS' VALUE='$cgiparams{'INTADDRESS'}' SIZE='15' id='ifintaddress' @{[jsvalidip('ifintaddress','true')]}></TD>
-</TR>
-<TR>
-<TD class='base'>$tr{'descriptionc'}</td><td colspan='5'><INPUT TYPE='TEXT' NAME='COMMENT' SIZE='80' VALUE='$cgiparams{'COMMENT'}' id='comment' @{[jsvalidcomment('comment')]}></TD>
-</TR>
-</TABLE>
+<table style='width:100%; margin:6pt 0' border='$border'>
+  <tr>
+    <td class='base'>
+      Red Alias IP:
+    </td>
+    <td>
+      <input type='text' name='ADDRESS' value='$cgiparams{'ADDRESS'}'
+             size=15' id='ifaddress' @{[jsvalidipormask('ifaddress','true')]}>
+    </td>
+    <td class='base'>
+      $tr{'multi-ip netmask'}:
+    </td>
+    <td>
+      <input type='text' name='NETMASK' value='$cgiparams{'NETMASK'}'
+             size='15' id='ifnetmask' @{[jsvalidipormask('ifnetmask','true')]}>
+    </td>
+    <td class='base'>
+      <img src='/ui/img/blob.gif' valign='top'>
+      Internal IP:
+    </td>
+    <td>
+      <input type='text' name='INTADDRESS' value='$cgiparams{'INTADDRESS'}'
+             size='15' id='ifintaddress' @{[jsvalidip('ifintaddress','true')]}>
+    </td>
+  </tr>
+  <tr>
+    <td class='base'>
+      $tr{'descriptionc'}
+    </td>
+    <td colspan='5'>
+      <input type='text' name='COMMENT' size='80' value='$cgiparams{'COMMENT'}'
+             id='comment' @{[jsvalidcomment('comment')]}>
+    </td>
+  </tr>
+</table>
 
-<TABLE style='width:100%; margin:6pt 0' border='$border'>
-<TR>
-<TD WIDTH='50%' align='center'>$tr{'enabled'}<INPUT TYPE='CHECKBOX' NAME='ADDRESS_ENABLED' $checked{'ADDRESS_ENABLED'}{'on'}></TD>
-<TD WIDTH='50%' align='center'><INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$aliasbtntext'><INPUT TYPE='HIDDEN' NAME='OLDALIAS' VALUE='$cgiparams{'OLDALIAS'}'></TD>
-</TR>
-</TABLE>
+<table style='width:100%; margin:6pt 0' border='$border'>
+  <tr>
+    <td width='50%' align='center'>
+      $tr{'enabled'}
+      <input type='checkbox' name='ADDRESS_ENABLED' $checked{'ADDRESS_ENABLED'}{'on'}>
+    </td>
+    <td width='50%' align='center'>
+      <input type='submit' name='ACTION' value='$aliasbtntext'>
+      <input type='hidden' name='OLDALIAS' value='$cgiparams{'OLDALIAS'}'>
+    </td>
+  </tr>
+</table>
 
-<TABLE style="width:100%; margin:8pt 0 0 0">
-<TR>
-  <TD COLSPAN='6' ALIGN='LEFT'><IMG SRC='/ui/img/blob.gif' VALIGN='top'>&nbsp;Enter an internal LAN IP address to associate with a specific red alias address, if needed. Otherwise leave blank.</TD>
-</TR>
-</TABLE>
-END
-;
+<table style='width:100%; margin:8pt 0 0 0'>
+  <tr>
+    <td colspan='6' align='left'>
+      <img src='/ui/img/blob.gif' valign='top'>
+      Enter an internal LAN IP address to associate with a specific red alias
+      address, if needed. Otherwise leave blank.
+    </td>
+  </tr>
+</table>
+";
 
 &closebox();
 
@@ -1767,49 +1897,42 @@ my %render_settings =
 
 &dispaliastab($aliasfile, \%render_settings, $cgiparams{'ORDER_ONE'}, $cgiparams{'COLUMN_ONE'});
 
-print <<END
+print "
 
-<TABLE WIDTH='100%'>
-<TR>
-  <TD WIDTH='33%' ALIGN='CENTER'><INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$tr{'multi-ip remove'}' onClick="if(confirm('$tr{'multiip-validate'}')) {return true;} return false;" ></TD>
-  <TD WIDTH='34%' ALIGN='CENTER'><INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$tr{'multi-ip enable alias'}'></TD>
-  <TD WIDTH='33%' ALIGN='CENTER'><INPUT TYPE='SUBMIT' NAME='ACTION' VALUE='$tr{'multi-ip edit'}'></TD>
-</TR>
-</TABLE>
-<TABLE style="width:100%; margin:8pt 0 0 0">
-<TR>
-  <TD COLSPAN='6'>
-    $tr{'multi-ip device note'}
-  </TD>
-</TR>
-</TABLE>
-END
-;
+<table width='100%'>
+  <tr>
+    <td width='33%' align='center'>
+      <input type='submit' name='ACTION' value='$tr{'multi-ip remove'}'
+             onClick=\"if(confirm('$tr{'multiip-validate'}')) {return true;} return false;\" >
+    </td>
+    <td width='34%' align='center'>
+      <input type='submit' name='ACTION' value='$tr{'multi-ip enable alias'}'>
+    </td>
+    <td width='33%' align='centeR'>
+      <input type='submit' name='ACTION' value='$tr{'multi-ip edit'}'>
+    </td>
+  </tr>
+</table>
+<table style='width:100%; margin:8pt 0 0 0'>
+  <tr>
+    <td colspan='6'>
+      $tr{'multi-ip device note'}
+    </td>
+  </tr>
+</table>
+";
+
 &closebox();
 
 # close the Mult. Stat. IP Sect.
-print qq{
+print "
     <td>
   </tr>
-</TABLE>
-};
+</table>
+";
 
-print "</FORM>\n";
+print "</form>\n";
 
-#&openbox();
-#print <<END
-#<br>
-#<table width='100%'>
-#<tr>
-#<td width='70%' align='right'>For help please visit the <a href=$ModDetails{'MOD_FORUM'}>SmoothWall Community Forums</a></td>
-#<td width='30%' align='right'>Mod version: $ModDetails{'MOD_VERSION'}</td>
-#</tr>
-#</table>
-#
-#END
-#;
-#
-#&closebox();
 
 &alertbox('add','add');
 
@@ -1867,13 +1990,13 @@ sub ifcolormap
   
     my ( $ifcolor, $ethdev ) = split /,/, $line;
     if ($ifcolor =~ /^RED/) {
-      $ethcolor = "<font color=red>$ifcolor</font>";
+      $ethcolor = "<span style='color:red'>$ifcolor</span>";
     } elsif ($ifcolor =~ /^GREEN/) {
-      $ethcolor = "<font color=green>$ifcolor</font>";
+      $ethcolor = "<span style='color:green'>$ifcolor</span>";
     } elsif ($ifcolor =~ /^ORANGE/) {
-      $ethcolor = "<font color=orange>$ifcolor</font>";
+      $ethcolor = "<span style='color:orange'>$ifcolor</span>";
     } elsif ($ifcolor =~ /^PURPLE/) {
-      $ethcolor = "<font color=purple>$ifcolor</font>";
+      $ethcolor = "<span style='color:purple'>$ifcolor</span>";
     } else {
       $ethcolor = $ifcolor;
     }
