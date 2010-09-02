@@ -27,34 +27,34 @@ SWE_PKGS = udev udev-config grub pciutils bash reiserfsprogs
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr
 
 bin:
-	@mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin
-	@cp -aR /sbin/* tmp/bin
-	@#cp -aRv /build/target/install tmp/bin/install
-	@#strip tmp/bin/*
+	(set -x; mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin; \
+	cp -aR /sbin/* tmp/bin)
+	#cp -aRv /build/target/install tmp/bin/install
+	#strip tmp/bin/*
 
 lib:
-	@mkdir -p tmp/lib tmp/usr/lib/klibc/lib
-	@cp -aR /lib/* tmp/lib
-	@cp -aR /lib/lib* tmp/lib
-	@cp -aR /usr/lib/libncurses* tmp/lib/
-	tar xfz /build/target/smoothwall-kernel-phaeton.tar.gz -C tmp ./lib/modules > /dev/null 2>&1
+	(set -x; mkdir -p tmp/lib tmp/usr/lib/klibc/lib; \
+	cp -aR /lib/* tmp/lib; \
+	cp -aR /lib/lib* tmp/lib; \
+	cp -aR /usr/lib/libncurses* tmp/lib/; \
+	tar xfz /build/target/smoothwall-kernel$(SWETYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1)
 
 klibc:
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
 
 
 all: clean bin lib klibc
-	@mkdir -p tmp/sys
-	@for i in $(ROOTDIRS); do mkdir -p tmp/$$i; done
-	@ln -s bin tmp/sbin
-	@cp -aR $(BB)/bin/busybox tmp/bin
-	@cd tmp/bin; for FILE in $(BBPROGS); do ln -s busybox $$FILE; done
+	mkdir -p tmp/sys
+	for i in $(ROOTDIRS); do mkdir -p tmp/$$i; done
+	ln -s bin tmp/sbin
+	cp -aR $(BB)/bin/busybox tmp/bin
+	cd tmp/bin; for FILE in $(BBPROGS); do ln -s busybox $$FILE; done
 	#@cd tmp; ln -sv /bin/busybox init
-	@cd tmp; cp ../etc/runt-init init; chmod 555 init
+	cd tmp; cp ../etc/runt-init init; chmod 555 init
 
-	@(cd tmp; \
+	(cd tmp; \
 	  install -D /usr/share/terminfo/l/linux usr/share/terminfo/l/linux; \
 	  cp -aR /lib/ld-*.so /lib/ld-*.so.* /lib/libc-*.so /lib/libc.so.* lib; \
 	  cp -aR ../etc/fstab etc; \
@@ -68,10 +68,10 @@ all: clean bin lib klibc
 	  cp -aR ../etc/modules.conf etc; \
 	  cp -aR ../etc/storagedevices etc; \
 	) > /dev/null 2>&1
-	@(cd tmp/etc; \
+	(cd tmp/etc; \
 	  gawk -f ../../etc/fill-pci-ids.awk < /usr/share/pci.ids > filled.pci.ids;\
 	) > /dev/null 2>&1
-	@(cd tmp; \
+	(cd tmp; \
 	  for i in $(SWE_PKGS); do \
 	    tar xfz /build/target/smoothwall-$$i.tar.gz; \
 	  done; \
@@ -96,13 +96,15 @@ ifdef BITS_64
 	@(cd tmp; ln -s lib lib64)
 endif
 
-	@touch tmp/cdrominstall
+	touch tmp/cdrominstall
+
+	/build/striptree tmp
 
 	@# Build the runtime initramfs CPIO archive
-	@cd tmp; find . | cpio -o -H newc | gzip > ../../$(RUNTIME_ROOT)image.gz
+	cd tmp; find . | cpio -o -H newc | gzip > ../../$(RUNTIME_ROOT)image.gz
 
 	@#rm -rf installroot/
-	@echo -e "runtimeroot build for $(MEDIA) complete\n\n"
+	echo -e "runtimeroot build for $(MEDIA) complete\n\n"
 	
 clean:
 	rm -rf $(RUNTIME_ROOT) tmp/

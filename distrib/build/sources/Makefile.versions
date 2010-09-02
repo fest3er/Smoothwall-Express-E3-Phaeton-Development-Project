@@ -12,7 +12,7 @@ KERNEL_VER = $(KERNEL_MMR).21
 # Unrelated to the system's kernel
 KLIBKERNVER = 2.6.33.6
 
-SWETYPE = -phaeton
+SWETYPE = $(PRODUCT_EXTRA)
 K_RAW_VERSION = $(KERNEL_VER)
 K_SWE_VERSION = $(KERNEL_VER)$(SWETYPE)
 

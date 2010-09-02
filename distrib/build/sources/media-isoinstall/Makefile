@@ -17,7 +17,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    vim less sed flex gettext net-tools inetutils iputils whois perl \
 	    bash bzip2 kbd e2fsprogs grep gzip module-init-tools procinfo procps \
 	    psmisc shadow sysklogd logrotate sysvinit tar util-linux-ng joe wget \
-	    iptables ipbatch pciutils kernel-phaeton openssl openssh \
+	    iptables ipbatch pciutils kernel-roadster openssl openssh \
 	    httpd smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace \
 	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
 	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
@@ -93,20 +93,32 @@ cdrom/smoothwall.tgz:
 	@echo "Moving includes to distrib-dev:"
 	@if [ -d distrib/usr/include ]; then \
 	  mkdir -p distrib-dev/usr/include; \
-	  mv distrib/usr/include/* distrib-dev/usr/include/; fi; \
+	  cp -a distrib/usr/include distrib-dev/usr/; \
+	  rm -rf distrib/usr/include/*; fi
 	if [ -d distrib/usr/ssl/include ]; then \
 	  mkdir -p distrib-dev/usr/ssl/include; \
-	  mv distrib/usr/ssl/include/* distrib-dev/usr/ssl/include/; fi; \
+	  cp -a distrib/usr/ssl/include distrib-dev/usr/ssl/; \
+	  rm -rf distrib/usr/ssl/include/*; fi
+
+	@echo "Moving static libs to distrib-dev:"
+	@cd distrib; find . -name \*.a -o -name \*.la | while read a; do \
+	  mkdir -p ../distrib-dev/`dirname $$a`; \
+	  mv $$a ../distrib-dev/$$a; \
+	done
 
 	@echo "Moving docs to distrib-doc:"
 	@for I in man info share/man share/info share/doc examples; do \
 	  if [ -d distrib/usr/$$I ]; then \
 	    mkdir -p distrib-doc/usr/$$I; \
-	    mv distrib/usr/$$I/* distrib-dev/usr/$$I/; fi; \
+	    mv distrib/usr/$$I/* distrib-doc/usr/$$I/; fi; \
 	  if [ -d distrib/usr/ssl/$$I ]; then \
 	    mkdir -p distrib-doc/usr/ssl/$$I; \
 	    mv distrib/usr/ssl/$$I/* distrib-doc/usr/ssl/$$I/; fi; \
 	done
+
+	@/build/striptree distrib
+	@/build/striptree distrib-dev
+	@/build/striptree distrib-doc
 
 	@echo -e "\nProduct info:"
 	@( \
@@ -210,12 +222,12 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	@echo "smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso build complete"
 
 clean:
-	@echo -n " $(PACKAGE)"
-	@rm -f Media.phaetondevISO.built
-	@rm -rf cdrom distrib distrib-dev distrib-doc klibc
-	@make --no-print-directory -C cdromboot clean >/dev/null 2>&1
-	@make --no-print-directory -C installroot clean >/dev/null 2>&1
-	@make --no-print-directory -C runtimeroot clean >/dev/null 2>&1
+	echo -n " $(PACKAGE)"
+	rm -f Media.roadsterdevISO.built
+	rm -rf cdrom distrib distrib-dev distrib-doc klibc
+	make --no-print-directory -C cdromboot clean >/dev/null 2>&1
+	make --no-print-directory -C installroot clean >/dev/null 2>&1
+	make --no-print-directory -n -p -C runtimeroot clean >/dev/null 2>&1
 	
 download:
 	@true

@@ -9,7 +9,7 @@ MYBASHPID=$!
 
 CONFIG_ROOT=/var/smoothwall
 
-TITLE="$CLS            ${BOUL}Smoothwall Express 3 (Phaeton Development) Installation$NO"
+TITLE="$CLS           ${BOUL}Smoothwall Express 3 (Roadster Test Vehicle) Installation$NO"
 
 echo -e "$TITLE"
 echo
@@ -261,7 +261,7 @@ END
   OPWD=`pwd`
   mkdir -p /runtimeroot; cd /runtimeroot
   echo "    unpack"
-  do_or_die "gunzip -c /boot/runtimerootimage.gz | cpio -id"
+  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz | cpio -id"
   echo "    update"
   do_or_die "mkdir -p -m 755 /runtimeroot/etc/udev/rules.d"
   do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /runtimeroot/etc/udev/rules.d/"
@@ -273,8 +273,8 @@ END
   do_or_die "/bin/chroot /runtimeroot /sbin/depmod -a"
 
   echo "    re-pack"
-  do_or_die "cd /runtimeroot; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz"
-  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz"
+  do_or_die "cd /runtimeroot; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
+  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
 
   echo "  installing boot loader"
   do_or_die "mount --bind /proc /harddisk/proc"
@@ -294,21 +294,21 @@ timeout 10
 color green/white light-green/black
 
 # The first entry is for Smoothwall.
-title Smoothwall Express 3.0 (Phaeton Project)
+title Smoothwall Express 3.0 (Roadster Test Vehicle)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-phaeton root=/dev/harddisk4 ro quiet
-initrd /initrd-${KERNEL_VER}-phaeton.gz
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet
+initrd /initrd-${KERNEL_VER}-roadster.gz
 
-title Smoothwall Express 3.0 (Phaeton Project) ttyS0 SERIAL CONSOLE!
+title Smoothwall Express 3.0 (Roadster Test Vehicle) ttyS0 SERIAL CONSOLE!
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-phaeton root=/dev/harddisk4 ro quiet console=ttyS0,115200
-initrd /initrd-${KERNEL_VER}-phaeton.gz
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,115200
+initrd /initrd-${KERNEL_VER}-roadster.gz
 
 # The second entry is for booting Smoothwall into single-user mode.
-title Smoothwall Express 3.0 (Phaeton Project) Single-User
+title Smoothwall Express 3.0 (Roadster Test Vehicle) Single-User
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-phaeton root=/dev/harddisk4 ro single
-initrd /initrd-${KERNEL_VER}-phaeton.gz
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro single
+initrd /initrd-${KERNEL_VER}-roadster.gz
 END
 
     do_or_die "/sbin/chroot /harddisk /usr/sbin/grub-install /dev/harddisk"
