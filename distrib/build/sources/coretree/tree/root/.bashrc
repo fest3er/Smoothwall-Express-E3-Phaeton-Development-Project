@@ -11,4 +11,4 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
-alias gitget="git init;git pull git://github.com/fest3er/Smoothwall-Express-E3-Phaeton-Development-Project.git"
+alias gitget="git init;git pull git://github.com/fest3er/Smoothwall-Express-E3-Phaeton-Development-Project.git roadster"
