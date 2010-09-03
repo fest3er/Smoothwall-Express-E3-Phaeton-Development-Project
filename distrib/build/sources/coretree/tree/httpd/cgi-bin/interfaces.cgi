@@ -164,12 +164,26 @@ sub display_interface
 
 	my $interface = $settings{"${prefix}_DEV"};
 
-	return if ($interface !~ /eth[0123]/ );
-
-	my $ifconfig_details = &pipeopen('/sbin/ifconfig', $interface);
+	my $ifconfig_details;
+	open (CFG, "/sbin/ifconfig $interface|") or die "no pipe";
+	while (<CFG>)
+	{
+	  next if ($_ =~ /.*inet6.*/);
+	  $ifconfig_details .= "$_ ";
+	}
+	close (CFG);
 
 	$ifconfig_details =~s/\n//mg;
-	my ( $macaddress, $currentip, $currentbcast, $currentmask, $status, $currentmtu, $currentmetric, $rx, $tx, $hwaddress ) = ( $ifconfig_details =~ /.*HWaddr\s+(..:..:..:..:..:..).*inet\s+addr:(\d+\.\d+\.\d+\.\d+)\s+Bcast:(\d+\.\d+\.\d+\.\d+)\s+Mask:(\d+\.\d+\.\d+\.\d+)\s+([^\s]+)\s+.*MTU:(\d+)\s+Metric:(\d+).*RX bytes:(\d+\s+\([^\)]*\))\s+TX bytes:(\d+\s+\([^\)]*\)).*(Interrupt.*)/i );
+	my ( $macaddress, $currentip, $currentbcast, $currentmask, $status, $currentmtu, $currentmetric, $rx, $tx, $hwaddress ) = ( $ifconfig_details =~ /.*HWaddr\s+(..:..:..:..:..:..).*inet\s+addr:(\d+\.\d+\.\d+\.\d+)\s+Bcast:(\d+\.\d+\.\d+\.\d+)\s+Mask:(\d+\.\d+\.\d+\.\d+)\s+([^\s]+)\s+.*MTU:(\d+)\s+Metric:(\d+).*RX bytes:(\d+\s+\([^\)]*\))\s+TX bytes:(\d+\s+\([^\)]*\)).*(Memory.*)/i );
+
+	if (open (DRIVER, "/bin/ls -C1 /sys/class/net/${interface}/device/driver/module/drivers|"))
+	{
+		$_ = <DRIVER>;
+		my ($bus, $driver) = split(/:/);
+		$settings{"${prefix}_DISPLAYBUS"} = $bus;
+		$settings{"${prefix}_DISPLAYDRIVER"} = $driver;
+		close (DRIVER);
+	}
 
 	&openbox("${prefix}:");
 
@@ -177,19 +191,19 @@ sub display_interface
 		<table style='width: 100%;'>
 		<tr>
 			<td class='base' style='width: 25%;'>$tr{'physical interface'}</td>
-			<td style='width: 25%;'>$interface</td>
+			<td style='width: 25%;'><b>$interface</b></td>
 			<td class='base' style='width: 25%;'>$tr{'ip addressc'}</td>
 			<td style='width: 25%;'><input type='text' name='${prefix}_ADDRESS' value='$settings{"${prefix}_ADDRESS"}' id='${prefix}address' @{[jsvalidip("${prefix}address",'true')]}></td>
 		</tr>
 		<tr>
 			<td class='base'>$tr{'nic type'}</td>
-			<td>$settings{"${prefix}_DISPLAYDRIVER"}</td>
+			<td><b>$settings{"${prefix}_DISPLAYDRIVER"} ($settings{"${prefix}_DISPLAYBUS"})</b></td>
 			<td class='base'>$tr{'netmaskc'}</td>
 			<td><input type='text'  name='${prefix}_NETMASK' value='$settings{"${prefix}_NETMASK"}' id='${prefix}mask' @{[jsvalidmask("${prefix}mask",'true')]}></td>
 		</tr>
 		<tr>
 			<td class='base'>$tr{'mac addressc'}</td>
-			<td>$macaddress</td>
+			<td><b>$macaddress<b/></td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 		</tr>
@@ -207,12 +221,26 @@ sub display_red_interface
 
 	my $interface = $settings{"RED_DEV"};
 
-	return if ($interface !~ /eth[0123]/ );
-
-	my $ifconfig_details = &pipeopen('/sbin/ifconfig', $interface);
+	my $ifconfig_details;
+	open (CFG, "/sbin/ifconfig $interface|") or die "no pipe";
+	while (<CFG>)
+	{
+	  next if ($_ =~ /.*inet6.*/);
+	  $ifconfig_details .= "$_ ";
+	}
+	close (CFG);
 
 	$ifconfig_details =~s/\n//mg;
-	my ( $macaddress, $currentip, $currentbcast, $currentmask, $status, $currentmtu, $currentmetric, $rx, $tx, $hwaddress ) = ( $ifconfig_details =~ /.*HWaddr\s+(..:..:..:..:..:..).*inet\s+addr:(\d+\.\d+\.\d+\.\d+)\s+Bcast:(\d+\.\d+\.\d+\.\d+)\s+Mask:(\d+\.\d+\.\d+\.\d+)\s+([^\s]+)\s+.*MTU:(\d+)\s+Metric:(\d+).*RX bytes:(\d+\s+\([^\)]*\))\s+TX bytes:(\d+\s+\([^\)]*\)).*(Interrupt.*)/i );
+	my ( $macaddress, $currentip, $currentbcast, $currentmask, $status, $currentmtu, $currentmetric, $rx, $tx, $hwaddress ) = ( $ifconfig_details =~ /.*HWaddr\s+(..:..:..:..:..:..).*inet\s+addr:(\d+\.\d+\.\d+\.\d+)\s+Bcast:(\d+\.\d+\.\d+\.\d+)\s+Mask:(\d+\.\d+\.\d+\.\d+)\s+([^\s]+)\s+.*MTU:(\d+)\s+Metric:(\d+).*RX bytes:(\d+\s+\([^\)]*\))\s+TX bytes:(\d+\s+\([^\)]*\)).*(Memory.*)/i );
+
+	if (open (DRIVER, "/bin/ls -C1 /sys/class/net/${interface}/device/driver/module/drivers|"))
+	{
+		$_ = <DRIVER>;
+		my ($bus, $driver) = split(/:/);
+		$settings{"RED_DISPLAYBUS"} = $bus;
+		$settings{"RED_DISPLAYDRIVER"} = $driver;
+		close (DRIVER);
+	}
 
 	&openbox("RED:");
 
@@ -223,7 +251,7 @@ sub display_red_interface
 		<table style='width: 100%;'>
 		<tr>
 			<td class='base' style='width: 25%;'>$tr{'physical interface'}</td>
-			<td style='width: 25%;'>$interface</td>
+			<td style='width: 25%;'><b>$interface</b></td>
 			<td class='base' style='width: 25%;'>$tr{'connection method'}:</td>
 			<td style='width: 25%;'>
 			<script>
@@ -264,13 +292,13 @@ function optify( field )
 		</tr>
 		<tr>
 			<td class='base'>$tr{'nic type'}</td>
-			<td>$settings{"RED_DISPLAYDRIVER"}</td>
+			<td><b>$settings{"RED_DISPLAYDRIVER"} ($settings{"RED_DISPLAYBUS"})</b></td>
 			<td class='base'>$tr{'dhcp hostname'}</td>
 			<td><input type='text' id='hostname' name='RED_DHCP_HOSTNAME' value='$settings{'RED_DHCP_HOSTNAME'}'></td>
 		</tr>
 		<tr>
 			<td class='base'>$tr{'mac addressc'}</td>
-			<td>$macaddress</td>
+			<td><b>$macaddress</b></td>
 			<td class='base'>$tr{'ip addressc'}</td>
 			<td><input id='ipaddress'  @{[jsvalidip('ipaddress')]}  type='text' name='RED_ADDRESS' value='$settings{"RED_ADDRESS"}'></td>
 		</tr>
