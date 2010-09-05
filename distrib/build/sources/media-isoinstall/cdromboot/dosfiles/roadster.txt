@@ -1,0 +1,20 @@
+roadster.lss
+The CDROM image is published by and is the Copyright of the SmoothWall 
+Open Source Team, and of the original authors of its component parts.  
+It is distributed under the GNU GPLv2, which is in GPL.txt on the CD.
+
+                       SmoothWall Express 3.0 "Polar"
+                           Roadster Test Vehicle
+
+                              W A R N I N G !
+ * The installation process will overwrite all existing data on this PC! *
+ *               Continue the install only if this is OK.                *
+
+Please also be aware that upon successful install, your SmoothWall install
+will return benign and anonymous system information (CPU type, speed, RAM,
+HD size, PCI/USB devices, NIC/connection type [modem/ISDN/ASDL/etc]) to our
+servers. Opt-out information is available at the following URL:
+http://smoothwall.org/about/statistics.html
+
+
+      - Press RETURN to continue the install of SmoothWall Express - 
