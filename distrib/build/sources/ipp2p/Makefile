@@ -24,6 +24,7 @@ compile: configure
 	@make -C $(COMPILE_DIR) CFLAGS='$(CFLAGS)' KERNEL_SRC=$(SOURCES_DIR)/kernel-phaeton/linux KERNEL_SERIES=2.6 IPTABLES_VERSION=$(IPTABLES_VER) IPTABLES_SRC=$(SOURCES_DIR)/iptables/iptables-$(IPTABLES_VER) PREFIX=/$(PKG_DIR) libipt_ipp2p.so
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/libipt_ipp2p.so $(PKG_ROOT)$(PKG_DIR)/lib/iptables/libipt_ipp2p.so
 
 include ../Makefile.rules

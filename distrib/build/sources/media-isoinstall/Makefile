@@ -28,11 +28,11 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    ez-ipupdate noip cdrtools \
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
 	    reiserfsprogs xtables-addons zlib sash slang cpio \
-	    apr apr-util apr apr-util udev lm_sensors \
+	    apr apr-util udev lm_sensors \
 	    Net-Netmask NetAddr-IP \
 	    coretree
 
-OBSOLETE_PKGS = libipt_ACCOUNT ipp2p speedtouch eagle-usb devnodes libstdc++ lilo
+OBSOLETE_PKGS = apr apr-util libipt_ACCOUNT ipp2p speedtouch eagle-usb devnodes libstdc++ lilo
 TOOLCHAIN_PKGS = expect
 OTHER_PKGS = updates jam sqlite udev-config
 

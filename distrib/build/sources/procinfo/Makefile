@@ -22,6 +22,7 @@ compile: configure
 	@make -C $(COMPILE_DIR) LDLIBS=-lncurses
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) prefix=$(PKG_ROOT)$(PKG_DIR) install
 	
 include ../Makefile.rules

@@ -13,7 +13,18 @@ use header qw( :standard );
 # this is similar to the TR hash, but only required here, and therefore not
 # included in it, (it could do with replacing anyhow)
 
-require "/usr/lib/smoothwall/langs/glossary.${language}.pl";
+require "/usr/lib/smoothwall/langs/glossary.en.pl";
+if (${language} ne "en")
+{
+  foreach $key (sort keys %baseglossary)
+  {
+    $baseglossary{$key} = "[$baseglossary{$key}]"
+  }
+  if (-f "/usr/lib/smoothwall/langs/glossary.${language}.pl")
+  {
+    require "/usr/lib/smoothwall/langs/glossary.${language}.pl";
+  }
+}
 require "/usr/lib/smoothwall/langs/glossary.base.pl";
 
 my $needhelpwith = $ENV{'QUERY_STRING'};
@@ -26,7 +37,14 @@ my $needhelpwith = $ENV{'QUERY_STRING'};
 
 &openbox('');
 
-open (FILE, "/httpd/html/help/$needhelpwith.html.$language");
+if (-f "/httpd/html/help/$needhelpwith.html.$language")
+{
+  open (FILE, "/httpd/html/help/$needhelpwith.html.$language");
+}
+else
+{
+  open (FILE, "/httpd/html/help/$needhelpwith.html.en");
+}
 my $line;
 while ( <FILE> ){
 	$line =~s/\n/ /g;

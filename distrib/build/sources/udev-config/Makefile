@@ -15,6 +15,7 @@ BASE_URL = http://www.linuxfromscratch.org/lfs/downloads/6.6/
 
 INSTALL = yes
 install: patch
+	@mkdir -p $(PKG_ROOT)
 	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install-doc
 	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install-extra-doc
@@ -22,11 +23,11 @@ install: patch
 CLEAN = yes
 clean:
 	@echo -n " $(PACKAGE)"
-ifeq ($(BUILD_PHASE), Final)
-	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
-endif
 	@rm -rf $(PACKAGE)-$(VERSION)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT)
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
+endif
 
 
 include ../Makefile.rules

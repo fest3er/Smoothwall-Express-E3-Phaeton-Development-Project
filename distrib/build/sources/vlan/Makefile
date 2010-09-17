@@ -22,6 +22,7 @@ configure: patch
 	@true
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/vconfig $(PKG_ROOT)/sbin/vconfig
 
 include ../Makefile.rules

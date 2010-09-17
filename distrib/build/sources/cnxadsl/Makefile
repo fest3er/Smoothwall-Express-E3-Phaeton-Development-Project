@@ -26,6 +26,7 @@ compile: configure
 	@make -C $(DIR)/DownLoadApp
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@(for I in cnxadslload cnxadslstatus; do \
 		install -D $(DIR)/DownLoadApp/$$I $(PKG_ROOT)$(PKG_DIR)/sbin/$$I; \
 	done)

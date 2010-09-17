@@ -19,7 +19,6 @@ export GLOBALDEBUG = ON
 
 DEFAULT = yes
 default: all
-unpack: clean configure
 
 
 include ../Makefile.conf
@@ -53,6 +52,7 @@ compile: configure
 
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	@mkdir -p $(PKG_ROOT)/sbin
 	@(cd $(PKG_ROOT)/sbin; rm -f iptables; ln -s /usr/sbin/iptables)

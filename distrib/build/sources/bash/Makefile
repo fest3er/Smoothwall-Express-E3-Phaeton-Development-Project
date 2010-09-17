@@ -32,6 +32,7 @@ CONFIG_OPTS = --bindir=/bin $(BUILD)
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(DIR) DESTDIR=$(PKG_ROOT) install
 	@(cd $(PKG_ROOT)/bin; ln -s bash sh);
 endif

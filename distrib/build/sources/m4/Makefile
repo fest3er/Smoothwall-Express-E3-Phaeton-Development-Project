@@ -14,6 +14,7 @@ BASE_URL = ftp://ftp.gnu.org/gnu/m4
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) prefix=$(PKG_ROOT)$(PKG_DIR) install
 
 include ../Makefile.rules

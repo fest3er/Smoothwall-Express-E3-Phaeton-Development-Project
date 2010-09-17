@@ -20,7 +20,7 @@ configure: $(DIR)/
 	@echo >>$(COMPILE_DIR)/includes/site.h "#define _PATH_DHCPD_CONF \"/usr/etc/dhcpd.conf\""
 
 install: compile
-	-mkdir -p $(PKG_ROOT)$(PKG_DIR)/etc
+	@mkdir -p $(PKG_ROOT)$(PKG_DIR)/etc
 	@touch $(PKG_ROOT)$(PKG_DIR)/etc/dhcpd.leases
 	@install -D $(COMPILE_DIR)/work.linux-2.2/server/dhcpd $(PKG_ROOT)$(PKG_DIR)/sbin/dhcpd
 	@install -D $(COMPILE_DIR)/work.linux-2.2/relay/dhcrelay $(PKG_ROOT)$(PKG_DIR)/sbin/dhcrelay

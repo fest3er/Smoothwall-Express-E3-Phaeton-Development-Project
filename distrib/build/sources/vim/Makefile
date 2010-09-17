@@ -18,6 +18,7 @@ DIR = $(PACKAGE)72
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@(cd $(DIR); \
 	install -s -D src/vim $(PKG_ROOT)$(PKG_DIR)/bin/vim; \
 	install -d runtime/ $(PKG_ROOT)$(PKG_DIR)/share/vim; \

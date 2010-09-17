@@ -22,6 +22,7 @@ compile: configure
 	@make -C $(COMPILE_DIR)
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/mkisofs/OBJ/*/mkisofs $(PKG_ROOT)/sbin/mkisofs
 
 include ../Makefile.rules

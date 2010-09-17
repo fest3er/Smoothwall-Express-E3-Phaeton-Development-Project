@@ -24,7 +24,7 @@ configure: patch
 	@true;
 
 install: compile
-	-mkdir $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 	@mkdir -p $(PKG_ROOT)/usr/{bin,sbin} $(PKG_ROOT)/usr/share/man/cat{1,5,8}
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 

@@ -20,6 +20,7 @@ BASE_URL = http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/ntpdate/ntpdate $(PKG_ROOT)/usr/sbin/ntpdate 
 	@install -D $(COMPILE_DIR)/ntpq/ntpq $(PKG_ROOT)/usr/sbin/ntpq 
 

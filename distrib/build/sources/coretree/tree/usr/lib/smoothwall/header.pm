@@ -52,10 +52,32 @@ my $hostname = hostname();
 $language = $settings{'LANGUAGE'};
 
 if ($language =~ /^(\w+)$/) {$language = $1;}
-require "/usr/lib/smoothwall/langs/${language}.pl";
+require "/usr/lib/smoothwall/langs/en.pl";
+if (${language} ne "en")
+{
+  foreach $key (sort keys %basetr)
+  {
+    $basetr{$key} = "[$basetr{$key}]"
+  }
+  if (-f "/usr/lib/smoothwall/langs/${language}.pl")
+  {
+    require "/usr/lib/smoothwall/langs/${language}.pl";
+  }
+}
 require "/usr/lib/smoothwall/langs/base.pl";
 
-require "/usr/lib/smoothwall/langs/alertboxes.${language}.pl";
+require "/usr/lib/smoothwall/langs/alertboxes.en.pl";
+if (${language} ne "en")
+{
+  foreach $key (sort keys %baseabouttext)
+  {
+    $baseabouttext{$key} = "[$baseabouttext{$key}]"
+  }
+  if (-f "/usr/lib/smoothwall/langs/alertboxes.${language}.pl")
+  {
+    require "/usr/lib/smoothwall/langs/alertboxes.${language}.pl";
+  }
+}
 require "/usr/lib/smoothwall/langs/alertboxes.base.pl";
 
 # Display the page HTTP header

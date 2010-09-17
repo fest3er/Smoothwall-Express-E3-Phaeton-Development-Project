@@ -38,10 +38,7 @@ patch: $(DIR)/
 
 INSTALL = yes
 install: compile
-	tput smso
-	echo $(PKG_ROOT)
-	tput rmso
-	-mkdir $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 	make -C $(COMPILE_DIR) prefix=$(PKG_ROOT)$(PKG_DIR) root_prefix=$(PKG_ROOT) install
 	make -C $(COMPILE_DIR) prefix=$(PKG_ROOT)$(PKG_DIR) root_prefix=$(PKG_ROOT) install-libs
 	chmod -v u+w $(PKG_ROOT)$(PKG_DIR)/lib/{libblkid,libcom_err,libe2p,libext2fs,libss,libuuid}.a

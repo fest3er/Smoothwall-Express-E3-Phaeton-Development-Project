@@ -14,6 +14,7 @@ BASE_URL = http://www.kernel.org/pub/linux/docs/manpages/
 INSTALL = yes
 
 install: patch
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(DIR) prefix=$(PKG_ROOT) install
 
 include ../Makefile.rules

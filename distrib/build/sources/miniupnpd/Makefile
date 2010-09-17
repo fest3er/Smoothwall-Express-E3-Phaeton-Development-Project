@@ -29,6 +29,7 @@ compile: configure
 	  LDFLAGS="-L$(IPT_LIBEXEC) -liptc"
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(DIR)/miniupnpd $(PKG_ROOT)$(PKG_DIR)/sbin/miniupnpd
 
 include ../Makefile.rules

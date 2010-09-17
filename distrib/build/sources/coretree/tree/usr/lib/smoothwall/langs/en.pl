@@ -6,6 +6,8 @@
 
 %basetr = (
 
+%basetr,
+
 # common
 
 'user defined' => 'User defined',

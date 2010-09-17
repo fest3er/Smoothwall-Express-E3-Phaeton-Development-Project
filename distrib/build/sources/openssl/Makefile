@@ -27,6 +27,7 @@ compile: configure
 	@make -C openssl-$(OPENSSL_VER)
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C openssl-$(OPENSSL_VER) INSTALL_PREFIX=$(PKG_ROOT) install
 
 include ../Makefile.rules

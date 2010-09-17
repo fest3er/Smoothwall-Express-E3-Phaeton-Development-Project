@@ -179,7 +179,6 @@ fi
       build openssl
       build wget
       build sudo
-      build iptables unpack
       build kernel-roadster
       build iptables
       build xtables-addons
@@ -302,8 +301,8 @@ fi
       build p3scan
 
       build tcl
-      build apr
-      build apr-util
+      #build apr
+      #build apr-util
       build neon
       build git
       build screen
@@ -316,6 +315,7 @@ fi
 
       # miniupnpd has build problems; skipping
       build miniupnpd
+      build inotify
       build cpio
       build grub
       build reiserfsprogs

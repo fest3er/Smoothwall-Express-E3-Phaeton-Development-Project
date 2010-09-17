@@ -28,6 +28,7 @@ compile: configure
 	@(cd $(COMPILE_DIR); ./build.sh)
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/bin.linuxx86/bjam $(PKG_ROOT)/usr/bin/bjam
 
 include ../Makefile.rules

@@ -13,6 +13,7 @@ compile:
 	@make -C $(COMPILE_DIR)
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/ibod $(PKG_ROOT)$(PKG_DIR)/sbin/ibod
 
 all: install
@@ -22,6 +23,6 @@ clean:
 	@echo -n " $(PACKAGE)"
 	@rm -f $(COMPILE_DIR)/ibod
 ifeq ($(BUILD_PHASE), Final)
-	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
-endif
+	@rm -rf $(PKG_ROOT)
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
+endif

@@ -18,6 +18,7 @@ configure: $(DIR)/
 	@true
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	@rm -f $(PKG_ROOT)/lib/libproc.so
 		

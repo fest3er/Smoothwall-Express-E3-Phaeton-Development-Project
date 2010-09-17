@@ -18,10 +18,10 @@ compile: configure
 	@(cd $(DIR); make p3scan CFLAGS="$(CFLAGS) -I/usr/ssl/include" LDFLAGS="$(LDFLAGS) -L/usr/ssl/lib -L. -lripmime -lpcre -lssl -lcrypto")
 
 install: compile
-	-mkdir -p $(PKG_ROOT)/var/avirus/p3scan/children
-	-mkdir -p $(PKG_ROOT)/var/avirus/p3scan/notify
+	mkdir -p $(PKG_ROOT)/var/avirus/p3scan/children
+	mkdir -p $(PKG_ROOT)/var/avirus/p3scan/notify
 	chown -R 105:105 $(PKG_ROOT)/var/avirus/
-	-mkdir -p $(PKG_ROOT)/usr/sbin/
-	@cp $(DIR)/p3scan $(PKG_ROOT)/usr/sbin
+	mkdir -p $(PKG_ROOT)/usr/sbin/
+	cp $(DIR)/p3scan $(PKG_ROOT)/usr/sbin
 
 include ../Makefile.rules

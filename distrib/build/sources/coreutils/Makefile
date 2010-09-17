@@ -31,6 +31,7 @@ ifeq ($(BUILD_PHASE), Final)
 
 INSTALL = yes
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	@(mkdir -p $(PKG_ROOT)/bin; \
 	for FILE in basename cat chgrp chmod chown cp cut date dd df echo env false link ln \

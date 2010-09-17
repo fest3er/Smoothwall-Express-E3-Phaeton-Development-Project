@@ -16,6 +16,7 @@ EXTENSION = .tar.bz2
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) instroot=$(PKG_ROOT) install
 
 include ../Makefile.rules
