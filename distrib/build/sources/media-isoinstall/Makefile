@@ -28,7 +28,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    ez-ipupdate noip cdrtools \
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
 	    reiserfsprogs xtables-addons zlib sash slang cpio \
-	    apr apr-util udev lm_sensors \
+	    udev lm_sensors \
 	    Net-Netmask NetAddr-IP \
 	    coretree
 
@@ -166,7 +166,7 @@ cdrom/smoothwall.tgz:
 	  chmod u+s distrib/usr/sbin/listtables; \
 	  chown root:nobody distrib/usr/bin/setuids/*; \
 	  chmod 4750 distrib/usr/bin/setuids/*; \
-	  mkdir -/ distrib/tmp; chmod 1777 distrib/tmp; \
+	  mkdir -p /distrib/tmp; chmod 1777 distrib/tmp; \
 	) | sed -u -e 's/^/  /'
 	
 	@echo -e "\nConverting to shadow passwords ..."
