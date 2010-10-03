@@ -266,6 +266,25 @@ while [ 1 -eq 1 ]; do
   if [ $filesys -lt 3 ]; then break; fi
 done
 
+while [ 1 -eq 1 ]; do
+  # Activate serial port for booting and/or getty
+  echo -en "$TITLE"
+  echo
+  echo
+  echo -e "${BO}Serial Port Use${NO}"
+
+  i=1; echo "  $i. Boot"
+  i=2; echo "  $i. Login"
+  i=3; echo "  $i. Boot & Login"
+  i=4; echo "  $i. Neither (default)"
+  echo
+
+  echo -n "[4]        Selection: "
+  read serialport #</dev/tty
+  if [ x$serialport == x ]; then serialport="4"; fi
+  if [ $serialport -lt 5 ]; then break; fi
+done
+
 # Only use grub. LILO sucks.
 #
 loader=2
@@ -358,6 +377,12 @@ while [ 1 == 1 ]; do
   else
     echo -e "  Making ${BO}ReiserFS${NO} filesystems"
   fi
+  case $serialport in
+    1) echo -e "  Using serial port for ${BO}boot console${NO} only";;
+    2) echo -e "  Using serial port for ${BO}normal login${NO} only";;
+    3) echo -e "  Using serial port for both ${BO}boot & login${NO}";;
+    4) echo -e "  ${BO}Not using${NO} serial port"
+  esac
   if [ $loader == "1" ]; then
     echo -e "  Installing ${BO}LILO${NO} boot loader"
   else

@@ -6,6 +6,23 @@ UL="\033[4m"
 BOUL="\033[1;4m"
 NO="\033[0m"
 
+# do-sid executes a program in a CTTY environment
+#
+function do-sid {
+  case $3 in
+    "")
+      setsid sh -c "exec $1 </dev/tty$2 >/dev/tty$2 2>&1"
+      ;;
+    "BG")
+      setsid sh -c "exec $1 </dev/tty$2 >/dev/tty$2 2>&1"&
+      return $!
+      ;;
+    "EXEC")
+      exec setsid sh -c "exec $1 </dev/tty$2 >/dev/tty$2 2>&1"
+      ;;
+  esac
+}
+
 # rsr() clears the scrolling region and restores the saved cursor position
 #
 function rsr {
@@ -88,10 +105,10 @@ function EXITTRAP {
   # Reverse a bunch of stuff
   undo_alot
 
-  echo "Dropping to a shell.Exit to try again...."
-  /bin/bash </dev/tty1 >/dev/tty1 2>/dev/tty1
+  echo "Dropping to a shell. Exit to try again...."
+  do-sid /bin/bash 1
 
-  exec /init </dev/tty1 >/dev/tty1 2>/dev/tty1
+  exec /init
 }
 
 
@@ -150,9 +167,12 @@ echo "1 4 1 7" >/proc/sys/kernel/printk
 # If init (this script) exits for any reason, it will be trapped
 trap EXITTRAP EXIT
 
-/bin/iowrap /dev/tty3 /bin/ash&
+#/bin/iowrap /dev/tty3 /bin/ash&
+do-sid /bin/ash 3 BG
 export ASHPID=$!
-/bin/iowrap /dev/tty4 /bin/bash -mi&
+
+#/bin/iowrap /dev/tty4 /bin/bash -mi&
+do-sid /bin/bash 4 BG
 export BASHPID=$!
 
 [ -t 0 ] || (echo "STDIN not a tty"; exit)
@@ -171,8 +191,8 @@ echo
     cp /bin/iowrap /harddisk/tmp
 
     trap - EXIT
-    kill -9 $ASHPID >/dev/null 2>/dev/null | sed -e 's/Killed            /Killed/'
-    kill -9 $BASHPID >/dev/null 2>/dev/null | sed -e 's/Killed            /Killed/'
+    kill -9 $ASHPID >/dev/null 2>/dev/null | sed -e 's/Killed */Killed /'
+    kill -9 $BASHPID >/dev/null 2>/dev/null | sed -e 's/Killed */Killed /'
     export TERM=linux
     echo -ne $CLS >/dev/tty3
     echo -ne $CLS >/dev/tty4
@@ -186,7 +206,9 @@ echo
     cd /harddisk
     chroot . /usr/sbin/setup /dev/tty2 INSTALL
 
-  echo; echo; echo; echo;
+  echo -ne $CLS
+  echo; echo;
+  echo "  setup complete"
   echo "  clean up and reboot"
     undo_alot
     /sbin/reboot -f
