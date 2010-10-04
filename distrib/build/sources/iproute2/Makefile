@@ -33,10 +33,10 @@ install: compile
 	@ln -s /sbin/tc $(PKG_ROOT)/usr/sbin
 
 clean:
-	echo -n " $(PACKAGE)"
-	rm -rf $(DIR)
-	rm -rf $(COMPILE_DIR)
-	rm -f $(PACKAGE)
+	@echo -n " $(PACKAGE)"
+	@rm -rf $(DIR)
+	@rm -rf $(COMPILE_DIR)
+	@rm -f $(PACKAGE)
 ifeq ($(BUILD_PHASE), Final)
 	@rm -rf $(PKG_ROOT)
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
