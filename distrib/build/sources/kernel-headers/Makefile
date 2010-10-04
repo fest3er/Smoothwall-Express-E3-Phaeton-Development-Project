@@ -4,6 +4,7 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
+include ../Makefile
 include ../Makefile.conf
 include ../Makefile.versions
 
@@ -24,6 +25,7 @@ ifeq ($(BUILD_PHASE), Stage_1)
 	  cp -rv dest/include/* $(TOOLS_DIR)/include
 endif
 ifeq ($(BUILD_PHASE), Final)
+	mkdir -p $(PKG_ROOT); \
 	cd linux-$(KERNEL_VER); \
 	  make mrproper
 	cd linux-$(KERNEL_VER); \
@@ -46,5 +48,9 @@ build-tarball: install
 clean:
 	@echo -n " $(PACKAGE)"
 	@rm -rf linux-$(KERNEL_VER)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT)
+	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
+endif
 
 all: build-tarball

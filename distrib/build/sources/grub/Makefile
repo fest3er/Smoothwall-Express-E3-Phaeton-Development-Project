@@ -23,6 +23,7 @@ CONFIG_OPTS = --prefix=$(PKG_DIR)
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	make -C $(COMPILE_DIR) DESTDIR=${PKG_ROOT} install
 	mkdir -pv ${PKG_ROOT}/boot/grub
 	cp -v ${PKG_ROOT}/usr/lib/grub/i386-pc/stage[12] $(PKG_ROOT)/boot/grub

@@ -47,6 +47,7 @@ compile: configure
 	@make $(JOBS) -C $(COMPILE_DIR)
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	( \
 	  cd $(COMPILE_DIR); \

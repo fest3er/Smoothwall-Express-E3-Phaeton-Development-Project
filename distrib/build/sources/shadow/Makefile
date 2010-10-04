@@ -16,6 +16,7 @@ INSTALL = yes
 CONFIG_OPTS= --with-selinux=no
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	@rm -f $(PKG_ROOT)/bin/sg $(PKG_ROOT)/bin/vigr
 

@@ -36,7 +36,7 @@ $(DIR)/: download
 
 INSTALL = yes
 install: compile
-	-mkdir $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	@mkdir -p $(PKG_ROOT)/var/smoothwall/snort/rules/
 	@mkdir -p $(PKG_ROOT)/var/smoothwall/snort/preproc_rules/

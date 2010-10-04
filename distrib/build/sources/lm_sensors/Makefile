@@ -25,6 +25,7 @@ compile: configure
 	make -C $(DIR) PREFIX=$(PKG_DIR) all
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	make -C $(DIR) PREFIX=$(PKG_DIR) DESTDIR=$(PKG_ROOT) install
 
 clean:
@@ -32,7 +33,8 @@ clean:
 	@rm -rf $(DIR)
 	@rm -rf $(COMPILE_DIR)
 ifeq ($(BUILD_PHASE), Final)
-	@rm -rf $(BUILDDIR)/buildroot/$(PACKAGE)
+	@rm -rf $(PKG_ROOT)
+	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 endif
 
 include ../Makefile.rules

@@ -8,6 +8,7 @@ BASE_URL = http://gentoo.blueyonder.co.uk/distfiles/
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/ez-ipupdate $(PKG_ROOT)$(PKG_DIR)/bin/ez-ipupdate
 	
 include ../Makefile.rules

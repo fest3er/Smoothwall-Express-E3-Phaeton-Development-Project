@@ -4,6 +4,7 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
+include ../Makefile
 include ../Makefile.conf
 include ../Makefile.versions
 
@@ -36,6 +37,7 @@ compile: configure
 
 INSTALL = yes
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	cd $(DIR); \
 	  make prefix=$(PKG_ROOT)$(PKG_DIR) install
 
@@ -46,7 +48,8 @@ clean:
 	@rm -rf $(COMPILE_DIR)
 	@rm -rf linux-$(KLIBKERNVER)
 ifeq ($(BUILD_PHASE), Final)
-	@rm -rf $(PKG_ROOT)$(PACKAGE)
+	@rm -rf $(PKG_ROOT)
+	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 endif
 
 include ../Makefile.rules

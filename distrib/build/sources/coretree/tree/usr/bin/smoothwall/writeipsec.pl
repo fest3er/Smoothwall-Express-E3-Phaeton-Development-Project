@@ -29,6 +29,7 @@ print CONF "\tklipsdebug=none\n";
 print CONF "\tplutodebug=none\n";
 print CONF "\tplutowait=no\n";
 print CONF "\tuniqueids=yes\n";
+print CONF "\tprotostack=klips\n";
 print CONF "\n";
 
 foreach my $conn ('clear', 'clear-or-private', 'private-or-clear',

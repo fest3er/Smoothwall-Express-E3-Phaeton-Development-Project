@@ -16,7 +16,7 @@ CONFIG_OPTS = --with-ssl-dir=/usr/ssl --with-md5-passwords --with-pid-dir=/var/r
 INSTALL = yes
 
 install: compile
-	-mkdir $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	@rm -f $(PKG_ROOT)$(PKG_DIR)/etc/sshd_config
 

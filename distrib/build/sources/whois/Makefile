@@ -24,6 +24,7 @@ compile: configure
 	@true
 	
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(DIR)/whois $(PKG_ROOT)/usr/bin/whois
 	@install -D $(DIR)/tld.conf $(PKG_ROOT)/etc/whois/tld.conf
 	

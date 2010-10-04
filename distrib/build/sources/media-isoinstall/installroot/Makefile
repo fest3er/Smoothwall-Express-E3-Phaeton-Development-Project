@@ -31,46 +31,45 @@ EXCLUDE_DRIVERS = bluetooth connector gpu infiniband mfd misc mtd parport \
 	  memstick mmc
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-SWE_PKGS = udev grub pciutils bash reiserfsprogs
+SWE_PKGS = udev grub pciutils bash reiserfsprogs util-linux-ng
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr
 GZIP_PKGS = gunzip
 
 bin:
-	@mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin
-	@cp -aR /sbin/* tmp/bin
-	@#cp -aR /build/target/install tmp/bin/install
-	@#strip tmp/bin/*
+	mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin
+	cp -aR /sbin/* tmp/bin
+	#cp -aR /build/target/install tmp/bin/install
 
 lib:
-	@mkdir -p tmp/lib tmp/usr/lib tmp/usr/lib/klibc/lib
-	@cp -aR /lib/* tmp/lib
-	@cp -aR /lib/lib* tmp/lib
-	@cp -aR /usr/lib/libncurses* tmp/lib/
-	@tar xfz /build/target/smoothwall-kernel-phaeton.tar.gz -C tmp ./lib/modules > /dev/null 2>&1
-	@cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
-	@cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
+	mkdir -p tmp/lib tmp/usr/lib tmp/usr/lib/klibc/lib
+	cp -aR /lib/* tmp/lib
+	cp -aR /lib/lib* tmp/lib
+	cp -aR /usr/lib/libncurses* tmp/lib/
+	tar xfz /build/target/smoothwall-kernel$(SWETYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1
+	cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
+	cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
 	  rm -rf $(EXCLUDE_DRIVERS)
 
 klibc:
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
-	@rm -f tmp/usr/lib/klibc/bin/{cpio,gzip}
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
+	rm -f tmp/usr/lib/klibc/bin/{cpio,gzip}
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
 
 all: clean bin lib klibc
-	@mkdir -p tmp/sys
-	@make -C $(PROGS)
-	@for i in $(ROOTDIRS); do mkdir -p tmp/$$i; done
-	@ln -s bin tmp/sbin
-	@cp -aR $(BB)/bin/busybox tmp/bin
-	@cd tmp/bin; for FILE in $(BBPROGS); do ln -s busybox $$FILE; done
-	@for i in cpio gzip; do \
+	mkdir -p tmp/sys
+	make -C $(PROGS)
+	for i in $(ROOTDIRS); do mkdir -p tmp/$$i; done
+	ln -s bin tmp/sbin
+	cp -aR $(BB)/bin/busybox tmp/bin
+	cd tmp/bin; for FILE in $(BBPROGS); do ln -s busybox $$FILE; done
+	for i in cpio gzip; do \
 	  tar xvfz /build/target/smoothwall-$$i.tar.gz -C tmp/; \
 	done
 	@#cd tmp; ln -s /bin/busybox init
-	@cd tmp; cp ../etc/inst-init init; chmod 555 init
+	cd tmp; cp ../etc/inst-init init; chmod 555 init
 
-	@(cd tmp; \
+	(cd tmp; \
 	  install -D /usr/share/terminfo/l/linux usr/share/terminfo/l/linux; \
 	  cp -aR ../$(PROGS)/loader ../$(PROGS)/iowrap   bin; \
 	  cp -aR /lib/ld-*.so /lib/ld-*.so.* /lib/libc-*.so /lib/libc.so.* lib; \
@@ -96,10 +95,10 @@ all: clean bin lib klibc
 	  mkdir -p etc/udev/rules.d; \
 	  cp -aRv lib/udev/rules.d/* etc/udev/rules.d/; \
 	)
-	@(cd tmp/etc; \
+	(cd tmp/etc; \
 	  gawk -f ../../etc/fill-pci-ids.awk < /usr/share/pci.ids > filled.pci.ids;\
 	) > /dev/null 2>&1
-	@(cd tmp; \
+	(cd tmp; \
 	  for i in $(SWE_PKGS); do \
 	    tar xfz /build/target/smoothwall-$$i.tar.gz; \
 	  done; \
@@ -119,7 +118,7 @@ all: clean bin lib klibc
 	  ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
 	  ln -sf proc/kcore /lib/udev/devices/core; \
 	) > /dev/null 2>&1
-	@(cd tmp; mkdir -p local; cd local; \
+	(cd tmp; mkdir -p local; cd local; \
 	  tar xfz /build/target/smoothwall-gzip.tar.gz)
 
 ifdef BITS_64
@@ -129,13 +128,13 @@ endif
 	@touch tmp/cdrominstall
 
 	# Copy runtimeroot initramfs to the installroot initramfs tree
-	@mkdir -p tmp/boot; cp ../runtimerootimage.gz tmp/boot
+	#@mkdir -p tmp/boot; cp ../runtimerootimage.gz tmp/boot
 
 	# Build the installer initramfs CPIO archive
-	@cd tmp; find . | cpio -o -H newc | gzip > ../$(INSTALL_ROOT)image.gz
+	cd tmp; find . | cpio -o -H newc | gzip > ../$(INSTALL_ROOT)image.gz
 
 	#@rm -rf installroot/
-	@echo -e "installroot build for $(MEDIA) complete\n\n"
+	echo -e "installroot build for $(MEDIA) complete\n\n"
 	
 clean:
 	make -C $(PROGS) clean

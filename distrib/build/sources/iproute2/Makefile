@@ -9,7 +9,7 @@ include ../Makefile.versions
 
 PACKAGE = iproute2
 #VERSION = $(KERNEL_MMR)
-VERSION = 2.6.31
+VERSION = 2.6.33
 
 BASE_URL = http://devresources.linuxfoundation.org/dev/iproute2/download
 EXTENSION=.tar.bz2
@@ -38,7 +38,8 @@ clean:
 	@rm -rf $(COMPILE_DIR)
 	@rm -f $(PACKAGE)
 ifeq ($(BUILD_PHASE), Final)
-	@rm -rf $(BUILDDIR)/buildroot/$(PACKAGE)
+	@rm -rf $(PKG_ROOT)
+	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 endif
 
 include ../Makefile.rules

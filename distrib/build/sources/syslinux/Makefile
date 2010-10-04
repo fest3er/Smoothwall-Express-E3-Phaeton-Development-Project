@@ -22,6 +22,7 @@ compile: configure
 	@make $(JOBS) -C $(COMPILE_DIR) installer
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) INSTALLROOT=$(PKG_ROOT) install
 
 include ../Makefile.rules

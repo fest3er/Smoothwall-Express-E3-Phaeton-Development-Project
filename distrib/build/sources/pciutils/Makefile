@@ -22,6 +22,7 @@ compile: configure
 	@make -C $(COMPILE_DIR) PREFIX=/$(PKG_DIR) ZLIB=no
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) PREFIX=$(PKG_ROOT)$(PKG_DIR) install
 
 include ../Makefile.rules

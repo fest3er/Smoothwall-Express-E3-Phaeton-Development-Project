@@ -14,6 +14,7 @@ BASE_URL = http://$(SFMIRROR).dl.sourceforge.net/sourceforge/$(PACKAGE)/
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) install prefix=$(PKG_ROOT)$(PKG_DIR)
 
 include ../Makefile.rules

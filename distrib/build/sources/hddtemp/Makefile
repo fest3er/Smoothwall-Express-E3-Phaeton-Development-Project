@@ -21,6 +21,7 @@ PATCH_FILE2 = smoothwall-locale-fix.patch
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/src/hddtemp $(PKG_ROOT)/usr/sbin/hddtemp
 	@install -D hddtemp.db $(PKG_ROOT)/usr/share/misc/hddtemp.db
 

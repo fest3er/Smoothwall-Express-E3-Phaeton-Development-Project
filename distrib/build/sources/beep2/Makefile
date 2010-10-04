@@ -18,6 +18,7 @@ configure: patch
 	@true
 	
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(DIR) PREFIX=$(PKG_ROOT)/usr/ install
 
 include ../Makefile.rules

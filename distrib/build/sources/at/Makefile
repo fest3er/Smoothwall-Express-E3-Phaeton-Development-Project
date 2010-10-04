@@ -21,6 +21,7 @@ CONFIG_OPTS = --with-jobdir=/var/spool/atjobs --with-atspool=/var/spool/atspool 
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) prefix=$(PKG_ROOT)$(PKG_DIR) install
 
 include ../Makefile.rules

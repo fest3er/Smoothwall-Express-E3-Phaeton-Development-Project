@@ -18,7 +18,7 @@ extern char **ctr;
 extern int automode;
 
 #define MAX_FILENAMES 5000
-#define KEYMAPROOT "/usr/share/kbd/keymaps/i386/"
+#define KEYMAPROOT "/usr/share/keymaps/i386/"
 
 static int filenamecount;
 static char *filenames[MAX_FILENAMES];
@@ -86,7 +86,7 @@ int handlekeymap(void)
 	{
 		replacekeyvalue(kv, "KEYMAP", keymap);
 		writekeyvalues(kv, CONFIG_ROOT "main/settings");
-		sprintf(commandstring, "/bin/loadkeys %s", keymap);
+		sprintf(commandstring, "/usr/bin/loadkeys %s", keymap);
 		mysystem(commandstring);
 		result = 1;
 	}

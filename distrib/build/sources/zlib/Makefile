@@ -16,6 +16,7 @@ INSTALL = yes
 CONFIG_OPTS = --prefix=$(PKG_DIR) --shared --libdir=/lib
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	make -C $(DIR) prefix=$(PKG_ROOT)$(PKG_DIR) libdir=$(PKG_ROOT)$(PKG_DIR)/lib install
 	rm -vf $(PKG_ROOT)/lib/libz.so;
 	ln -sfv ../../lib/libz.so.1.2.3 $(PKG_ROOT)$(PKG_DIR)/lib/libz.so

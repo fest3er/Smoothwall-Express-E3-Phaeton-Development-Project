@@ -40,6 +40,7 @@ configure: prepare patch
 		--with-ssl=/usr/ssl --with-layout=RedHat);
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@(cd apache_$(APACHE_VER); \
 	install -s -D src/httpd $(PKG_ROOT)/usr/sbin/httpd; \
 	install -s -D src/support/htpasswd $(PKG_ROOT)/usr/bin/htpasswd; \
@@ -54,6 +55,11 @@ clean:
 	@echo -n " $(PACKAGE)"
 	@rm -rf apache_$(APACHE_VER)
 	@rm -rf mod_ssl-$(MODSSL_VER)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT)
+	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
+endif
+
 
 packageinfo.html:
 	@echo "<li><span style='font-size:large;'>$(PACKAGE) $(VERSION)</span><br>" >>/tmp/packageinfo.html

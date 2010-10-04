@@ -27,22 +27,22 @@ SWE_PKGS = udev udev-config grub pciutils bash reiserfsprogs
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr
 
 bin:
-	@mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin
-	@cp -aR /sbin/* tmp/bin
-	@#cp -aRv /build/target/install tmp/bin/install
-	@#strip tmp/bin/*
+	(set -x; mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin; \
+	cp -aR /sbin/* tmp/bin)
+	#cp -aRv /build/target/install tmp/bin/install
+	#strip tmp/bin/*
 
 lib:
-	@mkdir -p tmp/lib tmp/usr/lib/klibc/lib
-	@cp -aR /lib/* tmp/lib
-	@cp -aR /lib/lib* tmp/lib
-	@cp -aR /usr/lib/libncurses* tmp/lib/
-	tar xfz /build/target/smoothwall-kernel-phaeton.tar.gz -C tmp ./lib/modules > /dev/null 2>&1
+	(set -x; mkdir -p tmp/lib tmp/usr/lib/klibc/lib; \
+	cp -aR /lib/* tmp/lib; \
+	cp -aR /lib/lib* tmp/lib; \
+	cp -aR /usr/lib/libncurses* tmp/lib/; \
+	tar xfz /build/target/smoothwall-kernel$(SWETYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1)
 
 klibc:
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
 
 
 all: clean bin lib klibc

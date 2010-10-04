@@ -20,15 +20,16 @@ install: compile
 	@install -D $(COMPILE_DIR)/libsmooth/libsmooth.o /usr/lib/libsmooth.o
 
 all: install
+	@mkdir -p $(PKG_ROOT)
 	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) .
 
 clean:
 	@echo -n " $(PACKAGE)"
 	@make --no-print-directory -C $(COMPILE_DIR) clean >/dev/null 2>&1
 ifeq ($(BUILD_PHASE), Final)
-	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
-endif
+	@rm -rf $(PKG_ROOT)
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
+endif
 
 download:
 	@true

@@ -16,6 +16,7 @@ compile: configure
 	@cd $(DIR) && make
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/libcgi.a $(PKG_ROOT)/usr/lib/libcgi.a
 	@install -D $(COMPILE_DIR)/cgi.h $(PKG_ROOT)/usr/include/cgi.h
 

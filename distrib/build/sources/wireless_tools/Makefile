@@ -24,6 +24,7 @@ compile: configure
 	@make -C $(DIR) PREFIX=/usr
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	make -C $(DIR) PREFIX=$(PKG_ROOT)$(PKG_DIR) install
 
 include ../Makefile.rules

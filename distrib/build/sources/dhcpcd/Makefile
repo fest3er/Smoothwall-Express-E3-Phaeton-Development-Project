@@ -25,6 +25,7 @@ configure: patch
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	make -C $(DIR) DESTDIR=$(PKG_ROOT) install
 	@mkdir -p $(PKG_ROOT)$(PKG_DIR)/sbin
 	@(cd $(PKG_ROOT)$(PKG_DIR)/sbin; rm -f dhcpcd; ln -s /sbin/dhcpcd)

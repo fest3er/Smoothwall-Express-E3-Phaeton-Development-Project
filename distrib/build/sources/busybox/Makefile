@@ -21,7 +21,7 @@ configure: $(DIR)/
 	@cp -avR config $(COMPILE_DIR)/.config
 
 install: compile
-	@if [ ! -d $(PKG_ROOT) ]; then mkdir -p $(PKG_ROOT); fi
+	@mkdir -p $(PKG_ROOT)
 	make -C $(COMPILE_DIR) CONFIG_PREFIX=$(PKG_ROOT)$(PKG_DIR) install
 
 include ../Makefile.rules

@@ -23,7 +23,7 @@ configure: patch
 	@true;
 
 install: compile
-	-mkdir $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 	@install -m 4755 -D $(DIR)/ping $(PKG_ROOT)$(PKG_DIR)/bin/ping
 
 include ../Makefile.rules

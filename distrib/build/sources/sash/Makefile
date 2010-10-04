@@ -24,6 +24,7 @@ compile: configure
 	@make -C $(COMPILE_DIR) CFLAGS="$(CFLAGS) -DHAVE_GZIP"
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/sash $(PKG_ROOT)/bin/sash
 
 include ../Makefile.rules

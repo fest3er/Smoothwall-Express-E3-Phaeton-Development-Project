@@ -12,7 +12,7 @@ default:
 	cp /usr/share/syslinux/isolinux.bin ../cdrom/isolinux/
 	cp isolinux.cfg ../cdrom/isolinux/isolinux.cfg
 	cp dosfiles/phaeton.txt dosfiles/phaeton.lss ../cdrom/isolinux/
-	cp -R /build/buildroot/kernel-phaeton/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/isolinux/vmlinuz
+	cp -R /build/buildroot/kernel$(SWETYPE)/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/isolinux/vmlinuz
 	cp ../installroot/installrootimage.gz ../cdrom/isolinux/iniramfs.igz
 	echo -e "ISOLinux boot prep complete\n\n\n\n\n"
 

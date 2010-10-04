@@ -6,18 +6,18 @@
 
 # The system's kernel.
 KERNEL_MMR = 2.6.32
-KERNEL_VER = $(KERNEL_MMR).21
+KERNEL_VER = $(KERNEL_MMR).23
 
 # The kernel version headers needed to build klibc-2.6.18
 # Unrelated to the system's kernel
 KLIBKERNVER = 2.6.33.6
 
-SWETYPE = -phaeton
+SWETYPE = $(PRODUCT_EXTRA)
 K_RAW_VERSION = $(KERNEL_VER)
 K_SWE_VERSION = $(KERNEL_VER)$(SWETYPE)
 
 FREESWAN_TYPE = openswan
-FREESWAN_VER = 2.6.28
+FREESWAN_VER = 2.6.29
 
 IPP2P_VER = 0.8.2
 

@@ -14,6 +14,7 @@ BASE_URL = http://mtools.linux.lu/
 INSTALL = yes
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(COMPILE_DIR) prefix=$(PKG_ROOT)$(PKG_DIR) install
 
 include ../Makefile.rules

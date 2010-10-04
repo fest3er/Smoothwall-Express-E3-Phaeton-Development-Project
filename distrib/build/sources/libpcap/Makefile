@@ -25,7 +25,7 @@ endif
 
 install: compile
 ifeq ($(BUILD_PHASE), Final)
-	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 endif
 	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	@mkdir -p $(PKG_ROOT)/usr/include/net

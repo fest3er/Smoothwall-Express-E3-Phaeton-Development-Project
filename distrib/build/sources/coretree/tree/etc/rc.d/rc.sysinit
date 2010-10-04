@@ -161,6 +161,7 @@ echo "Loading filesystems"
 
 echo "Loading IPSEC"
 /sbin/modprobe ipsec
+chmod 444 /proc/net/ipsec/eroute/all
 
 echo "Starting smoothd"
 /usr/sbin/smoothd

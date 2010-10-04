@@ -17,6 +17,7 @@ configure: $(DIR)
 	@true
 
 install: compile
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/noip $(PKG_ROOT)$(PKG_DIR)/bin/noip
 
 include ../Makefile.rules

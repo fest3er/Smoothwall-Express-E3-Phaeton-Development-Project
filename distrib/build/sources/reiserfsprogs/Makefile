@@ -21,10 +21,7 @@ CONFIG_OPTS = --prefix=$(PKG_DIR) --sbindir=/sbin
 
 INSTALL = yes
 install: compile
-	tput smso
-	echo $(PKG_ROOT)
-	tput rmso
-	-mkdir $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 	ln -sf reiserfsck $(PKG_ROOT)/sbin/fsck.reiserfs
 	ln -sf mkreiserfs $(PKG_ROOT)/sbin/mkfs.reiserfs

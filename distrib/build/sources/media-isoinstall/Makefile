@@ -28,11 +28,11 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    ez-ipupdate noip cdrtools \
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
 	    reiserfsprogs xtables-addons zlib sash slang cpio \
-	    apr apr-util apr apr-util udev lm_sensors \
+	    udev lm_sensors \
 	    Net-Netmask NetAddr-IP \
 	    coretree
 
-OBSOLETE_PKGS = libipt_ACCOUNT ipp2p speedtouch eagle-usb devnodes libstdc++ lilo
+OBSOLETE_PKGS = apr apr-util libipt_ACCOUNT ipp2p speedtouch eagle-usb devnodes libstdc++ lilo
 TOOLCHAIN_PKGS = expect
 OTHER_PKGS = updates jam sqlite udev-config
 
@@ -93,16 +93,24 @@ cdrom/smoothwall.tgz:
 	@echo "Moving includes to distrib-dev:"
 	@if [ -d distrib/usr/include ]; then \
 	  mkdir -p distrib-dev/usr/include; \
-	  mv distrib/usr/include/* distrib-dev/usr/include/; fi; \
+	  cp -a distrib/usr/include distrib-dev/usr/; \
+	  rm -rf distrib/usr/include/*; fi
 	if [ -d distrib/usr/ssl/include ]; then \
 	  mkdir -p distrib-dev/usr/ssl/include; \
-	  mv distrib/usr/ssl/include/* distrib-dev/usr/ssl/include/; fi; \
+	  cp -a distrib/usr/ssl/include distrib-dev/usr/ssl/; \
+	  rm -rf distrib/usr/ssl/include/*; fi
+
+	@echo "Moving static libs to distrib-dev:"
+	@cd distrib; find . -name \*.a -o -name \*.la | while read a; do \
+	  mkdir -p ../distrib-dev/`dirname $$a`; \
+	  mv $$a ../distrib-dev/$$a; \
+	done
 
 	@echo "Moving docs to distrib-doc:"
 	@for I in man info share/man share/info share/doc examples; do \
 	  if [ -d distrib/usr/$$I ]; then \
 	    mkdir -p distrib-doc/usr/$$I; \
-	    mv distrib/usr/$$I/* distrib-dev/usr/$$I/; fi; \
+	    mv distrib/usr/$$I/* distrib-doc/usr/$$I/; fi; \
 	  if [ -d distrib/usr/ssl/$$I ]; then \
 	    mkdir -p distrib-doc/usr/ssl/$$I; \
 	    mv distrib/usr/ssl/$$I/* distrib-doc/usr/ssl/$$I/; fi; \
@@ -154,7 +162,7 @@ cdrom/smoothwall.tgz:
 	  chmod u+s distrib/usr/sbin/listtables; \
 	  chown root:nobody distrib/usr/bin/setuids/*; \
 	  chmod 4750 distrib/usr/bin/setuids/*; \
-	  mkdir -/ distrib/tmp; chmod 1777 distrib/tmp; \
+	  mkdir -p /distrib/tmp; chmod 1777 distrib/tmp; \
 	) | sed -u -e 's/^/  /'
 	
 	@echo -e "\nConverting to shadow passwords ..."
