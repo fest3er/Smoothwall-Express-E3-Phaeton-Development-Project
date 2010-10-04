@@ -227,7 +227,7 @@ clean:
 	rm -rf cdrom distrib distrib-dev distrib-doc klibc
 	make --no-print-directory -C cdromboot clean >/dev/null 2>&1
 	make --no-print-directory -C installroot clean >/dev/null 2>&1
-	make --no-print-directory -n -p -C runtimeroot clean >/dev/null 2>&1
+	make --no-print-directory -C runtimeroot clean >/dev/null 2>&1
 	
 download:
 	@true

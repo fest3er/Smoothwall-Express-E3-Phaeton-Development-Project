@@ -15,7 +15,7 @@ function do-sid {
       setsid sh -c "exec $1 </dev/tty$2 >/dev/tty$2 2>&1"&
       return $!
       ;;
-    "EXEc")
+    "EXEC")
       exec setsid sh -c "exec $1 </dev/tty$2 >/dev/tty$2 2>&1"
       ;;
   esac
