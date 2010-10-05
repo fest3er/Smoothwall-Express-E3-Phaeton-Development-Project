@@ -21,6 +21,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    httpd smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace \
 	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
 	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
+	    libdnet libdaq \
 	    beep2 pcre trafficstats iftop setuids ppp isdn4k-utils \
 	    rp-pppoe ibod dhcpcd eciadsl-synch_bin eciadsl-usermode \
 	    cnxadsl dhcp snort oinkmaster openswan wireless_tools imspector  \

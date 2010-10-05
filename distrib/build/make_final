@@ -227,6 +227,8 @@ fi
       build freetype
       build libart_lgpl
       build libpng
+      build libdnet
+      build libdaq
       build rrdtool
       build lm_sensors
       build dnsmasq
