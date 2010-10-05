@@ -284,7 +284,7 @@ END
   OPWD=`pwd`
   mkdir -p /runtimeroot; cd /runtimeroot
   echo "    unpack"
-  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz | cpio -id"
+  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz | cpio -id"
   echo "    update"
   do_or_die "mkdir -p -m 755 /runtimeroot/etc/udev/rules.d"
   do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /runtimeroot/etc/udev/rules.d/"
