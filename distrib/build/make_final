@@ -179,7 +179,7 @@ fi
       build openssl
       build wget
       build sudo
-      build kernel-roadster
+      build kernel-phaeton
       build iptables
       build xtables-addons
       #build ipp2p: obsolete, included in xtables-addons
