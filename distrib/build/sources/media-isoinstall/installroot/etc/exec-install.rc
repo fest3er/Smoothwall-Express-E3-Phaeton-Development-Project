@@ -183,7 +183,7 @@ echo
   do_or_die "swapon /dev/harddisk2"
 
   echo "Mounting CD/DVD"
-  mount -t iso9660 /dev/${cd_dev[$CD]} /cdrom > /dev/null 2>&1
+  mount -t iso9660 /dev/${cd_dev[$CD]} /cdrom > /dev/tty2 2>&1
   if [ $? -ne 0 ]; then
     do_or_die "mount -t vfat /dev/${cd_dev[$CD]}1 /cdrom"
   fi
