@@ -9,7 +9,6 @@ include ../Makefile.conf
 PACKAGE = hdparm
 VERSION = 9.33
 
-#BASE_URL = http://www.ibiblio.org/pub/Linux/system/hardware/
 BASE_URL = http://sourceforge.net/projects/hdparm/files/hdparm/
 
 CONFIGURE = yes
