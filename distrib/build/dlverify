@@ -7,7 +7,8 @@
 # This code is distributed under the terms of the GPL v2.
 
 # Mirror root
-MIRROR_ROOT=http://downloads.smoothwall.org/buildmirror
+set | grep "MIRROR_ROOT=" >/dev/null 2>&1 || MIRROR_ROOT="http://downloads"
+set | grep "MIRROR_ROOT2=" >/dev/null 2>&1 || MIRROR_ROOT2="http://downloads.smoothwall.org/buildmirror"
 
 DIRECTORY=$1
 URL=$2
