@@ -148,7 +148,7 @@ chroot:
 #
 predownload:
 	@echo -e "\nPre-downloading source tarballs..."; sleep 1
-	@(export BUILD_PHASE="PreDownload"; . ./environment;set_build_environment;cd sources; for I in `find -maxdepth 3 -mindepth 1 -type d`; do \
+	@(export BUILD_PHASE="PreDownload"; . ./environment;set_build_environment;cd sources; for I in `find -maxdepth 3 -mindepth 1 -type d | sort`; do \
 	  if [ "$$I" != "./CVS" ]; then \
 	    make -C $$I BUILDENV=1 -n download >/dev/null 2>/dev/null; \
 	    if [ $$? -eq 0 ]; then \

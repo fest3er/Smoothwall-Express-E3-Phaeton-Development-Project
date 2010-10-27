@@ -19,9 +19,9 @@ download:
 	@if [ ! -e ../../downloads/$(TARBALL)$(EXTENSION).done ]; then \
 	  wget --no-check-certificate \
 	       -O ../../downloads/$(TARBALL)$(EXTENSION) $(SNORT_URL); \
-	  if [ $? -eq 0 ]; then \
+	  if [ $$? -eq 0 ]; then \
 	    touch ../../downloads/$(TARBALL)$(EXTENSION).done; \
-	  fi \
+	  fi; \
 	fi
 
 

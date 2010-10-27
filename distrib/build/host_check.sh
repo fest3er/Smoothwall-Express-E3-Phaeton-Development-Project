@@ -1,9 +1,42 @@
 #!/bin/bash
 
-# Script taken from LFS 6.5 and modified to check and report good and
-#   bad versions of software.
+# host_check.bash - A simple script to check and report version numbers of
+#   development tools required to build the LFS tool chain.
+#
+# Modified by Neal P. Murphy.
+#
+# Script taken from LFS 6.5 Preface, chapter vii, and modified to check and
+#   report good and bad versions of software; the same terms, conditions
+#   and licenses apply.
 
-# Simple script to check and report version numbers of critical development tools
+# As submitted, it works on Debian Lenny and a few other GNU/Linux distrib,
+#   and it works for my Phaeton & Roadster versions of Smoothwall.
+#   Package version numbers will almost certainly need to be updated for
+#   LFS.
+
+# This is a brute force script. Some parts probably could be generalized
+#   and turned into functions.
+
+# Package version variables
+#   Cpackage_name - earliest package version used for (C)omputed comparisons
+#   Cpackage_nameM - latest package version used for (C)omputed comparisons
+#   Vpackage_name - earliest package version for (V)isual display
+#   Vpackage_nameM - latest package version for (V)isual display
+#
+# The ...M variables are used only for packages that can't (shouldn't) be
+#   newer than a certain version.
+#
+# Consider each version number as being uniquely handled, because of the
+#   wide variation in numbering schemes. Generally, the visual version
+#   numbers are converted to two digit numbers with leading zeros to
+#   facilitate computed comparisons. There are also version numbers that
+#   do not follow the maj.min.rel.pt scheme.
+
+# The rest of the script slogs through the prerequisites one by one,
+#   simply noting 'OK' or 'FAIL' along with the package version (if installed)
+#   and the required version.
+
+
 echo
 echo "Checking host for required packages. Failures must be addressed"
 echo "before proceeding with building Smoothwall".
