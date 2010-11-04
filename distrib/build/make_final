@@ -181,6 +181,7 @@ fi
       build sudo
       build kernel-phaeton
       build iptables
+      build ipset
       build xtables-addons
       #build ipp2p: obsolete, included in xtables-addons
       build ipbatch
