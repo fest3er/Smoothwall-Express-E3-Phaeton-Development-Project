@@ -23,19 +23,19 @@ FILENAME=/`basename $URL`
 
 if [ ! -e "$DIRECTORY/$FILENAME.done" ]; then
 	if [ "$MIRROR_ROOT" != "" ]; then
-		wget -c --directory $DIRECTORY $MIRROR_ROOT/$FILENAME
+		wget --no-check-certificate -c --directory $DIRECTORY $MIRROR_ROOT/$FILENAME
 	else
 		false
 	fi
 	if [ $? -ne 0 ]; then
 		if [ "$MIRROR_ROOT2" != "" ]; then
-			wget -c --directory $DIRECTORY $MIRROR_ROOT2/$FILENAME
+			wget --no-check-certificate -c --directory $DIRECTORY $MIRROR_ROOT2/$FILENAME
 		else
 			false
 		fi
 	fi
 	if [ $? -ne 0 ]; then
-		wget -c --directory $DIRECTORY $URL
+		wget --no-check-certificate -c --directory $DIRECTORY $URL
 		if [ $? -ne 0 ]; then
 			echo "Download failed"
 			exit 1
