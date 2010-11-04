@@ -17,7 +17,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    vim less sed flex gettext net-tools inetutils iputils whois perl \
 	    bash bzip2 kbd e2fsprogs grep gzip module-init-tools procinfo procps \
 	    psmisc shadow sysklogd logrotate sysvinit tar util-linux-ng joe wget \
-	    iptables ipbatch pciutils kernel-phaeton openssl openssh \
+	    iptables ipset ipbatch pciutils kernel-phaeton openssl openssh \
 	    httpd smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace \
 	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
 	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
