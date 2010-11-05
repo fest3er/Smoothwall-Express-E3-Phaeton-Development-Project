@@ -7,11 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = daq
-VERSION = 0.2
+VERSION = 0.3
 
 DIR = $(PACKAGE)-$(VERSION)
 
-SNORT_URL = http://www.snort.org/downloads/263
+SNORT_URL = http://www.snort.org/downloads/363
 
 
 DOWNLOAD = yes
