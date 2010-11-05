@@ -17,13 +17,13 @@ INSTALL = yes
 
 PATCH_FILE1 = prefix-symlinks.patch
 
-configure : patch
+configure: patch
 	@true
 
-compile : configure
+compile: configure
 	@make -C $(DIR) CC="gcc $(CFLAGS)"
 
-install : compile
+install: compile
 	@make -C $(DIR) PREFIX=$(PKG_ROOT)$(PKG_DIR) install
 
 include ../Makefile.rules
