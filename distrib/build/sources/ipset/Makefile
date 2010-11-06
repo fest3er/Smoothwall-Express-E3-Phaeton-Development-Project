@@ -50,6 +50,6 @@ compile: configure
 
 install: compile
 	@mkdir -p $(PKG_ROOT)
-	KERNEL_DIR=$(KNL_DIR) make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
+	KERNEL_DIR=$(KNL_DIR) make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) PREFIX=$(PKG_DIR) install
 
 include ../Makefile.rules
