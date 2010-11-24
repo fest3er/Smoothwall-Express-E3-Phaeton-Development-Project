@@ -16,7 +16,7 @@ BASE_URL = http://www.kernel.org/pub/linux/libs/klibc/$(VER_MM)/
 
 DOWNLOAD = yes
 download:
-	$(DL_CMD) $(BASE_URL)/$(TARBALL)$(EXTENSION) $(MD5)
+	@$(DL_CMD) $(BASE_URL)/$(TARBALL)$(EXTENSION) $(MD5)
 	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/linux-$(KLIBKERNVER).tar.bz2
 
 CONFIGURE = YES

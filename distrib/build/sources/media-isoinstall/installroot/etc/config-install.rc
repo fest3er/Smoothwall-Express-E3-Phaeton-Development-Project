@@ -65,20 +65,25 @@ while [ 1 -eq 1 ]; do
   set `wc -l /tmp/cd.list`
   cd_cnt=$1
 
+  # Let's not quit after finding one of each. Rather, shorten the total search time
+  #   to 15 seconds. It's only the initial install boot; the delay shouldn't be too
+  #   onerous.
+  # Old time points were 12,24,18,30,36
+
   # If at least one of each was found, get on with the install already!
-  test $hd_cnt -gt 0 && test $cd_cnt -gt 0 && break
+  #test $hd_cnt -gt 0 && test $cd_cnt -gt 0 && break
 
   case $tries in
-    12)
-      echo -e -n "  Your system may be pokey in recognizing the needed drive(s).\r"
+    10)
+      echo -e -n "  Not seeing any other drives yet.\r"
       ;;
-    24)
-      echo -e -n "  I ain't gone wait much longer!\r"
+    20)
+      echo -e -n "  I'm getting antsy!\r"
       ;;
-    18|30)
+    15|25)
       echo -e -n "\033[0J\r"
       ;;
-    36)
+    30)
       echo -e -n "\033[0J\r"
       case $hd_cnt in
         0) echo -en "\r\nNo writable drives found. ";;

@@ -17,10 +17,11 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    vim less sed flex gettext net-tools inetutils iputils whois perl \
 	    bash bzip2 kbd e2fsprogs grep gzip module-init-tools procinfo procps \
 	    psmisc shadow sysklogd logrotate sysvinit tar util-linux-ng joe wget \
-	    iptables ipbatch pciutils kernel-roadster openssl openssh \
+	    iptables ipset ipbatch pciutils kernel-roadster openssl openssh \
 	    httpd smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace \
 	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
 	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
+	    libdnet daq \
 	    beep2 pcre trafficstats iftop setuids ppp isdn4k-utils \
 	    rp-pppoe ibod dhcpcd eciadsl-synch_bin eciadsl-usermode \
 	    cnxadsl dhcp snort oinkmaster openswan wireless_tools imspector  \
@@ -215,6 +216,7 @@ extracontent:
 	find cdrom -name .svn -exec rm -rf {} \;
 
 all: cdrom cdrom/smoothwall.tgz extracontent
+	@rm -f cdrom/smooth*.tgz
 	/sbin/mkisofs -o $(TARGET_DIR)/isos/smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso \
           -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
 	  -no-emul-boot -boot-load-size 4 -boot-info-table \
@@ -222,12 +224,12 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	@echo "smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso build complete"
 
 clean:
-	echo -n " $(PACKAGE)"
-	rm -f Media.roadsterdevISO.built
-	rm -rf cdrom distrib distrib-dev distrib-doc klibc
-	make --no-print-directory -C cdromboot clean >/dev/null 2>&1
-	make --no-print-directory -C installroot clean >/dev/null 2>&1
-	make --no-print-directory -C runtimeroot clean >/dev/null 2>&1
+	@echo -n " $(PACKAGE)"
+	@rm -f Media.roadsterdevISO.built
+	@rm -rf cdrom distrib distrib-dev distrib-doc klibc
+	@make --no-print-directory -C cdromboot clean >/dev/null 2>&1
+	@make --no-print-directory -C installroot clean >/dev/null 2>&1
+	@make --no-print-directory -C runtimeroot clean >/dev/null 2>&1
 	
 download:
 	@true

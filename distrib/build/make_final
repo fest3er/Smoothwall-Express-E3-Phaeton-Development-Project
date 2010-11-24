@@ -181,6 +181,7 @@ fi
       build sudo
       build kernel-roadster
       build iptables
+      build ipset
       build xtables-addons
       #build ipp2p: obsolete, included in xtables-addons
       build ipbatch
@@ -227,6 +228,8 @@ fi
       build freetype
       build libart_lgpl
       build libpng
+      build libdnet
+      build daq
       build rrdtool
       build lm_sensors
       build dnsmasq

@@ -7,9 +7,9 @@
 include ../Makefile.conf
 
 PACKAGE = syslinux
-VERSION = 4.02
+VERSION = 4.03
 
-BASE_URL = http://www.kernel.org/pub/linux/utils/boot/syslinux
+BASE_URL = http://www.kernel.org/pub/linux/utils/boot/syslinux/4.xx
 
 CONFIGURE = yes
 COMPILE = yes
