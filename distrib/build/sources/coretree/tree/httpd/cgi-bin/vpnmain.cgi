@@ -94,31 +94,39 @@ my $line;
 foreach $line (@current)
 {
 	$id++;
-	chomp($line);
-	my @temp = split(/\,/,$line);
-	my $name = $temp[0];
-	my $netmaskl = $temp[2];
-	$netmaskl =~ /\//; $netmaskl = $`;
-	my $netmaskr = $temp[4];
-	$netmaskr =~ /\//; $netmaskr = $`;
-	my $active = "<img src='/ui/img/closed.jpg' alt='$tr{'capsclosed'}'>";
-	if ($temp[6] eq 'off') {
-		$active = "<img src='/ui/img/disabled.jpg' alt='$tr{'capsdisabled'}'>";
-	}
+        chomp($line);
+        my @temp = split(/\,/,$line);
+        my $name = $temp[0];
+        my $redl = $temp[1];
+        my $netmaskl = $temp[2];
+        $netmaskl =~ /\//; $netmaskl = $`;
+        my $redr = $temp[3];
+        my $netmaskr = $temp[4];
+        $netmaskr =~ /\//; $netmaskr = $`;
+        my $status = $temp[6];
+        my $active = "<img src='/ui/img/closed.jpg' alt='$tr{'capsclosed'}'>";
+        if ($status eq 'off') {
+                $active = "<img src='/ui/img/disabled.jpg' alt='$tr{'capsdisabled'}'>";
+        }
 
-	foreach $line (@active)
-	{
-		@temp = split(/[\t ]+/,$line);
-		$d = 0;
-		$targetl = $temp[1];
-		$targetl =~ /\//; $targetl = $`;
-		$targetr = $temp[3];
-		$targetr =~ /\//; $targetr = $`;
-		if (($targetl eq $netmaskl && $targetr eq $netmaskr) ||
-			($targetl eq $netmaskr && $targetr eq $netmaskl))
-		 {
-			$active = "<img src='/ui/img/open.jpg' alt='$tr{'capsopen'}'>";
-		}
+        foreach $line (@active)
+        {
+                chomp($line);
+                @temp = split(/[\t ]+/,$line);
+                $d = 0;
+                $targetl = $temp[1];
+                $targetl =~ /\//; $targetl = $`;
+                $targetr = $temp[3];
+                $targetr =~ /\//; $targetr = $`;
+                my $remote = $temp[5];
+                $remote =~ /\@/; $remote = $';
+                if (($targetl eq $netmaskl && $targetr eq $netmaskr &&
+                     $redr eq $remote && $status eq 'on') ||
+                    ($targetl eq $netmaskr && $targetr eq $netmaskl &&
+                     $redl eq $remote && $status eq 'on'))
+                {
+                        $active = "<img src='/ui/img/open.jpg' alt='$tr{'capsopen'}'>";
+                }
 	}
 	print "<tr class='dark' style='border: 1px solid #c0c0c0;'>\n"; 
 	print "<td style='width: 65%; text-align: center;'><strong>$name</strong></td><td style='text-align: left;'>$active</td>\n";
