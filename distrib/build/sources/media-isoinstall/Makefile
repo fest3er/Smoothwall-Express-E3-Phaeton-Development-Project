@@ -50,12 +50,12 @@ cdrom:
 	make -C cdromboot
 
 cdrom/smoothwall.tgz:
-	@mkdir -p distrib distrib/sys distrib-dev distrib-doc/usr/share/
+	mkdir -p distrib distrib/sys distrib-dev distrib-doc/usr/share/
 
-	@install -D runtimerootimage.gz distrib/boot/initrd-$(K_SWE_VERSION).gz
+	install -D runtimerootimage.gz distrib/boot/initrd-$(K_SWE_VERSION).gz
 
 	@echo "Unpacking dev packages:"
-	@(for I in $(DEV_PKGS); do \
+	(for I in $(DEV_PKGS); do \
 		if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
 		make -C ../$$I clean all; \
 			if [ $$? -ne 0 ]; then \
@@ -70,12 +70,12 @@ cdrom/smoothwall.tgz:
 	);
 
 	@echo "Copying dev shared libs to distrib:"
-	@(cd distrib-dev; \
+	(cd distrib-dev; \
 		find . -name \*.so\* -print | cpio -pd ../distrib \
 	)
 
 	echo "Unpacking main packages:"
-	@(for I in $(INST_PKGS); do \
+	(for I in $(INST_PKGS); do \
 		if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
 		make -C ../$$I clean all; \
 			if [ $$? -ne 0 ]; then \
@@ -102,13 +102,13 @@ cdrom/smoothwall.tgz:
 	  rm -rf distrib/usr/ssl/include/*; fi
 
 	@echo "Moving static libs to distrib-dev:"
-	@cd distrib; find . -name \*.a -o -name \*.la | while read a; do \
+	cd distrib; find . -name \*.a -o -name \*.la | while read a; do \
 	  mkdir -p ../distrib-dev/`dirname $$a`; \
 	  mv $$a ../distrib-dev/$$a; \
 	done
 
 	@echo "Moving docs to distrib-doc:"
-	@for I in man info share/man share/info share/doc examples; do \
+	for I in man info share/man share/info share/doc examples; do \
 	  if [ -d distrib/usr/$$I ]; then \
 	    mkdir -p distrib-doc/usr/$$I; \
 	    mv distrib/usr/$$I/* distrib-doc/usr/$$I/; fi; \
@@ -117,9 +117,9 @@ cdrom/smoothwall.tgz:
 	    mv distrib/usr/ssl/$$I/* distrib-doc/usr/ssl/$$I/; fi; \
 	done
 
-	@/build/striptree distrib
-	@/build/striptree distrib-dev
-	@/build/striptree distrib-doc
+	/build/striptree distrib
+	/build/striptree distrib-dev
+	/build/striptree distrib-doc
 
 	@echo -e "\nProduct info:"
 	@( \
@@ -131,18 +131,20 @@ cdrom/smoothwall.tgz:
 	echo "  ARCH='$(ARCH)'"; \
 	) | sed -u -e 's/^/  /'
 
-	@mkdir -p distrib/var/smoothwall/main
-	@echo "PRODUCT='$(PRODUCT_NAME)'" > distrib/var/smoothwall/main/productdata
-	@echo "VERSION='$(PRODUCT_VERSION)$(SWETYPE)'" >> distrib/var/smoothwall/main/productdata
-	@echo "REVISION='$(REVISION)'" >> distrib/var/smoothwall/main/productdata
-	@echo "UI_VERSION='$(UI_VERSION)'" >> distrib/var/smoothwall/main/productdata
-	@echo "FIXES='$(FIXES_NUMBER)'" >> distrib/var/smoothwall/main/productdata
-	@echo "ARCH='$(ARCH)'" >> distrib/var/smoothwall/main/productdata
+	mkdir -p distrib/var/smoothwall/main
+	( \
+	  echo "PRODUCT='$(PRODUCT_NAME)'" ; \
+	  echo "VERSION='$(PRODUCT_VERSION)$(SWETYPE)'" ; \
+	  echo "REVISION='$(REVISION)'" ; \
+	  echo "UI_VERSION='$(UI_VERSION)'" ; \
+	  echo "FIXES='$(FIXES_NUMBER)'" ; \
+	  echo "ARCH='$(ARCH)'" ; \
+	) > distrib/var/smoothwall/main/productdata
 
-	@chown nobody:nobody distrib/var/smoothwall/main/productdata
+	chown nobody:nobody distrib/var/smoothwall/main/productdata
 
 	@echo -e "\nMake some initial device nodes:"
-	@( \
+	( \
 	mknod distrib/dev/console c 5 1; \
 	  chown root:root distrib/dev/console; \
 	  chmod 600 distrib/dev/console; \
@@ -158,7 +160,7 @@ cdrom/smoothwall.tgz:
 	) | sed -u -e 's/^/  /'
 
 	@echo -e "\nSecuring tree ..."
-	@( \
+	( \
 	  /build/securetree distrib; \
 	  /build/securetree distrib-dev; \
 	  /build/securetree distrib-doc; \
@@ -167,18 +169,19 @@ cdrom/smoothwall.tgz:
 	  chmod u+s distrib/usr/sbin/listtables; \
 	  chown root:nobody distrib/usr/bin/setuids/*; \
 	  chmod 4750 distrib/usr/bin/setuids/*; \
-	  mkdir -p /distrib/tmp; chmod 1777 distrib/tmp; \
+	  mkdir -p distrib/tmp; \
+	  chmod 1777 distrib/tmp; \
 	) | sed -u -e 's/^/  /'
 	
 	@echo -e "\nConverting to shadow passwords ..."
-	@( \
-	/usr/bin/chroot distrib /usr/sbin/pwconv; \
-	/usr/bin/chroot distrib /usr/sbin/grpconv; \
+	( \
+	  /usr/sbin/chroot distrib /usr/sbin/pwconv; \
+	  /usr/sbin/chroot distrib /usr/sbin/grpconv; \
 	) | sed -u -e 's/^/  /'
 	
 	@echo -e "\nUpdating library cache ..."
-	@( \
-	/sbin/ldconfig -r distrib; \
+	( \
+	  /sbin/ldconfig -r distrib; \
 	) | sed -u -e 's/^/  /'
 
 	@echo -e "\nTidying ..."
@@ -188,13 +191,13 @@ cdrom/smoothwall.tgz:
 	@ln -s /var/smoothwall/vpn/ipsec.conf distrib/etc/ipsec.conf
 
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
-	@tar -zcf cdrom/smoothwall.tgz -C distrib .
+	tar cfz cdrom/smoothwall.tgz -C distrib .
 
 	@echo -e "\nBuilding smoothdev.tgz, stand by ..."
-	@tar -zcf cdrom/smoothdev.tgz -C distrib-dev .
+	tar cfz cdrom/smoothdev.tgz -C distrib-dev .
 
 	@echo -e "\nBuilding smoothdoc.tgz, stand by ..."
-	@tar -zcf cdrom/smoothdoc.tgz -C distrib-doc .
+	tar cfz cdrom/smoothdoc.tgz -C distrib-doc .
 
 	@( \
 	  src_tgz=../../../../smoothsrc.tar.gz; \
@@ -216,7 +219,6 @@ extracontent:
 	find cdrom -name .svn -exec rm -rf {} \;
 
 all: cdrom cdrom/smoothwall.tgz extracontent
-	@rm -f cdrom/smooth*.tgz
 	/sbin/mkisofs -o $(TARGET_DIR)/isos/smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso \
           -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
 	  -no-emul-boot -boot-load-size 4 -boot-info-table \

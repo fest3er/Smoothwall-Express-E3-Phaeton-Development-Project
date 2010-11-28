@@ -41,7 +41,7 @@ default:
 	@echo "If using a host distrib to build, it is safest to build as a non-root user. The"
 	@echo "system will become root as needed via 'sudo', so be sure that tool is ready."
 	@echo
-	@echo "Phaeton's build system is much less fragile, and far less likely to"
+	@echo "The Phaeton/Roadster build system is much less fragile, and far less likely to"
 	@echo "hose your host system. But you must still know what you are doing!"
 	@echo
 	@echo "Useful commands:"
@@ -51,9 +51,9 @@ default:
 	@echo "  make package"
 	@echo
 	@echo "Useful targets:"
-	@echo "  build             Build Phaeton or continue building from an error."
+	@echo "  build             Build Phaeton/Roadster or continue building from an error."
 	@echo "  media             Make ISO and prepare bootable flash drive."
-	@echo "  rebuild           Build Phaeton from scratch."
+	@echo "  rebuild           Build Phaeton/Roadster from scratch."
 	@echo "  package           Clean, archive sources, pre-fetch tarballs, build,"
 	@echo "                    and make media with matching source tarball."
 	@echo

@@ -108,8 +108,9 @@ if [ ! -f "$isoname" ]; then
   exit 1
 fi
 
-echo "Will continue in 10 seconds..."
-countdown 10
+CNTDWN=5
+echo "Will continue in $CNTDWN seconds..."
+countdown $CNTDWN
 
 # Shorthand
 CD="isomnt${RANDOM}"
