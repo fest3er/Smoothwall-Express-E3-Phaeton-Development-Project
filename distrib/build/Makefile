@@ -38,25 +38,25 @@ SRC_TGZ = ../../smoothsrc.tar.gz
 #
 default:
 	@echo
-	@echo "If using a host distrib to build, it is safest to build as a non-root user. The"
-	@echo "system will become root as needed via 'sudo', so be sure that tool is ready."
-	@echo
-	@echo "The Phaeton/Roadster build system is much less fragile, and far less likely to"
-	@echo "hose your host system. But you must still know what you are doing!"
-	@echo
-	@echo "Useful commands:"
+        @echo "If using a host distrib to build, it is safest to build as a non-root user. The"
+        @echo "system will become root as needed via 'sudo', so be sure that tool is ready."
+        @echo
+        @echo "The Phaeton/Roadster build system is much less fragile, and far less likely to"
+        @echo "hose your host system. But you must still know what you are doing!"
+        @echo
+        @echo "Useful commands:"
 	@echo "  make build"
 	@echo "  make rebuild"
 	@echo "  make media"
-	@echo "  make package"
-	@echo
-	@echo "Useful targets:"
-	@echo "  build             Build Phaeton/Roadster or continue building from an error."
-	@echo "  media             Make ISO and prepare bootable flash drive."
-	@echo "  rebuild           Build Phaeton/Roadster from scratch."
-	@echo "  package           Clean, archive sources, pre-fetch tarballs, build,"
-	@echo "                    and make media with matching source tarball."
-	@echo
+        @echo "  make package"
+        @echo
+        @echo "Useful targets:"
+        @echo "  build             Build Phaeton/Roadster or continue building from an error."
+        @echo "  media             Make ISO and prepare bootable flash drive."
+        @echo "  rebuild           Build Phaeton/Roadster from scratch."
+        @echo "  package           Clean, archive sources, pre-fetch tarballs, build,"
+        @echo "                    and make media with matching source tarball."
+        @echo
 	@echo "  predownload       Download sourcecode packages in advance."
 	@echo "  savesources       Make a tarball of the sources used to build."
 	@echo "  reprep-final      Prepare to rebuild final stage *only*."
@@ -147,11 +147,11 @@ chroot:
 # Pre-fetch source tarballs from internet
 #
 predownload:
-	@echo -e "\nPre-downloading source tarballs..."; sleep 1
-	@(export BUILD_PHASE="PreDownload"; . ./environment;set_build_environment;cd sources; for I in `find -maxdepth 3 -mindepth 1 -type d`; do \
-	  if [ "$$I" != "./CVS" ]; then \
-	    make -C $$I BUILDENV=1 -n download >/dev/null 2>/dev/null; \
-	    if [ $$? -eq 0 ]; then \
+        @echo -e "\nPre-downloading source tarballs..."; sleep 1
+        @(export BUILD_PHASE="PreDownload"; . ./environment;set_build_environment;cd sources; for I in `find -maxdepth 3 -mindepth 1 -type d | sort`; do \
+          if [ "$$I" != "./CVS" ]; then \
+            make -C $$I BUILDENV=1 -n download >/dev/null 2>/dev/null; \
+            if [ $$? -eq 0 ]; then \
 	      echo -n " $$I"; \
 	      make --no-print-directory -C $$I BUILDENV=1 download; \
 	      if [ $$? -ne 0 ]; then \
