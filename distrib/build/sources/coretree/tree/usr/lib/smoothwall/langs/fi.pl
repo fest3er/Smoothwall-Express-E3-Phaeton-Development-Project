@@ -79,7 +79,7 @@
 'administrator user password' => 'P&auml;&auml;k&auml;ytt&auml;j&auml;n salasana:',
 'dial user password' => 'Dial-k&auml;ytt&auml;j&auml;n salasana:',
 'again' => 'Salasana uudelleen:',
-'passwords must be at least 6 characters in length' => 'Salasanojen on oltava vï¿½hintï¿½ï¿½n kuusi merkkiï¿½ pitkiï¿½',
+'passwords must be at least 6 characters in length' => 'Salasanojen on oltava vähintään kuusi merkkiä pitkiä',
 'password contains illegal characters' => 'Salasanassa on kiellettyj&auml; merkkej&auml;',
 
 # credits.cgi
@@ -88,7 +88,7 @@
 'sponsors' => 'Tukijat',
 'links' => 'Linkit',
 'smoothwall homepage' => 'SmoothWallin kotisivu',
-'translation teams' => 'kï¿½ï¿½ntï¿½jï¿½ryhmï¿½t',
+'translation teams' => 'kääntäjäryhmät',
 
 # dhcp.cgi
 'invalid start address' => 'Ensimm&auml;inen osoite ei kelpaa.',

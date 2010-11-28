@@ -6,9 +6,25 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
+# Continue a croaked DL?
+set | grep "CONTINUE_DL=" >/dev/null 2>&1
+if [ "$?" -eq 0 ]; then
+  CONTINUE_DL="-c "
+else
+  CONTINUE_DL=""
+fi
+
+# Check SSL certs or not?
+set | grep "NO_CHECK_CERT=" >/dev/null 2>&1
+if [ "$?" -eq 0 ]; then
+  NO_CHECK_CERT="--no-check-certificate "
+else
+  NO_CHECK_CERT=""
+fi
+
 # Mirror root
-set | grep "MIRROR_ROOT=" >/dev/null 2>&1 || MIRROR_ROOT="http://downloads"
-set | grep "MIRROR_ROOT2=" >/dev/null 2>&1 || MIRROR_ROOT2="http://downloads.smoothwall.org/buildmirror"
+set | grep "MIRROR_UNO=" >/dev/null 2>&1 || MIRROR_UNO=""
+set | grep "MIRROR_DOS=" >/dev/null 2>&1 || MIRROR_DOS="http://downloads.smoothwall.org/buildmirror"
 
 DIRECTORY=$1
 URL=$2
@@ -22,20 +38,20 @@ fi
 FILENAME=/`basename $URL`
 
 if [ ! -e "$DIRECTORY/$FILENAME.done" ]; then
-	if [ "$MIRROR_ROOT" != "" ]; then
-		wget --no-check-certificate -c --directory $DIRECTORY $MIRROR_ROOT/$FILENAME
+	if [ "$MIRROR_UNO" != "" ]; then
+		wget ${CONTINUE_DL}${NO_CHECK_CERT}--directory $DIRECTORY $MIRROR_UNO/$FILENAME
 	else
 		false
 	fi
 	if [ $? -ne 0 ]; then
-		if [ "$MIRROR_ROOT2" != "" ]; then
-			wget --no-check-certificate -c --directory $DIRECTORY $MIRROR_ROOT2/$FILENAME
+		if [ "$MIRROR_DOS" != "" ]; then
+			wget ${CONTINUE_DL}${NO_CHECK_CERT}--directory $DIRECTORY $MIRROR_DOS/$FILENAME
 		else
 			false
 		fi
 	fi
 	if [ $? -ne 0 ]; then
-		wget --no-check-certificate -c --directory $DIRECTORY $URL
+		wget ${CONTINUE_DL}${NO_CHECK_CERT}--directory $DIRECTORY $URL
 		if [ $? -ne 0 ]; then
 			echo "Download failed"
 			exit 1

@@ -99,8 +99,8 @@
 'administrator user password' => 'Mot de passe d\'administration:',
 'dial user password' => 'Mot de passe de connexion:',
 'again' => 'A nouveau:',
-'passwords must be at least 6 characters in length' => 'Les mots de passes doivent ï¿½tre d\'une longeur d\'au moins 6 caractï¿½res',
-'password contains illegal characters' => 'Le mot de passe contient les caractï¿½res illï¿½gaux.',
+'passwords must be at least 6 characters in length' => 'Les mots de passes doivent être d\'une longeur d\'au moins 6 caractères',
+'password contains illegal characters' => 'Le mot de passe contient les caractères illégaux.',
 
 # credits.cgi
 'credits' => 'Credits',
@@ -108,7 +108,7 @@
 'sponsors' => 'Sponsors',
 'links' => 'Liens',
 'smoothwall homepage' => 'Site web de SmoothWall',
-'translation teams' => 'Les ï¿½quipes de traduction',
+'translation teams' => 'Les équipes de traduction',
 
 # dhcp.cgi
 'invalid start address' => 'Adresse de d&eacute;part invalide.',

@@ -102,7 +102,7 @@
 'administrator user password' => 'Administrator Passwort:',
 'dial user password' => 'Benutzer Passwort:',
 'again' => 'Wiederholen:',
-'passwords must be at least 6 characters in length' => 'Passwï¿½rter mï¿½ssen mindestens 6 Zeichen lang sein',
+'passwords must be at least 6 characters in length' => 'Passwörter müssen mindestens 6 Zeichen lang sein',
 'password contains illegal characters' => 'Das Passwort enth&auml;lt ung&uuml;ltige Zeichen',
 
 
@@ -112,7 +112,7 @@
 'sponsors' => 'Sponsoren',
 'links' => 'Links',
 'smoothwall homepage' => 'SmoothWall Homepage',
-'translation teams' => 'ï¿½bersetzer-Teams',
+'translation teams' => 'Übersetzer-Teams',
 
 # dhcp.cgi
 'invalid start address' => 'Ung&uuml;ltige Start-Adresse.',
@@ -365,7 +365,7 @@
 'forwarding rule removed' => 'Weiterleitungsregel gel&ouml;scht; Die Weiterleitung wird neu gestartet',
 'external access rule added' => 'Zugriffsregel f&uuml;r externe Zugriffe hinzugef&uuml;gt; Die Zugriffskontrolle wird neu gestartet',
 'external access rule removed' =>' Zugriffsregel f&uuml;r externe Zugriffe gel&ouml;scht; Starte die Zugriffskontrolle neu',
-'dmz pinhole rule added' => 'DMZ-Weiterleitungs-Regel hinzugefï¿½gt; Starte DMZ-Weiterleitung neu',
+'dmz pinhole rule added' => 'DMZ-Weiterleitungs-Regel hinzugefügt; Starte DMZ-Weiterleitung neu',
 'dmz pinhole rule removed' => 'DMZ-Weiterleitungs-Regel gel&ouml;scht; Starte DMZ-Weiterleitung neu',
 'port forwarding configuration' => 'Portweiterleitungskonfiguration',
 'dmz pinhole configuration' => 'Konfiguration DMZ-Weiterleitung',

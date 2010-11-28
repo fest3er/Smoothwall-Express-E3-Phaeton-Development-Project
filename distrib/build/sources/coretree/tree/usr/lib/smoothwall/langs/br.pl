@@ -13,7 +13,7 @@
 %basetr,
 
 # common
-'invalid input' => 'Entrada invï¿½lida',
+'invalid input' => 'Entrada inválida',
 'save' => 'Salvar', # button
 'refresh' => 'Atualizar', # button
 'restore' => 'Restaurar', # button

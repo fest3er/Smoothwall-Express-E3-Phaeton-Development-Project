@@ -79,7 +79,7 @@
 'administrator user password' => 'Admin Kodeord:',
 'dial user password' => 'Opkalds kodeord:',
 'again' => 'Igen:',
-'passwords must be at least 6 characters in length' => 'kodeord skal vï¿½re
+'passwords must be at least 6 characters in length' => 'kodeord skal være
 mindst 6 tegn',
 'password contains illegal characters' => 'Kodeord indeholder ugyldige
 tegn.',
@@ -90,7 +90,7 @@ tegn.',
 'sponsors' => 'Sponsorer',
 'links' => 'L&aelig;nker',
 'smoothwall homepage' => 'SmoothWalls Hjemmeside',
-'translation teams' => 'oversï¿½ttelses hold',
+'translation teams' => 'oversættelses hold',
 
 # dhcp.cgi
 'invalid start address' => 'Ugyldig start addresse.',
@@ -288,7 +288,7 @@ tegn.',
 'firmware not present' => '<B>Ikke</B> tilstede, upload venligst',
 'upload usb adsl firmware' => 'Upload USB ADSL firmware',
 'dial on demand for this interface is not supported' => 'Kald p&aring; Kommando underst&oslash;ttes ikke af denne enhed.',
-'unable to alter profiles while red is active' => 'Ikke i stand til at &aelig;ndre profiler nï¿½r R&Oslash;D er aktiv.',
+'unable to alter profiles while red is active' => 'Ikke i stand til at &aelig;ndre profiler når R&Oslash;D er aktiv.',
 'no usb adsl firmware' => 'Ingen usb adsl firmware',
 
 # remote.cgi

@@ -79,7 +79,7 @@
 'administrator user password' => 'Admin bruker passord:',
 'dial user password' => 'Dial bruker passord:',
 'again' => 'Gjenta:',
-'passwords must be at least 6 characters in length' => 'Passordet mï¿½ vï¿½re minst 6 tegn',
+'passwords must be at least 6 characters in length' => 'Passordet må være minst 6 tegn',
 'password contains illegal characters' => 'Passordet inneholder ulovlige tegn.',
 
 # credits.cgi
