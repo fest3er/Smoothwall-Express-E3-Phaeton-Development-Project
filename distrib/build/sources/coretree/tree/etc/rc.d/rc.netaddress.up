@@ -55,10 +55,10 @@ if [ "$CONFIG_TYPE" = "2" -o "$CONFIG_TYPE" = "3" -o "$CONFIG_TYPE" = "6" -o "$C
 			/usr/sbin/dhcpcd -h $RED_DHCP_HOSTNAME -R $RED_DEV -c /etc/rc.d/rc.updatered
 		elif [ "$RED_TYPE" = "STATIC" ]; then
 			/sbin/ifconfig $RED_DEV $RED_ADDRESS netmask $RED_NETMASK broadcast $RED_BROADCAST up
-			/etc/rc.d/rc.updatered
 			if [ "$DEFAULT_GATEWAY" != "" ]; then
 				/sbin/route add default gw $DEFAULT_GATEWAY
 			fi
+			/etc/rc.d/rc.updatered
 		else
 			/sbin/ifconfig $RED_DEV 1.1.1.1 netmask 255.255.255.0 broadcast 1.1.1.255 up
 		fi
