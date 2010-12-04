@@ -78,12 +78,15 @@ case $1 in
     mso ON
     echo -e "\nPreparing environment for building"
     mso OFF
-    ls -lsd ../tools | grep root && (
-      lUID=`id | sed -e 's/(.*//' -e 's/uid=//'`
-      lGID=`id | sed -e 's/.*gid=//' -e 's/(.*//'`
-      CHOWN_ARGS="$lUID:$lGID ../tools"
-      sudo su -c "/bin/chown $CHOWN_ARGS"
-    )
+    lUID=`id -u`
+    lGID=`id -g`
+    # Only change ownership if the user is not root
+    if [ "$lUID" != "0" ]; then
+      ls -lsd ../tools | grep root && (
+        CHOWN_ARGS="$lUID:$lGID ../tools"
+        sudo su -c "/bin/chown $CHOWN_ARGS"
+      )
+    fi
     ;;
   1)
     mso ON
