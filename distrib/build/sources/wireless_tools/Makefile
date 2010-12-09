@@ -18,6 +18,7 @@ COMPILE = yes
 INSTALL = yes
 
 configure: patch
+	find $(DIR) -type d -exec chmod +rx {} \;
 	@true
 
 compile: configure

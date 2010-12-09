@@ -25,7 +25,7 @@ TITLE="$CLS            ${BOUL}Smoothwall Express 3 (Phaeton Development) Install
 echo "Preparing lists of CDROM and hard drives"
 OPWD=$PWD;cd /sys/block
 
-typeset -i tries cd_cnt hd_cnt WORK_IDX
+typeset -i tries cd_cnt hd_cnt WORK_IDX sum
 tries=0
 WORKING[0]="|"
 WORKING[1]="/"
@@ -75,7 +75,7 @@ while [ 1 -eq 1 ]; do
 
   case $tries in
     10)
-      echo -e -n "  Not seeing any other drives yet.\r"
+      echo -e -n "  Still looking...\r"
       ;;
     20)
       echo -e -n "  I'm getting antsy!\r"
@@ -102,9 +102,13 @@ while [ 1 -eq 1 ]; do
         1) echo "One optical drive found.";;
         *) echo "Two or more optical drives found.";;
       esac
-      echo -e "\nI do apologize. I cannot continue without at least two writable drives,"
-      echo -e "or a writable drive and a CD/DVD drive.\n"
-      exit 1
+      sum=`expr $hd_cnt + $cd_cnt`
+      if [ $sum -lt 2 ]; then
+        echo -e "\nI do apologize. I cannot continue without at least two writable drives,"
+        echo -e "or a writable drive and a CD/DVD drive.\n" 
+        exit 1
+      fi
+      break
       ;;
   esac
 

@@ -150,16 +150,21 @@ predownload:
 	@echo -e "\nPre-downloading source tarballs..."; sleep 1
 	@(export BUILD_PHASE="PreDownload"; . ./environment;set_build_environment;cd sources; for I in `find -maxdepth 3 -mindepth 1 -type d | sort`; do \
 	  if [ "$$I" != "./CVS" ]; then \
-	    make -C $$I BUILDENV=1 -n download >/dev/null 2>/dev/null; \
+	    if echo $$I | egrep "^./cdrtools" >/dev/null 2>&1; then \
+              NW="GMAKE_NOWARN=true "; \
+            else \
+              unset NW; \
+            fi; \
+	    make $$NW -C $$I -n download >/dev/null 2>/dev/null; \
 	    if [ $$? -eq 0 ]; then \
 	      echo -n " $$I"; \
-	      make --no-print-directory -C $$I BUILDENV=1 download; \
+	      make --no-print-directory -C $$I download; \
 	      if [ $$? -ne 0 ]; then \
 	        echo "Oops"; \
 	        exit; \
 	      fi \
 	    fi \
-	  fi \
+	  fi; \
 	done); echo
 
 # Save a copy of the build directory, sans downloads, for future replication
