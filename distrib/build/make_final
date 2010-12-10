@@ -135,6 +135,7 @@ fi
       echo -e "    Final group 2 packages already built"
     else
       echo
+      build sysfsutils
       build iputils
       build traceroute
       build perl

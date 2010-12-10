@@ -30,7 +30,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
 	    reiserfsprogs xtables-addons zlib sash slang cpio \
 	    udev lm_sensors \
-	    Net-Netmask NetAddr-IP \
+	    Net-Netmask NetAddr-IP sysfsutils \
 	    coretree
 
 OBSOLETE_PKGS = apr apr-util libipt_ACCOUNT ipp2p speedtouch eagle-usb devnodes libstdc++ lilo
