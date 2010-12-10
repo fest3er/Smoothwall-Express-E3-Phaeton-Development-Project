@@ -22,18 +22,18 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
 	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
 	    libdnet daq \
-	    beep2 pcre trafficstats iftop setuids ppp isdn4k-utils \
+	    beep2 pcre trafficstats iftop ppp isdn4k-utils \
 	    rp-pppoe ibod dhcpcd eciadsl-synch_bin eciadsl-usermode \
 	    cnxadsl dhcp snort oinkmaster openswan wireless_tools imspector  \
 	    diffutils traceroute clamav p3scan libosip2 siproxd which miniupnpd \
 	    ez-ipupdate noip cdrtools \
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
-	    reiserfsprogs xtables-addons zlib sash slang cpio \
+	    reiserfsprogs xtables-addons zlib slang cpio \
 	    udev lm_sensors \
 	    Net-Netmask NetAddr-IP sysfsutils \
 	    coretree
 
-OBSOLETE_PKGS = apr apr-util libipt_ACCOUNT ipp2p speedtouch eagle-usb devnodes libstdc++ lilo
+OBSOLETE_PKGS = apr apr-util libipt_ACCOUNT ipp2p speedtouch eagle-usb devnodes libstdc++ lilo sash setuids 
 TOOLCHAIN_PKGS = expect
 OTHER_PKGS = updates jam sqlite udev-config
 

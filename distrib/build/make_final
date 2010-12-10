@@ -208,7 +208,7 @@ fi
       echo -e "    Final group 4 packages already built"
     else
       echo
-      build sash
+      #build sash
       build gmp
       build pcre
       build beep2
@@ -266,7 +266,7 @@ fi
       build cdrtools
       build busybox
 
-      build setuids
+      #build setuids
 
       build ppp
       build isdn4k-utils
