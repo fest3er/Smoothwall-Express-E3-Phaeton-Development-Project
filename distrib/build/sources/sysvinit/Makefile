@@ -7,9 +7,14 @@
 include ../Makefile.conf
 
 PACKAGE = sysvinit
-VERSION = 2.86
+#VERSION = 2.86
+VERSION = 2.88dsf
 
-BASE_URL = ftp://ftp.cistron.nl/pub/people/miquels/sysvinit/
+
+#BASE_URL = ftp://ftp.cistron.nl/pub/people/miquels/sysvinit/
+#BASE_URL = http://download.savannah.gnu.org/releases/sysvinit/
+BASE_URL = http://download-mirror.savannah.gnu.org/releases/sysvinit/
+EXTENSION = .tar.bz2
 
 CONFIGURE = yes
 COMPILE = yes

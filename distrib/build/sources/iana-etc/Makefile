@@ -13,14 +13,22 @@ EXTENSION = .tar.bz2
 
 BASE_URL = http://www.sethwklein.net/projects/iana-etc/downloads/
 
+DOWNLOAD = yes
 CONFIGURE = yes
 INSTALL = yes
+CLEAN = yes
 
-configure: $(DIR)/
+download:
+	@true
+
+configure: 
 	@true
 	
 install: compile
 	@mkdir -p $(PKG_ROOT)/etc
 	@make -C $(COMPILE_DIR) PREFIX=$(PKG_ROOT) install
+
+clean:
+	@make -C $(COMPILE_DIR) clean
 
 include ../Makefile.rules

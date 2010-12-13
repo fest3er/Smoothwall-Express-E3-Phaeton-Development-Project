@@ -6,6 +6,21 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
+# Function try_DL
+#   Minimize replicated code. A function to attempt a download
+
+function try_DL () {
+  if [ "$1" != "" ]; then
+    # Try this source
+    wget ${CONTINUE_DL}${NO_CHECK_CERT}--directory $DIRECTORY $2
+    return $?
+  fi
+
+  # Or indicate 'not successful'
+  return 1
+}
+
+
 # Continue a croaked DL?
 set | grep "CONTINUE_DL=" >/dev/null 2>&1
 if [ "$?" -eq 0 ]; then
@@ -22,7 +37,7 @@ else
   NO_CHECK_CERT=""
 fi
 
-# Mirror root
+# Mirror sources
 set | grep "MIRROR_UNO=" >/dev/null 2>&1 || MIRROR_UNO=""
 set | grep "MIRROR_DOS=" >/dev/null 2>&1 || MIRROR_DOS="http://downloads.smoothwall.org/buildmirror"
 
@@ -31,41 +46,37 @@ URL=$2
 EXPECTED_MD5=$3
 
 if [ "$DIRECTORY" = "" -o "$URL" = "" ]; then
-	echo "Usage: $0 <directory> <url> [expected md5]"
-	exit 0
+  echo "Usage: $0 <directory> <url> [expected md5]"
+  exit 0
 fi
 
-FILENAME=/`basename $URL`
+FILENAME=`basename $URL`
 
+# If we don't already have the tar ball
 if [ ! -e "$DIRECTORY/$FILENAME.done" ]; then
-	if [ "$MIRROR_UNO" != "" ]; then
-		wget ${CONTINUE_DL}${NO_CHECK_CERT}--directory $DIRECTORY $MIRROR_UNO/$FILENAME
-	else
-		false
-	fi
-	if [ $? -ne 0 ]; then
-		if [ "$MIRROR_DOS" != "" ]; then
-			wget ${CONTINUE_DL}${NO_CHECK_CERT}--directory $DIRECTORY $MIRROR_DOS/$FILENAME
-		else
-			false
-		fi
-	fi
-	if [ $? -ne 0 ]; then
-		wget ${CONTINUE_DL}${NO_CHECK_CERT}--directory $DIRECTORY $URL
-		if [ $? -ne 0 ]; then
-			echo "Download failed"
-			exit 1
-		fi
-	fi
-	if [ "$EXPECTED_MD5" != "" ]; then
-		MD5=`md5sum $DIRECTORY/$FILENAME | cut -d " " -f 1`
-		if [ "$MD5" != "$EXPECTED_MD5" ]; then
-			echo "MD5 missmatch.  Was $MD5, meant to be $EXPECTED_MD5"
-			rm -f $DIRECTORY/$FILENAME
-			exit 1
-		fi
-	fi
-	touch $DIRECTORY/$FILENAME.done
+
+  # Try first mirror, second mirror, or URL
+  try_DL "$MIRROR_UNO" "$MIRROR_UNO/$FILENAME" \
+  || try_DL "$MIRROR_DOS" "$MIRROR_DOS/$FILENAME" \
+  || try_DL "$URL" "$URL"
+
+  if [ $? -ne 0 ]; then
+    echo "Download failed"
+    exit 1
+  fi
+
+  # Historic checksum
+  if [ "$EXPECTED_MD5" != "" ]; then
+    MD5=`md5sum $DIRECTORY/$FILENAME | cut -d " " -f 1`
+    if [ "$MD5" != "$EXPECTED_MD5" ]; then
+      echo "MD5 missmatch.  Was $MD5, meant to be $EXPECTED_MD5"
+      rm -f $DIRECTORY/$FILENAME
+      exit 1
+    fi
+  fi
+
+  # If DL and optional checksum succeed, touch the .done file.
+  touch $DIRECTORY/$FILENAME.done
 fi
 
 exit 0

@@ -1,0 +1,86 @@
+.\" beep2 Manual (English version)
+.\" Author: YAMAGUCHI Shingo <shingo@kip.iis.toyama-u.ac.jp>
+.TH BEEP2 1 beep2-1.2
+.SH NAME
+beep2 \- ring beep sounds with various frequency/length.
+.SH SYNOPSIS
+.in +.5i
+.ti -.5i
+.B beep2
+\%[-dfs]
+\%[-t tempo]
+\%[file]
+.LP
+.B beep2
+\%-v
+.in -.5i
+.SH DESCRIPTION
+This manual page is for \fIbeep2\fR from \fIbeep\fR by Josef Pavlik (jetset@ibm.net).
+.LP
+\fIbeep2\fR accepts frequency (or score) and length from stdin or text file, and translates to beep sounds. The input format is descripted at
+.B INPUT FORMAT
+section.
+.SS OPTION
+.TP
+.I "\-d"
+Debug mode. \fIbeep2\fR outputs various messages.
+.TP
+.I "\-f"
+Frequency input mode(default). \fIbeep2\fR uses frequency as input. This fuction is the same as \fIconsole beep V0.1\fR.
+.TP
+.I "\-s"
+Score input mode. \fIbeep2\fR uses score as input. Score is constructed with set of alphabet and number (includes #).
+.TP
+.I "\-t tempo"
+Tempo change. \fIbeep2\fR changes tempo into \fItempo\fR %. The default \fItempo\fR value is 100.
+.TP
+.I "\-v"
+Show the version of this program and the infomation of included functions, then exit.
+.SH INPUT FORMAT
+\fIbeep2\fR parses line to line. A line begins with # or empty is parsed as a comment and ignored. A string after length block is parsed as a comment and ignored too. Other line is composed as 2 fields separated with space or tab. A line does not match this format is ignored. A 0 frequency input line is parsed as no sound (rest).
+.SS FREQUENCY INPUT MODE
+At this mode, the first field is frequency in Hz, and the second field is length in milliseconds. For example:
+.nf
+.in +.5i
+#!/usr/bin/beep2 -d
+
+1046    200     # C6
+1046    100     # C6
+0       100     # rest
+.in -.5i
+.fi
+.SS SCORE INPUT MODE
+At this mode, the first field is score which constructed with alphabet and number (and #), and the second field is length in milliseconds. For example:
+.nf
+.in +.5i
+#!/usr/bin/beep2 -ds
+
+C6      200     # C6
+C6      100     # C6
+C6#     100     # C6#
+---     100     # rest
+.in -.5i
+.fi
+\fIbeep2\fR can parse octaves from 1 to 9, and parse score from C1 to B9. The rest syntax is \*(lq\-\*(rq.
+.SH LIMITATION
+\fIbeep2\fR makes beep sound with escape sequence code. So, \fIbeep2\fR has limitation below.
+.SS I cannot hear under about 20 Hz and over about 20000 Hz sound.
+This is human limitation. Some animals hear sound.
+.SS I cannot set under C1 or over B9.
+This is program and human limitation.
+.SS I cannot hear under about 10 ms sound.
+The program spends about 10 ms to change frequency.
+.SS I cannot hear over 2000 ms on Linux.
+This is the limitation of Linux kernel console driver. If you get source package, please use "longbeep-linux.patch" kernel patch. If you use this patch, the limitation is released and the kernel is expanded to deal length to 9999 ms.
+.SH LOGGING FUNCTION
+\fIbeep2\fR is added logging function since version 1.2. You can use this function if you enable it when you compile this program.
+.LP
+The log is sent to syslog at user.info priority. Generally, it is written to /var/log/messages. It includes the information of executed real user name and executed command string.
+.LP
+If you want to change log file, you need to edit syslog.conf (generally placed at /etc) and configure. The detail is in syslog documents.
+.SH WARNING
+\fIbeep2\fR installs as root setuid-ed. Please consider with seculity policy and set execute attribute for trasted users only.
+.SH BUG
+This program is not tested enoughly. I seem to be contained many bugs. If you see buggy behavior, please tell the author of \fIbeep2\fR.
+.SH AUTHOR
+YAMAGUCHI Shingo(shingo@kip.iis.toyama-u.ac.jp)

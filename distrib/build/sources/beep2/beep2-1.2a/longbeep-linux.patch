@@ -1,0 +1,11 @@
+--- console.c.orig	Sun Sep 24 15:26:43 2000
++++ console.c	Sun Sep 24 15:27:59 2000
+@@ -1268,7 +1268,7 @@
+ 			break;
+ 		case 11: /* set bell duration in msec */
+ 			if (npar >= 1)
+-				bell_duration = (par[1] < 2000) ?
++				bell_duration = (par[1] < 10000) ?
+ 					par[1]*HZ/1000 : 0;
+ 			else
+ 				bell_duration = DEFAULT_BELL_DURATION;

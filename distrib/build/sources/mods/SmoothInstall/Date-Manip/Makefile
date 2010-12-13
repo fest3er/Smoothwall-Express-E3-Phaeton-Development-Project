@@ -4,7 +4,7 @@ include ../../../Makefile.conf
 include ../DETAILS
 
 PACKAGE = Date-Manip
-VERSION = 5.54
+VERSION = 6.20
 
 LICENCE_FILE = $(DIR)/COPYING
 

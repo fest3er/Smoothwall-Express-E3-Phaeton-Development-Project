@@ -3,7 +3,7 @@ include ../Makefile.conf
 PACKAGE = cgilib
 VERSION = 0.5
 
-BASE_URL = http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/pub/libs/
+BASE_URL = http://www.infodrom.org/projects/cgilib/download/
 
 CONFIGURE = yes
 COMPILE = yes

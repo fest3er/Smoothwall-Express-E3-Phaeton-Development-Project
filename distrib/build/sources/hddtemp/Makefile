@@ -7,7 +7,8 @@
 include ../Makefile.conf
 
 PACKAGE = hddtemp
-VERSION = 0.3-beta13
+#VERSION = 0.3-beta13
+VERSION = 0.3-beta15
 
 BASE_URL = http://ftp.debian.org/debian/pool/main/h/hddtemp/
 
@@ -16,7 +17,7 @@ TARBALL = $(PACKAGE)_$(VERSION).orig
 HDTEMPDB = hddtemp.db
 
 #PATCH_FILE1 = hddtemp_0.3-beta12-6.diff.gz
-PATCH_FILE2 = smoothwall-locale-fix.patch
+#PATCH_FILE2 = smoothwall-locale-fix.patch
 
 INSTALL = yes
 

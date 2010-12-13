@@ -184,10 +184,8 @@ fi
       build iptables
       build ipset
       build xtables-addons
-      #build ipp2p: obsolete, included in xtables-addons
       build ipbatch
       build klibc
-      #build libipt_ACCOUNT: obsolete, included in xtables-addons
       build listtables
       build udev
       #build udev-config; not needing?
@@ -195,7 +193,6 @@ fi
       build bin86
       build nasm
       build strace
-      build lilo
       build linux-atm
       build libcap
       build hdparm
@@ -208,7 +205,6 @@ fi
       echo -e "    Final group 4 packages already built"
     else
       echo
-      #build sash
       build gmp
       build pcre
       build beep2
@@ -218,7 +214,6 @@ fi
       build dosfstools
       build syslinux
       build openssh
-      #build apache
       build httpd
       build smoothd
       build cron
@@ -266,17 +261,13 @@ fi
       build cdrtools
       build busybox
 
-      #build setuids
-
       build ppp
       build isdn4k-utils
-      #build speedtouch: obsolete, built into kernel >= 2.6.10
       build rp-pppoe
       build ibod
       build dhcpcd
       build eciadsl-synch_bin
       build eciadsl-usermode
-      #build eagle-usb: obsolete, replaced by ueagle-atm, in kernel >= 2.6.16
       build cnxadsl
 
       build dhcp
@@ -305,8 +296,6 @@ fi
       build p3scan
 
       build tcl
-      #build apr
-      #build apr-util
       build neon
       build git
       build screen
@@ -317,7 +306,6 @@ fi
       build libosip2
       build siproxd
 
-      # miniupnpd has build problems; skipping
       build miniupnpd
       build inotify
       build cpio

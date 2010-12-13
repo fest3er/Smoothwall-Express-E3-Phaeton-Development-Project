@@ -33,7 +33,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    Net-Netmask NetAddr-IP sysfsutils \
 	    coretree
 
-OBSOLETE_PKGS = apr apr-util libipt_ACCOUNT ipp2p speedtouch eagle-usb devnodes libstdc++ lilo sash setuids 
+OBSOLETE_PKGS = devnodes libstdc++ 
 TOOLCHAIN_PKGS = expect
 OTHER_PKGS = updates jam sqlite udev-config
 

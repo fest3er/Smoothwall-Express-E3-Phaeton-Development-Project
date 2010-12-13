@@ -1,0 +1,20 @@
+
+The iana-etc maintainer is Seth W. Klein <sk@sethwklein.net>.
+
+Thanks go to all the Linux From Scratch users who wrote the scripts that
+inspired the, now obsolete, LFS HINT and who reported bugs against that HINT.
+
+Thanks also go to the following people who have reported bugs in iana-etc
+or made feature requests.
+
+Oden Eriksson <oeriksson@mandriva.com>
+    Gave me an idea of what distributions need from the project.
+Pascal S. de Kloe <pascal@quies.net>
+    Reminded me that command options must come first on many non-GNU systems.
+Paul Jarc <prj@po.cwru.edu>
+    Reported that the install target didn't create the installation directory.
+Jochen Striepe <jochen@tolot.escape.de>
+    Reported that GNU Awk 3.1.0 or greater is required.
+Steve Westerbeck <stevow@charter.net>
+    Reported that the website wasn't correctly updated for 1.00.
+

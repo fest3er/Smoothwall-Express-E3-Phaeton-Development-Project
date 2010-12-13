@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = URI
-VERSION = 1.35
+VERSION = 1.56
 
 BASE_URL = http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/
 
