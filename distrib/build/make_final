@@ -214,6 +214,7 @@ fi
       build dosfstools
       build syslinux
       build openssh
+      build expat
       build httpd
       build smoothd
       build cron
@@ -232,7 +233,6 @@ fi
       build whois
       build popt
       build logrotate
-      build expat
       build ethtool
       build iftop
       touch crumbs/Final.grp4.compiled
