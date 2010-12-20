@@ -14,7 +14,7 @@ LIB_OBJS = module.o UDSocket.o pid.o setuid.o config.o ipbatch.o ipbatchc.o \
 	$(IPTABLES_SRC_DIR)/iptables.o $(IPTABLES_SRC_DIR)/xshared.o
 
 MAIN = main.cpp
-LIBS = -ldl /usr/lib/libsmoothd.so -lxtables -liptc
+LIBS = -L. -ldl -lsmoothd -lxtables -liptc
 BIN = smoothd
 
 MODULES = sysshutdown sysinstall sysim sysp3scan sysalcatel sysdhcpd \
@@ -24,75 +24,75 @@ MODULES = sysshutdown sysinstall sysim sysp3scan sysalcatel sysdhcpd \
 
 MODULEFLAGS = $(CXXFLAGS) -shared -Wl,-soname,$@.so -o $@.so $@.cpp $(LIBS)
 
-all: libsmoothd smoothd $(MODULES) smoothcom ipbatchtest
+all: smoothd $(MODULES) smoothcom ipbatchtest
 
 modules: $(MODULES)
 
-libsmoothd : $(LIB_OBJS)
+libsmoothd.so : $(LIB_OBJS)
 	$(CXX) -shared  -o libsmoothd.so $(CXXFLAGS) $(LIB_OBJS)
 	@install -D ./libsmoothd.so /usr/lib/libsmoothd.so
 
-smoothd: $(OBJS) 
+smoothd: libsmoothd.so $(OBJS)
 	$(CXX) -o $(BIN) $(CXXFLAGS) $(DFLAGS) $(MAIN) ipbatchc.o $(OBJS) $(LIBS)
 
-ipbatchtest: $(OBJS) 
+ipbatchtest: libsmoothd.so $(OBJS)
 	$(CXX) -o ipbatchtest $(CXXFLAGS) $(DFLAGS) ipbatchtest.cpp $(OBJS) $(LIBS) 
 
-smoothcom:
-	$(CXX) -o smoothcom $(CXXFLAGS) smoothcom.cpp -ldl -lxtables -liptc /usr/lib/libsmoothd.so 
+smoothcom: libsmoothd.so
+	$(CXX) -o smoothcom $(CXXFLAGS) smoothcom.cpp -ldl -lxtables -liptc -lsmoothd
 
 clean:
 	rm -f $(OBJS) $(BIN) *.o *.so modules smoothcom ipbatchtest
 
-sysshutdown : $(OBJS)  
+sysshutdown : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysiptables : $(OBJS)  
+sysiptables : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysinstall : $(OBJS)  
+sysinstall : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysim : $(OBJS)  
+sysim : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysp3scan : $(OBJS)  
+sysp3scan : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysalcatel : $(OBJS)  
+sysalcatel : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysdhcpd : $(OBJS)  
+sysdhcpd : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysdnsproxy : $(OBJS)  
+sysdnsproxy : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysntpd : $(OBJS)  
+sysntpd : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-syssnort : $(OBJS)  
+syssnort : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-syssquid : $(OBJS)  
+syssquid : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-syssshd : $(OBJS)  
+syssshd : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysupnpd : $(OBJS)  
+sysupnpd : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysadvnet : $(OBJS)  
+sysadvnet : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysipblock : $(OBJS)  
+sysipblock : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysfullfirewall : $(OBJS)  
+sysfullfirewall : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-syssmoothinfo : $(OBJS)  
+syssmoothinfo : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysupdown : $(OBJS)  
+sysupdown : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysipsec : $(OBJS)  
+sysipsec : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-systimeset : $(OBJS)  
+systimeset : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysiptabes : $(OBJS)  
+sysiptabes : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-systraffic : $(OBJS)  
+systraffic : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-syssip : $(OBJS)  
+syssip : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
-sysclamav : $(OBJS)
+sysclamav : libsmoothd.so $(OBJS)
 	$(CXX) $(MODULEFLAGS)
-systimedaccess : $(OBJS)
+systimedaccess : libsmoothd.so $(OBJS)
 	$(CXX) $(MODULEFLAGS)
 
 ipbatchc.o: ipbatch.h 
