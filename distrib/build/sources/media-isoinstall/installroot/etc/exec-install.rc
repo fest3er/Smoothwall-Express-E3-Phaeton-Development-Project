@@ -183,9 +183,9 @@ echo
   do_or_die "swapon /dev/harddisk2"
 
   echo "Mounting CD/DVD"
-  mount -t iso9660 /dev/${cd_dev[$CD]} /cdrom > /dev/tty2 2>&1
-  if [ $? -ne 0 ]; then
-    do_or_die "mount -t vfat /dev/${cd_dev[$CD]}1 /cdrom"
+  mount -t iso9660 /dev/${cd_dev[$CD]} /cdrom \
+  || mount -t isofs /dev/${cd_dev[$CD]} /cdrom \
+  || do_or_die "mount -t vfat /dev/${cd_dev[$CD]}1 /cdrom"
   fi
 
   if [ $filesys -eq 1 ]; then FS="-t ext3"; else FS="-t reiserfs"; fi
@@ -282,21 +282,22 @@ END
   fi
 
   OPWD=`pwd`
-  mkdir -p /runtimeroot; cd /runtimeroot
+  HDTMP="/harddisk/runtimeroot"
+  mkdir -p $HDTMP; cd $HDTMP
   echo "    unpack"
-  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz | cpio -id"
+  do_or_die "gunzip -c ${HDTMP}/boot/initrd-${KERNEL_VER}-phaeton.gz | cpio -id"
   echo "    update"
-  do_or_die "mkdir -p -m 755 /runtimeroot/etc/udev/rules.d"
-  do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /runtimeroot/etc/udev/rules.d/"
+  do_or_die "mkdir -p -m 755 ${HDTMP}/etc/udev/rules.d"
+  do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* ${HDTMP}/etc/udev/rules.d/"
 
   (
     echo "/dev/${hd_dev[$hd]}4	/harddisk	$FSTYPE	$OPTION		0	1"
-  ) >/runtimeroot/etc/fstab
-  echo "$FSTYPE" >/runtimeroot/etc/modules
-  do_or_die "/bin/chroot /runtimeroot /sbin/depmod -a"
+  ) >${HDTMP}/etc/fstab
+  echo "$FSTYPE" >${HDTMP}/etc/modules
+  do_or_die "/bin/chroot ${HDTMP} /sbin/depmod -a"
 
   echo "    re-pack"
-  do_or_die "cd /runtimeroot; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz"
+  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz"
   do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz"
 
   echo "  installing boot loader"
