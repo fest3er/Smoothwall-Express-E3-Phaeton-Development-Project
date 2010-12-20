@@ -423,9 +423,9 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
     char cidr[5] = "";
     sprintf((char*) cidr, "/%d", snet2cidr(f_addmask));
 
-    std::string scpostfixl = (" -i " + green_if + " -s ! " + green_ifip + cidr +
+    std::string scpostfixl = (" -i " + green_if + " ! -s " + green_ifip + cidr +
      sclogpre + f_ifcolor + sclogpost);
-    std::string scpostfixr = (" -i " + green_if + " -s ! " + green_ifip + cidr +
+    std::string scpostfixr = (" -i " + green_if + " ! -s " + green_ifip + cidr +
      sclogrej);
 
     rmdupes (ipb, scprefixf + " subnetchk" + scpostfixl);
@@ -441,9 +441,9 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
     char cidr[5] = "";
     sprintf((char*) cidr, "/%d", snet2cidr(f_addmask));
 
-    std::string scpostfixl = (" -i " + orange_if + " -s ! " + orange_ifip + cidr +
+    std::string scpostfixl = (" -i " + orange_if + " ! -s " + orange_ifip + cidr +
      sclogpre + f_ifcolor + sclogpost);
-    std::string scpostfixr = (" -i " + orange_if + " -s ! " + orange_ifip + cidr +
+    std::string scpostfixr = (" -i " + orange_if + " ! -s " + orange_ifip + cidr +
      sclogrej);
 
     rmdupes (ipb, scprefixf + " subnetchk" + scpostfixl);
@@ -459,9 +459,9 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
     char cidr[5] = "";
     sprintf((char*) cidr, "/%d", snet2cidr(f_addmask));
 
-    std::string scpostfixl = (" -i " + purple_if + " -s ! " + purple_ifip + cidr +
+    std::string scpostfixl = (" -i " + purple_if + " ! -s " + purple_ifip + cidr +
      sclogpre + f_ifcolor + sclogpost);
-    std::string scpostfixr = (" -i " + purple_if + " -s ! " + purple_ifip + cidr +
+    std::string scpostfixr = (" -i " + purple_if + " ! -s " + purple_ifip + cidr +
      sclogrej);
 
     rmdupes (ipb, scprefixf + " subnetchk" + scpostfixl);
@@ -725,13 +725,14 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
    {
     // must be a space between "!" and the value
 
-    if (negated_source) temp_source = "! " + temp_source;
     srcipmac_out = " -s " + temp_source;
+    if (negated_source) srcipmac_out = " !" + srcipmac_out;
    }
    if (temp_source.find_first_not_of(MAC_HEX) == std::string::npos)
    {
-    if (negated_source) temp_source = "! " + temp_source;
-    srcipmac_out = " -m mac --mac-source " + temp_source;
+    srcipmac_out = " -m mac ";
+    if (negated_source) srcipmac_out = srcipmac_out + "! ";
+    srcipmac_out = srcipmac_out + "--mac-source " + temp_source;
    }
    tgt_out = " -j " + f_action;
    if (f_action == "LOG") tgt_out = " -j LOG --log-prefix ..FFC..";
