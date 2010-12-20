@@ -186,7 +186,7 @@ echo
   mount -t iso9660 /dev/${cd_dev[$CD]} /cdrom \
   || mount -t isofs /dev/${cd_dev[$CD]} /cdrom \
   || do_or_die "mount -t vfat /dev/${cd_dev[$CD]}1 /cdrom"
-  fi
+  sleep 2
 
   if [ $filesys -eq 1 ]; then FS="-t ext3"; else FS="-t reiserfs"; fi
   echo "Mounting new root filesystem"
