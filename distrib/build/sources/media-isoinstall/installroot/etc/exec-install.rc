@@ -285,7 +285,7 @@ END
   HDTMP="/harddisk/runtimeroot"
   mkdir -p $HDTMP; cd $HDTMP
   echo "    unpack"
-  do_or_die "gunzip -c ${HDTMP}/boot/initrd-${KERNEL_VER}-phaeton.gz | cpio -id"
+  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz | cpio -id"
   echo "    update"
   do_or_die "mkdir -p -m 755 ${HDTMP}/etc/udev/rules.d"
   do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* ${HDTMP}/etc/udev/rules.d/"
