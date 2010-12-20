@@ -22,7 +22,7 @@ configure: patch
 	@true
 
 compile: configure
-	@make -C $(DIR) CFLAGS="$(CFLAGS) -DSYSV -D_GNU_SOURCE"
+	@make $(JOBS) -C $(DIR) CFLAGS="$(CFLAGS) -DSYSV -D_GNU_SOURCE"
 
 install: compile
 	@mkdir -p $(PKG_ROOT)$(PKG_DIR)/man/man{5,8} $(PKG_ROOT)$(PKG_DIR)/sbin

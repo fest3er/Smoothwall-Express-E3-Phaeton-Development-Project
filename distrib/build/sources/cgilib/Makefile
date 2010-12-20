@@ -13,7 +13,7 @@ configure: $(DIR)/
 	@true
 
 compile: configure
-	@cd $(DIR) && make
+	@cd $(DIR) && make $(JOBS)
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

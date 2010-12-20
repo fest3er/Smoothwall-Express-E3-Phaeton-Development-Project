@@ -22,7 +22,7 @@ configure: patch
 	@true
 
 compile: configure
-	@make -C $(DIR) $(OPTS)
+	@make $(JOBS) -C $(DIR) $(OPTS)
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

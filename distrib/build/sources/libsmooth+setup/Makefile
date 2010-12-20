@@ -10,7 +10,7 @@ PACKAGE = libsmooth+setup
 VERSION = 0.0
 
 compile:
-	@make -C $(COMPILE_DIR)
+	@make $(JOBS) -C $(COMPILE_DIR)
 
 install: compile
 	@install -D $(COMPILE_DIR)/setup/setup $(PKG_ROOT)/usr/sbin/setup

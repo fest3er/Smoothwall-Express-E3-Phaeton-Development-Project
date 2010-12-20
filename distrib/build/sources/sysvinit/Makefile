@@ -24,7 +24,7 @@ configure: $(DIR)/
 	@true
 
 compile: configure
-	@make -C $(DIR)/src CFLAGS="$(CFLAGS) -D_GNU_SOURCE"
+	@make $(JOBS) -C $(DIR)/src CFLAGS="$(CFLAGS) -D_GNU_SOURCE"
 
 install: compile
 	@mkdir -p $(PKG_ROOT)/{sbin,/bin,/usr/bin,/usr/include}

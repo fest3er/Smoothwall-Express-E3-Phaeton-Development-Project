@@ -23,7 +23,7 @@ configure: patch
 	@true
 
 compile: configure
-	@make -C $(DIR) -f Makefile.linux \
+	@make $(JOBS) -C $(DIR) -f Makefile.linux \
 	  CFLAGS="-DIPTABLES_143 -DUSE_NETFILTER \
 	    -I../../iptables/iptables-$(IPTABLES_VER)/include" \
 	  LDFLAGS="-L$(IPT_LIBEXEC) -liptc"

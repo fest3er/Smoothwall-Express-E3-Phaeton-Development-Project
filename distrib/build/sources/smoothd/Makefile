@@ -8,7 +8,7 @@ PACKAGE = smoothd
 VERSION = 0.0
 
 compile:
-	@(IPTABLES_VER=$(IPTABLES_VER) make -C $(COMPILE_DIR))
+	@(IPTABLES_VER=$(IPTABLES_VER) make $(JOBS) -C $(COMPILE_DIR))
 
 install: compile
 	@install -D $(COMPILE_DIR)/libsmoothd.so $(PKG_ROOT)/usr/lib/libsmoothd.so

@@ -23,7 +23,7 @@ configure: patch
 	@sed -i '/^TARGETS/s@ arpd@@g' $(COMPILE_DIR)/misc/Makefile
 
 compile: configure
-	@make -C $(COMPILE_DIR) KERNEL_INCLUDE=/usr/include
+	@make $(JOBS) -C $(COMPILE_DIR) KERNEL_INCLUDE=/usr/include
 	@ln -s $(DIR) $(PACKAGE)
 
 install: compile

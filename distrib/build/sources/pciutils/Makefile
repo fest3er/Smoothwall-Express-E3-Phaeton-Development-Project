@@ -19,7 +19,7 @@ configure: $(DIR)/
 	@true
 
 compile: configure
-	@make -C $(COMPILE_DIR) PREFIX=/$(PKG_DIR) ZLIB=no
+	@make $(JOBS) -C $(COMPILE_DIR) PREFIX=/$(PKG_DIR) ZLIB=no
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

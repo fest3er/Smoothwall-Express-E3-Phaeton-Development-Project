@@ -10,7 +10,7 @@ PACKAGE = listtables
 VERSION = 0.0
 
 compile:
-	@make -C $(COMPILE_DIR)
+	@make $(JOBS) -C $(COMPILE_DIR)
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

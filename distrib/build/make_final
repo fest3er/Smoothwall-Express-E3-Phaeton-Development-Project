@@ -177,7 +177,9 @@ fi
       build tar
       build util-linux-ng
       build joe
+      JOBS=$JOBS_UP
       build openssl
+      JOBS=$JOBS_MP
       build wget
       build sudo
       build kernel-phaeton

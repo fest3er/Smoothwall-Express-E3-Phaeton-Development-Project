@@ -48,7 +48,7 @@ else
 endif
 
 compile: configure
-	make -C $(COMPILE_DIR) COPT_FLAGS='$(CFLAGS)' PREFIX=$(PKG_DIR)
+	make $(JOBS) -C $(COMPILE_DIR) COPT_FLAGS='$(CFLAGS)' PREFIX=$(PKG_DIR)
 
 
 install: compile

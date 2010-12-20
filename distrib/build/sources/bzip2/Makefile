@@ -21,7 +21,7 @@ configure: patch
 	@true
 
 compile: configure
-	@make -C $(DIR) CC="gcc $(CFLAGS)"
+	@make $(JOBS) -C $(DIR) CC="gcc $(CFLAGS)"
 
 install: compile
 	@make -C $(DIR) PREFIX=$(PKG_ROOT)$(PKG_DIR) install

@@ -15,7 +15,7 @@ configure: patch
 	@true
 
 compile: configure
-	@(cd $(DIR); make p3scan CFLAGS="$(CFLAGS) -I/usr/ssl/include" LDFLAGS="$(LDFLAGS) -L/usr/ssl/lib -L. -lripmime -lpcre -lssl -lcrypto")
+	@(cd $(DIR); make $(JOBS) p3scan CFLAGS="$(CFLAGS) -I/usr/ssl/include" LDFLAGS="$(LDFLAGS) -L/usr/ssl/lib -L. -lripmime -lpcre -lssl -lcrypto")
 
 install: compile
 	mkdir -p $(PKG_ROOT)/var/avirus/p3scan/children

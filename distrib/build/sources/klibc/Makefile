@@ -33,7 +33,7 @@ compile: configure
 	cd $(DIR); \
 	  make mrproper; \
 	  ln -sf ../linux-$(KLIBKERNVER) linux; \
-	  make -j 4
+	  make $(JOBS)
 
 INSTALL = yes
 install: compile

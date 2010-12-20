@@ -11,7 +11,7 @@ PACKAGE = install
 VERSION = 0.0
 
 compile:
-	@make -C $(COMPILE_DIR)
+	@make $(JOBS) -C $(COMPILE_DIR)
 
 install: compile
 	@install -D $(COMPILE_DIR)/install/install $(TARGET_DIR)/$(PACKAGE)

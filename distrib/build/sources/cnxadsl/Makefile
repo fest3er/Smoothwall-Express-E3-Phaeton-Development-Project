@@ -23,7 +23,7 @@ configure: patch
 	@true
 
 compile: configure
-	@make -C $(DIR)/DownLoadApp
+	@make $(JOBS) -C $(DIR)/DownLoadApp
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

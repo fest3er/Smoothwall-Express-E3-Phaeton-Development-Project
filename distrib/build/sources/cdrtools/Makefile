@@ -19,7 +19,7 @@ configure: $(DIR)/
 	@true
 
 compile: configure
-	@make -C $(COMPILE_DIR)
+	@make $(JOBS) -C $(COMPILE_DIR)
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

@@ -22,7 +22,7 @@ configure: patch
 	@true
 
 compile: configure
-	@make -C $(DIR) PREFIX=/usr
+	@make $(JOBS) -C $(DIR) PREFIX=/usr
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

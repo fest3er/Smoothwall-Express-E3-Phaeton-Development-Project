@@ -19,7 +19,7 @@ configure: $(DIR)/
 	@true
 
 compile: configure
-	@make -C $(DIR) CFLAGS="$(CFLAGS) -DHAVE_ISC_READER"
+	@make $(JOBS) -C $(DIR) CFLAGS="$(CFLAGS) -DHAVE_ISC_READER"
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

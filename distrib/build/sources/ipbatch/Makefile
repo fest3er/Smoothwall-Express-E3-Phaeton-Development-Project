@@ -5,7 +5,7 @@ PACKAGE = ipbatch
 VERSION = 0.0
 
 compile:
-	@make -C $(COMPILE_DIR) IPTABLES_VER=$(IPTABLES_VER) IPT_LIB_DIR=$(IPT_LIBEXEC)
+	@make $(JOBS) -C $(COMPILE_DIR) IPTABLES_VER=$(IPTABLES_VER) IPT_LIB_DIR=$(IPT_LIBEXEC)
 
 install: compile
 	@mkdir -p $(PKG_ROOT)
