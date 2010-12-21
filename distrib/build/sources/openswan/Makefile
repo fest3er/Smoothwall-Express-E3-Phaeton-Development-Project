@@ -16,6 +16,7 @@ BASE_URL = http://www.openswan.org/download/
 TARBALL = $(FREESWAN_TYPE)-$(VERSION)
 
 PATCH_FILE1 = makefile.patch
+PATCH_FILE2 = setup.in.patch
 
 unpack: $(DIR)/
 	@true
