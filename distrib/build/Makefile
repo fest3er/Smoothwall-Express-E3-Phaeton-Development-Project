@@ -150,7 +150,9 @@ predownload:
 	@echo -e "\nPre-downloading source tarballs..."; sleep 1
 	@(export BUILD_PHASE="PreDownload"; . ./environment;set_build_environment;cd sources; for I in `find -maxdepth 3 -mindepth 1 -type d | sort`; do \
 	  if [ "$$I" != "./CVS" ]; then \
-	    if echo $$I | egrep "^./cdrtools" >/dev/null 2>&1; then \
+	    if echo $$I | egrep "^./mtools/mtools-4.0.15/scripts" >/dev/null 2>&1; then \
+	      continue; \
+	    elif echo $$I | egrep "^./cdrtools" >/dev/null 2>&1; then \
               NW="GMAKE_NOWARN=true "; \
             else \
               unset NW; \
@@ -230,7 +232,7 @@ clean-sources:
           sudo su -c "make --no-print-directory clean-sources"; \
         else \
 	  tput smso; echo -n "cleaning sources"; tput rmso; \
-	  (cd sources; for I in `find -maxdepth 1 -mindepth 1 -type d`; do \
+	  (cd sources; for I in `find -maxdepth 1 -mindepth 1 -type d | sort`; do \
 	     if [ "$$I" != "CVS" ]; then \
 	       export BUILDDIR=`pwd`; make --no-print-directory -C $$I clean; \
 	     fi \
@@ -256,7 +258,8 @@ clean-distrib:
         else \
 	  tput smso; echo "cleaning distrib"; tput rmso; \
 	  cd ..; rm -rf `ls -C1 . | egrep -v "build|tools"` ; \
-	  ls -ls ..; \
+	  echo "Only build and tools should print:"; \
+	  ls -dC * | sed -e 's/^/  /'; \
 	fi
 
 # Sweep up the trail of bread crumbs
