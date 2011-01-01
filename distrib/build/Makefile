@@ -1,7 +1,7 @@
 # SmoothWall Build system.
 #
 # Parts (c) SmoothWall Ltd 2005
-# Parts (c) Neal P. Murphy 2009
+# Parts (c) Neal P. Murphy 2009, 2010
 #
 # This code is distributed under the terms of the GPL v2.
 #
@@ -41,7 +41,7 @@ default:
 	@echo "If using a host distrib to build, it is safest to build as a non-root user. The"
 	@echo "system will become root as needed via 'sudo', so be sure that tool is ready."
 	@echo
-	@echo "Phaeton's build system is much less fragile, and far less likely to"
+	@echo "The Phaeton/Roadster build system is much less fragile, and far less likely to"
 	@echo "hose your host system. But you must still know what you are doing!"
 	@echo
 	@echo "Useful commands:"
@@ -51,9 +51,9 @@ default:
 	@echo "  make package"
 	@echo
 	@echo "Useful targets:"
-	@echo "  build             Build Phaeton or continue building from an error."
+	@echo "  build             Build Phaeton/Roadster or continue building from an error."
 	@echo "  media             Make ISO and prepare bootable flash drive."
-	@echo "  rebuild           Build Phaeton from scratch."
+	@echo "  rebuild           Build Phaeton/Roadster from scratch."
 	@echo "  package           Clean, archive sources, pre-fetch tarballs, build,"
 	@echo "                    and make media with matching source tarball."
 	@echo
@@ -153,10 +153,10 @@ predownload:
 	    if echo $$I | egrep "^./mtools/mtools-4.0.15/scripts" >/dev/null 2>&1; then \
 	      continue; \
 	    elif echo $$I | egrep "^./cdrtools" >/dev/null 2>&1; then \
-              NW="GMAKE_NOWARN=true "; \
-            else \
-              unset NW; \
-            fi; \
+	      NW="GMAKE_NOWARN=true "; \
+	    else \
+	      unset NW; \
+	    fi; \
 	    make $$NW -C $$I -n download >/dev/null 2>/dev/null; \
 	    if [ $$? -eq 0 ]; then \
 	      echo -n " $$I"; \
@@ -209,8 +209,8 @@ clean:
 #
 clean-buildroot:
 	@if [ `id -u` -ne 0 ]; then \
-          sudo su -c "make --no-print-directory clean-buildroot"; \
-        else \
+	  sudo su -c "make --no-print-directory clean-buildroot"; \
+	else \
 	  tput smso; echo "cleaning buildroot"; tput rmso; \
 	  rm -rf buildroot/*; \
 	fi
@@ -219,8 +219,8 @@ clean-buildroot:
 #
 clean-target:
 	@if [ `id -u` -ne 0 ]; then \
-          sudo su -c "make --no-print-directory clean-target"; \
-        else \
+	  sudo su -c "make --no-print-directory clean-target"; \
+	else \
 	  tput smso; echo "cleaning target"; tput rmso; \
 	  rm -rf target/*; \
 	fi
@@ -229,8 +229,8 @@ clean-target:
 #
 clean-sources:
 	@if [ `id -u` -ne 0 ]; then \
-          sudo su -c "make --no-print-directory clean-sources"; \
-        else \
+	  sudo su -c "make --no-print-directory clean-sources"; \
+	else \
 	  tput smso; echo -n "cleaning sources"; tput rmso; \
 	  (cd sources; for I in `find -maxdepth 1 -mindepth 1 -type d | sort`; do \
 	     if [ "$$I" != "CVS" ]; then \
@@ -244,8 +244,8 @@ clean-sources:
 #
 clean-tools:
 	@if [ `id -u` -ne 0 ]; then \
-          sudo su -c "make --no-print-directory clean-tools"; \
-        else \
+	  sudo su -c "make --no-print-directory clean-tools"; \
+	else \
 	  tput smso; echo "cleaning tools"; tput rmso; \
 	  rm -rf ../tools/*; \
 	fi
@@ -254,8 +254,8 @@ clean-tools:
 #
 clean-distrib:
 	@if [ `id -u` -ne 0 ]; then \
-          sudo su -c "make --no-print-directory clean-distrib"; \
-        else \
+	  sudo su -c "make --no-print-directory clean-distrib"; \
+	else \
 	  tput smso; echo "cleaning distrib"; tput rmso; \
 	  cd ..; rm -rf `ls -C1 . | egrep -v "build|tools"` ; \
 	  echo "Only build and tools should print:"; \
@@ -284,16 +284,16 @@ clean-stage3-crumbs:
 
 clean-final-crumbs:
 	@if [ `id -u` -ne 0 ]; then \
-          sudo su -c "make clean-final-crumbs"; \
-        else \
+	  sudo su -c "make clean-final-crumbs"; \
+	else \
 	  tput smso; echo "cleaning final crumbs"; tput rmso; \
 	  rm -f sources/*/Final*.{out,built} crumbs/Final* crumbs/resolv.conf; \
 	fi
 
 clean-media-crumbs:
 	@if [ `id -u` -ne 0 ]; then \
-          sudo su -c "make clean-media-crumbs"; \
-        else \
+	  sudo su -c "make clean-media-crumbs"; \
+	else \
 	  tput smso; echo "cleaning media crumbs"; tput rmso; \
 	  rm -f sources/*/Media*.{out,built} crumbs/Media*; \
 	fi

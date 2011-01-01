@@ -53,7 +53,7 @@ INSTALL = yes
 install: compile
 	make -C $(COMPILE_DIR) install
 	cd $(COMPILE_DIR); \
-          ln -vs libgcc.a `$(SWE_TGT)-gcc -print-libgcc-file-name \
+	  ln -vs libgcc.a `$(SWE_TGT)-gcc -print-libgcc-file-name \
 	    | sed -e 's/libgcc/&_eh/'`
 endif
 
@@ -62,13 +62,13 @@ endif
 #
 ifeq ($(BUILD_PHASE), Stage_2)
 PRE_CONFIGURE = CC="$(SWE_TGT)-gcc -B$(TOOLS_DIR)/lib" \
-                AR=$(SWE_TGT)-ar RANLIB=$(SWE_TGT)-ranlib
+	        AR=$(SWE_TGT)-ar RANLIB=$(SWE_TGT)-ranlib
 
 CONFIG_OPTS = --prefix=$(TOOLS_DIR) --with-local-prefix=$(TOOLS_DIR) \
 	--enable-clocale=gnu --enable-shared --enable-threads=posix  \
 	--enable-__cxa_atexit --enable-languages=c,c++ \
 	--disable-libstdcxx-pch --disable-multilib \
-        --disable-bootstrap
+	--disable-bootstrap
 
 PATCH_FILE1 = gcc-4.4.3-startfiles_fix-1.patch
 
@@ -81,13 +81,13 @@ patch: $(DIR)/
 	  sed 's/^T_CFLAGS =$$/& -fomit-frame-pointer/' gcc/Makefile.in.tmp > gcc/Makefile.in;
 	cd $(DIR); \
 	for file in `find gcc/config -name linux64.h \
-                                  -o -name linux.h \
-                                  -o -name sysv4.h`; do \
+	                          -o -name linux.h \
+	                          -o -name sysv4.h`; do \
 	  cp -uv $$file{,.orig}; \
 	  (  sed -e 's@/lib\(64\)\?\(32\)\?/ld@$(TOOLS_DIR)&@g' \
 	       -e 's@/usr@$(TOOLS_DIR)@g' "$$file.orig"; \
 	     echo -e '\n#undef STANDARD_INCLUDE_DIR\n#define STANDARD_INCLUDE_DIR 0\n#define STANDARD_STARTFILE_PREFIX_1 ""\n#define STANDARD_STARTFILE_PREFIX_2 ""' \
-          ) > "$$file"; \
+	  ) > "$$file"; \
 	  /bin/touch "$$file.orig"; \
 	done
 	cd $(DIR); tar jxfv ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp

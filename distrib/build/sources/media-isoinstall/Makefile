@@ -56,9 +56,9 @@ cdrom/smoothwall.tgz:
 
 	@echo "Unpacking dev packages:"
 	@(for I in $(DEV_PKGS); do \
-		if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
-		make -C ../$$I clean all; \
-			if [ $$? -ne 0 ]; then \
+	        if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
+	        make -C ../$$I clean all; \
+	                if [ $$? -ne 0 ]; then \
 				echo "$$I FAILED"; \
 				exit 0; \
 			fi; \
@@ -71,21 +71,21 @@ cdrom/smoothwall.tgz:
 
 	@echo "Copying dev shared libs to distrib:"
 	@(cd distrib-dev; \
-		find . -name \*.so\* -print | cpio -pd ../distrib \
+	        find . -name \*.so\* -print | cpio -pd ../distrib \
 	)
 
 	echo "Unpacking main packages:"
 	@(for I in $(INST_PKGS); do \
-		if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
-		make -C ../$$I clean all; \
-			if [ $$? -ne 0 ]; then \
+	        if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
+	        make -C ../$$I clean all; \
+	                if [ $$? -ne 0 ]; then \
 				echo "$$I FAILED"; \
 				exit 0; \
 			fi; \
 		fi; \
 		echo -n "    $$I"; \
 		tar -zxf /$(TARGET_DIR)/smoothwall-$$I.tar.gz -C distrib || (echo; exit 68); \
-                echo; \
+	        echo; \
 	done; \
 	);
 	echo "Copying udev.rc to distrib:"
@@ -127,13 +127,15 @@ cdrom/smoothwall.tgz:
 	echo "  ARCH='$(ARCH)'"; \
 	) | sed -u -e 's/^/  /'
 
-	@mkdir -p distrib/var/smoothwall/main
-	@echo "PRODUCT='$(PRODUCT_NAME)'" > distrib/var/smoothwall/main/productdata
-	@echo "VERSION='$(PRODUCT_VERSION)$(SWETYPE)'" >> distrib/var/smoothwall/main/productdata
-	@echo "REVISION='$(REVISION)'" >> distrib/var/smoothwall/main/productdata
-	@echo "UI_VERSION='$(UI_VERSION)'" >> distrib/var/smoothwall/main/productdata
-	@echo "FIXES='$(FIXES_NUMBER)'" >> distrib/var/smoothwall/main/productdata
-	@echo "ARCH='$(ARCH)'" >> distrib/var/smoothwall/main/productdata
+	mkdir -p distrib/var/smoothwall/main
+	( \
+	  echo "PRODUCT='$(PRODUCT_NAME)'" ; \
+	  echo "VERSION='$(PRODUCT_VERSION)$(SWETYPE)'" ; \
+	  echo "REVISION='$(REVISION)'" ; \
+	  echo "UI_VERSION='$(UI_VERSION)'" ; \
+	  echo "FIXES='$(FIXES_NUMBER)'" ; \
+	  echo "ARCH='$(ARCH)'" ; \
+	) > distrib/var/smoothwall/main/productdata
 
 	@chown nobody:nobody distrib/var/smoothwall/main/productdata
 
@@ -213,7 +215,7 @@ extracontent:
 
 all: cdrom cdrom/smoothwall.tgz extracontent
 	/sbin/mkisofs -o $(TARGET_DIR)/isos/smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso \
-          -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
+	  -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
 	  -no-emul-boot -boot-load-size 4 -boot-info-table \
 	  -V $(BASENAME) --publisher "Smoothwall Express Phaeton" cdrom
 	@echo "smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso build complete"

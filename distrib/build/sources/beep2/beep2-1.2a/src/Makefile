@@ -5,13 +5,13 @@
 ###############################################################################
 
 OBJS	= beep.o \
-          log.o \
-          main.o \
-          parse_f.o \
-          parse_s.o \
-          s2f.o \
-          usage.o \
-          version.o
+	  log.o \
+	  main.o \
+	  parse_f.o \
+	  parse_s.o \
+	  s2f.o \
+	  usage.o \
+	  version.o
 
 dummy:
 	@echo '*** This directory is not the top directory.'

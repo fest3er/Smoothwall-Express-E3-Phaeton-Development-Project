@@ -20,7 +20,7 @@ ifeq ($(BUILD_PHASE), Stage_3)
 PATCH_FILE1 = ../perl-5.10.1-libc-1.patch
 
 CONFIG_OPTS = -des -Dprefix=/tools -Dstatic_ext="Data/Dumper Fcntl IO POSIX" \
-              -Donlyextensions="Data/Dumper Fcntl IO POSIX" \
+	      -Donlyextensions="Data/Dumper Fcntl IO POSIX" \
 	      -Dglincpth="/tools/include" -Dglibpth="/tools/lib" \
 	      -Dinc_version_list=none
 

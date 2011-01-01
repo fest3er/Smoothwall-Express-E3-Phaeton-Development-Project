@@ -50,10 +50,10 @@ endif # Stage 1
 #
 ifeq ($(BUILD_PHASE), Stage_2)
 PRE_CONFIGURE = CC="$(SWE_TGT)-gcc -B$(TOOLS_DIR)/lib" \
-                AR=$(SWE_TGT)-ar RANLIB=$(SWE_TGT)-ranlib
+	        AR=$(SWE_TGT)-ar RANLIB=$(SWE_TGT)-ranlib
 
 CONFIG_OPTS = --prefix=$(TOOLS_DIR) --disable-nls \
-              --with-lib-path=$(TOOLS_DIR)/lib
+	      --with-lib-path=$(TOOLS_DIR)/lib
 
 COMPILE = yes
 compile: configure
