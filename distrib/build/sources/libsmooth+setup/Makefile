@@ -10,10 +10,10 @@ PACKAGE = libsmooth+setup
 VERSION = 0.0
 
 compile:
-	@make -C $(COMPILE_DIR)
+        @make $(JOBS) -C $(COMPILE_DIR)
 
 install: compile
-	@install -D $(COMPILE_DIR)/setup/setup $(PKG_ROOT)/usr/sbin/setup
+        @install -D $(COMPILE_DIR)/setup/setup $(PKG_ROOT)/usr/sbin/setup
 	@install -D $(COMPILE_DIR)/libsmooth/libsmooth.so $(PKG_ROOT)/usr/lib/libsmooth.so
 	@install -D $(COMPILE_DIR)/libsmooth/libsmooth.h /usr/include/libsmooth.h
 	@install -D $(COMPILE_DIR)/libsmooth/langs.h /usr/include/langs.h

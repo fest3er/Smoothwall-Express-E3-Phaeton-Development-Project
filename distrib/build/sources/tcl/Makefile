@@ -29,7 +29,7 @@ COMPILE = yes
 INSTALL = yes
 
 compile: configure
-	@make -C $(DIR)/unix
+        @make $(JOBS) -C $(DIR)/unix
 
 ifeq ($(BUILD_PHASE), Stage_3)
 configure: patch

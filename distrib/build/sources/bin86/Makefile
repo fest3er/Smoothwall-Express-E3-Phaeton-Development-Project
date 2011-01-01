@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = bin86
-VERSION = 0.16.16
+VERSION = 0.16.17
 
 BASE_URL = http://homepage.ntlworld.com/robert.debath/dev86/
 

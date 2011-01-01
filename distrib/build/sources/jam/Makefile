@@ -15,7 +15,8 @@ TARBALL = boost-jam-$(VERSION)
 
 EXTENSION = .tgz
 
-BASE_URL = http://unc.dl.sourceforge.net/sourceforge/boost/
+#BASE_URL = http://unc.dl.sourceforge.net/sourceforge/boost/
+BASE_URL = http://downloads.sourceforge.net/project/boost/boost-jam/3.1.10/
 
 CONFIGURE = yes
 COMPILE = yes

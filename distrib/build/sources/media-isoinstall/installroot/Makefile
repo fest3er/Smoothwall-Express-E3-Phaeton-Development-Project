@@ -125,9 +125,9 @@ ifdef BITS_64
 	@(cd tmp; ln -s lib lib64)
 endif
 
-	touch tmp/cdrominstall
+	@touch tmp/cdrominstall
 
-	/build/striptree tmp
+	@/build/striptree tmp
 
 	# Copy runtimeroot initramfs to the installroot initramfs tree
 	#@mkdir -p tmp/boot; cp ../runtimerootimage.gz tmp/boot

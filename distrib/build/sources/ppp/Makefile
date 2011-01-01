@@ -19,11 +19,11 @@ INSTALL = yes
 COMPILE_FLAGS = -DHAVE_PATHS_H -DIPX_CHANGE -DHAVE_MMAP -D_PATH_VARRUN=\\\"/var/run\\\"
 
 compile: configure
-	cat $(DIR)/pppstats/Makefile.linux
-	@make -C $(DIR) COMPILE_FLAGS="$(COMPILE_FLAGS)"
+        cat $(DIR)/pppstats/Makefile.linux
+        @make $(JOBS) -C $(DIR) COMPILE_FLAGS="$(COMPILE_FLAGS)"
 
 install: compile
-	@mkdir -p $(PKG_ROOT)
+        @mkdir -p $(PKG_ROOT)
 	@make -C $(DIR) DESTDIR=$(PKG_ROOT)$(PKG_DIR) install
 	
 include ../Makefile.rules

@@ -19,13 +19,13 @@ COMPILE = yes
 INSTALL = yes
 
 configure: patch
-	@true
+        @true
 
 compile: configure
-	@make -C $(DIR) CFLAGS="$(CFLAGS) -DSYSV -D_GNU_SOURCE"
+        @make $(JOBS) -C $(DIR) CFLAGS="$(CFLAGS) -DSYSV -D_GNU_SOURCE"
 
 install: compile
-	@mkdir -p $(PKG_ROOT)$(PKG_DIR)/man/man{5,8} $(PKG_ROOT)$(PKG_DIR)/sbin
+        @mkdir -p $(PKG_ROOT)$(PKG_DIR)/man/man{5,8} $(PKG_ROOT)$(PKG_DIR)/sbin
 	@make -C $(COMPILE_DIR) MANDIR=$(PKG_ROOT)$(PKG_DIR)/man \
 		BINDIR=$(PKG_ROOT)$(PKG_DIR)/sbin install
 

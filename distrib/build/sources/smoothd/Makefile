@@ -8,10 +8,10 @@ PACKAGE = smoothd
 VERSION = 0.0
 
 compile:
-	@(IPTABLES_VER=$(IPTABLES_VER) make -C $(COMPILE_DIR))
+        @(IPTABLES_VER=$(IPTABLES_VER) make $(JOBS) -C $(COMPILE_DIR))
 
 install: compile
-	@install -D $(COMPILE_DIR)/libsmoothd.so $(PKG_ROOT)/usr/lib/libsmoothd.so
+        @install -D $(COMPILE_DIR)/libsmoothd.so $(PKG_ROOT)/usr/lib/libsmoothd.so
 	@install -D $(COMPILE_DIR)/smoothd $(PKG_ROOT)/usr/sbin/smoothd 
 	@install -D $(COMPILE_DIR)/ipbatchtest $(PKG_ROOT)/usr/sbin/ipbatchtest
 	@install -D $(COMPILE_DIR)/default $(PKG_ROOT)/usr/lib/smoothd/sockets/default 

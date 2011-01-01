@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = HTML-Parser
-VERSION = 3.56
+VERSION = 3.68
 
 BASE_URL = http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/
 

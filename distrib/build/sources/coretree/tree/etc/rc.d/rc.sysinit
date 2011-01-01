@@ -87,7 +87,7 @@ echo "Mounting other filesystems"
 mount -a
 echo "Turning on swap"
 /sbin/swapon -a
-echo "Module dependancies"
+echo "Module dependencies"
 /sbin/depmod -a
 echo "Clearing old files"
 chmod 660 /dev/ttyS*
@@ -98,9 +98,6 @@ rm -f /usr/etc/dhcpc/*.pid
 rm -f /var/smoothwall/red/*
 rm -f /var/lock/LCK..ttyS*
 rm -f /var/run/pppd*.tdb
-
-# enable the deprecated NF_CONNTRACK
-sysctl net.netfilter.nf_conntrack_acct=1
 
 if readlink /dev/harddisk | egrep "hd."; then
   echo "Setting IDE drive params"
@@ -161,7 +158,6 @@ echo "Loading filesystems"
 
 echo "Loading IPSEC"
 /sbin/modprobe ipsec
-chmod 444 /proc/net/ipsec/eroute/all
 
 echo "Starting smoothd"
 /usr/sbin/smoothd

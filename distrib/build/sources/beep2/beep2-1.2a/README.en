@@ -1,0 +1,134 @@
+beep2 version 1.2a
+Original Copyright (C) 1997 Josef Pavlik <jetset@ibm.net>
+Copyright (C) 2002 YAMAGUCHI Shingo <shingo@kip.iis.toyama-u.ac.jp>
+
+1. Usage
+
+    beep2 [-dfs] [-t tempo] [file]
+    beep2 -v
+
+'-d' option is "debug mode".
+'-f' option is "frequency input mode". This is the same as console
+beep V0.1.
+'-s' option is "score mode".
+'-t' option is "tempo change". tempo change into "tempo" %.
+'-v' option is "show version and included function".
+
+
+2. Frequency input mode
+If frequency is 0, then delay(rest). 
+Frequency is in Hz, length is in milliseconds.
+
+2.1 Input format
+Please see sample file "ring.bpf" to more detail.
+
+freq duration
+freq	duration
+freq duration  # comment
+# comment
+...
+
+2.2 Execution example
+
+(1) sound 1 kHz for 0.5 sec.
+
+    % beep2[Enter]
+    1000 500[Enter]
+    [Ctrl+d]
+
+(2) ring the file "ring.bpf"
+
+    % beep2 ./ring.bpf[Enter]
+
+(3) 750ms delay
+
+    % beep2[Enter]
+    0 750[Enter]
+    [Ctrl+d]
+
+If first line of file is
+
+    #!/usr/bin/beep2
+
+and file has attribute x, you may run it immediately.
+
+
+3. Score input mode
+If the score field is "-", then delay(rest). 
+The score input is in below:
+
+    C4    - base score
+    C5#   - "C5" + sharp
+    ---   - rest
+
+You can set octave from 1 to 9, and set score from C1 to B9.
+
+3.1 Input format
+Please see sample file "ring.bps" to more detail.
+
+score length
+score	length
+score length	# comment
+# comment
+...
+
+3.2 Execution example
+(1) sound C5 for 0.5 sec.
+
+    % beep2 -s[Enter]
+    C5 500[Enter]
+    [Ctrl+d]
+
+(2) ring the file "ring.bps"
+
+    % beep2 -s ./ring.bps[Enter]
+
+(3) 750ms delay
+
+    % beep2 -s[Enter]
+    --- 750[Enter]
+    [Ctrl+d]
+
+If first line of file is
+
+    #!/usr/bin/beep2 -s
+
+and file has attribute x, you may run it immediately.
+
+
+4. About logging function
+beep2 is added logging function since version 1.2. You can use this
+function if you enable it when you compile this program.
+
+The log is sent to syslog at user.info priority. Generally, it is
+written to /var/log/messages. It includes the information of executed
+real user name and executed command string.
+
+If you want to change log file, you need to edit syslog.conf (generally
+placed at /etc) and configure. The detail is in syslog documents.
+
+
+5. About "longbeep-linux.patch"
+Because of the Linux console driver limitation, beep2 can not ring
+over 2000 ms. This patch releases this limitation and expands length
+to 9999 ms.
+
+If you want to use this patch, go to drivers/char on the Linux kernel
+directory and run patch command. That is:
+
+    # cd /usr/src/linux/drivers/char
+    # patch < /foo/bar/longbeep-linux.patch
+
+This patch is NO WARRANTY and is used at your own risk.
+If you use non-Linux OS, you need not use this patch.
+
+
+6. Warning
+This program installs as root setuid-ed. Please consider with
+seculity policy and set execute attribute for trasted users only.
+
+
+7. Newest release
+
+  http://www.kip.iis.toyama-u.ac.jp/~shingo/beep/index.html   (English)
+  http://www.kip.iis.toyama-u.ac.jp/~shingo/beep/index-j.html (Japanese)

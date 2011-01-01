@@ -1,0 +1,121 @@
+
+
+THE IANA /etc FILES PACKAGE
+
+
+ABOUT
+
+    The iana-etc package installs services(5) and protocols(5) using data from
+    the Internet Assigned Numbers Authority <http://www.iana.org/>.  In future,
+    other such files may be added.
+
+    Included are snapshots of the data from the IANA, scripts to transform that
+    data into the needed formats, and scripts to fetch the latest data.
+
+    Maintainer: Seth W. Klein <sk@sethwklein.net>
+    Home Page: http://www.sethwklein.net/projects/iana-etc/
+
+    Bug reports and patches are welcome.
+
+PORT ALIASES
+
+    Please report any additional port aliases that you need. The port-aliases
+    file contains the current list.  To minimize cruft, it includes only
+    aliases for which there has been reported need. 
+
+    If you need an alias that isn't included, you may see the error:
+
+	getaddrinfo: Servname not supported for ai_socktype
+
+    Some useful things for finding out what alias is needed:
+      * strace from <http://www.wi.leidenuniv.nl/~wichert/strace/>
+      * grep -r 'getaddrinfo' in the appropriate source tree
+
+    The various RFCs and such usually list the number for an alias but it may
+    be faster to just check the FreeBSD services file at
+    <http://www.freebsd.org/cgi/cvsweb.cgi/src/etc/services>.
+
+    Bug reports and patches are welcome at the maintainer address listed above.
+
+DEPENDENCIES
+
+    GNU Awk 3.1.0 or Later
+	Numerous GNU Awk extensions are used.  Awk was chosen over Perl for
+	its smaller size and more flexible installation process both of which
+	are important in a bootstrap environment.
+
+	Version 3.1.0 or later is required for support of the third argument
+	to match().  The workaround to support older versions would be less
+	readable and slower so I'd rather not include it without good reason.
+
+	Like GNU Awk before 3.1.0, Mawk doesn't support three argument match()
+	and so is not supported.  It also doesn't support network extensions.
+
+    Make
+	Testing is only done with GNU Make but incompatibilities with other
+	make implementations are bugs. Please send patches.
+
+INSTALLATION
+
+    The installation process is flexible and friendly to unattended install-
+    ation even though, due to its simplicity, it does not use Autoconf.
+
+    For basic installation run:
+
+	make
+	su
+	make install
+
+    This creates /etc/services and /etc/protocols without using internet
+    access.
+
+    To throw out the useful comments in generated files (useful for embedded
+    installations), use:
+
+	make STRIP=yes
+
+    To install to a temporary location as package managers often do, use
+    DESTDIR like this:
+
+	make DESTDIR=/mnt/tmp install
+
+    This will create /mnt/tmp/etc/services and /mnt/tmp/etc/protocols.
+
+    PREFIX is also supported but currently does the same thing as DESTDIR.
+
+    For unusual installations,
+
+	make DESTDIR=/tmp PREFIX=/foo ETC_DIR=/bar install
+
+    will create /tmp/foo/bar/services and /tmp/foo/bar/protocols.
+
+GETTING FRESH DATA
+
+    This process is not advised for unattended installations.  See below.
+    To fetch the latest data from the IANA run:
+
+	make get
+	make
+	make test
+	# Visually inspect protocols and services because some errors
+	# could produce a file that is valid but contains no records.
+
+    Beware that while test checks for invalid lines in the output files,
+    it cannot check for applications that might be broken by changes made
+    by the IANA or breakage that makes the file valid but not useful.  In
+    addition, there is generally little of interest in the IANA's changes
+    unless you're trying to pick a port for new development in which case
+    you're better off consulting the unfiltered files.
+
+DOCUMENTATION
+
+    Man pages are provided by the man-pages package. See
+    http://ftp.kernel.org/pub/linux/docs/manpages/ and
+    http://freshmeat.net/projects/man-pages/
+
+BUGS
+
+    The Makefile uses the .PHONY target which (according to the GNU Make
+    info page, IIRC) is not supported by other common make implementations.  
+    There are plans to fix this in a future release.
+

@@ -38,25 +38,25 @@ SRC_TGZ = ../../smoothsrc.tar.gz
 #
 default:
 	@echo
-	@echo "If using a host distrib to build, it is safest to build as a non-root user. The"
-	@echo "system will become root as needed via 'sudo', so be sure that tool is ready."
-	@echo
-	@echo "The Phaeton/Roadster build system is much less fragile, and far less likely to"
-	@echo "hose your host system. But you must still know what you are doing!"
-	@echo
-	@echo "Useful commands:"
+        @echo "If using a host distrib to build, it is safest to build as a non-root user. The"
+        @echo "system will become root as needed via 'sudo', so be sure that tool is ready."
+        @echo
+        @echo "The Phaeton/Roadster build system is much less fragile, and far less likely to"
+        @echo "hose your host system. But you must still know what you are doing!"
+        @echo
+        @echo "Useful commands:"
 	@echo "  make build"
 	@echo "  make rebuild"
 	@echo "  make media"
-	@echo "  make package"
-	@echo
-	@echo "Useful targets:"
-	@echo "  build             Build Phaeton/Roadster or continue building from an error."
-	@echo "  media             Make ISO and prepare bootable flash drive."
-	@echo "  rebuild           Build Phaeton/Roadster from scratch."
-	@echo "  package           Clean, archive sources, pre-fetch tarballs, build,"
-	@echo "                    and make media with matching source tarball."
-	@echo
+        @echo "  make package"
+        @echo
+        @echo "Useful targets:"
+        @echo "  build             Build Phaeton/Roadster or continue building from an error."
+        @echo "  media             Make ISO and prepare bootable flash drive."
+        @echo "  rebuild           Build Phaeton/Roadster from scratch."
+        @echo "  package           Clean, archive sources, pre-fetch tarballs, build,"
+        @echo "                    and make media with matching source tarball."
+        @echo
 	@echo "  predownload       Download sourcecode packages in advance."
 	@echo "  savesources       Make a tarball of the sources used to build."
 	@echo "  reprep-final      Prepare to rebuild final stage *only*."
@@ -147,20 +147,27 @@ chroot:
 # Pre-fetch source tarballs from internet
 #
 predownload:
-	@echo -e "\nPre-downloading source tarballs..."; sleep 1
-	@(export BUILD_PHASE="PreDownload"; . ./environment;set_build_environment;cd sources; for I in `find -maxdepth 3 -mindepth 1 -type d | sort`; do \
-	  if [ "$$I" != "./CVS" ]; then \
-	    make -C $$I BUILDENV=1 -n download >/dev/null 2>/dev/null; \
-	    if [ $$? -eq 0 ]; then \
-	      echo -n " $$I"; \
-	      make --no-print-directory -C $$I BUILDENV=1 download; \
-	      if [ $$? -ne 0 ]; then \
-	        echo "Oops"; \
-	        exit; \
-	      fi \
-	    fi \
-	  fi \
-	done); echo
+        @echo -e "\nPre-downloading source tarballs..."; sleep 1
+        @(export BUILD_PHASE="PreDownload"; . ./environment;set_build_environment;cd sources; for I in `find -maxdepth 3 -mindepth 1 -type d | sort`; do \
+          if [ "$$I" != "./CVS" ]; then \
+            if echo $$I | egrep "^./mtools/mtools-4.0.15/scripts" >/dev/null 2>&1; then \
+              continue; \
+            elif echo $$I | egrep "^./cdrtools" >/dev/null 2>&1; then \
+              NW="GMAKE_NOWARN=true "; \
+            else \
+              unset NW; \
+            fi; \
+            make $$NW -C $$I -n download >/dev/null 2>/dev/null; \
+            if [ $$? -eq 0 ]; then \
+              echo -n " $$I"; \
+              make --no-print-directory -C $$I download; \
+              if [ $$? -ne 0 ]; then \
+                echo "Oops"; \
+                exit; \
+              fi \
+            fi \
+          fi; \
+        done); echo
 
 # Save a copy of the build directory, sans downloads, for future replication
 #
@@ -202,8 +209,8 @@ clean:
 #
 clean-buildroot:
 	@if [ `id -u` -ne 0 ]; then \
-	  sudo su -c "make --no-print-directory clean-buildroot"; \
-	else \
+          sudo su -c "make --no-print-directory clean-buildroot"; \
+        else \
 	  tput smso; echo "cleaning buildroot"; tput rmso; \
 	  rm -rf buildroot/*; \
 	fi
@@ -212,8 +219,8 @@ clean-buildroot:
 #
 clean-target:
 	@if [ `id -u` -ne 0 ]; then \
-	  sudo su -c "make --no-print-directory clean-target"; \
-	else \
+          sudo su -c "make --no-print-directory clean-target"; \
+        else \
 	  tput smso; echo "cleaning target"; tput rmso; \
 	  rm -rf target/*; \
 	fi
@@ -222,13 +229,13 @@ clean-target:
 #
 clean-sources:
 	@if [ `id -u` -ne 0 ]; then \
-	  sudo su -c "make --no-print-directory clean-sources"; \
-	else \
-	  tput smso; echo -n "cleaning sources"; tput rmso; \
-	  (cd sources; for I in `find -maxdepth 1 -mindepth 1 -type d`; do \
-	     if [ "$$I" != "CVS" ]; then \
-	       export BUILDDIR=`pwd`; make --no-print-directory -C $$I clean; \
-	     fi \
+          sudo su -c "make --no-print-directory clean-sources"; \
+        else \
+          tput smso; echo -n "cleaning sources"; tput rmso; \
+          (cd sources; for I in `find -maxdepth 1 -mindepth 1 -type d | sort`; do \
+             if [ "$$I" != "CVS" ]; then \
+               export BUILDDIR=`pwd`; make --no-print-directory -C $$I clean; \
+             fi \
 	  done); \
 	  echo; \
 	fi
@@ -237,8 +244,8 @@ clean-sources:
 #
 clean-tools:
 	@if [ `id -u` -ne 0 ]; then \
-	  sudo su -c "make --no-print-directory clean-tools"; \
-	else \
+          sudo su -c "make --no-print-directory clean-tools"; \
+        else \
 	  tput smso; echo "cleaning tools"; tput rmso; \
 	  rm -rf ../tools/*; \
 	fi
@@ -247,12 +254,13 @@ clean-tools:
 #
 clean-distrib:
 	@if [ `id -u` -ne 0 ]; then \
-	  sudo su -c "make --no-print-directory clean-distrib"; \
-	else \
-	  tput smso; echo "cleaning distrib"; tput rmso; \
-	  cd ..; rm -rf `ls -C1 . | egrep -v "build|tools"` ; \
-	  ls -ls ..; \
-	fi
+          sudo su -c "make --no-print-directory clean-distrib"; \
+        else \
+          tput smso; echo "cleaning distrib"; tput rmso; \
+          cd ..; rm -rf `ls -C1 . | egrep -v "build|tools"` ; \
+          echo "Only build and tools should print:"; \
+          ls -dC * | sed -e 's/^/  /'; \
+        fi
 
 # Sweep up the trail of bread crumbs
 #
@@ -276,16 +284,16 @@ clean-stage3-crumbs:
 
 clean-final-crumbs:
 	@if [ `id -u` -ne 0 ]; then \
-	  sudo su -c "make clean-final-crumbs"; \
-	else \
+          sudo su -c "make clean-final-crumbs"; \
+        else \
 	  tput smso; echo "cleaning final crumbs"; tput rmso; \
 	  rm -f sources/*/Final*.{out,built} crumbs/Final* crumbs/resolv.conf; \
 	fi
 
 clean-media-crumbs:
 	@if [ `id -u` -ne 0 ]; then \
-	  sudo su -c "make clean-media-crumbs"; \
-	else \
+          sudo su -c "make clean-media-crumbs"; \
+        else \
 	  tput smso; echo "cleaning media crumbs"; tput rmso; \
 	  rm -f sources/*/Media*.{out,built} crumbs/Media*; \
 	fi

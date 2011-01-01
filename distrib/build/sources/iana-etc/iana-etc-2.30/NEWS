@@ -1,0 +1,15 @@
+
+This file only lists changes that may require attention from installers or
+(rarely) users.  If there is no entry for a release, it contained only
+data updates or internal changes.  For more complete news and news before
+version 2.10, see http://www.sethwklein.net/projects/iana-etc/
+
+Version 2.30
+    *	Changed the format of the port-aliases file.
+Version 2.20
+    *	Added make STRIP=yes
+Version 2.10
+    *	Added make test
+
+For older news, see http://www.sethwklein.net/projects/iana-etc/
+

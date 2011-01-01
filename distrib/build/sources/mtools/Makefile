@@ -7,9 +7,10 @@
 include ../Makefile.conf
 
 PACKAGE = mtools
-VERSION = 3.9.10
+VERSION = 4.0.15
 
-BASE_URL = http://mtools.linux.lu/
+BASE_URL = ftp://ftp.gnu.org/gnu/mtools/
+EXTENSION = .tar.gz
 
 INSTALL = yes
 

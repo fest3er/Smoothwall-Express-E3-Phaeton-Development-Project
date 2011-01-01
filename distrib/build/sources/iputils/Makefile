@@ -7,14 +7,16 @@
 include ../Makefile.conf
 
 PACKAGE = iputils
-VERSION = 20020927
+#VERSION = 20020927
+VERSION = s20100214
 
-BASE_URL = http://ftp.debian.org/debian/pool/main/i/iputils/
+BASE_URL = http://www.skbuff.net/iputils
 
-DIR = $(PACKAGE)
-TARBALL = $(PACKAGE)_$(VERSION).orig
+#DIR = $(PACKAGE)
+EXTENSION=.tar.bz2
+#TARBALL = $(PACKAGE)_$(VERSION).orig
 
-PATCH_FILE1 = iputils_20020927-6.diff.gz
+#PATCH_FILE1 = iputils_20020927-6.diff.gz
 
 CONFIGURE = yes
 INSTALL = yes

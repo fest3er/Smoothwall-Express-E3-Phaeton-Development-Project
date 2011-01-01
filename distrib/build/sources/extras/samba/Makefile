@@ -9,7 +9,7 @@ include ../../Makefile.conf
 #Samba added by Daniel for development only.
 
 PACKAGE = samba
-VERSION = 3.0.20
+VERSION = 3.5.6
 
 BASE_URL = http://samba.org/samba/ftp/
 

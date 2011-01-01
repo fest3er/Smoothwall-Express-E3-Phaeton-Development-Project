@@ -1,8 +1,0 @@
---- ipp2p-0.8.2/libipt_ipp2p.c	2009-08-21 22:07:42.000000000 -0400
-+++ a.c	2009-08-21 22:10:19.000000000 -0400
-@@ -1,4 +1,5 @@
- 
-+#include <limits.h>
- #include <stdio.h>
- #include <netdb.h>
- #include <string.h>

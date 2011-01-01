@@ -107,6 +107,8 @@
 /* ============================================================================ */
 /* ifaliasup check and update aliases      Version 3.3.0  10/08/18        --slp */
 /* ============================================================================ */
+/* add source IP to mask for VPN issue     Version 3.3.1  10/12/03        --slp */
+/* ============================================================================ */
 
 #include <iostream>
 #include <fstream>
@@ -135,17 +137,18 @@ extern "C"
 {
  int load(std::vector<CommandFunctionPair> & );
 
- int set_xtaccess(std::vector<std::string> & parameters, std::string          & response);
- int set_portfw(std::vector<std::string>   & parameters, std::string          & response);
- int ifaliasup(std::vector<std::string>    & parameters, std::string          & response);
- int ifaliasdown(std::vector<std::string>  & parameters, std::string          & response);
+ int set_xtaccess(std::vector<std::string> & parameters, std::string       & response);
+ int set_portfw(std::vector<std::string>   & parameters, std::string       & response);
+ int ifaliasup(std::vector<std::string>    & parameters, std::string       & response);
+ int ifaliasdown(std::vector<std::string>  & parameters, std::string       & response);
  int get_alias(std::vector<std::string>    & parameters);
- int rmdupes(std::vector<std::string>      & parameters, const std::string    & newparm);
+ int rmdupes(std::vector<std::string>      & parameters, const std::string & newparm);
  int errrpt(const std::string              & parameter);
  int snet2cidr(const std::string           & parameters);
- int readether(std::vector<std::string>    & parameters, std::string    & target);
+ int readether(std::vector<std::string>    & parameters, std::string       & target);
  int chkaliases(std::vector<std::string>   & parameters);
  int wrtaliases(std::string                & response);
+ int edit_crontab(std::vector<std::string> & parameters, std::string       & response);
 }
 
 //#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
@@ -158,15 +161,20 @@ int load(std::vector<CommandFunctionPair> & pairs)
           int group that is switched to during execution,
           int version will supersede earlier .so versions);
  */
- CommandFunctionPair set_xtaccess_function ("setxtaccess","set_xtaccess",0,0,330);
- CommandFunctionPair set_portfw_function   ("setportfw",    "set_portfw",0,0,330);
- CommandFunctionPair ifalias_down_function ("ifaliasdown", "ifaliasdown",0,0,330);
- CommandFunctionPair ifalias_up_function   ("ifaliasup",     "ifaliasup",0,0,330);
+
+ int version = 331;
+
+ CommandFunctionPair set_xtaccess_function ("setxtaccess","set_xtaccess",0,0,version);
+ CommandFunctionPair set_portfw_function   ("setportfw",    "set_portfw",0,0,version);
+ CommandFunctionPair ifalias_down_function ("ifaliasdown", "ifaliasdown",0,0,version);
+ CommandFunctionPair ifalias_up_function   ("ifaliasup",     "ifaliasup",0,0,version);
+ CommandFunctionPair edit_crontab_function ("write2crontab", "edit_crontab",0,0,version);
 
  pairs.push_back(set_xtaccess_function);
  pairs.push_back(set_portfw_function);
  pairs.push_back(ifalias_down_function);
  pairs.push_back(ifalias_up_function);
+ pairs.push_back(edit_crontab_function);
 
  return 0;
 }
@@ -175,8 +183,9 @@ int load(std::vector<CommandFunctionPair> & pairs)
 int set_xtaccess(std::vector<std::string> & parameters, std::string & response)
 {
  std::string ifacefile    = "/var/smoothwall/red/iface";
- std::string configfile   = "/var/smoothwall/xtaccess/config";
- std::string aliasfile    = "/var/smoothwall/portfw/aliases";
+ std::string cmdprefix    = "/var/smoothwall";
+ std::string configfile   = cmdprefix + "/xtaccess/config";
+ std::string aliasfile    = cmdprefix + "/portfw/aliases";
 
  ConfigSTR ifacef(ifacefile);
  ConfigCSV config(configfile);
@@ -252,8 +261,8 @@ int set_xtaccess(std::vector<std::string> & parameters, std::string & response)
   }
   if (red_ip == "")
   {
-   response = "Abort, could not find an alias match in (" + configfile +
-    ") with (" + aliasfile + ") for an IP in the XTAccess rule";
+   response = "Abort, could not find an alias match in (" + configfile + ") with (" +
+    aliasfile + ") for an IP in the XTAccess rule";
    return errrpt(response);
   }
   destination = " -d " + red_ip;
@@ -265,8 +274,8 @@ int set_xtaccess(std::vector<std::string> & parameters, std::string & response)
 
   if (enabled == "on")
   {
-   rmdupes(ipb, "iptables -t filter -A xtaccess -i " + iface + " -d " +
-    red_ip + " -p " + protocol + dport_out + " -s " + remip + " -j ACCEPT");
+   rmdupes(ipb, "iptables -t filter -A xtaccess -i " + iface + " -d " + red_ip + 
+    " -p " + protocol + dport_out + " -s " + remip + " -j ACCEPT");
   }
  }
 
@@ -287,9 +296,10 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
 
  std::string localipfile = "/var/smoothwall/red/local-ipaddress";
  std::string ifacefile = "/var/smoothwall/red/iface";
- std::string configfile = "/var/smoothwall/portfw/config";
- std::string aliasfile = "/var/smoothwall/portfw/aliases";
- std::string sncheckfile = "/var/smoothwall/portfw/subcheck";
+ std::string cmdprefix = "/var/smoothwall";
+ std::string configfile = cmdprefix + "/portfw/config";
+ std::string aliasfile = cmdprefix + "/portfw/aliases";
+ std::string sncheckfile = cmdprefix + "/portfw/subcheck";
  ConfigSTR   localip(localipfile);
  ConfigSTR   red_iface(ifacefile);
  ConfigCSV   fwdconf(configfile);
@@ -352,7 +362,7 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
  std::string orange_ifip = "";
  std::string purple_if   = "";
  std::string purple_ifip = "";
-/*
+ /*
  The mark_mask value can only be used if we switch to CONNMARK tracking
  std::string mark_mask   = "0xFFF00000/";
  //=============================================================================>
@@ -361,7 +371,7 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
  // applications using CMARKs must be aware of this, always using a CMARK mask
  // that is not greater than 0x000FFFFF.  Available only if we use CONNMARK
  //=============================================================================>
-*/
+ */
  rmdupes (ipb, "iptables -t filter -F portfwf");  // filtering rules  (moved stk)
  rmdupes (ipb, "iptables -t nat -F portfw");      // DNAT forwarding        (stk)
  rmdupes (ipb, "iptables -t mangle -F portfwb");  // MARK bounce & OMask    (stk)
@@ -413,9 +423,9 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
     char cidr[5] = "";
     sprintf((char*) cidr, "/%d", snet2cidr(f_addmask));
 
-    std::string scpostfixl = (" -i " + green_if + " -s ! " + green_ifip + cidr +
+    std::string scpostfixl = (" -i " + green_if + " ! -s " + green_ifip + cidr +
      sclogpre + f_ifcolor + sclogpost);
-    std::string scpostfixr = (" -i " + green_if + " -s ! " + green_ifip + cidr +
+    std::string scpostfixr = (" -i " + green_if + " ! -s " + green_ifip + cidr +
      sclogrej);
 
     rmdupes (ipb, scprefixf + " subnetchk" + scpostfixl);
@@ -431,9 +441,9 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
     char cidr[5] = "";
     sprintf((char*) cidr, "/%d", snet2cidr(f_addmask));
 
-    std::string scpostfixl = (" -i " + orange_if + " -s ! " + orange_ifip + cidr +
+    std::string scpostfixl = (" -i " + orange_if + " ! -s " + orange_ifip + cidr +
      sclogpre + f_ifcolor + sclogpost);
-    std::string scpostfixr = (" -i " + orange_if + " -s ! " + orange_ifip + cidr +
+    std::string scpostfixr = (" -i " + orange_if + " ! -s " + orange_ifip + cidr +
      sclogrej);
 
     rmdupes (ipb, scprefixf + " subnetchk" + scpostfixl);
@@ -449,9 +459,9 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
     char cidr[5] = "";
     sprintf((char*) cidr, "/%d", snet2cidr(f_addmask));
 
-    std::string scpostfixl = (" -i " + purple_if + " -s ! " + purple_ifip + cidr +
+    std::string scpostfixl = (" -i " + purple_if + " ! -s " + purple_ifip + cidr +
      sclogpre + f_ifcolor + sclogpost);
-    std::string scpostfixr = (" -i " + purple_if + " -s ! " + purple_ifip + cidr +
+    std::string scpostfixr = (" -i " + purple_if + " ! -s " + purple_ifip + cidr +
      sclogrej);
 
     rmdupes (ipb, scprefixf + " subnetchk" + scpostfixl);
@@ -470,13 +480,12 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
    rmdupes (ipb, "iptables -t mangle -A portfwb -s " + f_mask2add +
     " -j MARK --set-mark " + conn_mark);
 
-   rmdupes (ipb, "iptables -t nat -A portfw_post -o " + red_if +
-    " -m mark --mark " + conn_mark + " -j SNAT --to-source " +
-     f_ipaddress);
+   rmdupes (ipb, "iptables -t nat -A portfw_post -o " + red_if + " -s " + f_mask2add +
+    " -m mark --mark " + conn_mark + " -j SNAT --to-source " + f_ipaddress);
   }
   if (mark_seq > 0x8FF)
   {
-   response = "Abort, more than 255 aliases are not supported, reduce alias count.";
+   response = "Abort, more than 255 aliases not supported, reduce alias count.";
    return errrpt (response);
   }
   if (error)
@@ -716,13 +725,14 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
    {
     // must be a space between "!" and the value
 
-    if (negated_source) temp_source = "! " + temp_source;
     srcipmac_out = " -s " + temp_source;
+    if (negated_source) srcipmac_out = " !" + srcipmac_out;
    }
    if (temp_source.find_first_not_of(MAC_HEX) == std::string::npos)
    {
-    if (negated_source) temp_source = "! " + temp_source;
-    srcipmac_out = " -m mac --mac-source " + temp_source;
+    srcipmac_out = " -m mac ";
+    if (negated_source) srcipmac_out = srcipmac_out + "! ";
+    srcipmac_out = srcipmac_out + "--mac-source " + temp_source;
    }
    tgt_out = " -j " + f_action;
    if (f_action == "LOG") tgt_out = " -j LOG --log-prefix ..FFC..";
@@ -740,7 +750,7 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
     ifc_in_out + prot_out + srcipmac_out + dest_out + dport_out + dnat_out);
 
    rmdupes (ipb, "iptables -t filter -A portfwf -m state --state NEW" +
-    ifc_in_out + ifc_out_out + prot_out + srcipmac_out + fwdest_out +
+    ifc_out_out + prot_out + srcipmac_out + fwdest_out +
      fwdport_out + tgt_out);
 
    // In the INPUT chain we should not ACCEPT since EXTACCESS should be the
@@ -797,16 +807,16 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
   std::string pfw_post_post = " -j SNAT --to-source ";
 
   if (green_if != "")
-   rmdupes (ipb, pfw_post_pre + conn_green  + " -o " + green_if  +
-   pfw_post_post + green_ifip);
+   rmdupes (ipb, pfw_post_pre + conn_green  + " -o " + green_if  + pfw_post_post +
+    green_ifip);
 
   if (purple_if != "")
-   rmdupes (ipb, pfw_post_pre + conn_purple + " -o " + purple_if +
-   pfw_post_post + purple_ifip);
+   rmdupes (ipb, pfw_post_pre + conn_purple + " -o " + purple_if + pfw_post_post +
+    purple_ifip);
 
   if (orange_if != "")
-   rmdupes (ipb, pfw_post_pre + conn_orange + " -o " + orange_if +
-   pfw_post_post + orange_ifip);
+   rmdupes (ipb, pfw_post_pre + conn_orange + " -o " + orange_if + pfw_post_post +
+    orange_ifip);
  }
  //=============================================================================>
  // Pass the built up vector of strings to ipbatch to build IPTables entries
@@ -861,17 +871,30 @@ int snet2cidr(const std::string & argc)
   ref != NULL; ref = strtok(NULL, "."))
  {
   data = safeatoi (ref);
+
+  // Let's check for some odd numbers to get things correct
+  // If we get a value that is greater than 255 we are in deep doo-doo
+
+  if (data > 255) return -1;  // A return of -1 should alert the caller
+
+  if (data > 248 && data < 252) data = 248;
+  if (data > 240 && data < 248) data = 240;
+  if (data > 224 && data < 240) data = 224;
+  if (data > 192 && data < 224) data = 192;
+  if (data > 128 && data < 192) data = 128;
+
   switch (data)
   {
-   case 255: count+= 8; break;
-   case 254: count++;
-   case 252: count++;
-   case 248: count++;
-   case 240: count++;
-   case 224: count++;
-   case 192: count++;
-   case 128: count++;
-   default: done = true;
+   case 255: count+= 8; break;  // 11111111  Get the next nybble
+   case 254: count++;           // 11111110  Anything less than 255
+   case 253:                    // 11111101  will be the last nybble
+   case 252: count++;           // 11111100  
+   case 248: count++;           // 111110XX  These are all handled by
+   case 240: count++;           // 11110XXX  the IF statements above
+   case 224: count++;           // 1110XXXX
+   case 192: count++;           // 110XXXXX
+   case 128: count++;           // 10XXXXXX
+   default: done = true;        // 0XXXXXXX
   }
   if ( ++counter > 3) done = true;
  }
@@ -885,7 +908,8 @@ int wrtaliases(std::string & response)
 {
  int error = 0;
  unsigned int i = 0;
- std::string varfile   = "/var/smoothwall/portfw/aliases";
+ std::string cmdprefix = "/var/smoothwall";
+ std::string varfile   = cmdprefix + "/portfw/aliases";
  std::vector<std::string> argv;
  FILE * varhandle;
 
@@ -896,16 +920,16 @@ int wrtaliases(std::string & response)
   response = "Abort, could not create or open (" + varfile + ") file";
   return errrpt(response);
  }
-
  while ( i < argv.size() )
  {
   fputs((char*) argv[i++].c_str(), varhandle);
  }
  fclose(varhandle);
 
- error += simplesecuresysteml("/bin/chown", "nobody:nobody", varfile.c_str(), NULL);
+ error += simplesecuresysteml("/bin/chown","nobody:nobody",varfile.c_str(),NULL);
 
  response = "Successfully updated aliases file.";
+ if (error) response = "Abort while attempting to update aliases file.";
 
  return errrpt(response);
 }
@@ -913,10 +937,11 @@ int wrtaliases(std::string & response)
 //#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
 int chkaliases(std::vector<std::string> & argv)
 {
- std::string aliasfile      = "/var/smoothwall/portfw/aliases";
+ std::string cmdprefix = "/var/smoothwall";
+ std::string aliasfile = cmdprefix + "/portfw/aliases";
+ std::string args      = "RED";
+ int error             = 0;
  ConfigCSV   aliases(aliasfile);
- std::string args = "RED";
- int error = 0;
 
  error += readether(argv, args);
  args   = "GREEN";
@@ -930,13 +955,20 @@ int chkaliases(std::vector<std::string> & argv)
  {
   if (aliases[0].find_first_of(":") != std::string::npos)
   {
-	std::string larg;
-   unsigned int i = 0;
+   std::string larg;
 
-   while (i < 9)
-   {
-  	 larg += aliases[i++] + ",";
-   }
+   // Stepping through the array with an index might be simpler and quicker, 
+   // but explicits allow us to replace selected values easily in the future
+   
+   larg  = aliases[0] + ",";
+   larg += aliases[1] + ",";
+   larg += aliases[2] + ",";
+   larg += aliases[3] + ",";
+   larg += aliases[4] + ",";
+   larg += aliases[5] + ",";
+   larg += aliases[6] + ",";
+   larg += aliases[7] + ",";
+   larg += aliases[8] + ",";
    larg += aliases[9] + "\n";
    argv.push_back(larg);
   }
@@ -958,7 +990,6 @@ int readether(std::vector<std::string> & argv, std::string & args)
  ConfigSTR   rediface(redfile);
 
  buildit += args + ",";
-
  if (args == "RED")
  {
   buildit += rediface.str() + ",";
@@ -974,13 +1005,11 @@ int readether(std::vector<std::string> & argv, std::string & args)
   sprintf((char *)between, "%s%s", args.c_str(), "_ADDRESS");
   buildit += ether[(const char *) between] + ",";
  }
- 
  sprintf((char *)between, "%s%s", args.c_str(), "_NETMASK");
  buildit += ether[(const char *) between] + ",";
  sprintf((char *)between, "%s%s", args.c_str(), "_BROADCAST");
  buildit += ether[(const char *) between] + ",";
  buildit += "on,on,,\n";
-
  argv.push_back(buildit);
 
 return 0;
@@ -1004,10 +1033,10 @@ int ifaliasdown(std::vector<std::string> & parameters, std::string & response)
   return errrpt(response);
  }
 
- while ( i < argc.size() )
+ while (i < argc.size())
  {
   errrpt("pulling down (" + argc[i] + ")");
-  error += simplesecuresysteml("/sbin/ifconfig", argc[i++].c_str(), "down", NULL);
+  error += simplesecuresysteml("/sbin/ifconfig",argc[i++].c_str(),"down",NULL);
  }
 
  response = "Successfully brought down alias interfaces.";
@@ -1057,11 +1086,12 @@ int ifaliasup(std::vector<std::string> & parameters, std::string & response)
 
  std::vector<std::string> argv;
 
- std::string varfile        = "/var/smoothwall/portfw/snort.var";
- std::string localipfile    = "/var/smoothwall/red/local-ipaddress";
- std::string aliasfile      = "/var/smoothwall/portfw/aliases";
+ std::string cmdprefix = "/var/smoothwall";
+ std::string varfile     = cmdprefix + "/portfw/snort.var";
+ std::string localipfile = "/var/smoothwall/red/local-ipaddress";
+ std::string aliasfile   = cmdprefix + "/portfw/aliases";
  ConfigCSV   aliases(aliasfile);
-	ConfigSTR   localip(localipfile);
+ ConfigSTR   localip(localipfile);
  std::string::size_type n;
  char home_net[5000] = "";
  char * hnptr = home_net;
@@ -1081,7 +1111,7 @@ int ifaliasup(std::vector<std::string> & parameters, std::string & response)
 
  response = "Bringing alias interfaces up";
  error = errrpt(response);
- hnptr += sprintf(hnptr, "%s/32,", homenet.c_str());
+ hnptr += sprintf(hnptr, "%s,", homenet.c_str());
 
  for (int line = aliases.first(); line == 0; line = aliases.next())
  {
@@ -1091,27 +1121,31 @@ int ifaliasup(std::vector<std::string> & parameters, std::string & response)
   std::string f_net     = aliases[4];
   std::string f_bcst    = aliases[5];
 
-  if ((n = f_ifalias.find_first_of(":")) != std::string::npos &&
-   aliases[7] == "on")
+  if ((n = f_ifalias.find_first_of(":")) != std::string::npos && aliases[7] == "on")
   {
    // Add the alias to HOME_NET if it is enabled and we have room (with
    // 255 aliases maximum should be less than 4878 plus 28 chars at finish)
 
    if ((n = f_color.find("RED")) != std::string::npos)
-    hnptr += sprintf(hnptr, "%s/32,", f_ip.c_str());
+    hnptr += sprintf(hnptr, "%s,", f_ip.c_str());
 
 
    errrpt("bringing up alias (" + f_ifalias + ")");
 
    if (f_ifalias.find_first_of("p") != std::string::npos)
-    error += simplesecuresysteml("/sbin/ifconfig", f_ifalias.c_str(),
-     f_ip.c_str(), "netmask", f_net.c_str(), "up", NULL);
+
+    error += simplesecuresysteml("/sbin/ifconfig",f_ifalias.c_str(),f_ip.c_str(),
+     "netmask",f_net.c_str(),"up",NULL);
+
    else
-   	error += simplesecuresysteml("/sbin/ifconfig", f_ifalias.c_str(), f_ip.c_str(),
-    	"netmask", f_net.c_str(), "broadcast", f_bcst.c_str(), "up", NULL);
+
+    error += simplesecuresysteml("/sbin/ifconfig",f_ifalias.c_str(),f_ip.c_str(),
+     "netmask",f_net.c_str(),"broadcast",f_bcst.c_str(),"up",NULL);
   }
  }
- hnptr += sprintf(--hnptr, "]%s", "\n");
+ // backup one space to overwrite the trailing comma
+
+ hnptr += sprintf(--hnptr, "]\n");
 
  if (!(varhandle = fopen(varfile.c_str(), "w")))
  {
@@ -1126,6 +1160,24 @@ int ifaliasup(std::vector<std::string> & parameters, std::string & response)
 
  response = "Successfully brought up alias interfaces.";
  if (error) response = "Abort while bringing up alias interfaces";
+
+ return errrpt(response);
+}
+
+//#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
+int edit_crontab(std::vector<std::string> & parameters, std::string & response)
+{
+ std::string cmdprefix = "/var/smoothwall";
+ std::string write2crontab = cmdprefix + "/timed_files/write2crontab.pl";
+ int error = 0;
+
+ response = "Editing crontab";
+ errrpt(response);
+ response = "Edit crontab successful";
+
+ error = simplesecuresysteml(write2crontab.c_str(), NULL, NULL);
+
+ if (error) response = "Edit crontab failed!";
 
  return errrpt(response);
 }

@@ -11,9 +11,6 @@ VERSION = 1.12
 
 BASE_URL = ftp://ftp.gnu.org/gnu/wget
 
-include ../Makefile.rules
-
-
 ifeq ($(BUILD_PHASE), Stage_3)
 CONFIG_OPTS = --without-ssl
 endif
@@ -24,4 +21,6 @@ endif
 
 COMPILE = yes
 compile: configure
-	make $(JOBS) -C $(COMPILE_DIR)
+        make $(JOBS) -C $(COMPILE_DIR)
+
+include ../Makefile.rules

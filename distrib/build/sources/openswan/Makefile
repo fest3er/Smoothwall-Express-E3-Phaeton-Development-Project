@@ -16,9 +16,10 @@ BASE_URL = http://www.openswan.org/download/
 TARBALL = $(FREESWAN_TYPE)-$(VERSION)
 
 PATCH_FILE1 = makefile.patch
+PATCH_FILE2 = setup.in.patch
 
 unpack: $(DIR)/
-	@true
+        @true
 
 CONFIGURE = yes
 COMPILE = yes
@@ -32,9 +33,9 @@ configure: patch
 	
 CFLAGS:=$(CFLAGS) -fno-strict-aliasing
 compile: configure
-	#@make -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin programs
-	@make -j 4 -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin KERNELSRC=$(KNL_SRC) programs
-	@make -j 4 -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin KERNELSRC=$(KNL_SRC) module
+        #@make -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin programs
+        @make $(JOBS) -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin KERNELSRC=$(KNL_SRC) programs
+        @make $(JOBS) -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin KERNELSRC=$(KNL_SRC) module
 
 
 KNL_SRC = $(SOURCES_DIR)/kernel$(SWETYPE)/linux

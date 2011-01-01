@@ -99,6 +99,9 @@ echo 1 > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
 echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 echo 0 > /proc/sys/net/ipv4/tcp_ecn
 
+# enable conntrack accounting
+sysctl net.netfilter.nf_conntrack_acct=1
+
 echo "Bringing network up"
 . /etc/rc.d/rc.netaddress.up
 

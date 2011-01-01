@@ -19,13 +19,13 @@ INSTALL = yes
 CLEAN = yes
 
 configure: patch
-	@true
+        @true
 
 compile: configure
-	make -C $(DIR) PREFIX=$(PKG_DIR) all
+        make $(JOBS) -C $(DIR) PREFIX=$(PKG_DIR) all
 
 install: compile
-	@mkdir -p $(PKG_ROOT)
+        @mkdir -p $(PKG_ROOT)
 	make -C $(DIR) PREFIX=$(PKG_DIR) DESTDIR=$(PKG_ROOT) install
 
 clean:

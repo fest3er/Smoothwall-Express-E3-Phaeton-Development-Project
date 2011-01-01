@@ -1,0 +1,15 @@
+# Copyright (c) 2003-2004, 2008 Seth W. Klein <sk@sethwklein.net>
+# Licensed under the Open Software License version 3.0
+# See the file COPYING in the distribution tarball or
+# http://www.opensource.org/licenses/osl-3.0.txt
+
+# Port/Service Alias List
+
+# Format:
+# o # to end of line is comment
+# o blank lines are ignored
+# o <name> <protocol> <alias> ...
+
+nicname tcp whois
+nicname udp whois
+

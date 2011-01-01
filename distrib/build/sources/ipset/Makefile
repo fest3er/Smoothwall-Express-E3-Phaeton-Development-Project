@@ -42,10 +42,10 @@ INSTALL = yes
 
 
 configure: $(DIR)/ patch
-	true
+        true
 
 compile: configure
-	KERNEL_DIR=$(KNL_DIR) make -C $(COMPILE_DIR)
+        KERNEL_DIR=$(KNL_DIR) make $(JOBS) -C $(COMPILE_DIR)
 
 
 install: compile

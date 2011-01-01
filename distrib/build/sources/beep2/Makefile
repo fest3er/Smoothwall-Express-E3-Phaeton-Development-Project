@@ -11,14 +11,22 @@ VERSION = 1.2a
 
 BASE_URL =  http://www.kip.iis.toyama-u.ac.jp/~shingo/beep/package/src/
 
+DOWNLOAD = yes
 CONFIGURE = yes
 INSTALL = yes
+CLEAN = yes
 
-configure: patch
-	@true
-	
+download:
+        @true
+
+configure:
+        @true
+        
 install: compile
-	@mkdir -p $(PKG_ROOT)
-	@make -C $(DIR) PREFIX=$(PKG_ROOT)/usr/ install
+        @mkdir -p $(PKG_ROOT)
+        @make -C $(DIR) PREFIX=$(PKG_ROOT)/usr/ install
+
+clean:
+        @make -C $(DIR) clean >/dev/null 2>&1
 
 include ../Makefile.rules

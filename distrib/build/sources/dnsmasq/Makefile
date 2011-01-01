@@ -16,13 +16,13 @@ COMPILE = yes
 INSTALL = yes
 
 configure: $(DIR)/
-	@true
+        @true
 
 compile: configure
-	@make -C $(DIR) CFLAGS="$(CFLAGS) -DHAVE_ISC_READER"
+        @make $(JOBS) -C $(DIR) CFLAGS="$(CFLAGS) -DHAVE_ISC_READER"
 
 install: compile
-	@mkdir -p $(PKG_ROOT)
+        @mkdir -p $(PKG_ROOT)
 	@(cd $(DIR); \
         install -s -D src/dnsmasq $(PKG_ROOT)$(PKG_DIR)/bin/dnsmasq);
 

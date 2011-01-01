@@ -1,0 +1,14 @@
+--- openswan-src/programs/setup/setup.in-ORIG  2010-12-21 01:08:42.000000000 +0000
++++ openswan-src/programs/setup/setup.in       2010-12-21 01:08:45.000000000 +0000
+@@ -116,6 +116,10 @@
+     (
+     ipsec _realsetup start
+     RETVAL=$? 
++
++    if test -e /proc/net/ipsec/eroute/all; then
++      chmod 444 /proc/net/ipsec/eroute/all
++    fi
+     ) 2>&1 | logger -s -p $IPSECsyslog -t ipsec_setup 2>&1  
+     return $RETVAL
+ }
+

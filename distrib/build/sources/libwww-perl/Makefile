@@ -7,9 +7,10 @@
 include ../Makefile.conf
 
 PACKAGE = libwww-perl
-VERSION = 5.805
+VERSION = 5.837
 
-BASE_URL = http://cpan.m.flirble.org/authors/id/G/GA/GAAS/
+#BASE_URL = http://cpan.m.flirble.org/authors/id/G/GA/GAAS/
+BASE_URL = http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/
 
 
 CONFIGURE = yes

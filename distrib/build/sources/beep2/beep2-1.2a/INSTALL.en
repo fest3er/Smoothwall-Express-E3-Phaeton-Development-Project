@@ -1,0 +1,42 @@
+beep2 version 1.2a install instruction.
+Copyright (C) 2002 YAMAGUCHI Shingo <shingo@kip.iis.toyama-u.ac.jp>
+
+Quick install
+
+  1. Edit "Makefile" and set install path (binary and manual). If you
+     do not use Japanese manual, Please comment out these lines.
+
+     install.man:
+        gzip -c9 man/en/beep2.1 > man/en/beep2.1.gz
+        install -m 0644 man/en/beep2.1.gz $(MANDIR)
+     //   gzip -c9 man/ja/beep2.1 > man/ja/beep2.1.gz  <= comment out
+     //   install -m 0644 man/ja/beep2.1.gz $(JMANDIR) <= comment out
+
+  2. Edit "config.h" and set output device. 
+
+     If you need not to use logging function, disable "SYSTEM_LOGGING"
+     option. The default is enabled.
+
+     If you use FreeBSD or any other BSD-like OS, enable "OSTYPE_BSD"
+     option. The default is impremented for Linux.
+
+  3. Run "make".
+
+  4. Run "make install" as root.
+
+  5. (Optional) Config syslog.
+
+
+Caution
+
+  This program runs on below platforms:
+
+    Linux 2.2 (ix86, glibc 2.1)
+    Linux 2.2 (ix86, libc 5.4.46)
+    Linux 2.2 (PowerPC, linuxPPC, glibc 2.0.7)
+    FreeBSD 4.0 release (ix86)
+    FreeBSD 4.1 release (ix86)
+
+  If you run it any other platform, please tell author.
+
+  It does not run on "HARDWARE LIMITED" beep systems like Sun WS.

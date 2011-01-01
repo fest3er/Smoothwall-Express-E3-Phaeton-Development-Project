@@ -7,25 +7,25 @@
 include ../Makefile.conf
 
 PACKAGE = imspector
-VERSION = 20090728
+VERSION = 0.9
 
-BASE_URL = http://www.imspector.org/downloads/snapshots/
+BASE_URL = http://www.imspector.org/downloads/
 
 CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
 OPTS = PREFIX=$(PKG_ROOT)$(PKG_DIR) SSL_DIR=/usr/ssl
-DIR = imspector
+DIR = imspector-$(VERSION)
 
 configure: patch
-	@true
+        @true
 
 compile: configure
-	@make -C $(DIR) $(OPTS)
+        @make $(JOBS) -C $(DIR) $(OPTS)
 
 install: compile
-	@mkdir -p $(PKG_ROOT)
+        @mkdir -p $(PKG_ROOT)
 	@make -C $(DIR) $(OPTS) install
 	@rm -f $(PKG_ROOT)$(PKG_DIR)/etc/imspector/imspector.conf
 

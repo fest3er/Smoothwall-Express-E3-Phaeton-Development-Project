@@ -1,0 +1,40 @@
+beep2 version 1.2a インストール解説
+Copyright (C) 2002 YAMAGUCHI Shingo <shingo@kip.iis.toyama-u.ac.jp>
+
+Quick install
+
+  1. Makefile を編集して実行ファイルとマニュアルのインストール先を
+     適切に設定してください。
+
+  2. config.h を編集して出力デバイスを設定してください。通常はデフォルト
+     のままで構いません。
+
+     デフォルトではログ機能が有効になっていますが、もし無効にしたい場合は
+     SYSTEM_LOGGING を無効にしてください。
+
+     もし FreeBSD などの BSD 系 OS をお使いなら OSTYPE_BSD オプションを
+     有効にしてください。デフォルトでは Linux 用の実装となります。
+
+  3. make します。
+
+  4. root で make install します。
+
+  5. (オプション) syslog を適宜設定してください。
+
+注意
+
+  このプログラムは以下の環境で動作確認されています。
+
+    Linux 2.2 (ix86, glibc 2.1)
+    Linux 2.2 (ix86, libc 5.4.46)
+    Linux 2.2 (PowerPC, LinuxPPC, glibc 2.0.7)
+    FreeBSD 4.0 release (ix86)
+    FreeBSD 4.1 release (ix86)
+
+  これ以外の環境で動作された方は作者までご報告いただければ幸いです。
+  特に ix86 以外の環境でのテストが行われていないのでよろしくお願い
+  します。
+
+  なお、Sun WS のように、物理的な変更でしか周波数変化ができない
+  ビープ機構を搭載している機種では動作してもあまり意味がないと
+  思います。
