@@ -14,7 +14,7 @@ CONFIGURE = yes
 INSTALL = yes
 CLEAN = yes
 
-$(DIR): download
+$(DIR)/: download
 	@tar xfvj $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
 
 configure: $(DIR)
