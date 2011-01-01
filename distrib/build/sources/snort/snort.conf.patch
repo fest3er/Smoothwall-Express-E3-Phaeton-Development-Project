@@ -5,7 +5,7 @@
  # like this:
  
 -var HOME_NET any
-+include /etc/snort/vars
++include /var/smoothwall/portfw/snort.var
 +
 +#var HOME_NET any
  
