@@ -7,17 +7,15 @@ VERSION = 2.1.9-1
 #BASE_URL = http://www.ramereth.net/openwrt/src/distfiles/
 BASE_URL = http://www.no-ip.com/client/linux/
 
-EXTENSION = .tar.gz
-
 PREPARE = yes
 CONFIGURE = yes
 INSTALL = yes
 CLEAN = yes
 
 $(DIR)/: download
-	@tar xfvj $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
+	@tar xfv $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
 
-configure: $(DIR)
+configure: $(DIR)/
 	@true
 
 install: compile
