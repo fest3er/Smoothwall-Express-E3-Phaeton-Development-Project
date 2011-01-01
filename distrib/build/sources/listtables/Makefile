@@ -10,10 +10,10 @@ PACKAGE = listtables
 VERSION = 0.0
 
 compile:
-        @make $(JOBS) -C $(COMPILE_DIR)
+	@make $(JOBS) -C $(COMPILE_DIR)
 
 install: compile
-        @mkdir -p $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 	@install -o root -g nobody -m 4750 -D $(COMPILE_DIR)/listtables $(PKG_ROOT)/usr/sbin/listtables
 
 all: install

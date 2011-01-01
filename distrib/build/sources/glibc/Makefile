@@ -32,7 +32,7 @@ $(DIR)/: download
 	tar -jxvf $(DOWNLOADS_DIR)/$(DIR)$(EXTENSION)
 	mkdir -p $(COMPILE_DIR)
 	cd $(COMPILE_DIR); \
-          echo "CFLAGS += -march=i686 -mtune=native" > configparms
+	  echo "CFLAGS += -march=i686 -mtune=native" > configparms
 
 COMPILE = yes
 INSTALL = yes

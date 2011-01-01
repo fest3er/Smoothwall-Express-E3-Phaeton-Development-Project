@@ -20,10 +20,10 @@ configure: $(DIR)/
 	@echo >>$(COMPILE_DIR)/includes/site.h "#define _PATH_DHCPD_CONF \"/usr/etc/dhcpd.conf\""
 
 install: compile
-        @mkdir -p $(PKG_ROOT)$(PKG_DIR)/etc
-        @touch $(PKG_ROOT)$(PKG_DIR)/etc/dhcpd.leases
-        @install -D $(COMPILE_DIR)/server/dhcpd $(PKG_ROOT)$(PKG_DIR)/sbin/dhcpd
-        @install -D $(COMPILE_DIR)/relay/dhcrelay $(PKG_ROOT)$(PKG_DIR)/sbin/dhcrelay
+	@mkdir -p $(PKG_ROOT)$(PKG_DIR)/etc
+	@touch $(PKG_ROOT)$(PKG_DIR)/etc/dhcpd.leases
+	@install -D $(COMPILE_DIR)/server/dhcpd $(PKG_ROOT)$(PKG_DIR)/sbin/dhcpd
+	@install -D $(COMPILE_DIR)/relay/dhcrelay $(PKG_ROOT)$(PKG_DIR)/sbin/dhcrelay
 
-        
+	
 include ../Makefile.rules

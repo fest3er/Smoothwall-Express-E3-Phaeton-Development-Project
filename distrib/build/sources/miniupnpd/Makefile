@@ -20,13 +20,13 @@ COMPILE = yes
 INSTALL = yes
 
 configure: patch
-        @true
+	@true
 
 compile: configure
-        @make $(JOBS) -C $(DIR) -f Makefile.linux \
-          CFLAGS="-DIPTABLES_143 -DUSE_NETFILTER \
-            -I../../iptables/iptables-$(IPTABLES_VER)/include" \
-          LDFLAGS="-L$(IPT_LIBEXEC) -liptc"
+	@make $(JOBS) -C $(DIR) -f Makefile.linux \
+	  CFLAGS="-DIPTABLES_143 -DUSE_NETFILTER \
+	    -I../../iptables/iptables-$(IPTABLES_VER)/include" \
+	  LDFLAGS="-L$(IPT_LIBEXEC) -liptc"
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

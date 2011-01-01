@@ -18,14 +18,14 @@ COMPILE = yes
 INSTALL = yes
 
 configure: patch
-        @find $(DIR) -type d -exec chmod +rx {} \;
-        @true
+	@find $(DIR) -type d -exec chmod +rx {} \;
+	@true
 
 compile: configure
-        @make $(JOBS) -C $(DIR) PREFIX=/usr
+	@make $(JOBS) -C $(DIR) PREFIX=/usr
 
 install: compile
-        @mkdir -p $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 	make -C $(DIR) PREFIX=$(PKG_ROOT)$(PKG_DIR) install
 
 include ../Makefile.rules

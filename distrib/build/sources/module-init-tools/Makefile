@@ -18,6 +18,6 @@ PKG_DIR =
 COMPILE = yes
 
 compile: configure
-        @make $(JOBS) -C $(DIR) DOCBOOKTOMAN=/bin/true
+	@make $(JOBS) -C $(DIR) DOCBOOKTOMAN=/bin/true
 
 include ../Makefile.rules

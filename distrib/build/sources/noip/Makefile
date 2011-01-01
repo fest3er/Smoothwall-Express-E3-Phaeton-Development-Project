@@ -15,23 +15,23 @@ INSTALL = yes
 CLEAN = yes
 
 $(DIR): download
-        @tar xfvj $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
+	@tar xfvj $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
 
 configure: $(DIR)
 	@true
 
 install: compile
-        @mkdir -p $(PKG_ROOT)
-        @install -D $(COMPILE_DIR)/binaries/noip2-i686 $(PKG_ROOT)$(PKG_DIR)/bin/noip
+	@mkdir -p $(PKG_ROOT)
+	@install -D $(COMPILE_DIR)/binaries/noip2-i686 $(PKG_ROOT)$(PKG_DIR)/bin/noip
 
 clean:
-        @echo -n " $(PACKAGE)"
-        @rm -rf $(DIR)
-        @rm -f ._$(PACKAGE)-$(VERSION)
-        @rm -rf $(COMPILE_DIR)
+	@echo -n " $(PACKAGE)"
+	@rm -rf $(DIR)
+	@rm -f ._$(PACKAGE)-$(VERSION)
+	@rm -rf $(COMPILE_DIR)
 ifeq ($(BUILD_PHASE), Final)
-        rm -rf $(PKG_ROOT); mkdir $(PKG_ROOT)
-        @rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
+	rm -rf $(PKG_ROOT); mkdir $(PKG_ROOT)
+	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 endif
 
 include ../Makefile.rules

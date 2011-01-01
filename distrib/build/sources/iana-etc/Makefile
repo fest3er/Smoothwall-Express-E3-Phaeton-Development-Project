@@ -19,16 +19,16 @@ INSTALL = yes
 CLEAN = yes
 
 download:
-        @true
+	@true
 
 configure: 
-        @true
-        
+	@true
+	
 install: compile
-        @mkdir -p $(PKG_ROOT)/etc
-        @make -C $(COMPILE_DIR) PREFIX=$(PKG_ROOT) install
+	@mkdir -p $(PKG_ROOT)/etc
+	@make -C $(COMPILE_DIR) PREFIX=$(PKG_ROOT) install
 
 clean:
-        @make -C $(COMPILE_DIR) clean >/dev/null 2>&1
+	@make -C $(COMPILE_DIR) clean >/dev/null 2>&1
 
 include ../Makefile.rules

@@ -23,7 +23,7 @@ INSTALL_LANGUAGES = English
 BUILDTARBALL = yes
 
 SQUID_BITS = ./usr/bin/ ./usr/libexec/ ./usr/sbin/squid \
-             ./usr/etc/mime.conf ./usr/share/
+	     ./usr/etc/mime.conf ./usr/share/
 
 $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz: install
 	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) $(SQUID_BITS)

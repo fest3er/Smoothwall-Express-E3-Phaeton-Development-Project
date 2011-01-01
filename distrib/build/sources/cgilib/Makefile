@@ -10,13 +10,13 @@ COMPILE = yes
 INSTALL = yes
 
 configure: $(DIR)/
-        @true
+	@true
 
 compile: configure
-        @cd $(DIR) && make $(JOBS)
+	@cd $(DIR) && make $(JOBS)
 
 install: compile
-        @mkdir -p $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 	@install -D $(COMPILE_DIR)/libcgi.a $(PKG_ROOT)/usr/lib/libcgi.a
 	@install -D $(COMPILE_DIR)/cgi.h $(PKG_ROOT)/usr/include/cgi.h
 

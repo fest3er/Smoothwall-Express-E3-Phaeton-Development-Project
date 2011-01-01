@@ -30,10 +30,10 @@ compile: configure
 	sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../kernel.config$(SWETYPE)-klibc > linux-$(KLIBKERNVER)/.config
 	cd linux-$(KLIBKERNVER); make prepare headers_install
 	cd linux-$(KLIBKERNVER); ln -s ../arch/x86/include/asm include/asm
-        cd $(DIR); \
-          make mrproper; \
-          ln -sf ../linux-$(KLIBKERNVER) linux; \
-          make $(JOBS)
+	cd $(DIR); \
+	  make mrproper; \
+	  ln -sf ../linux-$(KLIBKERNVER) linux; \
+	  make $(JOBS)
 
 INSTALL = yes
 install: compile

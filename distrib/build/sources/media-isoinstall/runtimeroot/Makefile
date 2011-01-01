@@ -46,18 +46,18 @@ klibc:
 
 
 all: clean bin lib klibc
-        @mkdir -p tmp/sys
-        @for i in $(ROOTDIRS); do mkdir -p tmp/$$i; done
-        @ln -s bin tmp/sbin
-        @cp -aR $(BB)/bin/busybox tmp/bin
-        @cd tmp/bin; for FILE in $(BBPROGS); do ln -s busybox $$FILE; done
-        #@cd tmp; ln -sv /bin/busybox init
-        @cd tmp; cp ../etc/runt-init init; chmod 555 init
+	@mkdir -p tmp/sys
+	@for i in $(ROOTDIRS); do mkdir -p tmp/$$i; done
+	@ln -s bin tmp/sbin
+	@cp -aR $(BB)/bin/busybox tmp/bin
+	@cd tmp/bin; for FILE in $(BBPROGS); do ln -s busybox $$FILE; done
+	#@cd tmp; ln -sv /bin/busybox init
+	@cd tmp; cp ../etc/runt-init init; chmod 555 init
 
-        @(cd tmp; \
-          install -D /usr/share/terminfo/l/linux usr/share/terminfo/l/linux; \
-          cp -aR /lib/ld-*.so /lib/ld-*.so.* /lib/libc-*.so /lib/libc.so.* lib; \
-          cp -aR ../etc/fstab etc; \
+	@(cd tmp; \
+	  install -D /usr/share/terminfo/l/linux usr/share/terminfo/l/linux; \
+	  cp -aR /lib/ld-*.so /lib/ld-*.so.* /lib/libc-*.so /lib/libc.so.* lib; \
+	  cp -aR ../etc/fstab etc; \
 	  cp -aR ../etc/group etc; \
 	  cp -aR ../etc/mtab etc; \
 	  cp -aR ../etc/passwd etc; \
@@ -65,16 +65,16 @@ all: clean bin lib klibc
 	  cp -aR ../etc/termcap etc; \
 	  cp -aR ../etc/udev.rc etc; chmod 755 etc/udev.rc; \
 	  cp -aR ../etc/halt etc; chmod 755 etc/halt; \
-          cp -aR ../etc/modules.conf etc; \
-          cp -aR ../etc/storagedevices etc; \
-        ) > /dev/null 2>&1
-        @(cd tmp/etc; \
-          gawk -f ../../etc/fill-pci-ids.awk < /usr/share/pci.ids > filled.pci.ids;\
-        ) > /dev/null 2>&1
-        @(cd tmp; \
-          for i in $(SWE_PKGS); do \
-            tar xfz /build/target/smoothwall-$$i.tar.gz; \
-          done; \
+	  cp -aR ../etc/modules.conf etc; \
+	  cp -aR ../etc/storagedevices etc; \
+	) > /dev/null 2>&1
+	@(cd tmp/etc; \
+	  gawk -f ../../etc/fill-pci-ids.awk < /usr/share/pci.ids > filled.pci.ids;\
+	) > /dev/null 2>&1
+	@(cd tmp; \
+	  for i in $(SWE_PKGS); do \
+	    tar xfz /build/target/smoothwall-$$i.tar.gz; \
+	  done; \
 	  touch etc/ld.so.conf; \
 	  /sbin/ldconfig -r .; \
 	  mkdir dev/ida dev/rd; \
@@ -93,21 +93,21 @@ all: clean bin lib klibc
 	) > /dev/null 2>&1
 
 ifdef BITS_64
-        @(cd tmp; ln -s lib lib64)
+	@(cd tmp; ln -s lib lib64)
 endif
 
-        @touch tmp/cdrominstall
+	@touch tmp/cdrominstall
 
-        @/build/striptree tmp
+	@/build/striptree tmp
 
-        @# Build the runtime initramfs CPIO archive
-        @cd tmp; find . | cpio -o -H newc | gzip > ../../$(RUNTIME_ROOT)image.gz
+	@# Build the runtime initramfs CPIO archive
+	@cd tmp; find . | cpio -o -H newc | gzip > ../../$(RUNTIME_ROOT)image.gz
 
-        @#rm -rf installroot/
-        @echo -e "runtimeroot build for $(MEDIA) complete\n\n"
-        
+	@#rm -rf installroot/
+	@echo -e "runtimeroot build for $(MEDIA) complete\n\n"
+	
 clean:
-        rm -rf $(RUNTIME_ROOT) tmp/
+	rm -rf $(RUNTIME_ROOT) tmp/
 	rm -f ../$(RUNTIME_ROOT)image.gz
 	rm -f $(RUNTIME_ROOT)image.gz
 	rm -rf runtimeroot/

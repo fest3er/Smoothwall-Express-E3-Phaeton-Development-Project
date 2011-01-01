@@ -19,13 +19,13 @@ OPTS = PREFIX=$(PKG_ROOT)$(PKG_DIR) SSL_DIR=/usr/ssl
 DIR = imspector-$(VERSION)
 
 configure: patch
-        @true
+	@true
 
 compile: configure
-        @make $(JOBS) -C $(DIR) $(OPTS)
+	@make $(JOBS) -C $(DIR) $(OPTS)
 
 install: compile
-        @mkdir -p $(PKG_ROOT)
+	@mkdir -p $(PKG_ROOT)
 	@make -C $(DIR) $(OPTS) install
 	@rm -f $(PKG_ROOT)$(PKG_DIR)/etc/imspector/imspector.conf
 

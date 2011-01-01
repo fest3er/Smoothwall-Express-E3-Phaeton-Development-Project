@@ -21,6 +21,6 @@ endif
 
 COMPILE = yes
 compile: configure
-        make $(JOBS) -C $(COMPILE_DIR)
+	make $(JOBS) -C $(COMPILE_DIR)
 
 include ../Makefile.rules

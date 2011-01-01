@@ -18,9 +18,9 @@ INSTALL = yes
 PATCH_FILE1 = oinkmaster.pl.patch
 
 install: patch
-        find $(COMPILE_DIR) -type d -exec chmod +rx {} \;
-        @mkdir -p $(PKG_ROOT)
-        @install -D $(COMPILE_DIR)/oinkmaster.pl $(PKG_ROOT)/usr/bin/oinkmaster.pl
-        @install -D $(COMPILE_DIR)/oinkmaster.conf $(PKG_ROOT)/usr/lib/smoothwall/oinkmaster.conf
+	find $(COMPILE_DIR) -type d -exec chmod +rx {} \;
+	@mkdir -p $(PKG_ROOT)
+	@install -D $(COMPILE_DIR)/oinkmaster.pl $(PKG_ROOT)/usr/bin/oinkmaster.pl
+	@install -D $(COMPILE_DIR)/oinkmaster.conf $(PKG_ROOT)/usr/lib/smoothwall/oinkmaster.conf
 
 include ../Makefile.rules
