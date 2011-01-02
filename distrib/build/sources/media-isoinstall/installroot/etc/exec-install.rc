@@ -25,6 +25,13 @@ do-sid /bin/bash 7 BG
 #/bin/iowrap /dev/tty7 /bin/bash&
 MYBASHPID=$!
 
+# set ATIME first thing
+  case $noatime in
+    1) ATIME="";;
+    2) ATIME=",noatime";;
+    *) ATIME="";;
+  esac
+
 CONFIG_ROOT=/var/smoothwall
 
 TITLE="$CLS           ${BOUL}Smoothwall Express 3 (Roadster Test Vehicle) Installation$NO"
@@ -221,17 +228,13 @@ echo
   set -- $FS
 
   echo >/dev/tty2
+  OPTION="defaults$ATIME"
   FSTYPE=$2
   if [ "$FSTYPE" == "reiserfs" ]; then
-    OPTION="notail	"
+    ROOTOPTION="notail$ATIME	"
   else
-    OPTION="defaults"
+    $ROOTOPTION=$OPTION
   fi
-  case $noatime in
-    1) ATIME="";;
-    2) ATIME=",noatime";;
-    *) ATIME="";;
-  esac
   (
     echo "proc          /proc           proc            defaults        0       0"
     echo "sys           /sys            sysfs           defaults        0       0"
@@ -239,9 +242,9 @@ echo
     echo "devpts                /dev/pts        devpts          defaults        0       0"
     echo "/dev/harddisk2        none            swap            sw              0       0"
     echo
-    echo "/dev/harddisk4        /               $FSTYPE         $OPTION$ATIME           0       1"
-    echo "/dev/harddisk1        /boot           $FSTYPE         defaults$ATIME  0       2"
-    echo "/dev/harddisk5        /var/log        $FSTYPE         defaults$ATIME  0       2"
+    echo "/dev/harddisk4        /               $FSTYPE         $ROOTOPTION           0       1"
+    echo "/dev/harddisk1        /boot           $FSTYPE         $OPTION  0       2"
+    echo "/dev/harddisk5        /var/log        $FSTYPE         $OPTION  0       2"
   ) >/harddisk/etc/fstab
   echo "$FTYPE" >/harddisk/etc/modules
   cat /harddisk/etc/fstab >/dev/tty2
@@ -281,9 +284,9 @@ END
   set -- $FS
   FSTYPE=$2
   if [ "$FSTYPE" == "reiserfs" ]; then
-    OPTION="notail	"
+    OPTION="notail$ATIME	"
   else
-    OPTION="defaults"
+    OPTION="defaults$ATIME"
   fi
 
   OPWD=`pwd`
