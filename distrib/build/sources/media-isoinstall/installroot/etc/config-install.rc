@@ -422,7 +422,7 @@ while [ 1 == 1 ]; do
   echo -en "\033[23;0fOK? "
   read a #</dev/tty
   if [ x$a == "xyes" ]; then
-    export hd CD dev maxMiB filesys loader
+    export hd CD dev maxMiB filesys loader noatime
     break;
   elif [ x$a == "xno" ]; then
     echo "Restarting installation configuration..."
