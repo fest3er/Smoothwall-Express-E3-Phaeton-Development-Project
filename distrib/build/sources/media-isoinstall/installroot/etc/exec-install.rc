@@ -227,16 +227,21 @@ echo
   else
     OPTION="defaults"
   fi
+  case $noatime in
+    1) ATIME="";;
+    2) ATIME=",noatime";;
+    *) ATIME="";;
+  esac
   (
-    echo "proc		/proc		proc		defaults	0	0"
-    echo "sys		/sys		sysfs		defaults	0	0"
+    echo "proc          /proc           proc            defaults        0       0"
+    echo "sys           /sys            sysfs           defaults        0       0"
     echo "dev		/dev		devfs		defaults	0	0"
-    echo "devpts		/dev/pts	devpts		defaults	0	0"
-    echo "/dev/harddisk2	none		swap		sw		0	0"
+    echo "devpts                /dev/pts        devpts          defaults        0       0"
+    echo "/dev/harddisk2        none            swap            sw              0       0"
     echo
-    echo "/dev/harddisk4	/		$FSTYPE		$OPTION		0	1"
-    echo "/dev/harddisk1	/boot		$FSTYPE		defaults	0	2"
-    echo "/dev/harddisk5	/var/log	$FSTYPE		defaults	0	2"
+    echo "/dev/harddisk4        /               $FSTYPE         $OPTION$ATIME           0       1"
+    echo "/dev/harddisk1        /boot           $FSTYPE         defaults$ATIME  0       2"
+    echo "/dev/harddisk5        /var/log        $FSTYPE         defaults$ATIME  0       2"
   ) >/harddisk/etc/fstab
   echo "$FTYPE" >/harddisk/etc/modules
   cat /harddisk/etc/fstab >/dev/tty2
@@ -291,7 +296,7 @@ END
   do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* ${HDTMP}/etc/udev/rules.d/"
 
   (
-    echo "/dev/${hd_dev[$hd]}4  /harddisk       $FSTYPE $OPTION         0       1"
+    echo "/dev/${hd_dev[$hd]}4	/harddisk	$FSTYPE	$OPTION		0	1"
   ) >${HDTMP}/etc/fstab
   echo "$FSTYPE" >${HDTMP}/etc/modules
   do_or_die "/bin/chroot ${HDTMP} /sbin/depmod -a"

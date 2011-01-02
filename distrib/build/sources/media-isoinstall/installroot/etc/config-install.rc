@@ -298,22 +298,22 @@ done
 #
 loader=2
 
-#while [ 1 -eq 1 ]; do
-#  # Boot loader
-#  echo -en "$TITLE"
-#  echo
-#  echo
-#  echo -e "${BO}Boot Loader${NO}"
-#
-#  i=1; echo "  $i. LILO (default)"
-#  i=2; echo "  $i. GRUB"
-#  echo
-#
-#  echo -n "[1]        Selection: "
-#  read loader #</dev/tty
-#  if [ x$loader == x ]; then loader="1"; fi
-#  if [ $loader -lt 3 ]; then break; fi
-#done
+while [ 1 -eq 1 ]; do
+  # noatime
+  echo -en "$TITLE"
+  echo
+  echo
+  echo -e "${BO}Record File Access Times${NO}"
+
+  i=1; echo "  $i. Yes (default)"
+  i=2; echo "  $i. No (enable 'noatime' for /, /boot and /var/log)"
+  echo
+
+  echo -n "[1]        Selection: "
+  read noatime #</dev/tty
+  if [ x$noatime == x ]; then noatime="1"; fi
+  if [ $noatime -lt 3 ]; then break; fi
+done
 
 # setup is limited to eth[0-3]; so skip NIC renaming for now.
 #
@@ -392,10 +392,11 @@ while [ 1 == 1 ]; do
     3) echo -e "  Using serial port for both ${BO}boot & login${NO}";;
     4) echo -e "  ${BO}Not using${NO} serial port"
   esac
-  if [ $loader == "1" ]; then
-    echo -e "  Installing ${BO}LILO${NO} boot loader"
+  echo -e "  Installing ${BO}GRUB${NO} boot loader"
+  if [ $noatime == "1" ]; then
+    echo -e "  Recording file access time"
   else
-    echo -e "  Installing ${BO}GRUB${NO} boot loader"
+    echo -e "  ${BO}NOT${NO} recording file access times"
   fi
   echo
 
