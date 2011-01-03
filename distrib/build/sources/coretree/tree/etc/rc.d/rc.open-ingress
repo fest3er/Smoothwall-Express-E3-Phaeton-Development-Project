@@ -1,0 +1,11 @@
+#! /bin/sh
+
+echo -n "Deleting ingress policing barricade for"
+for i in "$GREEN_DEV" "$RED_DEV" "$ORANGE_DEV" "$PURPLE_DEV"; do
+  if [ "$i" != "" ]; then
+    echo -n " $i"
+    /usr/sbin/tc qdisc del dev $i handle ffff: ingress
+  fi
+done
+
+echo

@@ -1,0 +1,21 @@
+#! /bin/sh
+
+echo "Loading modules for temporary ingress policers"
+for i in sch_ingress cls_u32 act_police; do modprobe $i; done
+
+echo -n "Blocking all traffic on"
+for i in "$GREEN_DEV" "$RED_DEV" "$ORANGE_DEV" "$PURPLE_DEV"; do
+  if [ "$i" != "" ]; then
+    echo -n " $i"
+    # Delete it silently, Justin Case
+    /usr/sbin/tc qdisc del dev $i handle ffff: ingress >/dev/null 2>&1
+    # Add the ingress qdisc and the policing filter
+    /usr/sbin/tc qdisc add dev $i handle ffff: ingress
+    /usr/sbin/tc filter add dev $i parent ffff: \
+      protocol ip prio 50 \
+      u32 match ip src 0.0.0.0/0 \
+      police mtu 1 drop flowid :1
+  fi
+done
+
+echo

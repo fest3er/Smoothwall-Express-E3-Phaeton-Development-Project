@@ -191,6 +191,11 @@ echo "Silencing kernel, syslog output on tty12"
 echo "View the log files in /var/log to trace errors."
 echo "1 4 1 7" >/proc/sys/kernel/printk
 
+# Remove the policing barricades (delete the ingress qdiscs)
+. /etc/rc.d/rc.open-ingress
+# QoS implementations that use ingress policers MUST be started
+#   after this point!!!!!
+
 echo "Saving dmesg buffer to /var/log/dmesg"
 dmesg >/var/log/dmesg
 
