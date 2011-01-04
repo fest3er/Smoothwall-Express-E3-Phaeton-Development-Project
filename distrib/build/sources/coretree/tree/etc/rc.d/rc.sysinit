@@ -7,6 +7,8 @@
 
 . /var/smoothwall/main/settings
 
+export STARTSTOP="startup"
+
 umask 022
 
 echo "Setting hostname"
@@ -202,3 +204,5 @@ dmesg >/var/log/dmesg
 logger -t smoothwall "SmoothWall started."
 
 /usr/bin/sounds/startupsound
+
+unset STARTSTOP

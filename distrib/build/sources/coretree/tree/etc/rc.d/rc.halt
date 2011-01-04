@@ -2,6 +2,8 @@
 
 . /var/smoothwall/ethernet/settings
 
+export STARTSTOP="shutdown"
+
 echo "Shutting down..."
 
 # Block all inbound packets on all NICs
@@ -24,6 +26,8 @@ mount -n -o remount,ro /
 echo -ne \\a >/dev/console 
 
 /usr/bin/sounds/haltsound
+
+unset STARTSTOP
 
 if [ "$1" = "halt" ]; then
 	/sbin/halt -i -d -p
