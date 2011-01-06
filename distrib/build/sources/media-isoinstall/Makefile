@@ -167,8 +167,6 @@ cdrom/smoothwall.tgz:
 	  chmod u+s distrib/bin/traceroute; \
 	  chmod u+s distrib/usr/bin/ping; \
 	  chmod u+s distrib/usr/sbin/listtables; \
-	  chown root:nobody distrib/usr/bin/setuids/*; \
-	  chmod 4750 distrib/usr/bin/setuids/*; \
 	  mkdir -p /distrib/tmp; chmod 1777 distrib/tmp; \
 	) | sed -u -e 's/^/  /'
 	
