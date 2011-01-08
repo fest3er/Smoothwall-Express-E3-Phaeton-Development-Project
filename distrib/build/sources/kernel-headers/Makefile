@@ -12,7 +12,7 @@ PACKAGE = kernel-headers
 VERSION = 0.0
 
 download:
-	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/linux-$(KERNEL_VER).tar.bz2
+	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/longterm/v$(KERNEL_MMR)/linux-$(KERNEL_VER).tar.bz2
 
 install: download
 	@tar -jxvf $(DOWNLOADS_DIR)/linux-$(KERNEL_VER).tar.bz2

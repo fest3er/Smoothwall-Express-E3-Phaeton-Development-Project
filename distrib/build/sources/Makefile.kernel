@@ -12,7 +12,7 @@ COMPILER = /usr/bin/gcc
 
 
 download:
-	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/linux-$(K_RAW_VERSION).tar.bz2
+	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/longterm/v$(KERNEL_MMR)/linux-$(K_RAW_VERSION).tar.bz2
 
 
 unpack: download
