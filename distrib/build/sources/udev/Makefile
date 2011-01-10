@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = udev
-VERSION = 151
+VERSION = 165
 TARBALL = $(PACKAGE)-$(VERSION)
 
 BASE_URL = http://www.us.kernel.org/pub/linux/utils/kernel/hotplug/
@@ -49,12 +49,5 @@ compile: configure
 install: compile
 	@mkdir -p $(PKG_ROOT)
 	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
-	( \
-	  cd $(COMPILE_DIR); \
-	  install -m644 -vD rules/packages/64-*.rules \
-	      $(PKG_ROOT)$(PKG_DIR)/lib/udev/rules.d/; \
-	  install -m644 -vD rules/packages/40-isdn.rules \
-	      $(PKG_ROOT)$(PKG_DIR)/lib/udev/rules.d/; \
-	)
 
 include ../Makefile.rules
