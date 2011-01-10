@@ -151,6 +151,7 @@ fi
       build bash
       build file
       build libtool
+      build xz
       build bzip2
       build diffutils
       build kbd
