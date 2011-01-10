@@ -13,7 +13,7 @@ INSTALL = yes
 CLEAN = yes
 
 $(DIR)/: download
-	@tar xfv $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
+	@tar -xvf $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
 
 configure: $(DIR)/
 	@true

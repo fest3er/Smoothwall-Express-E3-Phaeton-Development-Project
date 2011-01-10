@@ -29,7 +29,7 @@ CONFIG_OPTS = --prefix=$(TOOLS_DIR) \
 PREPARE = yes
 # Prepare
 $(DIR)/: download
-	tar -jxvf $(DOWNLOADS_DIR)/$(DIR)$(EXTENSION)
+	tar -xvf $(DOWNLOADS_DIR)/$(DIR)$(EXTENSION)
 	mkdir -p $(COMPILE_DIR)
 	cd $(COMPILE_DIR); \
 	  echo "CFLAGS += -march=i686 -mtune=native" > configparms
@@ -79,7 +79,7 @@ download:
 PREPARE = yes
 # Prepare
 $(DIR)/: download
-	tar -jxvf $(DOWNLOADS_DIR)/$(DIR)$(EXTENSION)
+	tar -xvf $(DOWNLOADS_DIR)/$(DIR)$(EXTENSION)
 	cd $(DIR); \
 	  DL=$$(readelf -l /bin/sh | sed -n 's@.*interpret.*/tools\(.*\)]$$@\1@p') \
 	  sed -i "s|libs -o|libs -L/usr/lib -Wl,-dynamic-linker=$$DL -o|" \
@@ -120,6 +120,6 @@ BUILDTARBALL = yes
 # buildtarball
 $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz: install
 	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) .
-	@tar -zxvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C / --exclude ./etc/localtime
+	@tar -xvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C / --exclude ./etc/localtime
 
 include ../Makefile.rules

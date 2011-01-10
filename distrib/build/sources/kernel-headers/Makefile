@@ -15,7 +15,7 @@ download:
 	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/longterm/v$(KERNEL_MMR)/linux-$(KERNEL_VER).tar.bz2
 
 install: download
-	@tar -jxvf $(DOWNLOADS_DIR)/linux-$(KERNEL_VER).tar.bz2
+	@tar -xvf $(DOWNLOADS_DIR)/linux-$(KERNEL_VER).tar.bz2
 ifeq ($(BUILD_PHASE), Stage_1)
 	cd linux-$(KERNEL_VER); \
 	  make mrproper; \
@@ -43,7 +43,7 @@ endif
 build-tarball: install
 	@(cd $(PKG_ROOT); \
 	tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz .; \
-	tar -zxvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /);
+	tar -xvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /);
 
 clean:
 	@echo -n " $(PACKAGE)"

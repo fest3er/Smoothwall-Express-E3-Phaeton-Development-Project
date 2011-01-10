@@ -16,7 +16,7 @@ download:
 
 
 unpack: download
-	@tar -jxvf $(DOWNLOADS_DIR)/linux-$(K_RAW_VERSION).tar.bz2
+	@tar -xvf $(DOWNLOADS_DIR)/linux-$(K_RAW_VERSION).tar.bz2
 
 
 prepare: unpack
@@ -53,7 +53,7 @@ package-kernel: compile-kernel
 build-tarball: package-kernel $(PACKAGES)
 	@(cd $(PKG_ROOT); \
 	tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz .; \
-	tar -zxvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /);
+	tar -xvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /);
 
 
 clean:

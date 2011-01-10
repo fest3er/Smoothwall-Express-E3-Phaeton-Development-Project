@@ -26,7 +26,7 @@ configure: patch
 COMPILE = yes
 
 compile: configure
-	tar xvfj /build/downloads/linux-$(KLIBKERNVER).tar.bz2
+	tar -xvf /build/downloads/linux-$(KLIBKERNVER).tar.bz2
 	sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../kernel.config$(SWETYPE)-klibc > linux-$(KLIBKERNVER)/.config
 	cd linux-$(KLIBKERNVER); make prepare headers_install
 	cd linux-$(KLIBKERNVER); ln -s ../arch/x86/include/asm include/asm

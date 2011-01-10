@@ -9,10 +9,10 @@ include ../Makefile.conf
 PACKAGE = ipt_vis
 VERSION = 0.1
 DOWNLOAD = 1
-PREPARE=1
-PATCH=1
-CONFIGURE=1
-CLEAN=1
+PREPARE = yes
+PATCH = yes
+CONFIGURE = yes
+CLEAN = yes
 
 include ../Makefile.rules
 
