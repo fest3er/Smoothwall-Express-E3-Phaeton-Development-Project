@@ -78,7 +78,7 @@ CGAWK=0300
 VGAWK=3.0 #(/usr/bin/awk should be a link to gawk) 
 
 CGCC=030001
-CGCCM=040403 #(Versions greater than 4.4.3 are not recommended as they have not been tested) 
+CGCCM=040405
 VGCC=3.0.1
 
 CGLIBC=020205
