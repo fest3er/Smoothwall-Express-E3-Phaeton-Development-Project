@@ -10,7 +10,7 @@ include ../Makefile.versions
 
 PACKAGE = klibc
 VER_MM = 1.5
-VERSION = $(VER_MM).18
+VERSION = $(VER_MM).20
 
 BASE_URL = http://www.kernel.org/pub/linux/libs/klibc/$(VER_MM)/
 

@@ -5,12 +5,12 @@
 # This code is distributed under the terms of the GPL v2.
 
 # The system's kernel.
-KERNEL_MMR = 2.6.32
-KERNEL_VER = $(KERNEL_MMR).28
+KERNEL_MMR = 2.6.35
+KERNEL_VER = $(KERNEL_MMR).10
 
 # The kernel version headers needed to build klibc-2.6.18
 # Unrelated to the system's kernel
-KLIBKERNVER = 2.6.33.6
+KLIBKERNVER = 2.6.35.10
 
 SWETYPE = $(PRODUCT_EXTRA)
 K_RAW_VERSION = $(KERNEL_VER)
