@@ -34,7 +34,7 @@ compile-kernel: prepare
 	sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../kernel.config$(SWETYPE)-$(ARCH) > linux/.config
 
 	make -C linux CC=$(COMPILER) clean
-	make -C linux CC=$(COMPILER) oldconfig
+	make $(JOBS) -C linux CC=$(COMPILER) oldconfig
 	make $(JOBS) -C linux CC=$(COMPILER) bzImage
 	make $(JOBS) -C linux CC=$(COMPILER) modules
 

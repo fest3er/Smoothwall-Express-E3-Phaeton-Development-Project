@@ -9,7 +9,7 @@ include ../Makefile.versions
 
 PACKAGE = iproute2
 #VERSION = $(KERNEL_MMR)
-VERSION = 2.6.33
+VERSION = 2.6.37
 
 BASE_URL = http://devresources.linuxfoundation.org/dev/iproute2/download
 EXTENSION=.tar.bz2

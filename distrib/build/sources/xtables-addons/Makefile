@@ -11,7 +11,7 @@ include ../Makefile.versions
 PACKAGE = xtables-addons
 VERSION =  $(XTABLES_ADDONS_VER)
 
-EXTENSION = .tar.bz2
+EXTENSION = .tar.xz
 
 BASE_URL = http://downloads.sourceforge.net/project/xtables-addons/Xtables-addons/$(VERSION)
 
