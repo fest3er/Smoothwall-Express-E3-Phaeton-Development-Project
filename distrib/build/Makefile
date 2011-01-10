@@ -190,6 +190,9 @@ reprep-final:
 	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'cd /build; bash make_final --unwind'"
 	@if [ `id -u` -eq 0 ]; then CMD="bash"; else CMD="sudo su"; fi; \
 	   $$CMD -c "make clean-distrib clean-final-crumbs clean-buildroot clean-target"
+	@echo "You must run this twice in a row to complete the 'unwind' back"
+	@echo "  to the toolchain. If this is the first time through, please"
+	@echo "  run it again now!"
 
 # Clean the entire directory back to pristine plus downloaded tarballs
 clean:
