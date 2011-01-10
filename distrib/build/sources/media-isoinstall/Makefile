@@ -29,7 +29,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    ez-ipupdate noip cdrtools \
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
 	    reiserfsprogs xtables-addons zlib slang cpio \
-	    udev lm_sensors \
+	    udev lm_sensors xz \
 	    Net-Netmask NetAddr-IP sysfsutils \
 	    coretree
 
