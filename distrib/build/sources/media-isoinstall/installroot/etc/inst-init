@@ -204,6 +204,7 @@ echo
     mount -n -o move /proc /harddisk/proc
 
     cd /harddisk
+    chroot . /bin/bash -c "/sbin/depmod -a; /sbin/udevadm trigger; /sbin/udevadm settle"
     chroot . /usr/sbin/setup /dev/tty2 INSTALL
 
   echo -ne $CLS

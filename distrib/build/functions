@@ -122,6 +122,7 @@ function build_tc_stage_3() {
   buildenv ncurses 1
   buildenv flex 1
   buildenv bash 1
+  buildenv xz 1
   buildenv bzip2 1
   buildenv coreutils 1
   buildenv diffutils 1 

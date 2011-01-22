@@ -27,15 +27,7 @@ endif
 
 ifndef PREPARE
 $(DIR)/: download
-ifeq ($(EXTENSION),.tar.gz)
-	@tar -zxvf $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
-endif
-ifeq ($(EXTENSION),.tgz)
-	@tar -zxvf $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
-endif
-ifeq ($(EXTENSION),.tar.bz2)
-	@tar -jxvf $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
-endif
+	@tar -xvf $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
 endif
 
 ifndef PATCH
