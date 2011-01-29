@@ -21,9 +21,11 @@ PCI_IDS="/etc/filled.pci.ids"
 # Uber title
 TITLE="$CLS            ${BOUL}Smoothwall Express 3 (Phaeton Development) Installation$NO"
 
+echo -e $TITLE; echo
 #echo "Preparing lists of CDROM and hard drives and NICs"
 echo "Preparing lists of CDROM and hard drives"
-OPWD=$PWD;cd /sys/block
+OPWD=$PWD
+cd /sys/block
 
 typeset -i tries cd_cnt hd_cnt WORK_IDX sum
 tries=0
@@ -46,14 +48,30 @@ while [ 1 -eq 1 ]; do
       # if an optical drive, add it to /tmp/cd.list
       egrep "$CDs" $a/device/modalias >/dev/null 2>&1
       if [ $? -eq 0 ]; then
-        echo "$a `cat $a/size`" >> /tmp/cd.list
+        size=$1
+        UDEVINFO="/sbin/udevadm info --path=${PWD}/$a --query=all"
+        model=`$UDEVINFO | grep ID_MODEL= | sed -e 's/.*=//'`
+        [ -z "$model" ] && model=`cat $a/device/model | sed -e 's/ /-/g'`
+        [ -z "$model" ] && model="UNK_MODEL"
+        serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
+        [ -z "$serial" ] && serial=`cat $a/device/serial >/dev/null | sed -e 's/ /-/g'`
+        [ -z "$serial" ] && serial="UNK_SERIAL"
+        echo "$a $size $model $serial" >> /tmp/cd.list
       fi
       # if a disk drive, add it to /tmp/hd.list
       egrep "$HDs" $a/device/modalias >/dev/null 2>&1
       if [ $? -eq 0 ]; then
         set `cat $a/size`
         if [ $1 -gt 0 ]; then
-          echo "$a `cat $a/size`" >> /tmp/hd.list
+          size=$1
+          UDEVINFO="udevadm info --path=${PWD}/$a --query=all"
+          model=`$UDEVINFO | grep "ID_MODEL=" | sed -e 's/.*=//'`
+          [ -z "$model" ] && model=`cat $a/device/model | sed -e 's/ /-/g'`
+          [ -z "$model" ] && model="UNK_MODEL"
+          serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
+          [ -z "$serial" ] && serial=`cat $a/device/serial >/dev/null | sed -e 's/ /-/g'`
+          [ -z "$serial" ] && serial="UNK_SERIAL"
+          echo "$a $size $model $serial" >> /tmp/hd.list
         fi
       fi
     fi
@@ -66,7 +84,7 @@ while [ 1 -eq 1 ]; do
   cd_cnt=$1
 
   # Let's not quit after finding one of each. Rather, shorten the total search time
-  #   to 15 seconds. It's only the initial install boot; the delay shouldn't be too
+  #   to 10 seconds. It's only the initial install boot; the delay shouldn't be too
   #   onerous.
   # Old time points were 12,24,18,30,36
 
@@ -116,13 +134,16 @@ while [ 1 -eq 1 ]; do
   WORK_IDX=WORK_IDX+1
   [ $WORK_IDX -eq 4 ] && WORK_IDX=0
 
-  usleep 500000
+  usleep 333333
   tries=tries+1
 done
 cd $OPWD
 
 echo "Finished finding drives"
 sleep 5
+
+# Always show remaining writable drives as potential sources
+ALT_CD=1
 
 # skip NICs until setup works
 if [ 1 -lt 0 ]; then
@@ -155,16 +176,18 @@ while [ 1 -eq 1 ]; do
   echo -en "$TITLE"
   echo
   echo
-  echo -e "${BO}Disk Drive Selection$NO"
+  echo -e "${BO}Target Disk Drive Selection$NO"
 
   unset b
   typeset -i i b h
   i=1
-  while read a b; do
+  while read a b c d; do
     b=b/2/1024
     hd_dev[$i]=$a
     hd_size[$i]=$b
-    echo -n "  $i. $a - ${hd_size[$i]}MiB"
+    hd_model[$i]=$c
+    hd_id[$i]=$d
+    echo -n "  $i. $a - ${hd_size[$i]}MiB (${hd_id[$i]})"
     if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
     i=i+1
   done < /tmp/hd.list
@@ -177,32 +200,42 @@ while [ 1 -eq 1 ]; do
   if [ $hd -lt $i ]; then break; fi
 done
 
+# Get the by-id name
+set `head -$hd /tmp/hd.list|tail -1`
+hd_sel=$1
+set `ls -ls /dev/disk/by-id | egrep $hd_sel"$" | head -1`
+shift 9
+hd_dev=$1
+
 while [ 1 -eq 1 ]; do
   # CD/DVD Drive selection
   echo -en "$TITLE"
   echo
   echo
-  echo -e "${BO}CD/DVD/Flash Drive Selection${NO}"
+  echo -e "${BO}Source Media Selection${NO}"
 
   i=1
-  while read a b; do
+  while read a b c d; do
     cd_dev[$i]=$a
-    echo -n "  $i. $a"
+    cd_model[$i]=$b
+    cd_id[$i]=$c
+    echo -n "  $i. $a - $b ($c)"
     if [ $i -eq 1 ]; then echo "( default)"; else echo; fi
     i=i+1
   done < /tmp/cd.list
   OPTI_CNT=$i
   if [ $ALT_CD -eq 1 ]; then
     h=1
-    while read a b; do
+    while read a b c d; do
       if [ $h -ne $hd ]; then
         b=b/2/1024
-        hd_dev[$i]=$a
-        hd_size[$i]=$b
-        echo -n "  $i. $a - ${hd_size[$i]}MiB"
+        cd_dev[$i]=$a
+        cd_model[$i]=$c
+        cd_id[$i]=$d
+        echo -n "  $i. $a - ${cd_size[$i]}MiB ${cd_model[$i]} (${cd_id[$i]})"
         if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
+        i=i+1
       fi
-      i=i+1
       h=h+1
     done < /tmp/hd.list
   fi
@@ -211,13 +244,8 @@ while [ 1 -eq 1 ]; do
   echo -n "[1]        Selection: "
   read CD #</dev/tty
   if [ x$CD == "x" ]; then CD=1; fi
-  if [ $CD -lt $OPTI_CNT ]; then break; fi
-  # if allowing 'HD' devices...
-  if [ $CD -lt $i ]; then 
-    cd_dev[1]=${hd_dev[$CD]}
-    CD=1
-    break
-  fi
+  if [ x${cd_dev[$CD]} == x ]; then continue; fi
+  if [ $CD -lt $i ]; then break; fi
 done
 
 while [ 1 -eq 1 ]; do
@@ -249,6 +277,7 @@ while [ 1 -eq 1 ]; do
   driveMiB="${hd_size[$hd]}"
   echo "      Press <ENTER> to use entire disk or enter a number between"
   echo "      $minMiB and $driveMiB to limit disk usage to that many MiB."
+  echo "      Unused space will be available for extended partitions."
   echo
 
   echo -en "[whole disk]        Selection: "
@@ -369,8 +398,8 @@ while [ 1 == 1 ]; do
 
   echo "Confirm installation configuration"
   echo
-  echo -e "  Installing on ${BO}/dev/${hd_dev[$hd]}${NO}"
-  echo -e "  Booting from drive ${BO}/dev/${cd_dev[$CD]}${NO}"
+  echo -e "  Installing on target ${BO}/dev/disk/by-id/${hd_id[$hd]}${NO}"
+  echo -e "  Booting from source drive ${BO}/dev/${cd_dev[$CD]}${NO}"
   if [ $dev -eq 1 ]; then
     echo -e "  ${BO}Skipping${NO} development packages"
   else

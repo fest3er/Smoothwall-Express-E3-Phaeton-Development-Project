@@ -3,6 +3,8 @@
 # Re-run udevd
 /sbin/udevd --daemon
 /sbin/udevadm trigger
+/sbin/udevadm trigger --subsystem-match=block
+/sbin/udevadm trigger --attr-match=modalias
 /sbin/udevadm settle
 
 . /var/smoothwall/main/settings
@@ -58,6 +60,7 @@ mount -f /
 mount -f /proc
 mount -f /sys
 mount -f /dev
+mount -f /dev/pts
 
 
 echo -n "Checking other filesystems : "
@@ -96,7 +99,6 @@ chmod 660 /dev/ttyS*
 chmod 660 /dev/ttyI*
 chmod 1777 /tmp
 find /var/run -name '*.pid' -type f -exec rm -f '{}' \;
-rm -f /usr/etc/dhcpc/*.pid
 rm -f /var/smoothwall/red/*
 rm -f /var/lock/LCK..ttyS*
 rm -f /var/run/pppd*.tdb

@@ -159,6 +159,7 @@ cd ..
 
 echo
 echo "Finishing..."
+parted /dev/${fldev} set 1 boot on >/dev/null 2>&1
 
 # Unmount them
 cleanup $CD $FL

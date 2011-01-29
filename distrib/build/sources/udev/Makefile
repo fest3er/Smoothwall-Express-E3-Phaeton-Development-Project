@@ -25,22 +25,26 @@ COMPILE = yes
 INSTALL = yes
 
 compile: configure
+	@# Compile
+	@make $(JOBS) -C $(COMPILE_DIR)
+
+install: compile
+	@mkdir -p $(PKG_ROOT)
 	@# Remove and create needed links and targets
+	@# rules are not wanted; we'll get them from udev-config
 	-mkdir $(PKG_ROOT)$(PKG_DIR)
 	cd $(PKG_ROOT)$(PKG_DIR); \
 	rm -rf lib/firmware lib/udev; \
 	install -dv lib/firmware; \
 	install -dv lib/udev/devices/pts; \
 	install -dv lib/udev/devices/shm; \
-	install -dv lib/udev/rules.d; \
 	install -dv usr/share/doc/; \
 	ln -sv /proc/kcore lib/udev/devices/core
 
-	@# Compile
-	@make $(JOBS) -C $(COMPILE_DIR)
-
-install: compile
-	@mkdir -p $(PKG_ROOT)
 	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
+
+	@# rules are not wanted; we'll get them from udev-config
+	cd $(PKG_ROOT)$(PKG_DIR); \
+	rm -f lib/udev/rules.d/*
 
 include ../Makefile.rules

@@ -1,11 +1,31 @@
+# This is the installer's inittab ONLY.
+
+# /etc/rc will adjust the run level based on the kernel command line
+
+# cmdline arg   run level     effect
+#   single      Single User   mount /proc, /dev, single bash only
+#   explore     Run Level 1   mount system FSen, run udev, run shells
+#   install     Run Level 2   RL1 + installer & setup
+#  (default)    Run Level 2   RL1 + installer & setup
+
+DR:S:initdefault:
+
 # System initialization.
-::sysinit:/etc/rc
+EB::sysinit:/etc/rc
 
 # Trap CTRL-ALT-DELETE
-::ctrlaltdel:/etc/halt
+TF::ctrlaltdel:/etc/halt
 
-# Run gettys in standard runlevels
-#::respawn:/bin/iowrap /dev/tty1 /bin/loader
-::respawn:/bin/iowrap /dev/tty1 /etc/install.rc
-::respawn:/bin/iowrap /dev/tty3 /bin/ash
-::respawn:/bin/iowrap /dev/tty5 /bin/bash
+# Run level determines what to do
+SI:2:off:/etc/install.rc </dev/ttyS0 >/dev/ttyS0 2>&1
+SB:S1:off:/bin/bash </dev/ttyS0 >/dev/ttyS0 2>&1
+I:2:respawn:/etc/install.rc </dev/tty1 >/dev/tty1 2>&1
+1:S1:respawn:/bin/bash </dev/tty1 >/dev/tty1 2>&1
+2:1:respawn:/bin/bash </dev/tty2 >/dev/tty2 2>&1
+3:12:respawn:/bin/bash </dev/tty3 >/dev/tty3 2>&1
+4:12:respawn:/bin/bash </dev/tty4 >/dev/tty4 2>&1
+5:12:respawn:/bin/bash </dev/tty5 >/dev/tty5 2>&1
+6:12:respawn:/bin/bash </dev/tty6 >/dev/tty6 2>&1
+
+U:12:respawn:/sbin/udevd
+EEI:12:wait:/etc/udev-trigger.rc

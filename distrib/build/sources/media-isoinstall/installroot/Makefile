@@ -24,6 +24,7 @@ BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
 	  true tty umount uname uniq unzip usleep vi wc wget which yes zcat
 BBPROGS_UNUSED = cpio gzip
 
+# No longer excluded
 EXCLUDE_DRIVERS = bluetooth connector gpu infiniband mfd misc mtd parport \
 	  pcmcia platform power spi ssb telephony thermal uio video w1 \
 	  hwmon net/wireless net/wan net/irda net/hamradio net/pcmcia \
@@ -46,9 +47,9 @@ lib:
 	cp -aR /lib/lib* tmp/lib
 	cp -aR /usr/lib/libncurses* tmp/lib/
 	tar xfz /build/target/smoothwall-kernel$(SWETYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1
-	cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
-	cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
-	  rm -rf $(EXCLUDE_DRIVERS)
+	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
+	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
+	#  rm -rf $(EXCLUDE_DRIVERS)
 
 klibc:
 	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
@@ -66,34 +67,33 @@ all: clean bin lib klibc
 	for i in cpio gzip; do \
 	  tar xvfz /build/target/smoothwall-$$i.tar.gz -C tmp/; \
 	done
-	@#cd tmp; ln -s /bin/busybox init
-	cd tmp; cp ../etc/inst-init init; chmod 555 init
 
 	(cd tmp; \
+	  cp -aR ../../../coretree/tree/etc/passwd etc; \
+	  cp -aR ../../../coretree/tree/etc/group etc; \
 	  install -D /usr/share/terminfo/l/linux usr/share/terminfo/l/linux; \
 	  cp -aR ../$(PROGS)/loader ../$(PROGS)/iowrap   bin; \
 	  cp -aR /lib/ld-*.so /lib/ld-*.so.* /lib/libc-*.so /lib/libc.so.* lib; \
 	  cp -aR ../etc/fstab etc; \
-	  cp -aR ../etc/group etc; \
 	  cp -aR ../etc/inittab etc; \
 	  cp -aR ../etc/mtab etc; \
-	  cp -aR ../etc/passwd etc; \
 	  cp -aR ../etc/shells etc; \
 	  cp -aR ../etc/termcap etc; \
 	  cp -aR ../etc/rc etc; chmod 755 etc/rc; \
-	  cp -aR ../etc/udev.rc etc; chmod 755 etc/udev.rc; \
 	  cp -aR ../etc/install.rc etc; chmod 755 etc/install.rc; \
 	  cp -aR ../etc/config-install.rc etc; chmod 755 etc/config-install.rc; \
 	  cp -aR ../etc/exec-install.rc etc; chmod 755 etc/exec-install.rc; \
 	  cp -aR ../etc/eth-addr-sort etc; chmod 755 etc/eth-addr-sort; \
+	  cp -aR ../etc/udev-trigger.rc etc; chmod 755 etc/udev-trigger.rc; \
 	  sed -i -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' etc/exec-install.rc; \
 	  cp -aR ../etc/halt etc; chmod 755 etc/halt; \
 	  cp -aR ../etc/modules.conf etc; \
 	  cp -aR ../etc/storagedevices etc; \
-	) > /dev/null 2>&1
+	) #> /dev/null 2>&1
 	(cd tmp; \
 	  mkdir -p etc/udev/rules.d; \
 	  cp -aRv lib/udev/rules.d/* etc/udev/rules.d/; \
+	  ln -s /sbin/init init; \
 	)
 	(cd tmp/etc; \
 	  gawk -f ../../etc/fill-pci-ids.awk < /usr/share/pci.ids > filled.pci.ids;\
@@ -106,12 +106,6 @@ all: clean bin lib klibc
 	  /sbin/ldconfig -r .; \
 	  mkdir dev/ida dev/rd; \
 	  install -d lib/{firmware,udev/devices/{pts,shm}}; \
-	  mknod -m0666 lib/udev/devices/null c 1 3; \
-	  mknod -m0600 lib/udev/devices/kmsg c 1 11; \
-	  mknod -m0600 dev/console c 5 1; \
-	  mknod -m0600 dev/kmem c 1 2; \
-	  mknod -m0600 dev/mem c 1 1; \
-	  for i in 0 1 2 3 4 5 6 7 8 9; do mknod dev/tty$$i c 4 $$i; done; \
 	  ln -sf proc/self/fd /lib/udev/devices/fd; \
 	  ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
 	  ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \

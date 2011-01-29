@@ -191,7 +191,7 @@ fi
       build klibc
       build listtables
       build udev
-      #build udev-config; not needing?
+      build udev-config
       build pciutils
       build bin86
       build nasm
@@ -314,6 +314,12 @@ fi
       build cpio
       build grub
       build reiserfsprogs
+      #build yaml
+      #build libnet
+      #build libnfnetlink
+      #build libnetfilter_queue
+      ##build libcap-ng  # needs Python; it can wait
+      #build suricata
 
       touch crumbs/Final.grp6.compiled
     fi

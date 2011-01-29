@@ -1,0 +1,23 @@
+# udev rules file for scanners supported by libsane-extras
+#
+#
+# To add a USB device, add a rule to the list below between the
+# LABEL="libsane_extras_rules_begin" and LABEL="libsane_extras_rules_end" lines.
+#
+# To run a script when your scanner is plugged in, add RUN="/path/to/script"
+# to the appropriate rule.
+#
+
+ACTION!="add", GOTO="libsane_extras_rules_end"
+ENV{DEVTYPE}=="usb_device", GOTO="libsane_extras_rules_begin"
+
+LABEL="libsane_extras_rules_begin"
+
+# For Linux >= 2.6.22 without CONFIG_USB_DEVICE_CLASS=y
+# If the following rule does not exist on your system yet, uncomment it
+# ENV{DEVTYPE}=="usb_device", NAME="bus/usb/$env{BUSNUM}/$env{DEVNUM}", MODE="0664", OWNER="root", GROUP="root"
+
+# The following rule will disable USB autosuspend for the device
+ENV{libsane_matched}=="yes", RUN+="/bin/sh -c 'test -e /sys/$env{DEVPATH}/power/level && echo on > /sys/$env{DEVPATH}/power/level'"
+
+LABEL="libsane_extras_rules_end"

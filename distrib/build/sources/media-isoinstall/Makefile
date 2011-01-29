@@ -29,13 +29,13 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    ez-ipupdate noip cdrtools \
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
 	    reiserfsprogs xtables-addons zlib slang cpio \
-	    udev lm_sensors xz \
+	    udev udev-config lm_sensors xz \
 	    Net-Netmask NetAddr-IP sysfsutils \
 	    coretree
 
 OBSOLETE_PKGS = devnodes libstdc++ 
 TOOLCHAIN_PKGS = expect
-OTHER_PKGS = updates jam sqlite udev-config
+OTHER_PKGS = updates jam sqlite
 
 # Last line is Phaeton
 DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu gcc \
@@ -88,9 +88,6 @@ cdrom/smoothwall.tgz:
 	        echo; \
 	done; \
 	);
-	echo "Copying udev.rc to distrib:"
-	@cp runtimeroot/etc/udev.rc distrib/etc/udev/
-
 	@echo "Moving includes to distrib-dev:"
 	@if [ -d distrib/usr/include ]; then \
 	  mkdir -p distrib-dev/usr/include; \
@@ -138,22 +135,6 @@ cdrom/smoothwall.tgz:
 	) > distrib/var/smoothwall/main/productdata
 
 	@chown nobody:nobody distrib/var/smoothwall/main/productdata
-
-	@echo -e "\nMake some initial device nodes:"
-	@( \
-	mknod distrib/dev/console c 5 1; \
-	  chown root:root distrib/dev/console; \
-	  chmod 600 distrib/dev/console; \
-	mknod distrib/dev/kmem c 1 2; \
-	  chown root:root distrib/dev/kmem; \
-	  chmod 600 distrib/dev/kmem; \
-	mknod distrib/dev/mem c 1 1; \
-	  chown root:root distrib/dev/mem; \
-	  chmod 600 distrib/dev/mem; \
-	mknod distrib/dev/null c 1 3; \
-	  chown root:root distrib/dev/null; \
-	  chmod 666 distrib/dev/null; \
-	) | sed -u -e 's/^/  /'
 
 	@echo -e "\nSecuring tree ..."
 	@( \
