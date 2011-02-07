@@ -67,30 +67,6 @@ echo "Loading MASQ helper modules"
 # Remove possible leftover files
 rm -f /var/smoothwall/red/*
 
-for NIC in 0 1 2 3; do
-	ETHX="eth${NIC}"
-	if [ "$GREEN_DEV" = "$ETHX" ]; then
-		if [ "$GREEN_DRIVER" != "" ]; then
-			/sbin/modprobe $GREEN_DRIVER $GREEN_DRIVER_OPTIONS
-		fi
-	fi
-	if [ "$ORANGE_DEV" = "$ETHX" ]; then
-		if [ "$ORANGE_DRIVER" != "" ]; then
-			/sbin/modprobe $ORANGE_DRIVER $ORANGE_DRIVER_OPTIONS
-		fi
-	fi
-	if [ "$RED_DEV" = "$ETHX" ]; then
-		if [ "$RED_DRIVER" != "" ]; then
-			/sbin/modprobe $RED_DRIVER $RED_DRIVER_OPTIONS
-		fi
-	fi
-	if [ "$PURPLE_DEV" = "$ETHX" ]; then
-		if [ "$PURPLE_DRIVER" != "" ]; then
-			/sbin/modprobe $PURPLE_DRIVER $PURPLE_DRIVER_OPTIONS
-		fi
-	fi
-done
-
 # Forwarding.  This is set here to shutup warnings from ipchains.
 echo 1 > /proc/sys/net/ipv4/ip_forward
 echo 1 > /proc/sys/net/ipv4/ip_dynaddr
