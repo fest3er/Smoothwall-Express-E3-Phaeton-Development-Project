@@ -21,12 +21,12 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    httpd smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace \
 	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
 	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
-	    libdnet daq \
+	    libdnet daq libnet libnetfilter_queue libnfnetlink \
 	    beep2 pcre trafficstats iftop ppp isdn4k-utils \
 	    rp-pppoe ibod dhcpcd eciadsl-synch_bin eciadsl-usermode \
 	    cnxadsl dhcp snort oinkmaster openswan wireless_tools imspector  \
 	    diffutils traceroute clamav p3scan libosip2 siproxd which miniupnpd \
-	    ez-ipupdate noip cdrtools \
+	    ez-ipupdate noip cdrtools suricata \
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
 	    reiserfsprogs xtables-addons zlib slang cpio \
 	    udev udev-config lm_sensors xz pcmciautils \
