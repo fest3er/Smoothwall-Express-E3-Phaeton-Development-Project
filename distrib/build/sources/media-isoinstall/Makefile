@@ -29,7 +29,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    ez-ipupdate noip cdrtools \
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
 	    reiserfsprogs xtables-addons zlib slang cpio \
-	    udev udev-config lm_sensors xz \
+	    udev udev-config lm_sensors xz pcmciautils \
 	    Net-Netmask NetAddr-IP sysfsutils \
 	    coretree
 
@@ -164,6 +164,12 @@ cdrom/smoothwall.tgz:
 	@cp ../../make_flash cdrom
 	@ln -s /var/smoothwall/vpn/ipsec.conf distrib/etc/ipsec.conf
 
+	@echo -e "\nCopying to OffRoad ..."
+	@mkdir -p offroad
+	@cd cdrom; cp -av . ../offroad
+	@cd offroad/isolinux; sed -ie 's/r0 scroll/r0 scroll explore/' isolinux.cfg
+	@cd offroad/isolinux; sed -ie 's/115200/115200 explore/' isolinux.cfg
+
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
 	@tar -zcf cdrom/smoothwall.tgz -C distrib .
 
@@ -198,11 +204,16 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  -no-emul-boot -boot-load-size 4 -boot-info-table \
 	  -V $(BASENAME) --publisher "Smoothwall Express Phaeton" cdrom
 	@echo "smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso build complete"
+	/sbin/mkisofs -o $(TARGET_DIR)/isos/smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-offroad.iso \
+	  -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
+	  -no-emul-boot -boot-load-size 4 -boot-info-table \
+	  -V $(BASENAME) --publisher "Smoothwall Express Phaeton (OffRoad)" offroad
+	@echo "smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-offroad.iso build complete"
 
 clean:
 	@echo -n " $(PACKAGE)"
 	@rm -f Media.phaetondevISO.built
-	@rm -rf cdrom distrib distrib-dev distrib-doc klibc
+	@rm -rf cdrom offroad distrib distrib-dev distrib-doc klibc temp
 	@make --no-print-directory -C cdromboot clean >/dev/null 2>&1
 	@make --no-print-directory -C installroot clean >/dev/null 2>&1
 	@make --no-print-directory -C runtimeroot clean >/dev/null 2>&1

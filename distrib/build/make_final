@@ -314,12 +314,13 @@ fi
       build cpio
       build grub
       build reiserfsprogs
-      #build yaml
-      #build libnet
-      #build libnfnetlink
-      #build libnetfilter_queue
-      ##build libcap-ng  # needs Python; it can wait
-      #build suricata
+      build pcmciautils
+      build yaml
+      build libnet
+      build libnfnetlink
+      build libnetfilter_queue
+      #build libcap-ng  # needs Python; it can wait
+      build suricata
 
       touch crumbs/Final.grp6.compiled
     fi

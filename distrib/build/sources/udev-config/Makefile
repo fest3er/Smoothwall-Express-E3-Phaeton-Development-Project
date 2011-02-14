@@ -18,9 +18,13 @@ CONFIGURE = yes
 COMPILE = yes
 
 download:
+	@true
 $(DIR)/:
+	@true
 patch:
+	@true
 configure:
+	@true
 compile:
 	true
 
