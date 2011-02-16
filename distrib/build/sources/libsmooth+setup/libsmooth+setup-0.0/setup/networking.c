@@ -28,8 +28,6 @@ extern char **ctr;
 
 extern int automode;
 
-extern struct nic nics[];
-
 char *configtypenames[] = {
 /*0*/	"GREEN (RED is modem/ISDN)", 
 /*1*/	"GREEN + ORANGE (RED is modem/ISDN)",
@@ -410,6 +408,7 @@ int changedrivers(void)
 	/* This is the green card. */		
 	sofarallocated = 0;
 	nictocheck = 0;
+	countofcards = countcards();
 
 	strcpy(displaydriver, "");
 	strcpy(currentdriver, "");
@@ -419,10 +418,9 @@ int changedrivers(void)
 	/* Keep going till all cards are got, or they give up. */
 	while (sofarallocated < needcards && !abort)
 	{
-		countofcards = countcards();
 		/* This is how many cards were added by the last module. */
 		toallocate = countofcards - nictocheck;
-		while (toallocate > 0 && nictocheck < countofcards && sofarallocated < needcards)
+		while (!abort && toallocate > 0 && nictocheck < countofcards && sofarallocated < needcards)
 		{
 			findnicdescription(displaydriver, temp);
 			/* Get device name, eth%d is hard coded. */
@@ -507,13 +505,24 @@ int changedrivers(void)
 			else if (rc == 2)
 			{
 				nictocheck++;
-				if (nictocheck >= countofcards) abort=1;
 			}
+			else if (rc == 3)
+			{
+				// Cancelled? Then abort
+				abort = 1;
+			}
+
+			// Reached the end of the cards? Abort
+			if (nictocheck >= countofcards) abort=1;
+
+			// Run out of cards to allocate? Abort
+			if (toallocate == 0) abort=1;
+
+			// Got enough cards? Break and finish
+			if (sofarallocated == needcards) break;
 		}
-		
 	}
 	
-	countofcards = countcards();
 	if (sofarallocated >= needcards)
 	{
 		newtWinMessage(ctr[TR_CARD_ASSIGNMENT], ctr[TR_OK],
