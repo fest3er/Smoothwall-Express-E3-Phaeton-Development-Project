@@ -3,7 +3,15 @@
 typeset -i j
 j=0
 
+
 cd /sys/class/net
+
+# Wait for the NICs to appear
+set eth*/address
+while [ "$1" == "eth*/address" ]; do
+  sleep 1
+  set eth*/address
+done
 
 mkdir -p /etc/udev/rules.d
 

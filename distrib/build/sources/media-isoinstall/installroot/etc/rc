@@ -18,6 +18,7 @@ first_dev() {
 
   echo "Mounting devtmpfs"
   /bin/mount -t devtmpfs devtmpfs /dev
+  /bin/mkdir -p /dev/pts
   /bin/mount -t devpts -o gid=5,mode=620 devpts /dev/pts
 
   # Need USB here for kbd
@@ -28,7 +29,8 @@ first_dev() {
   /sbin/modprobe usbhid
 
   echo "Mounting proc/bus/usb"
-  [ -d /proc/bus/usb ] && /bin/mount -t usbfs usbfs /proc/bus/usb
+  while [ ! /proc/bus/usb ]; do sleep .25; done
+  /bin/mount -t usbfs usbfs /proc/bus/usb
 }
 
 # Prep initial sys FSen

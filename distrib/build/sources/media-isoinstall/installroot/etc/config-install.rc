@@ -27,7 +27,7 @@ echo "Preparing lists of CDROM and hard drives"
 OPWD=$PWD
 cd /sys/block
 
-typeset -i tries cd_cnt hd_cnt WORK_IDX sum
+typeset -i tries cd_cnt hd_cnt WORK_IDX sum size
 tries=0
 WORKING[0]="|"
 WORKING[1]="/"
@@ -46,19 +46,26 @@ while [ 1 -eq 1 ]; do
   ls -C1 | while read a; do
     if [ -e $a/device ]; then
       # if an optical drive, add it to /tmp/cd.list
+      size=""
       egrep "$CDs" $a/device/modalias >/dev/null 2>&1
       if [ $? -eq 0 ]; then
-        size=$1
+        set `cat $a/size`
+        if [ $1 -gt 0 ]; then
+          size=$1
+        else
+          size=0
+        fi
         UDEVINFO="/sbin/udevadm info --path=${PWD}/$a --query=all"
         model=`$UDEVINFO | grep ID_MODEL= | sed -e 's/.*=//'`
-        [ -z "$model" ] && model=`cat $a/device/model | sed -e 's/ /-/g'`
+        [ -z "$model" ] && model=`cat $a/device/model 2>&1 | sed -e 's/ /-/g'`
         [ -z "$model" ] && model="UNK_MODEL"
         serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
-        [ -z "$serial" ] && serial=`cat $a/device/serial >/dev/null | sed -e 's/ /-/g'`
+        [ -z "$serial" ] && serial=`cat $a/device/serial >/dev/null 2>&1 | sed -e 's/ /-/g'`
         [ -z "$serial" ] && serial="UNK_SERIAL"
         echo "$a $size $model $serial" >> /tmp/cd.list
       fi
       # if a disk drive, add it to /tmp/hd.list
+      size=""
       egrep "$HDs" $a/device/modalias >/dev/null 2>&1
       if [ $? -eq 0 ]; then
         set `cat $a/size`
@@ -66,10 +73,10 @@ while [ 1 -eq 1 ]; do
           size=$1
           UDEVINFO="udevadm info --path=${PWD}/$a --query=all"
           model=`$UDEVINFO | grep "ID_MODEL=" | sed -e 's/.*=//'`
-          [ -z "$model" ] && model=`cat $a/device/model | sed -e 's/ /-/g'`
+          [ -z "$model" ] && model=`cat $a/device/model 2>&1 | sed -e 's/ /-/g'`
           [ -z "$model" ] && model="UNK_MODEL"
           serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
-          [ -z "$serial" ] && serial=`cat $a/device/serial >/dev/null | sed -e 's/ /-/g'`
+          [ -z "$serial" ] && serial=`cat $a/device/serial >/dev/null 2>&1 | sed -e 's/ /-/g'`
           [ -z "$serial" ] && serial="UNK_SERIAL"
           echo "$a $size $model $serial" >> /tmp/hd.list
         fi
@@ -217,10 +224,11 @@ while [ 1 -eq 1 ]; do
   i=1
   while read a b c d; do
     cd_dev[$i]=$a
-    cd_model[$i]=$b
-    cd_id[$i]=$c
-    echo -n "  $i. $a - $b ($c)"
-    if [ $i -eq 1 ]; then echo "( default)"; else echo; fi
+    cd_size[$i]=$b
+    cd_model[$i]=$c
+    cd_id[$i]=$d
+    echo -n "  $i. $a - ${cd_size[$i]}MiB (${cd_model[$i]})"
+    if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
     i=i+1
   done < /tmp/cd.list
   OPTI_CNT=$i
@@ -230,6 +238,7 @@ while [ 1 -eq 1 ]; do
       if [ $h -ne $hd ]; then
         b=b/2/1024
         cd_dev[$i]=$a
+        cd_size[$i]=$b
         cd_model[$i]=$c
         cd_id[$i]=$d
         echo -n "  $i. $a - ${cd_size[$i]}MiB ${cd_model[$i]} (${cd_id[$i]})"

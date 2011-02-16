@@ -24,6 +24,7 @@ echo "Mounting /proc, /sys"
 
 echo "Mounting devtmpfs"
 /bin/mount -t devtmpfs devtmpfs /dev
+/bin/mkdir -p /dev/pts
 /bin/mount -t devpts -o gid=5,mode=620 devpts /dev/pts
 
 # Populating dev
@@ -42,7 +43,8 @@ echo "Starting USB"
 /sbin/modprobe usbhid
 
 echo "Mounting proc/bus/usb"
-[ -d /proc/bus/usb ] && /bin/mount -t usbfs usbfs /proc/bus/usb
+while [ ! /proc/bus/usb ]; do sleep 1; done
+/bin/mount -t usbfs usbfs /proc/bus/usb
 
 # Need a short delay to give USB devices, if any, time to appear
 echo -e "${BOUL}Waiting for USB devices to finish appearing${NO}"
