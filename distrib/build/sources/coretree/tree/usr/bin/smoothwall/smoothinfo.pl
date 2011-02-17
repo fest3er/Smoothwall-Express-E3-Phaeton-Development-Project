@@ -735,7 +735,7 @@ unless (-z "${swroot}/outgoing/config") {
   foreach (<CONFIG>) {
     chomp;
     $_ =~ s/,/\t\t/g;
-    $_ =~ s/on/Enabled/g;
+    $_ =~ s/\ton\t/\tEnabled\t/g;
     print FILE "$_\n";
   }
   print FILE "\[/code\]\[/info\]";
@@ -747,7 +747,7 @@ unless (-z "${swroot}/outgoing/machineconfig") {
   foreach (<MACHINECONFIG>) {
     chomp;
     $_ =~ s/,/\t\t/g;
-    $_ =~ s/on/Enabled/g;
+    $_ =~ s/\ton\t/\tEnabled\t/g;
     print FILE "$_\n";
   }
   print FILE "\[/code\]\[/info\]";
@@ -1128,8 +1128,8 @@ if (($smoothinfosettings{'PORTFW'} eq 'on') && (! -z "${swroot}/portfw/config"))
     chomp;
     $_ =~ s/,/\t\t/g;
     $_ =~ s/\t0\t/\tN.A.\t/g;
-    $_ =~ s/on/Enabled/g;
-    $_ =~ s/off/Disabled/g;
+    $_ =~ s/\ton\t/\tEnabled\t/g;
+    $_ =~ s/\toff\t/\tDisabled\t/g;
     push (@portfw, "$_\n");
   }
   close (PORTFW);
