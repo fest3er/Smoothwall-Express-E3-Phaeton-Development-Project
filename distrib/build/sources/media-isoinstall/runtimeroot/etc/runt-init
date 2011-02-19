@@ -24,12 +24,11 @@ echo "Mounting /proc, /sys"
 
 echo "Mounting devtmpfs"
 /bin/mount -t devtmpfs devtmpfs /dev
-/bin/mkdir -p /dev/pts
-/bin/mount -t devpts -o gid=5,mode=620 devpts /dev/pts
 
 # Populating dev
 /sbin/udevd --daemon
 /sbin/udevadm trigger
+/sbin/udevadm settle
 /sbin/udevadm trigger --subsystem-match=block
 /sbin/udevadm trigger --attr-match=modalias
 /sbin/udevadm settle
@@ -55,7 +54,7 @@ echo -e "${BOUL}Done waiting${NO}"
 test -e /etc/modules && egrep -v "^$|^#" /etc/modules | while read a; do modprobe $a; done
 
 # Switch to hard drive and start the system
-mount /harddisk -o ro
+/bin/mount /harddisk -o ro
 
 # Stop udevd; missed events will be caught later
 for proc in /proc/[0-9]*; do
@@ -65,14 +64,17 @@ done
 
 echo "1 4 1 7" >/proc/sys/kernel/printk
 
-mount -n -o move /dev /harddisk/dev
-mount -n -o move /dev/pts /harddisk/dev/pts
+/bin/umount /proc/bus/usb
+/bin/mount -n -o move /dev /harddisk/dev
+/bin/mkdir -p /harddisk/dev/pts
+/bin/mount -t devpts devpts /harddisk/dev/pts
 
 /usr/lib/klibc/bin/nuke /dev
-ln -s /harddisk/dev /dev
+/bin/ln -s /harddisk/dev /dev
 
-mount -n -o move /sys /harddisk/sys
-mount -n -o move /proc /harddisk/proc
-mount -n -o move /proc/bus/usb /harddisk/proc/bus/usb
+/bin/mount -n -o move /sys /harddisk/sys
+/bin/mount -n -o move /proc /harddisk/proc
+while [ ! /harddisk/proc/bus/usb ]; do usleep 250000; done
+/bin/mount -t usbfs usbfs /harddisk/proc/bus/usb
 
 exec /usr/lib/klibc/bin/run-init /harddisk /sbin/init </harddisk/dev/console >/harddisk/dev/console 2>&1

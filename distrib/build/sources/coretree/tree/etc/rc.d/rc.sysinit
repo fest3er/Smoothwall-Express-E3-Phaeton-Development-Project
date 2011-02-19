@@ -3,6 +3,7 @@
 # Re-run udevd
 /sbin/udevd --daemon
 /sbin/udevadm trigger
+/sbin/udevadm settle
 /sbin/udevadm trigger --subsystem-match=block
 /sbin/udevadm trigger --attr-match=modalias
 /sbin/udevadm settle
@@ -151,9 +152,6 @@ echo "Starting syslogd"
 /usr/sbin/syslogd -m 0
 echo "Starting klogd"
 /usr/sbin/klogd
-
-echo "Loading USBFS"
-if [ -e /proc/bus/usb ]; then mount -t usbfs usbfs /proc/bus/usb; fi
 
 echo "Loading filesystems"
 /sbin/modprobe msdos
