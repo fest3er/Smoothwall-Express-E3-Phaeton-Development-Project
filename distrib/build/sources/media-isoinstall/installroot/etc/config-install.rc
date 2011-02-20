@@ -133,7 +133,6 @@ echo "Finished finding drives"
 if [ $hd_cnt -gt 1 ]; then
   echo -e "\nBooting/installing from flash?"
   echo -e "Be sure to correctly select the boot drive!\n"
-  break;
 fi
 sleep 5
 
