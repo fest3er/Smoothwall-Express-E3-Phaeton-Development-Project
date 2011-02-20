@@ -29,26 +29,10 @@ echo "Mounting devtmpfs"
 /sbin/udevd --daemon
 /sbin/udevadm trigger
 /sbin/udevadm settle
-/sbin/udevadm trigger --subsystem-match=block
-/sbin/udevadm trigger --attr-match=modalias
-/sbin/udevadm settle
-
-
-# Need USB here for kbd
-echo "Starting USB"
-/sbin/modprobe ehci-hcd
-/sbin/modprobe ohci-hcd
-/sbin/modprobe uhci-hcd
-/sbin/modprobe usbhid
 
 echo "Mounting proc/bus/usb"
 while [ ! /proc/bus/usb ]; do sleep 1; done
 /bin/mount -t usbfs usbfs /proc/bus/usb
-
-# Need a short delay to give USB devices, if any, time to appear
-echo -e "${BOUL}Waiting for USB devices to finish appearing${NO}"
-sleep 5
-echo -e "${BOUL}Done waiting${NO}"
 
 # Load any modules explicitly required
 test -e /etc/modules && egrep -v "^$|^#" /etc/modules | while read a; do modprobe $a; done
@@ -74,7 +58,7 @@ echo "1 4 1 7" >/proc/sys/kernel/printk
 
 /bin/mount -n -o move /sys /harddisk/sys
 /bin/mount -n -o move /proc /harddisk/proc
-while [ ! /harddisk/proc/bus/usb ]; do usleep 250000; done
+while [ ! /harddisk/proc/bus/usb ]; do usleep 100000; done
 /bin/mount -t usbfs usbfs /harddisk/proc/bus/usb
 
 exec /usr/lib/klibc/bin/run-init /harddisk /sbin/init </harddisk/dev/console >/harddisk/dev/console 2>&1

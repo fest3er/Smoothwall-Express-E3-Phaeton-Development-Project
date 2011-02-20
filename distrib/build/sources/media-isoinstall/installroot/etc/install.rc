@@ -96,24 +96,15 @@ function EXITTRAP {
   read a </dev/tty
 }
 
-# Sorting NICs
-bash /etc/eth-addr-sort
+echo -e "${BOUL}Wait for udev to settle${NO}"
+while [ -e /tmp/trigger-lock ]; do
+  usleep 100000
+done
 
-# Get the changes
-/sbin/udevadm trigger --subsystem-match=net
-/sbin/udevadm settle
+# Sort and rename NICs
+. /etc/eth-addr-sort
 
-# Show them to the user
-(cd /sys/class/net
-for i in eth*; do
-  echo "$i: `cat $i/address`"
-done)
 sleep 2
-
-# Need a short delay to give USB devices, if any, time to appear
-echo -e "${BOUL}Waiting for USB devices to finish appearing${NO}"
-sleep 5
-echo -e "${BOUL}Done waiting${NO}"
 
 echo "1 4 1 7" >/proc/sys/kernel/printk
 

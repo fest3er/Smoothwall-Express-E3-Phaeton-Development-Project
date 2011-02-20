@@ -1,5 +1,9 @@
 #!/bin/bash 
 
+# Right off the bat, set a udev lock file, since we can't do much until
+#   udev has handled the devices
+touch /tmp/trigger-lock
+
 # Taken from Kay Seiver's example
 getarg() {
   local o line

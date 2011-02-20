@@ -90,24 +90,14 @@ while [ 1 -eq 1 ]; do
   set `wc -l /tmp/cd.list`
   cd_cnt=$1
 
-  # Let's not quit after finding one of each. Rather, shorten the total search time
-  #   to 10 seconds. It's only the initial install boot; the delay shouldn't be too
-  #   onerous.
-  # Old time points were 12,24,18,30,36
-
-  # If at least one of each was found, get on with the install already!
-  #test $hd_cnt -gt 0 && test $cd_cnt -gt 0 && break
+  # Search for hot-plugged drives for 6 seconds
 
   case $tries in
-    10)
-      echo -e -n "  Still looking...\r"
-      ;;
-    20)
-      echo -e -n "  I'm getting antsy!\r"
-      ;;
-    15|25)
-      echo -e -n "\033[0J\r"
-      ;;
+    5) echo -e -n " 5\r" ;;
+    10) echo -e -n " 4\r" ;;
+    15) echo -e -n " 3\r" ;;
+    20) echo -e -n " 2\r" ;;
+    25) echo -e -n " 1\r" ;;
     30)
       echo -e -n "\033[0J\r"
       case $hd_cnt in
@@ -116,14 +106,7 @@ while [ 1 -eq 1 ]; do
         *) echo -en "\r\nTwo or more writable drives found. ";;
       esac
       case $cd_cnt in
-        0) echo -n "No optical drives found. "
-           if [ $hd_cnt -gt 1 ]; then
-             echo -e "\n\nBooting/installing from flash?"
-             echo -e "Be sure to correctly select the boot drive!\n"
-             ALT_CD=1
-             break;
-           fi
-           ;;
+        0) echo -n "No optical drives found. " ;;
         1) echo "One optical drive found.";;
         *) echo "Two or more optical drives found.";;
       esac
@@ -141,12 +124,17 @@ while [ 1 -eq 1 ]; do
   WORK_IDX=WORK_IDX+1
   [ $WORK_IDX -eq 4 ] && WORK_IDX=0
 
-  usleep 333333
+  usleep 200000
   tries=tries+1
 done
 cd $OPWD
 
 echo "Finished finding drives"
+if [ $hd_cnt -gt 1 ]; then
+  echo -e "\nBooting/installing from flash?"
+  echo -e "Be sure to correctly select the boot drive!\n"
+  break;
+fi
 sleep 5
 
 # Always show remaining writable drives as potential sources
