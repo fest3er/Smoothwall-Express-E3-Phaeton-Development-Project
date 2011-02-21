@@ -11,8 +11,6 @@ VERSION = 4.1
 
 BASE_URL = ftp://ftp.gnu.org/gnu/bash/
 
-PATCH_URL1 = http://www.linuxfromscratch.org/patches/lfs/6.4/bash-3.2-fixes-8.patch
-
 ifeq ($(ARCH), i686)
 BUILD = --build=i686-pc-linux-gnu
 endif
