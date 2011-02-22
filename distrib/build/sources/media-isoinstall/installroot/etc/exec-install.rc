@@ -228,15 +228,15 @@ echo
     ROOTOPTION=$OPTION
   fi
   (
-    echo "proc          /proc           proc            defaults        0       0"
-    echo "sys           /sys            sysfs           defaults        0       0"
-    echo "dev		/dev		devfs		defaults	0	0"
-    echo "devpts                /dev/pts        devpts          defaults        0       0"
-    echo "/dev/harddisk2        none            swap            sw              0       0"
+    echo "proc            /proc           proc            defaults        0       0"
+    echo "sys             /sys            sysfs           defaults        0       0"
+    echo "dev             /dev            devtmpfs        defaults        0       0"
+    echo "devpts          /dev/pts        devpts          defaults        0       0"
+    echo "/dev/harddisk2  none            swap            sw              0       0"
     echo
-    echo "/dev/harddisk4        /               $FSTYPE         $ROOTOPTION           0       1"
-    echo "/dev/harddisk1        /boot           $FSTYPE         $OPTION  0       2"
-    echo "/dev/harddisk5        /var/log        $FSTYPE         $OPTION  0       2"
+    echo "/dev/harddisk4  /               $FSTYPE         $ROOTOPTION           0       1"
+    echo "/dev/harddisk1  /boot           $FSTYPE         $OPTION  0       2"
+    echo "/dev/harddisk5  /var/log        $FSTYPE         $OPTION  0       2"
   ) >/harddisk/etc/fstab
   echo "$FTYPE" >/harddisk/etc/modules
 
