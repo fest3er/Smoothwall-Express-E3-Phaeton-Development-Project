@@ -57,8 +57,8 @@ echo "Loading MASQ helper modules"
 /sbin/modprobe ip_nat_irc
 /sbin/modprobe ip_conntrack_ftp
 /sbin/modprobe ip_nat_ftp
-#/sbin/modprobe ip_conntrack_mms
-#/sbin/modprobe ip_nat_mms
+/sbin/modprobe ip_conntrack_mms
+/sbin/modprobe ip_nat_mms
 /sbin/modprobe ip_conntrack_pptp
 /sbin/modprobe ip_nat_pptp
 
