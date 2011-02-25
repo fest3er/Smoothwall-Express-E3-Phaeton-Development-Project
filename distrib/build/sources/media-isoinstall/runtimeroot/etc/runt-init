@@ -30,7 +30,6 @@ echo "Mounting devtmpfs"
 /sbin/udevadm trigger
 /sbin/udevadm settle
 
-echo "Mounting proc/bus/usb"
 if [ -d /proc/bus/usb ]; then
   echo "Mounting proc/bus/usb"
   /bin/mount -t usbfs usbfs /proc/bus/usb
