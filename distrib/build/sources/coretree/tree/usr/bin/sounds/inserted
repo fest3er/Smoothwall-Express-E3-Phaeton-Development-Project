@@ -1,0 +1,16 @@
+#! /bin/bash
+
+typeset -i i j
+
+i=300
+j=32
+(
+  while [ $i -le 1200 ]; do
+    echo $i 20
+    i=i+j
+    j=j+1
+  done
+  echo 0 50
+  echo 300 300
+  echo $i $j >/dev/tty
+) | beep2 -f
