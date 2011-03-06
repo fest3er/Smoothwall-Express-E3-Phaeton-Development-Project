@@ -1,0 +1,134 @@
+#! /bin/sh
+
+. /var/smoothwall/main/productdata
+
+TO_BITBKT=">/dev/null 2>&1"
+
+# Skip this block while developing
+if [ 1 -eq 0 ]; then
+#
+#TO_BACK_UP="adsl advnet auth ddns dhcp dmzholes ethernet ipblock isdn 
+#    main/hostname.conf main/settings main/proxy modem portfw ppp proxy 
+#    remote snort time vpn xtaccess clamav hosts im outgoing p3scan
+#    sipproxy timedaccess traffic" 
+#
+#cd /var/smoothwall/backup
+#
+## If the flag exists, we watch for a change. Otherwise we watch for
+##   creation
+#if [ -f backup.flag ]; then WATCH="MODIFY"; else WATCH="CREATE"; fi
+#
+## Wait until the file changes; ignore all other changes
+#while :; do
+#  set `$INOTIFY_CMD -e $WATCH .`
+#
+#  # Go 'round again if the wrong things appear
+#  if [ $2!=$WATCH -o $3!="backup.flag" ]; then continue; fi
+#
+#  # Get the backup type and break out of loop if it's correct
+#  BACKUP_TYPE=`cat backup_flag`
+#  if [ "$BACKUP_TYPE"=="simple" -o "$BACKUP_TYPE"=="full"; then break; fi
+#
+#  # Go 'round again; note that the flag file now exists
+#  WATCH="MODIFY"
+#done
+
+else # development block
+
+  # instead, make it a simple backup
+  INOTIFY_CMD="inotifywait -q"
+  BACKUP_TYPE='simple'
+  TO_BACK_UP="var/log var/smoothwall usr/etc"
+  DEV_FILE="/tmp/backup.devices"
+  cd ${HOME}
+fi
+
+echo "Plug in flash drive" #> backup.flag
+
+# Wait until a new [0-9] node appears in /dev
+WATCH="CREATE"
+while :; do
+  # Run the file watch as a silent daemon
+  $INOTIFY_CMD -e $WATCH /dev  -d -o ${DEV_FILE}&
+  # Wait for the first change
+  $INOTIFY_CMD -e $WATCH /dev >/dev/null 2>/dev/null
+  
+  # wait for the rest of the nodes to be made, then kill the monitor
+  sleep 1
+  killall -9 inotifywait
+  #sed -e 's/^/  /' backup.devices
+  
+  # Now look for a suitable device
+  while read a b c; do
+    if [ -e /sys/block/$c ]; then
+      # check the first 4 partitions, quit at the first one found
+      NODE=""
+      for i in 1 2 3 4; do
+        if [ -e /sys/block/$c/${c}${i} ]; then
+          NODE=$c$i
+          break;
+        fi
+      done
+    fi
+    if [ ! -z "$NODE" ]; then break; fi
+  done < $DEV_FILE
+  if [ ! -z "$NODE" ]; then break; fi
+done
+rm -f ${DEV_FILE}
+
+#/usr/bin/sounds/inserted
+
+# Make and mount
+MOUNT_PT=/backup
+mkdir -p $MOUNT_PT
+FAIL=0
+mount /dev/$NODE $MOUNT_PT >/dev/null 2>&1 || FAIL=1
+
+if [ $FAIL -eq 1 ]; then
+  /usr/bin/sounds/mount_failed.bps&
+  echo "Couldn't mount the flash drive. Please verify that it is partitioned"
+  echo "  and contains a good filesystem."
+
+else
+
+  /usr/bin/sounds/mount_succeeded.bps
+  # Get some details for the filename and git 'er done
+  HOST=`uname -n`
+  DATE=`date +"%Y-%m-%d"`
+  KERNEL=`uname -r`
+  FNAME="${HOST}_${DATE}_${KERNEL}_${VERSION}"
+  tar cvfz ${MOUNT_PT}/${FNAME}.tar.gz -C / ${TO_BACK_UP} > $FNAME.list 2>/dev/null
+
+  # Unmount
+  while :; do
+    umount $MOUNT_PT >/dev/null 2>&1 && break;
+    sleep 1
+  done
+fi
+
+# Tell the user to unplug the drive
+/usr/bin/sounds/ring.bpf
+
+echo "Unplug the flash drive."
+
+# Wait for deletion of the node used for the backup
+WATCH="DELETE"
+while :; do
+  # Run the file watch as a silent daemon
+  $INOTIFY_CMD -e $WATCH /dev  -d -o ${DEV_FILE}&
+  # Wait for the first change
+  $INOTIFY_CMD -e $WATCH /dev >/dev/null 2>/dev/null
+  
+  sleep 1
+  killall -9 inotifywait
+  #sed -e 's/^/  /' backup.devices
+  
+  # Now look for the device
+  grep "${NODE}" $DEV_FILE >/dev/null 2>&1 && break
+done
+
+/usr/bin/sounds/removed
+
+rm -f ${DEV_FILE}
+
+echo "Backup complete."
