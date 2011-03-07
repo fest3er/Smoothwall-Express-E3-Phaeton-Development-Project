@@ -97,7 +97,7 @@ echo "Module dependencies"
 /sbin/depmod -a
 echo "Clearing old files"
 chmod 660 /dev/ttyS*
-chmod 660 /dev/ttyI*
+chmod 660 /dev/ttyI* >/dev/null 2>&1
 chmod 1777 /tmp
 find /var/run -name '*.pid' -type f -exec rm -f '{}' \;
 rm -f /var/smoothwall/red/*
