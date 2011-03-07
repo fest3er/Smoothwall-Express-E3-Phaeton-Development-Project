@@ -6,32 +6,32 @@ TO_BITBKT=">/dev/null 2>&1"
 
 # Skip this block while developing
 if [ 1 -eq 0 ]; then
-#
-#TO_BACK_UP="adsl advnet auth ddns dhcp dmzholes ethernet ipblock isdn 
-#    main/hostname.conf main/settings main/proxy modem portfw ppp proxy 
-#    remote snort time vpn xtaccess clamav hosts im outgoing p3scan
-#    sipproxy timedaccess traffic" 
-#
-#cd /var/smoothwall/backup
-#
-## If the flag exists, we watch for a change. Otherwise we watch for
-##   creation
-#if [ -f backup.flag ]; then WATCH="MODIFY"; else WATCH="CREATE"; fi
-#
-## Wait until the file changes; ignore all other changes
-#while :; do
-#  set `$INOTIFY_CMD -e $WATCH .`
-#
-#  # Go 'round again if the wrong things appear
-#  if [ $2!=$WATCH -o $3!="backup.flag" ]; then continue; fi
-#
-#  # Get the backup type and break out of loop if it's correct
-#  BACKUP_TYPE=`cat backup_flag`
-#  if [ "$BACKUP_TYPE"=="simple" -o "$BACKUP_TYPE"=="full"; then break; fi
-#
-#  # Go 'round again; note that the flag file now exists
-#  WATCH="MODIFY"
-#done
+
+TO_BACK_UP="adsl advnet auth ddns dhcp dmzholes ethernet ipblock isdn 
+    main/hostname.conf main/settings main/proxy modem portfw ppp proxy 
+    remote snort time vpn xtaccess clamav hosts im outgoing p3scan
+    sipproxy timedaccess traffic" 
+
+cd /var/smoothwall/backup
+
+# If the flag exists, we watch for a change. Otherwise we watch for
+#   creation
+if [ -f backup.flag ]; then WATCH="MODIFY"; else WATCH="CREATE"; fi
+
+# Wait until the file changes; ignore all other changes
+while :; do
+  set `$INOTIFY_CMD -e $WATCH .`
+
+  # Go 'round again if the wrong things appear
+  if [ $2!=$WATCH -o $3!="backup.flag" ]; then continue; fi
+
+  # Get the backup type and break out of loop if it's correct
+  BACKUP_TYPE=`cat backup_flag`
+  if [ "$BACKUP_TYPE"=="simple" -o "$BACKUP_TYPE"=="full"; then break; fi
+
+  # Go 'round again; note that the flag file now exists
+  WATCH="MODIFY"
+done
 
 else # development block
 
