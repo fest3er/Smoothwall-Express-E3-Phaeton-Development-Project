@@ -4,13 +4,10 @@
 
 TO_BITBKT=">/dev/null 2>&1"
 
+TO_BACK_UP="var usr/etc"
+
 # Skip this block while developing
 if [ 1 -eq 0 ]; then
-
-TO_BACK_UP="adsl advnet auth ddns dhcp dmzholes ethernet ipblock isdn 
-    main/hostname.conf main/settings main/proxy modem portfw ppp proxy 
-    remote snort time vpn xtaccess clamav hosts im outgoing p3scan
-    sipproxy timedaccess traffic" 
 
 cd /var/smoothwall/backup
 
@@ -38,7 +35,6 @@ else # development block
   # instead, make it a simple backup
   INOTIFY_CMD="inotifywait -q"
   BACKUP_TYPE='simple'
-  TO_BACK_UP="var/log var/smoothwall usr/etc"
   DEV_FILE="/tmp/backup.devices"
   cd ${HOME}
 fi
