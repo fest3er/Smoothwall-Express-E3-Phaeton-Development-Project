@@ -17,3 +17,6 @@ S0:2345:off:/sbin/agetty 115200 ttyS0
 5:2345:respawn:/sbin/agetty 38400 tty5
 6:2345:respawn:/sbin/agetty 38400 tty6
 ~:S:wait:/bin/bash
+
+# Backup daemon
+B:2345:respawn:/usr/bin/backup_daemon

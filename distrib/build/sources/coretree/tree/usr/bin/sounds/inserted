@@ -12,5 +12,4 @@ j=32
   done
   echo 0 50
   echo 300 300
-  echo $i $j >/dev/tty
 ) | beep2 -f
