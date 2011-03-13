@@ -133,4 +133,4 @@ if ($ip ne $ipcache)
 	}
 }
 
-else { &log('Dyanmic DNS ip-update: your IP is already up-to-date'); }
+else { &log('Dynamic DNS ip-update: your IP is already up-to-date'); }
