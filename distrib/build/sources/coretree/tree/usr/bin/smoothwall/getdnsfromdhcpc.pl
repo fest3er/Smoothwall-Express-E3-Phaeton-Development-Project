@@ -54,7 +54,7 @@ else
   }
   else
   {
-    @alldns = array();
+    %alldns = ();
   }
 }
 
