@@ -168,6 +168,9 @@ echo
   echo "Enabling swap"
   do_or_die "swapon /dev/harddisk2"
 
+
+# If installing with or without a var data restore, mount the source medium
+if [ $restore -eq 1 -o $restore -eq 2 ]; then
   # Confuser: First try to mount the whole medium as an ISO9660 CD-/DVD-ROM; failing
   #   that, try mounting it as type 'isofs'. Failing that, try mounting partition #1
   #   as VFAT.
@@ -185,6 +188,24 @@ echo
     read a
     reboot -f
   fi
+fi
+
+# Mount the restore drive if restoring anything
+if [ $restore -eq 2 -o $restore -eq 3 ]; then
+  echo "Mounting restore drive"
+  mkdir -p /restore
+  RDMNTLOG="/tmp/rdmount.log"
+  > $RDMNTLOG
+  mount /dev/${rd_dev[$rd]}1  /restore -o ro >> $RDMNTLOG 2>&1
+  if [ $? -ne 0 ]; then
+    echo "Couldn't mount restore drive:"
+    sed -e 's/^/  /' $RDMNTLOG
+    echo
+    echo "Press <ENTER> to reboot the system and try again."
+    read a
+    reboot -f
+  fi
+fi
 
   if [ $filesys -eq 1 ]; then FS="-t ext3"; else FS="-t reiserfs"; fi
   echo "Mounting new root filesystem"
@@ -202,6 +223,11 @@ echo
 echo "Preparing Smoothwall"
 echo "Preparing Smoothwall" >/dev/tty2
 echo
+
+GRUB_CMD="/usr/sbin/grub-install"
+
+# If installing or restoring var data
+if [ $restore -eq 1 -o $restore -eq 2 ]; then
   echo "  unpacking system"
   do_or_die "tar -C /harddisk -zxvf /cdrom/smoothwall.tgz"
 
@@ -298,11 +324,10 @@ END
   echo "    re-pack"
   do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz"
   do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-phaeton.gz"
+  cd ${OPWD}
+  rm -rf ${HDTMP}
 
-  echo "  installing boot loader"
-  do_or_die "mount --bind /proc /harddisk/proc"
-  do_or_die "mount --bind /sys /harddisk/sys"
-  do_or_die "mount --bind /dev /harddisk/dev"
+  echo "  configuring boot loader"
   cat > /harddisk/boot/grub/menu.lst <<END
 # Begin /boot/grub/menu.lst
 
@@ -346,12 +371,39 @@ kernel /vmlinuz-${KERNEL_VER}-phaeton root=/dev/harddisk4 ro single
 initrd /initrd-${KERNEL_VER}-phaeton.gz
 END
 
-  do_or_die "/sbin/chroot /harddisk /usr/sbin/grub-install /dev/harddisk"
+  # Restore variable data if selected
+  if [ $restore -eq 2 ]; then
+    echo "  Restoring variable data from backup"
+    do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
+    GRUB_CMD="$GRUB_CMD --recheck"
+  fi
+
+else
+
+  # Performing a total restore
+  echo "  Restoring complete system from backup"
+  do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
+
+  # Sweep some backup crumbs under the rug
+  rm -f /harddisk/boot/grub/device.map  # map might've changed
+  > /harddisk/etc/mtab                  # It's wrong anyway
+  chroot /harddisk mount -f -a          # Make it match 'now'
+
+  GRUB_CMD="$GRUB_CMD --recheck"
+fi
+
+# Always install the boot loader whether installing, restoring var or
+#   doing a total restore
+echo "  installing boot loader"
+do_or_die "mount --bind /proc /harddisk/proc"
+do_or_die "mount --bind /sys /harddisk/sys"
+do_or_die "mount --bind /dev /harddisk/dev"
+do_or_die "/sbin/chroot /harddisk ${GRUB_CMD} /dev/harddisk"
 
 sleep 2
 
 echo -e "$TITLE"
 echo
-echo "Installation is complete. Proceeding to setup..."
+echo "Installation is complete."
 
 sleep 2

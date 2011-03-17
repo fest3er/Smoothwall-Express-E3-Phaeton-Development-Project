@@ -10,6 +10,9 @@ BO="\033[1m"
 UL="\033[4m"
 BOUL="\033[1;4m"
 NO="\033[0m"
+SC="\0337"
+RC="\0338"
+CE="\033[J"
 
 # Drive types
 CDs="ide:m-cdrom|scsi:t-0x05"
@@ -206,7 +209,7 @@ while [ 1 -eq 1 ]; do
   echo -en "$TITLE"
   echo
   echo
-  echo -e "${BO}Source Media Selection${NO}"
+  echo -e "${BO}Source Medium Selection${NO}"
 
   i=1
   while read a b c d; do
@@ -243,6 +246,85 @@ while [ 1 -eq 1 ]; do
   if [ x${cd_dev[$CD]} == x ]; then continue; fi
   if [ $CD -lt $i ]; then break; fi
 done
+
+while [ 1 -eq 1 ]; do
+  # restore selection
+  echo -en "$TITLE"
+  echo
+  echo
+  echo -e "${BO}Install or restore${NO}"
+
+  i=1; echo -e "  $i. Fresh install ${BO}ONLY${NO} (default)"
+  i=2; echo -e "  $i. Restore ${BO}variable${NO} data only"
+  i=3; echo -e "  $i. ${BO}Complete${NO} restoration"
+  echo
+
+  echo -n "[1]        Selection: "
+  read restore #</dev/tty
+  if [ x$restore == x ]; then restore="1"; fi
+  if [ $restore -lt 4 ]; then break; fi
+done
+
+# Get the medium and tarball only if restoring
+if [ $restore -gt 1 ]; then
+  # Get the drive
+  while [ 1 -eq 1 ]; do
+    # Select the disk to restore from
+    echo
+    echo -e "${SC}${BO}Restore Medium Selection${NO}"
+
+    unset b
+    typeset -i i b h
+    i=1
+    while read a b c d; do
+      if [ $a != ${hd_dev[$hd]} ]; then
+        b=b/2/1024
+        rd_dev[$i]=$a
+        rd_size[$i]=$b
+        rd_model[$i]=$c
+        rd_id[$i]=$d
+        echo -n "  $i. $a - ${hd_size[$i]}MiB (${hd_id[$i]})"
+        if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
+        i=i+1
+      fi
+    done < /tmp/hd.list
+    RD_CNT=$i
+    echo
+
+    echo -n "[1]        Selection: "
+    read rd #</dev/tty
+    if [ x$rd == "x" ]; then rd=1; fi
+    if [ $rd -lt $RD_CNT ]; then break; fi
+    echo -e "${RC}${CE}"
+  done
+  # Get the tarball
+  mkdir -p /restore
+  mount /dev/${rd_dev[$rd]}1 /restore
+  (cd /restore; ls -C1 *.tar.* >/tmp/archive.list)
+  umount /restore
+  while [ 1 -eq 1 ]; do
+    # Select the disk to restore from
+    echo
+    echo -e "${SC}${BO}Archive Selection${NO}"
+
+    unset b
+    typeset -i i b h
+    i=1
+    while read a; do
+        archive_id[$i]=$a
+        echo "  $i. $a"
+        i=i+1
+    done < /tmp/archive.list
+    ARCHIVE_CNT=$i
+    echo
+
+    echo -n "           Selection: "
+    read archive #</dev/tty
+    if [ x$archive == "x" ]; then archive=0; fi
+    if [ $archive -gt 0 -a $archive -lt $RD_CNT ]; then break; fi
+    echo -e "${RC}${CE}"
+  done
+fi
 
 while [ 1 -eq 1 ]; do
 # Dev Pkgs
@@ -396,6 +478,18 @@ while [ 1 == 1 ]; do
   echo
   echo -e "  Installing on target ${BO}/dev/disk/by-id/${hd_id[$hd]}${NO}"
   echo -e "  Booting from source drive ${BO}/dev/${cd_dev[$CD]}${NO}"
+  case $restore in
+    1) echo -e "  ${BO}Fresh${NO} install"
+       ;;
+    2) echo -e "  Fresh install ${BO}with${NO} variable data restore"
+       echo -e "        drive: ${rd_dev[$rd]}"
+       echo -e "      archive: ${archive_id[$archive]}"
+       ;;
+    3) echo -e "  ${BO}Restore${NO} from total backup"
+       echo -e "        drive: ${rd_dev[$rd]}"
+       echo -e "      archive: ${archive_id[$archive]}"
+       ;;
+  esac
   if [ $dev -eq 1 ]; then
     echo -e "  ${BO}Skipping${NO} development packages"
   else
@@ -447,7 +541,7 @@ while [ 1 == 1 ]; do
   echo -en "\033[23;0fOK? "
   read a #</dev/tty
   if [ x$a == "xyes" ]; then
-    export hd CD dev maxMiB filesys loader noatime
+    export hd CD dev maxMiB filesys loader noatime restore
     break;
   elif [ x$a == "xno" ]; then
     echo "Restarting installation configuration..."

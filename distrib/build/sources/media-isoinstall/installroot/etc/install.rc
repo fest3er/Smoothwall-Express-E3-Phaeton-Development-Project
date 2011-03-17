@@ -64,6 +64,7 @@ function undo_alot {
   umount /harddisk/boot >/dev/null 2>&1
   umount /harddisk >/dev/null 2>&1
   umount /cdrom >/dev/null 2>&1
+  umount /restore >/dev/null 2>&1
 
   swapoff -a >/dev/null 2>&1
 
@@ -119,28 +120,43 @@ echo "Configuring installer"
 echo "Executing installer"
 . /etc/exec-install.rc
 
-echo -e "$TITLE"
-echo
-echo "Preparing Setup"
-echo
-  echo "  cleaning up"
-    trap - EXIT
-    export TERM=linux
-    udevadm control --log-priority="none"
+case $restore in
+  1)
+    echo -e "$TITLE"
+    echo
+    echo "Preparing Setup"
+    echo
+      echo "  cleaning up"
+        trap - EXIT
+        export TERM=linux
+        udevadm control --log-priority="none"
 
-  echo "  run setup"
-    mount -n -o move /dev /harddisk/dev
-    mount -n -o move /dev/pts /harddisk/dev/pts
-    mount -n -o move /sys /harddisk/sys
-    mount -n -o move /proc /harddisk/proc
-    [ -d /proc/bus/usb ] && mount -n -o move /proc/bus/usb /harddisk/proc/bus/usb
+      echo "  run setup"
+        mount -n -o move /dev /harddisk/dev
+        mount -n -o move /dev/pts /harddisk/dev/pts
+        mount -n -o move /sys /harddisk/sys
+        mount -n -o move /proc /harddisk/proc
+        [ -d /proc/bus/usb ] && mount -n -o move /proc/bus/usb /harddisk/proc/bus/usb
 
-    cd /harddisk
-    chroot . /usr/sbin/setup /dev/tty2 INSTALL
+        cd /harddisk
+        chroot . /usr/sbin/setup /dev/tty2 INSTALL
 
-  echo -ne $CLS
-  echo; echo;
-  echo "  setup complete"
-  echo "  clean up and reboot"
-    undo_alot
-    /sbin/reboot -f
+      echo -ne $CLS
+      echo; echo;
+      echo "  setup complete"
+    ;;
+  2)
+    echo -ne $CLS
+    echo; echo;
+    echo "  install and restore complete"
+    ;;
+  3)
+    echo -ne $CLS
+    echo; echo;
+    echo "  total restore complete"
+    ;;
+esac
+
+echo "  clean up and reboot"
+  undo_alot
+  /sbin/reboot -f
