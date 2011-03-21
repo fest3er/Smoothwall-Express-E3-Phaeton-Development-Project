@@ -151,6 +151,7 @@ fi
       build bash
       build file
       build libtool
+      build readline
       build xz
       build bzip2
       build diffutils
@@ -314,6 +315,7 @@ fi
       build cpio
       build grub
       build reiserfsprogs
+      build parted
       build pcmciautils
       build yaml
       build libnet
