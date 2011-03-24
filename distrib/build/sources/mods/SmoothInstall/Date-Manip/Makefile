@@ -8,6 +8,6 @@ VERSION = 6.20
 
 LICENCE_FILE = $(DIR)/COPYING
 
-BASE_URL = http://search.cpan.org/CPAN/authors/id/S/SB/SBECK
+BASE_URL = http://backpan.cpan.org/authors/id/S/SB/SBECK
 
 include ../../Makefile.si
