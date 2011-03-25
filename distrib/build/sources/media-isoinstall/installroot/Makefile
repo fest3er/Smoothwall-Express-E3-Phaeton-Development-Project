@@ -32,7 +32,8 @@ EXCLUDE_DRIVERS = bluetooth connector gpu infiniband mfd misc mtd parport \
 	  memstick mmc
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-SWE_PKGS = udev grub pciutils bash reiserfsprogs util-linux-ng pcmciautils sysfsutils
+SWE_PKGS = udev grub pciutils bash reiserfsprogs util-linux-ng pcmciautils \
+           sysfsutils syslinux parted readline inotify-tools mtools
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr
 GZIP_PKGS = gunzip
 
@@ -83,6 +84,7 @@ all: clean bin lib klibc
 	  cp -aR ../etc/install.rc etc; chmod 755 etc/install.rc; \
 	  cp -aR ../etc/config-install.rc etc; chmod 755 etc/config-install.rc; \
 	  cp -aR ../etc/exec-install.rc etc; chmod 755 etc/exec-install.rc; \
+	  cp -aR ../../../../make_flash etc/auto_flash; chmod 755 etc/auto_flash; \
 	  cp -aR ../etc/eth-addr-sort etc; chmod 755 etc/eth-addr-sort; \
 	  cp -aR ../etc/udev-trigger.rc etc; chmod 755 etc/udev-trigger.rc; \
 	  sed -i -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' etc/exec-install.rc; \
@@ -90,6 +92,11 @@ all: clean bin lib klibc
 	  cp -aR ../etc/modules.conf etc; \
 	  cp -aR ../etc/storagedevices etc; \
 	) #> /dev/null 2>&1
+	(cd tmp; \
+	  mkdir usr/lib/gconv; \
+	  cp -a ../../../../buildroot/glibc/usr/lib/gconv/gconv-modules usr/lib/gconv/; \
+	  cp -a ../../../../buildroot/glibc/usr/lib/gconv/IBM850.so usr/lib/gconv/; \
+	)
 	(cd tmp; \
 	  mkdir -p etc/udev/rules.d; \
 	  cp -aRv lib/udev/rules.d/* etc/udev/rules.d/; \

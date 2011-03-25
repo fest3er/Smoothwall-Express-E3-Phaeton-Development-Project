@@ -1,0 +1,4 @@
+#! /bin/bash
+
+/sbin/udevadm settle
+/etc/auto_flash

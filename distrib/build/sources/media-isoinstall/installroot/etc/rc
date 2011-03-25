@@ -56,7 +56,9 @@ if [ "$(getarg console)" == "ttyS0,115200" ]; then
   cp /etc/inittab /a.a
   sed -e 's/^SI:2:off/SI:2:respawn/' \
       -e 's/^SB:S1:off/SB:S1:respawn/' \
-      -e 's/^I:2:respawn/I:2:off/' </a.a >/etc/inittab
+      -e 's/^SF:3:off/SF:3:respawn/' \
+      -e 's/^I:2:respawn/I:2:off/' \
+      -e 's/^F:3:respawn/F:3:off/' </a.a >/etc/inittab
   rm /a.a
 fi
 
@@ -65,6 +67,7 @@ RUNLEVEL="2"
 if [ "$(getarg single)" == "single" ]; then RUNLEVEL="S"; fi
 if [ "$(getarg explore)" == "explore" ]; then RUNLEVEL="1"; fi
 if [ "$(getarg install)" == "install" ]; then RUNLEVEL="2"; fi
+if [ "$(getarg flash)" == "flash" ]; then RUNLEVEL="3"; fi
 cp /etc/inittab /b.b
 sed -e 's/^DR:.:/DR:'${RUNLEVEL}':/' </b.b >/etc/inittab
 rm /b.b
@@ -73,6 +76,6 @@ kill -1 1
 # Set run level
 init ${RUNLEVEL}
 case $RUNLEVEL in
-  3) echo "0 0 0 0" >/proc/sys/kernel/printk
+  2|3) echo "1 4 1 7" >/proc/sys/kernel/printk
      ;;
 esac

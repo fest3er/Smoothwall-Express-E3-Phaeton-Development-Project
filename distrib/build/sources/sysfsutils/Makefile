@@ -11,6 +11,6 @@ VERSION = 2.1.0
 
 BASE_URL = http://iweb.dl.sourceforge.net/project/linux-diag/sysfsutils/2.1.0
 
-CONFIG_OPTS = --disable-static --enable-shared
+CONFIG_OPTS = --disable-static --enable-shared --sysconfdir=/usr/etc
 
 include ../Makefile.rules

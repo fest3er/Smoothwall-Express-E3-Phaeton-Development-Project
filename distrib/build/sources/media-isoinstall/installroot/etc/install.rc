@@ -52,7 +52,8 @@ function do_or_die {
     echo "FAILED: \"$1\""
     echo "  exit code: $exitcode"
     echo
-    echo "Press enter to reboot the system and try again."
+    echo "Type <CTRL/C> to try again."
+    echo "Press <ENTER> to reboot the system and try again."
     read a </dev/tty
     reboot -f
   fi

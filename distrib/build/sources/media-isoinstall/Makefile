@@ -161,7 +161,6 @@ cdrom/smoothwall.tgz:
 	@echo -e "\nTidying ..."
 	#@rm -f distrib/etc/resolv.conf
 	@find distrib -name .gitignore -exec rm -f {} \;
-	@cp ../../make_flash cdrom
 	@ln -s /var/smoothwall/vpn/ipsec.conf distrib/etc/ipsec.conf
 
 	@echo -e "\nCopying to OffRoad ..."
