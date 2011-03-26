@@ -82,6 +82,7 @@ all: clean bin lib klibc
 	  cp -aR ../etc/termcap etc; \
 	  cp -aR ../etc/rc etc; chmod 755 etc/rc; \
 	  cp -aR ../etc/install.rc etc; chmod 755 etc/install.rc; \
+	  cp -aR ../etc/flash.rc etc; chmod 755 etc/flash.rc; \
 	  cp -aR ../etc/config-install.rc etc; chmod 755 etc/config-install.rc; \
 	  cp -aR ../etc/exec-install.rc etc; chmod 755 etc/exec-install.rc; \
 	  cp -aR ../../../../make_flash etc/auto_flash; chmod 755 etc/auto_flash; \

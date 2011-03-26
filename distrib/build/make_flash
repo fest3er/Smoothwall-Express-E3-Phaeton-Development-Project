@@ -91,7 +91,7 @@ case `basename $0` in
     ls -C1 target/isos/*.iso 2>/dev/null | sed -e 's/^/    /'
     ls -C1 *.iso 2>/dev/null | sed -e 's/^/    /'
 
-    MOUNT_OPT="-o loop "
+    MOUNT_OPT="-o loop,ro "
     echo -n "   Enter the ISO filename: "
     read isoname
     if [ ! -f "$isoname" ]; then
@@ -101,8 +101,9 @@ case `basename $0` in
     ;;
   auto_flash)
     if [ -e /dev/sr0 -o -e /dev/cdrom ]; then
-      MOUNT_OPT=""
-      isoname=/dev/sr0
+      MOUNT_OPT="-o ro "
+      if [ -e /dev/sr0 ]; then isoname=/dev/sr0; fi
+      if [ -e /dev/cdrom ]; then isoname=/dev/cdrom; fi
     else
       echo "ERROR: optical drive not found! (Changing to runlevel 1)"
       init 1
