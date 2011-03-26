@@ -371,10 +371,29 @@ kernel /vmlinuz-${KERNEL_VER}-phaeton root=/dev/harddisk4 ro single
 initrd /initrd-${KERNEL_VER}-phaeton.gz
 END
 
-  # Restore variable data if selected
+  # Restore variable data if selected. AND adjust users/groups as needed!
   if [ $restore -eq 2 ]; then
+    (cd /harddisk/etc; for file in passwd group shadow; do cp $file $file-FRESH; done)
     echo "  Restoring variable data from backup"
     do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
+    (
+      cd /harddisk/etc; for file in passwd group shadow; do cp $file $file-RESTORED; done
+      (
+        egrep "fuse|plugdev|scanner|kvm|usbmux" group-FRESH
+        egrep -v "fuse|plugdev|scanner|kvm|usbmux" group-RESTORED
+      ) | sort -n -t: -k 3,3 >group
+      (
+        egrep "usbmux" passwd-FRESH
+        egrep -v "usbmux" passwd-RESTORED
+      ) | sort -n -t: -k 3,3 >passwd
+      # DON'T sort shadow
+      (
+        egrep -v "usbmux" shadow-RESTORED
+        egrep "usbmux" shadow-FRESH
+      ) >shadow
+    )
+    # Sweep the detritus under the rug
+    (cd /harddisk/etc; rm -f {passwd,group,shadow}-{RESTORED,FRESH})
     GRUB_CMD="$GRUB_CMD --recheck"
   fi
 

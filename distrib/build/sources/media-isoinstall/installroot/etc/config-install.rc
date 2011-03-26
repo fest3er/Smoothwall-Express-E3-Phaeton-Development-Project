@@ -283,7 +283,7 @@ if [ $restore -gt 1 ]; then
         rd_size[$i]=$b
         rd_model[$i]=$c
         rd_id[$i]=$d
-        echo -n "  $i. $a - ${hd_size[$i]}MiB (${hd_id[$i]})"
+        echo -n "  $i. $a - ${rd_size[$i]}MiB (${rd_id[$i]})"
         if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
         i=i+1
       fi
@@ -321,7 +321,7 @@ if [ $restore -gt 1 ]; then
     echo -n "           Selection: "
     read archive #</dev/tty
     if [ x$archive == "x" ]; then archive=0; fi
-    if [ $archive -gt 0 -a $archive -lt $RD_CNT ]; then break; fi
+    if [ $archive -gt 0 -a $archive -lt $ARCHIVE_CNT ]; then break; fi
     echo -e "${RC}${CE}"
   done
 fi

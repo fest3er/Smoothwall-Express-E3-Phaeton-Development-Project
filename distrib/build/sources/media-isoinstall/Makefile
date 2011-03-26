@@ -118,6 +118,7 @@ cdrom/smoothwall.tgz:
 	@( \
 	echo "  PRODUCT='$(PRODUCT_NAME)'"; \
 	echo "  VERSION='$(PRODUCT_VERSION)$(SWETYPE)'"; \
+	echo "  RELEASE='$(RELEASE)'" ; \
 	echo "  REVISION='$(REVISION)'"; \
 	echo "  UI_VERSION='$(UI_VERSION)'"; \
 	echo "  FIXES='$(FIXES_NUMBER)'"; \
@@ -128,6 +129,7 @@ cdrom/smoothwall.tgz:
 	( \
 	  echo "PRODUCT='$(PRODUCT_NAME)'" ; \
 	  echo "VERSION='$(PRODUCT_VERSION)$(SWETYPE)'" ; \
+	  echo "RELEASE='$(RELEASE)'" ; \
 	  echo "REVISION='$(REVISION)'" ; \
 	  echo "UI_VERSION='$(UI_VERSION)'" ; \
 	  echo "FIXES='$(FIXES_NUMBER)'" ; \

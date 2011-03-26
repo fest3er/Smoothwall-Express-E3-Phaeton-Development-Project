@@ -5,6 +5,9 @@ BO="\033[1m"
 UL="\033[4m"
 BOUL="\033[1;4m"
 NO="\033[0m"
+set `stty size`
+ROWS=$1
+COLS=$2
 
 # do-sid executes a program in a CTTY environment
 #
@@ -33,7 +36,7 @@ function rsr {
 #
 function ssr {
   echo -ne "\033"
-  echo -ne "7\033[21;24r"
+  echo -ne "7\033[21;${ROWS}r"
   echo -ne "\033[20;1fExecuting: "
   echo -n $1
   echo -ne "\033[21;1f"
