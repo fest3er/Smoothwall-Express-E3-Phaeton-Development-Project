@@ -371,13 +371,17 @@ kernel /vmlinuz-${KERNEL_VER}-phaeton root=/dev/harddisk4 ro single
 initrd /initrd-${KERNEL_VER}-phaeton.gz
 END
 
-  # Restore variable data if selected. AND adjust users/groups as needed!
+  # Restore variable data if selected. AND upgrade files as needed!
   if [ $restore -eq 2 ]; then
     (cd /harddisk/etc; for file in passwd group shadow; do cp $file $file-FRESH; done)
+    (cd /harddisk/var/smoothwall/main; mv productdata productdata-FRESH)
     echo "  Restoring variable data from backup"
     do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
+    echo "  Upgrading variable data files"
+    (cd /harddisk/var/smoothwall/main; mv productdata-FRESH productdata)
     (
-      cd /harddisk/etc; for file in passwd group shadow; do cp $file $file-RESTORED; done
+      cd /harddisk/etc
+      for file in passwd group shadow; do cp $file $file-RESTORED; done
       (
         egrep "fuse|plugdev|scanner|kvm|usbmux" group-FRESH
         egrep -v "fuse|plugdev|scanner|kvm|usbmux" group-RESTORED
