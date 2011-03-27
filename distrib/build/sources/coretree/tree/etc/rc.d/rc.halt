@@ -1,6 +1,14 @@
 #!/bin/sh
+
+. /var/smoothwall/ethernet/settings
+
+export STARTSTOP="shutdown"
+
 echo "Shutting down..."
-sleep 3
+
+# Block all inbound packets on all NICs
+. /etc/rc.d/rc.block-ingress
+
 echo "Sending all processes the TERM signal..." 
 /sbin/killall5 -15
 sleep 3
@@ -18,6 +26,8 @@ mount -n -o remount,ro /
 echo -ne \\a >/dev/console 
 
 /usr/bin/sounds/haltsound
+
+unset STARTSTOP
 
 if [ "$1" = "halt" ]; then
 	/sbin/halt -i -d -p

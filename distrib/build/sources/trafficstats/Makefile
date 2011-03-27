@@ -27,7 +27,7 @@ install: compile
 
 all: install
 	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) .
-	@tar -zxvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /
+	@tar -xvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /
 
 clean:
 	@echo -n " $(PACKAGE)"

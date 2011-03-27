@@ -55,15 +55,15 @@ all: clean bin lib klibc
 	@cd tmp; cp ../etc/runt-init init; chmod 555 init
 
 	@(cd tmp; \
+	  cp -aR ../../../coretree/tree/etc/passwd etc; \
+	  cp -aR ../../../coretree/tree/etc/group etc; \
 	  install -D /usr/share/terminfo/l/linux usr/share/terminfo/l/linux; \
 	  cp -aR /lib/ld-*.so /lib/ld-*.so.* /lib/libc-*.so /lib/libc.so.* lib; \
 	  cp -aR ../etc/fstab etc; \
-	  cp -aR ../etc/group etc; \
 	  cp -aR ../etc/mtab etc; \
-	  cp -aR ../etc/passwd etc; \
 	  cp -aR ../etc/shells etc; \
 	  cp -aR ../etc/termcap etc; \
-	  cp -aR ../etc/udev.rc etc; chmod 755 etc/udev.rc; \
+	  cp -aR ../etc/udev-trigger.rc etc; chmod 755 etc/udev-trigger.rc; \
 	  cp -aR ../etc/halt etc; chmod 755 etc/halt; \
 	  cp -aR ../etc/modules.conf etc; \
 	  cp -aR ../etc/storagedevices etc; \
@@ -78,19 +78,13 @@ all: clean bin lib klibc
 	  touch etc/ld.so.conf; \
 	  /sbin/ldconfig -r .; \
 	  mkdir dev/ida dev/rd; \
-	  install -d lib/{firmware,udev/devices/{pts,shm}}; \
-	  mknod -m0666 lib/udev/devices/null c 1 3; \
-	  mknod -m0600 lib/udev/devices/kmsg c 1 11; \
-	  mknod -m0600 dev/console c 5 1; \
-	  mknod -m0600 dev/kmem c 1 2; \
-	  mknod -m0600 dev/mem c 1 1; \
-	  for i in 0 1 2 3 4 5 6 7 8 9; do mknod dev/tty$$i c 4 $$i; done; \
-	  ln -sf proc/self/fd /lib/udev/devices/fd; \
-	  ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
-	  ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
-	  ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
-	  ln -sf proc/kcore /lib/udev/devices/core; \
+	  install -d lib/firmware; \
 	) > /dev/null 2>&1
+	  #ln -sf proc/self/fd /lib/udev/devices/fd; \
+	  #ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
+	  #ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
+	  #ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
+	  #ln -sf proc/kcore /lib/udev/devices/core; \
 
 ifdef BITS_64
 	@(cd tmp; ln -s lib lib64)
@@ -103,7 +97,6 @@ endif
 	@# Build the runtime initramfs CPIO archive
 	@cd tmp; find . | cpio -o -H newc | gzip > ../../$(RUNTIME_ROOT)image.gz
 
-	@#rm -rf installroot/
 	@echo -e "runtimeroot build for $(MEDIA) complete\n\n"
 	
 clean:

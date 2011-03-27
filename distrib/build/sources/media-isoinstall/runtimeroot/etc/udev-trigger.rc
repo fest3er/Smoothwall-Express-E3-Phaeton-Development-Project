@@ -1,0 +1,7 @@
+#! /bin/bash
+
+sleep 3
+/sbin/udevadm trigger
+/sbin/udevadm trigger --subsystem-match=block
+/sbin/udevadm trigger --attr-match=modalias
+/sbin/udevadm settle

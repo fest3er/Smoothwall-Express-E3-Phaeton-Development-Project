@@ -1,0 +1,20 @@
+roadster.lss
+You can do more than just install Phaeton/Roadster:
+  linux or <ENTER>: default install
+  serial: boot using the first serial port as console
+  noisy: let the kernel jabber at you
+
+'linux' and 'serial' have an optional argument:
+  single: boot to runlevel S (single-user mode)
+  explore: boot to runlevel 1 and a shell to explore the hardware
+  install: boot to runlevel 2 to start the installer (default)
+  flash: boot to runlevel 3 to morph the install CD to a flash drive
+
+At a shell prompt, type:
+  init [ S | 1 | 2 | 3 ]
+to change run levels, or '0' to halt/powerdown, or '1' to reboot.
+
+If there are commands missing that would be helpful when exploring the
+hardware, please request them via the Phaeton forums.
+
+<F1>-SPLASH  <F2>-(this)  <ENTER>-Start the Installer

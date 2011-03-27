@@ -16,5 +16,4 @@ HD size, PCI/USB devices, NIC/connection type [modem/ISDN/ASDL/etc]) to our
 servers. Opt-out information is available at the following URL:
 http://smoothwall.org/about/statistics.html
 
-
-      - Press RETURN to continue the install of SmoothWall Express - 
+<F1>-(this)  <F2>-HELP    <ENTER>-Default Install 

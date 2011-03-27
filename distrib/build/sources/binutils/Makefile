@@ -85,8 +85,8 @@ download:
 
 PATCH = yes
 patch: $(DIR)/
-	cd $(DIR); tar jxfv ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
-	cd $(DIR); tar jxfv ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
+	cd $(DIR); tar -xvf ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
+	cd $(DIR); tar -xvf ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
 	rm -fv $(DIR)/etc/standards.info
 	sed -i.bak '/^INFO/s/standards.info //' $(DIR)/etc/Makefile.in
 

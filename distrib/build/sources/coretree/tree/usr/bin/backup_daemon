@@ -1,0 +1,203 @@
+#! /bin/bash
+
+# Phaeton/Roadster Backup
+#
+# Copyright 2011, Neal P. Murphy
+#
+# This program is licensed under the terms of the GNU Public License, version 2.
+
+# Usage statement
+usage () {
+  echo "Usage: $0 [ var | total ]"
+  echo "  - var: save only variable data in /var and /usr/etc"
+  echo "  - total: save all of /, /boot and /var/log"
+  echo
+  exit 1
+}
+
+# Provide user feedback, to the flag file for the UI if started from the UI,
+#   or to STDOUT if started manually
+feedback () {
+  if [ "$1" == "AUTO" ]; then
+    echo $2 > /${BACK_FLAG}
+  else
+    if [ "$3" == "same" ]; then
+      echo -e "\033[A$2\033[K"
+    else
+      echo $2
+    fi
+  fi
+}
+
+# How this was run determines where feedback is sent.
+if [ `basename $0` == "backup_daemon" ]; then
+  if [ $PPID -ne 1 ]; then
+    echo "Only init (process #1) can run the daemon!"
+    exit 1;
+  fi
+  AUTOBACK="AUTO"
+else
+  case $1 in
+    "var"|"total") BACKUP_TYPE="$1";;
+    *) usage; exit 1;;
+  esac
+  AUTOBACK="MANUAL"
+fi
+
+# Get the smoothie pedigree
+. /var/smoothwall/main/productdata
+if [ -z "$RELEASE" ]; then
+  tmp="`IFS="-"; set $VERSION;echo $2`"
+  case $tmp in
+    phaeton) RELEASE="Phaeton-Pre506";;
+    roadster) RELEASE="Roadster-PreMKII";;
+    "") RELEASE="SWE-3.0";;
+  esac
+fi
+
+# Prepare a bunch of shorthand
+BACK_DIR=var/smoothwall/backup
+BACK_FLAG="${BACK_DIR}/backup.flag"
+
+set ${RELEASE/-/ }
+RELTYPE=$1
+RELVER=$2
+
+HOST=`uname -n`
+DATE=`date +"%Y-%m-%d"`
+TIME=`date +"%H:%M:%S"`
+
+KERNEL=`uname -r`
+
+EXCLUDES="--exclude=proc/* --exclude=dev/* --exclude=sys/* --exclude=backup/*"
+
+TO_BITBKT=">/dev/null 2>&1"
+
+INOTIFY_CMD="inotifywait -q"
+DEV_FILE="/${BACK_DIR}/backup.devices"
+
+# Go to the working dir
+cd /$BACK_DIR
+
+# Normalize the flag file
+touch backup.flag
+chgrp nobody backup.flag
+chmod 660 backup.flag
+
+# Only check the flag file if running as daemon
+if [ $AUTOBACK == "AUTO" ]; then
+  WATCH="MODIFY"
+
+  # Wait until the file changes; ignore all other changes
+  while :; do
+    set `$INOTIFY_CMD -e $WATCH /${BACK_FLAG} 2>/dev/null`
+
+    # Get the backup type and break out of loop if it's correct
+    BACKUP_TYPE=`cat /${BACK_FLAG}`
+    if [ "$BACKUP_TYPE"=="var" -o "$BACKUP_TYPE"=="total" ]; then break; fi
+
+    # Go 'round again
+  done
+
+  /usr/bin/sounds/inserted # Audible
+fi
+
+# Now set the flag file names
+FNAME="${HOST}_${DATE}_${RELTYPE}_${RELVER}_${BACKUP_TYPE}"
+HNAME="${BACK_DIR}/${FNAME}"
+touch /${HNAME}.tarhead
+touch /${HNAME}.tarheel
+
+# Set the files to save based on the type of backup
+case ${BACKUP_TYPE} in
+  var)
+    FILES_TO_SAVE="${EXCLUDES} ${HNAME}.tarhead"
+    FILES_TO_SAVE="${FILES_TO_SAVE} var usr/etc @var/smoothwall/backup"
+    FILES_TO_SAVE="${FILES_TO_SAVE} /etc/shadow etc/passwd etc/group etc/httpd/server.*"
+    FILES_TO_SAVE="${FILES_TO_SAVE} /etc/passwd /etc/shadow /etc/httpd/server.*"
+    FILES_TO_SAVE="${FILES_TO_SAVE} ${HNAME}.tarheel"
+    ;;
+
+  total)
+    FILES_TO_SAVE="${EXCLUDES} ${HNAME}.tarhead . ${HNAME}.tarheel"
+    ;;
+esac
+
+feedback $AUTOBACK "Plug in flash drive"
+
+# Wait until a new [0-9] node appears in /dev
+#   This should be OK because there should be few device changes during operation
+WATCH="CREATE"
+
+# Watch for CREATEs in /dev of xxx[0-9]*
+$INOTIFY_CMD -m --exclude "t[my]" /dev | while read a b c; do
+  if [ "$b" != "$WATCH" ]; then continue; fi
+  C="${c/[0-9]*/}"
+  if [ "$c" != "$C" -a -e "$a$C" -a -e "$a${C}1" ]; then
+    echo "${C}1" > ${DEV_FILE}
+    exit;
+  fi
+done
+read NODE <$DEV_FILE
+
+# Make and mount
+MOUNT_PT=/backup
+mkdir -p $MOUNT_PT
+FAIL=0
+mount /dev/$NODE $MOUNT_PT >/dev/null 2>&1 || FAIL=1
+
+if [ $FAIL -eq 1 ]; then
+feedback $AUTOBACK "Couldn't mount the flash drive. Please verify that it is partitioned\nand contains a good filesystem."
+  /usr/bin/sounds/mount_failed.bps
+else
+  /usr/bin/sounds/mount_succeeded.bps
+  # Get the file count first (for progress feedback)
+  tar cvf /dev/null -C / ${FILES_TO_SAVE} > ${FNAME}.list 2>/dev/null
+  sed -ie 's=^/==' ${FNAME}.list
+  typeset -i i FILECOUNT
+  FILECOUNT=`cat ${FNAME}.list | wc -l`
+  FILECOUNT=FILECOUNT+2
+  i=0
+  if [ $AUTOBACK == "MANUAL" ]; then echo; fi
+
+  # Finally, why we're here.
+  tar cvfz ${MOUNT_PT}/${FNAME}.tar.gz \
+      --no-recursion \
+      -C / \
+      ${HNAME}.tarhead -T ${FNAME}.list ${HNAME}.tarheel \
+      2>/dev/null | while read a; do
+    i=i+1
+    feedback $AUTOBACK "$i/$FILECOUNT: $a" "same"
+  done
+
+  feedback $AUTOBACK "Flushing data to backup device"
+
+  # Unmount
+  while :; do
+    umount $MOUNT_PT >/dev/null 2>&1 && break;
+    sleep 1
+  done
+  rmdir $MOUNT_PT
+fi
+
+# Tell the user to unplug the drive
+/usr/bin/sounds/ring.bpf
+
+feedback $AUTOBACK "Unplug the flash drive."
+
+# Wait for deletion of the node mounted
+WATCH="DELETE"
+# Watch for the node removal
+$INOTIFY_CMD -e $WATCH /dev 2>&- | while read a b c d; do
+  if [ $c == "${NODE}" ]; then exit; fi
+done
+
+/usr/bin/sounds/removed
+
+rm -f ${DEV_FILE} $FNAME.list
+
+echo "Last backup: $AUTOBACK; date=$DATE $TIME; type=$BACKUP_TYPE" > /${BACK_FLAG}
+
+if [ "$AUTOBACK" == "MANUAL" ]; then
+  echo "Backup complete."
+fi

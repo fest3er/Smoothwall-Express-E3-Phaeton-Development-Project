@@ -32,7 +32,7 @@ download:
 
 PREPARE = yes
 $(DIR)/: download
-	@tar -zxvf $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
+	@tar -xvf $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
 
 INSTALL = yes
 install: compile

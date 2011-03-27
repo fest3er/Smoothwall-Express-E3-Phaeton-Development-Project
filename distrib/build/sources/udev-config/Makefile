@@ -4,26 +4,39 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
+# These are the udev rules from Squebian Deeze on 1/26/11.
+
 include ../Makefile.conf
 
 PACKAGE = udev-config
-VERSION = 20100128
+VERSION = 1.0
 
-EXTENSION = .tar.bz2
+DOWNLOAD = yes
+PREPARE = yes
+PATCH = yes
+CONFIGURE = yes
+COMPILE = yes
 
-BASE_URL = http://www.linuxfromscratch.org/lfs/downloads/6.6/
+download:
+	@true
+$(DIR)/:
+	@true
+patch:
+	@true
+configure:
+	@true
+compile:
+	true
+
 
 INSTALL = yes
-install: patch
+install:
 	@mkdir -p $(PKG_ROOT)
-	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
-	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install-doc
-	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install-extra-doc
+	cp -avR lib $(PKG_ROOT)/
 
 CLEAN = yes
 clean:
 	@echo -n " $(PACKAGE)"
-	@rm -rf $(PACKAGE)-$(VERSION)
 ifeq ($(BUILD_PHASE), Final)
 	@rm -rf $(PKG_ROOT)
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
@@ -31,4 +44,3 @@ endif
 
 
 include ../Makefile.rules
-

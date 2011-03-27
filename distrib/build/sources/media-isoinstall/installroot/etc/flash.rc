@@ -1,0 +1,14 @@
+#! /bin/bash
+
+CLS="\033[0;0f\033[2J"
+BO="\033[1m"
+UL="\033[4m"
+BOUL="\033[1;4m"
+NO="\033[0m"
+
+echo -e "${BOUL}Wait for udev to settle${NO}"
+while [ -e /tmp/trigger-lock ]; do
+  usleep 100000
+done
+
+/etc/auto_flash

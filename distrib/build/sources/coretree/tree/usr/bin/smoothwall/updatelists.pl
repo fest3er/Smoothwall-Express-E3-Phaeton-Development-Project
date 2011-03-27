@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-print "\nUpdates disabled for Phaeton.\n";
+print "\nUpdates disabled for Roadster.\n";
 exit 0;
 
 use IO::Socket;

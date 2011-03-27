@@ -42,8 +42,8 @@ CONFIG_OPTS = --target=$(SWE_TGT) --prefix=$(TOOLS_DIR) \
 
 PATCH = yes
 patch: $(DIR)/
-	cd $(DIR); tar jxfv ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
-	cd $(DIR); tar jxfv ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
+	cd $(DIR); tar -xvf ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
+	cd $(DIR); tar -xvf ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
 
 COMPILE = yes
 compile: configure
@@ -90,8 +90,8 @@ patch: $(DIR)/
 	  ) > "$$file"; \
 	  /bin/touch "$$file.orig"; \
 	done
-	cd $(DIR); tar jxfv ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
-	cd $(DIR); tar jxfv ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
+	cd $(DIR); tar -xvf ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
+	cd $(DIR); tar -xvf ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
 
 COMPILE = yes
 compile: configure
@@ -117,8 +117,8 @@ CONFIG_OPTS =  --prefix=$(PKG_DIR) \
 
 PATCH = yes
 patch: $(DIR)/
-	cd $(DIR); tar jxfv ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
-	cd $(DIR); tar jxfv ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
+	cd $(DIR); tar -xvf ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
+	cd $(DIR); tar -xvf ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
 	sed -i 's/install_to_$$(INSTALL_DEST) //' $(DIR)/libiberty/Makefile.in
 	sed -i 's/^XCFLAGS =$$/& -fomit-frame-pointer/' $(DIR)/gcc/Makefile.in
 	sed -i 's@\./fixinc\.sh@-c true@' $(DIR)/gcc/Makefile.in

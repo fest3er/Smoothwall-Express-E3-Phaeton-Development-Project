@@ -1,11 +1,47 @@
+# This is the installer's inittab ONLY.
+
+# /etc/rc will adjust the run level based on the kernel command line
+
+# cmdline arg   run level     effect
+#   single      Single User   mount /proc, /dev, single bash only
+#   explore     Run Level 1   mount system FSen, run udev, run shells
+#   install     Run Level 2   RL1 + installer & setup
+#  (default)    Run Level 2   RL1 + installer & setup
+
+DR:S:initdefault:
+
 # System initialization.
-::sysinit:/etc/rc
+EB::sysinit:/etc/rc
 
 # Trap CTRL-ALT-DELETE
-::ctrlaltdel:/etc/halt
+TF::ctrlaltdel:/sbin/reboot -f
 
-# Run gettys in standard runlevels
-#::respawn:/bin/iowrap /dev/tty1 /bin/loader
-::respawn:/bin/iowrap /dev/tty1 /etc/install.rc
-::respawn:/bin/iowrap /dev/tty3 /bin/ash
-::respawn:/bin/iowrap /dev/tty5 /bin/bash
+# Run level determines what to do
+
+# Run bash/installer/flasher on serial port;
+#   OFF unless using serial port
+SB:S1:off:/bin/bash </dev/ttyS0 >/dev/ttyS0 2>&1
+SI:2:off:/etc/install.rc </dev/ttyS0 >/dev/ttyS0 2>&1
+SF:3:off:/etc/auto_flash </dev/ttyS0 >/dev/ttyS0 2>&1
+
+# Run installer on VC1; active by default
+I:2:respawn:/etc/install.rc </dev/tty1 >/dev/tty1 2>&1
+
+# Run flash converter on VC1; active by default
+F:3:respawn:/etc/flash.rc </dev/tty1 >/dev/tty1 2>&1
+
+# Bash on VC1 when exploring or single-user
+1:S1:respawn:/bin/bash </dev/tty1 >/dev/tty1 2>&1
+
+# Bash on VC2 when exploring or flashing
+2:13:respawn:/bin/bash </dev/tty2 >/dev/tty2 2>&1
+
+# Bash on VC[3-6] when not single-user
+3:123:respawn:/bin/bash </dev/tty3 >/dev/tty3 2>&1
+4:123:respawn:/bin/bash </dev/tty4 >/dev/tty4 2>&1
+5:123:respawn:/bin/bash </dev/tty5 >/dev/tty5 2>&1
+6:123:respawn:/bin/bash </dev/tty6 >/dev/tty6 2>&1
+
+# Udev when not single-user
+U:123:respawn:/sbin/udevd
+EEI:123:wait:/etc/udev-trigger.rc

@@ -52,12 +52,6 @@ int main(int argc, char *argv[])
 	
 	fprintf(flog, "Setup program started.\n");
 
-	if (initnicdevices() < 0)
-	{
-		printf("Unable to initialize the NIC device driver list.");
-		goto EXIT;
-	}
-
 	kv = initkeyvalues();
 	if (!(readkeyvalues(kv, CONFIG_ROOT "main/settings")))
 	{

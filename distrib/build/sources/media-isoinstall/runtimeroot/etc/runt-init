@@ -14,43 +14,34 @@ echo "Loading, please wait..."
 [ -d /root ] || mkdir -m 0700 /root
 [ -d /sys ] || mkdir /sys
 [ -d /proc ] || mkdir /proc
-[ -d /tmp ] || mkdir /tmp
+[ -d /tmp ] || mkdir -m 0777 /tmp
+[ -d /var/lock ] || mkdir -p -m 755 /var/lock
 
-echo "Mounting sys, proc"
-mkdir -p /var/lock
-mount -t sysfs -o nodev,noexec,nosuid none /sys 
-mount -t proc -o nodev,noexec,nosuid none /proc 
+# Mount proc, sys, dev
+echo "Mounting /proc, /sys"
+/bin/mount -t proc proc /proc
+/bin/mount -t sysfs sysfs /sys
 
-echo "Making some needed /dev entries"
-test -e /dev/console || mknod -m0600 /dev/console c 5 1
-test -e /dev/null || mknod -m0777 /dev/null c 1 3
+echo "Mounting devtmpfs"
+/bin/mount -t devtmpfs devtmpfs /dev
 
-echo "Mounting root read/write"
-mount -n -o remount,rw /
+# Populating dev
+/sbin/udevd --daemon
+/sbin/udevadm trigger
+/sbin/udevadm settle
 
-echo "Clearing mtab"
->/etc/mtab
+if [ -d /proc/bus/usb ]; then
+  echo "Mounting proc/bus/usb"
+  /bin/mount -t usbfs usbfs /proc/bus/usb
+fi
 
-echo "Marking root as mounted"
-mount -f /
-
-# Mounting and populating dev
-/etc/udev.rc
-
-echo "Mounting /proc/bus/usb"
-/bin/mount -t usbfs procbususb /proc/bus/usb
-
-# Need a short delay to give USB devices, if any, time to appear
-echo -e "${BOUL}Waiting for USB devices to finish appearing${NO}"
-sleep 5
-echo -e "${BOUL}Done waiting${NO}"
-
+# Load any modules explicitly required
 test -e /etc/modules && egrep -v "^$|^#" /etc/modules | while read a; do modprobe $a; done
 
 # Switch to hard drive and start the system
-mount /harddisk -o ro
+/bin/mount /harddisk -o ro
 
-# Stop udevd, we may miss a few events while we run init, but we'll catch up
+# Stop udevd; missed events will be caught later
 for proc in /proc/[0-9]*; do
     [ -x $proc/exe ] || continue
     [ "$(/usr/lib/klibc/bin/readlink $proc/exe)" != /bin/udevd ] || kill ${proc#/proc/}
@@ -58,12 +49,20 @@ done
 
 echo "1 4 1 7" >/proc/sys/kernel/printk
 
-mount -n -o move /dev /harddisk/dev
+if [ -d /proc/bus/usb ]; then
+  /bin/umount /proc/bus/usb
+fi
+/bin/mount -n -o move /dev /harddisk/dev
+/bin/mkdir -p /harddisk/dev/pts
+/bin/mount -t devpts devpts /harddisk/dev/pts
 
 /usr/lib/klibc/bin/nuke /dev
-ln -s /harddisk/dev /dev
+/bin/ln -s /harddisk/dev /dev
 
-mount -n -o move /sys /harddisk/sys
-mount -n -o move /proc /harddisk/proc
+/bin/mount -n -o move /sys /harddisk/sys
+/bin/mount -n -o move /proc /harddisk/proc
+if [ -d /harddisk/proc/bus/usb ]; then
+  /bin/mount -t usbfs usbfs /harddisk/proc/bus/usb
+fi
 
 exec /usr/lib/klibc/bin/run-init /harddisk /sbin/init </harddisk/dev/console >/harddisk/dev/console 2>&1

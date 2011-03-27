@@ -10,6 +10,9 @@ BO="\033[1m"
 UL="\033[4m"
 BOUL="\033[1;4m"
 NO="\033[0m"
+SC="\0337"
+RC="\0338"
+CE="\033[J"
 
 # Drive types
 CDs="ide:m-cdrom|scsi:t-0x05"
@@ -21,11 +24,13 @@ PCI_IDS="/etc/filled.pci.ids"
 # Uber title
 TITLE="$CLS            ${BOUL}Smoothwall Express 3 (Roadster Test Vehicle) Installation$NO"
 
+echo -e $TITLE; echo
 #echo "Preparing lists of CDROM and hard drives and NICs"
 echo "Preparing lists of CDROM and hard drives"
-OPWD=$PWD;cd /sys/block
+OPWD=$PWD
+cd /sys/block
 
-typeset -i tries cd_cnt hd_cnt WORK_IDX sum
+typeset -i tries cd_cnt hd_cnt WORK_IDX sum size
 tries=0
 WORKING[0]="|"
 WORKING[1]="/"
@@ -44,16 +49,39 @@ while [ 1 -eq 1 ]; do
   ls -C1 | while read a; do
     if [ -e $a/device ]; then
       # if an optical drive, add it to /tmp/cd.list
+      size=""
       egrep "$CDs" $a/device/modalias >/dev/null 2>&1
       if [ $? -eq 0 ]; then
-        echo "$a `cat $a/size`" >> /tmp/cd.list
+        set `cat $a/size`
+        if [ $1 -gt 0 ]; then
+          size=$1
+        else
+          size=0
+        fi
+        UDEVINFO="/sbin/udevadm info --path=${PWD}/$a --query=all"
+        model=`$UDEVINFO | grep ID_MODEL= | sed -e 's/.*=//'`
+        [ -z "$model" ] && model=`cat $a/device/model 2>&1 | sed -e 's/ /-/g'`
+        [ -z "$model" ] && model="UNK_MODEL"
+        serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
+        [ -z "$serial" ] && serial=`cat $a/device/serial >/dev/null 2>&1 | sed -e 's/ /-/g'`
+        [ -z "$serial" ] && serial="UNK_SERIAL"
+        echo "$a $size $model $serial" >> /tmp/cd.list
       fi
       # if a disk drive, add it to /tmp/hd.list
+      size=""
       egrep "$HDs" $a/device/modalias >/dev/null 2>&1
       if [ $? -eq 0 ]; then
         set `cat $a/size`
         if [ $1 -gt 0 ]; then
-          echo "$a `cat $a/size`" >> /tmp/hd.list
+          size=$1
+          UDEVINFO="udevadm info --path=${PWD}/$a --query=all"
+          model=`$UDEVINFO | grep "ID_MODEL=" | sed -e 's/.*=//'`
+          [ -z "$model" ] && model=`cat $a/device/model 2>&1 | sed -e 's/ /-/g'`
+          [ -z "$model" ] && model="UNK_MODEL"
+          serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
+          [ -z "$serial" ] && serial=`cat $a/device/serial >/dev/null 2>&1 | sed -e 's/ /-/g'`
+          [ -z "$serial" ] && serial="UNK_SERIAL"
+          echo "$a $size $model $serial" >> /tmp/hd.list
         fi
       fi
     fi
@@ -65,24 +93,14 @@ while [ 1 -eq 1 ]; do
   set `wc -l /tmp/cd.list`
   cd_cnt=$1
 
-  # Let's not quit after finding one of each. Rather, shorten the total search time
-  #   to 15 seconds. It's only the initial install boot; the delay shouldn't be too
-  #   onerous.
-  # Old time points were 12,24,18,30,36
-
-  # If at least one of each was found, get on with the install already!
-  #test $hd_cnt -gt 0 && test $cd_cnt -gt 0 && break
+  # Search for hot-plugged drives for 6 seconds
 
   case $tries in
-    10)
-      echo -e -n "  Still looking...\r"
-      ;;
-    20)
-      echo -e -n "  I'm getting antsy!\r"
-      ;;
-    15|25)
-      echo -e -n "\033[0J\r"
-      ;;
+    5) echo -e -n " 5\r" ;;
+    10) echo -e -n " 4\r" ;;
+    15) echo -e -n " 3\r" ;;
+    20) echo -e -n " 2\r" ;;
+    25) echo -e -n " 1\r" ;;
     30)
       echo -e -n "\033[0J\r"
       case $hd_cnt in
@@ -91,14 +109,7 @@ while [ 1 -eq 1 ]; do
         *) echo -en "\r\nTwo or more writable drives found. ";;
       esac
       case $cd_cnt in
-        0) echo -n "No optical drives found. "
-           if [ $hd_cnt -gt 1 ]; then
-             echo -e "\n\nBooting/installing from flash?"
-             echo -e "Be sure to correctly select the boot drive!\n"
-             ALT_CD=1
-             break;
-           fi
-           ;;
+        0) echo -n "No optical drives found. " ;;
         1) echo "One optical drive found.";;
         *) echo "Two or more optical drives found.";;
       esac
@@ -116,13 +127,20 @@ while [ 1 -eq 1 ]; do
   WORK_IDX=WORK_IDX+1
   [ $WORK_IDX -eq 4 ] && WORK_IDX=0
 
-  usleep 500000
+  usleep 200000
   tries=tries+1
 done
 cd $OPWD
 
 echo "Finished finding drives"
+if [ $hd_cnt -gt 1 ]; then
+  echo -e "\nBooting/installing from flash?"
+  echo -e "Be sure to correctly select the boot drive!\n"
+fi
 sleep 5
+
+# Always show remaining writable drives as potential sources
+ALT_CD=1
 
 # skip NICs until setup works
 if [ 1 -lt 0 ]; then
@@ -155,16 +173,18 @@ while [ 1 -eq 1 ]; do
   echo -en "$TITLE"
   echo
   echo
-  echo -e "${BO}Disk Drive Selection$NO"
+  echo -e "${BO}Target Disk Drive Selection$NO"
 
   unset b
   typeset -i i b h
   i=1
-  while read a b; do
+  while read a b c d; do
     b=b/2/1024
     hd_dev[$i]=$a
     hd_size[$i]=$b
-    echo -n "  $i. $a - ${hd_size[$i]}MiB"
+    hd_model[$i]=$c
+    hd_id[$i]=$d
+    echo -n "  $i. $a - ${hd_size[$i]}MiB (${hd_id[$i]})"
     if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
     i=i+1
   done < /tmp/hd.list
@@ -177,32 +197,44 @@ while [ 1 -eq 1 ]; do
   if [ $hd -lt $i ]; then break; fi
 done
 
+# Get the by-id name
+set `head -$hd /tmp/hd.list|tail -1`
+hd_sel=$1
+set `ls -ls /dev/disk/by-id | egrep $hd_sel"$" | head -1`
+shift 9
+hd_dev=$1
+
 while [ 1 -eq 1 ]; do
   # CD/DVD Drive selection
   echo -en "$TITLE"
   echo
   echo
-  echo -e "${BO}CD/DVD/Flash Drive Selection${NO}"
+  echo -e "${BO}Source Medium Selection${NO}"
 
   i=1
-  while read a b; do
+  while read a b c d; do
     cd_dev[$i]=$a
-    echo -n "  $i. $a"
-    if [ $i -eq 1 ]; then echo "( default)"; else echo; fi
+    cd_size[$i]=$b
+    cd_model[$i]=$c
+    cd_id[$i]=$d
+    echo -n "  $i. $a - ${cd_size[$i]}MiB (${cd_model[$i]})"
+    if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
     i=i+1
   done < /tmp/cd.list
   OPTI_CNT=$i
   if [ $ALT_CD -eq 1 ]; then
     h=1
-    while read a b; do
+    while read a b c d; do
       if [ $h -ne $hd ]; then
         b=b/2/1024
-        hd_dev[$i]=$a
-        hd_size[$i]=$b
-        echo -n "  $i. $a - ${hd_size[$i]}MiB"
+        cd_dev[$i]=$a
+        cd_size[$i]=$b
+        cd_model[$i]=$c
+        cd_id[$i]=$d
+        echo -n "  $i. $a - ${cd_size[$i]}MiB ${cd_model[$i]} (${cd_id[$i]})"
         if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
+        i=i+1
       fi
-      i=i+1
       h=h+1
     done < /tmp/hd.list
   fi
@@ -211,14 +243,88 @@ while [ 1 -eq 1 ]; do
   echo -n "[1]        Selection: "
   read CD #</dev/tty
   if [ x$CD == "x" ]; then CD=1; fi
-  if [ $CD -lt $OPTI_CNT ]; then break; fi
-  # if allowing 'HD' devices...
-  if [ $CD -lt $i ]; then 
-    cd_dev[1]=${hd_dev[$CD]}
-    CD=1
-    break
-  fi
+  if [ x${cd_dev[$CD]} == x ]; then continue; fi
+  if [ $CD -lt $i ]; then break; fi
 done
+
+while [ 1 -eq 1 ]; do
+  # restore selection
+  echo -en "$TITLE"
+  echo
+  echo
+  echo -e "${BO}Install or restore${NO}"
+
+  i=1; echo -e "  $i. Fresh install ${BO}ONLY${NO} (default)"
+  i=2; echo -e "  $i. Restore ${BO}variable${NO} data only"
+  i=3; echo -e "  $i. ${BO}Complete${NO} restoration"
+  echo
+
+  echo -n "[1]        Selection: "
+  read restore #</dev/tty
+  if [ x$restore == x ]; then restore="1"; fi
+  if [ $restore -lt 4 ]; then break; fi
+done
+
+# Get the medium and tarball only if restoring
+if [ $restore -gt 1 ]; then
+  # Get the drive
+  while [ 1 -eq 1 ]; do
+    # Select the disk to restore from
+    echo
+    echo -e "${SC}${BO}Restore Medium Selection${NO}"
+
+    unset b
+    typeset -i i b h
+    i=1
+    while read a b c d; do
+      if [ $a != ${hd_dev[$hd]} ]; then
+        b=b/2/1024
+        rd_dev[$i]=$a
+        rd_size[$i]=$b
+        rd_model[$i]=$c
+        rd_id[$i]=$d
+        echo -n "  $i. $a - ${rd_size[$i]}MiB (${rd_id[$i]})"
+        if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
+        i=i+1
+      fi
+    done < /tmp/hd.list
+    RD_CNT=$i
+    echo
+
+    echo -n "[1]        Selection: "
+    read rd #</dev/tty
+    if [ x$rd == "x" ]; then rd=1; fi
+    if [ $rd -lt $RD_CNT ]; then break; fi
+    echo -e "${RC}${CE}"
+  done
+  # Get the tarball
+  mkdir -p /restore
+  mount /dev/${rd_dev[$rd]}1 /restore
+  (cd /restore; ls -C1 *.tar.* >/tmp/archive.list)
+  umount /restore
+  while [ 1 -eq 1 ]; do
+    # Select the disk to restore from
+    echo
+    echo -e "${SC}${BO}Archive Selection${NO}"
+
+    unset b
+    typeset -i i b h
+    i=1
+    while read a; do
+        archive_id[$i]=$a
+        echo "  $i. $a"
+        i=i+1
+    done < /tmp/archive.list
+    ARCHIVE_CNT=$i
+    echo
+
+    echo -n "           Selection: "
+    read archive #</dev/tty
+    if [ x$archive == "x" ]; then archive=0; fi
+    if [ $archive -gt 0 -a $archive -lt $ARCHIVE_CNT ]; then break; fi
+    echo -e "${RC}${CE}"
+  done
+fi
 
 while [ 1 -eq 1 ]; do
 # Dev Pkgs
@@ -249,6 +355,7 @@ while [ 1 -eq 1 ]; do
   driveMiB="${hd_size[$hd]}"
   echo "      Press <ENTER> to use entire disk or enter a number between"
   echo "      $minMiB and $driveMiB to limit disk usage to that many MiB."
+  echo "      Unused space will be available for extended partitions."
   echo
 
   echo -en "[whole disk]        Selection: "
@@ -369,8 +476,20 @@ while [ 1 == 1 ]; do
 
   echo "Confirm installation configuration"
   echo
-  echo -e "  Installing on ${BO}/dev/${hd_dev[$hd]}${NO}"
-  echo -e "  Booting from drive ${BO}/dev/${cd_dev[$CD]}${NO}"
+  echo -e "  Installing on target ${BO}/dev/disk/by-id/${hd_id[$hd]}${NO}"
+  echo -e "  Booting from source drive ${BO}/dev/${cd_dev[$CD]}${NO}"
+  case $restore in
+    1) echo -e "  ${BO}Fresh${NO} install"
+       ;;
+    2) echo -e "  Fresh install ${BO}with${NO} variable data restore"
+       echo -e "        drive: ${rd_dev[$rd]}"
+       echo -e "      archive: ${archive_id[$archive]}"
+       ;;
+    3) echo -e "  ${BO}Restore${NO} from total backup"
+       echo -e "        drive: ${rd_dev[$rd]}"
+       echo -e "      archive: ${archive_id[$archive]}"
+       ;;
+  esac
   if [ $dev -eq 1 ]; then
     echo -e "  ${BO}Skipping${NO} development packages"
   else
@@ -422,7 +541,7 @@ while [ 1 == 1 ]; do
   echo -en "\033[23;0fOK? "
   read a #</dev/tty
   if [ x$a == "xyes" ]; then
-    export hd CD dev maxMiB filesys loader noatime
+    export hd CD dev maxMiB filesys loader noatime restore
     break;
   elif [ x$a == "xno" ]; then
     echo "Restarting installation configuration..."

@@ -17,6 +17,11 @@ lp:x:53:
 cdrom:x:54:nobody
 tape:x:55:
 audio:x:56:
+fuse:x:57:
+kvm:x:58:
+plugdev:x:59:
+scanner:x:60:
+usbmux:x:98:
 squid:x:100:
 snort:x:101:
 sshd:x:102:

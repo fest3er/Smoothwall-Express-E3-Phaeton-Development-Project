@@ -1,0 +1,15 @@
+#! /bin/bash
+
+# Wait for udev
+echo -e "${BOUL}Waiting for udev${NO}"
+while :; do
+  ps |grep udev > /dev/null 2>&1
+  if [ $? -eq 0 ]; then break; fi
+  usleep 100000
+done
+
+echo -e "${BOUL}Triggering udev${NO}"
+/sbin/udevadm trigger
+/sbin/udevadm settle
+
+rm -f /tmp/trigger-lock

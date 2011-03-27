@@ -27,7 +27,7 @@ SQUID_BITS = ./usr/bin/ ./usr/libexec/ ./usr/sbin/squid \
 
 $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz: install
 	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) $(SQUID_BITS)
-	@tar -zxvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /
+	@tar -xvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /
 
 CONFIGURE = yes
 

@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = udev
-VERSION = 151
+VERSION = 165
 TARBALL = $(PACKAGE)-$(VERSION)
 
 BASE_URL = http://www.us.kernel.org/pub/linux/utils/kernel/hotplug/
@@ -25,36 +25,26 @@ COMPILE = yes
 INSTALL = yes
 
 compile: configure
+	@# Compile
+	@make $(JOBS) -C $(COMPILE_DIR)
+
+install: compile
+	@mkdir -p $(PKG_ROOT)
 	@# Remove and create needed links and targets
+	@# rules are not wanted; we'll get them from udev-config
 	-mkdir $(PKG_ROOT)$(PKG_DIR)
 	cd $(PKG_ROOT)$(PKG_DIR); \
 	rm -rf lib/firmware lib/udev; \
 	install -dv lib/firmware; \
 	install -dv lib/udev/devices/pts; \
 	install -dv lib/udev/devices/shm; \
-	install -dv lib/udev/rules/packages; \
-	install -dv lib/udev/rules.d; \
 	install -dv usr/share/doc/; \
-	mknod -m0666 lib/udev/devices/null c 1 3; \
-	mknod -m0600 lib/udev/devices/kmsg c 1 11; \
-	ln -sv /proc/self/fd lib/udev/devices/fd; \
-	ln -sv /proc/self/fd/0 lib/udev/devices/stdin; \
-	ln -sv /proc/self/fd/1 lib/udev/devices/stdout; \
-	ln -sv /proc/self/fd/2 lib/udev/devices/stderr; \
 	ln -sv /proc/kcore lib/udev/devices/core
 
-	@# Compile
-	@make $(JOBS) -C $(COMPILE_DIR)
-
-install: compile
-	@mkdir -p $(PKG_ROOT)
 	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
-	( \
-	  cd $(COMPILE_DIR); \
-	  install -m644 -vD rules/packages/64-*.rules \
-	      $(PKG_ROOT)$(PKG_DIR)/lib/udev/rules.d/; \
-	  install -m644 -vD rules/packages/40-isdn.rules \
-	      $(PKG_ROOT)$(PKG_DIR)/lib/udev/rules.d/; \
-	)
+
+	@# rules are not wanted; we'll get them from udev-config
+	cd $(PKG_ROOT)$(PKG_DIR); \
+	rm -f lib/udev/rules.d/*
 
 include ../Makefile.rules

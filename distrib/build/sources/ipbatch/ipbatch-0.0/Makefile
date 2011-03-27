@@ -3,7 +3,7 @@ IPTABLES_SRC_DIR:=../../iptables/iptables-$(IPTABLES_VER)
 # where the IPT shared libs live
 IPT_LIB_DIR:=$(IPT_LIBEXEC)
 
-KERNEL_DIR:=../../kernel-phaeton/linux
+KERNEL_DIR:=../../kernel-roadster/linux
 
 CC=gcc 
 CXX=g++

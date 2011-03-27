@@ -1,5 +1,16 @@
 #! /bin/bash
 
+case `basename $0` in
+  make_flash)
+    # Won't work as a mere mortal
+    if [ $UID -ne 0 ]; then
+      echo "This script MUST be run as root. Please su or sudo and try again!"
+      echo
+      exit 1
+    fi
+    ;;
+esac
+
 export ORIG_DIR=${PWD}
 #export MTOOLS_SKIP_CHECK=1
 
@@ -25,32 +36,27 @@ function countdown {
 
 # Stuff you need to know
 echo
-echo "                 PHAETON ISO TO FLASH CONVERTER"
+echo "                 PHAETON/ROADSTER ISO TO FLASH CONVERTER"
 echo
-echo "$0 is a script that copies a Phaeton install ISO image to a flash/thumb"
-echo "drive such that it can be booted. There are a few items to be aware of."
-echo
-echo "The flash device must have at least one partition. The first partition will be"
-echo "used and must be formatted with FAT-16 or FAT-32. Prepare it now if necessary."
-echo
-echo "The contents of the flash device's first partition will be lost."
-echo
-echo "If you are careless, you will erase the wrong thing. So be"
-echo "  TRIPLY sure you select the correct node name! Then check it again."
-echo
-echo "You will be prompted to enter the node name (without the '/dev/')."
-echo "You will be prompted to enter an ISO pathname."
-echo
-echo -n "Enter 'yes' to continue or press <ENTER> to skip this step: "
-read ans </dev/tty
-if [ "$ans" != "yes" ]; then exit 0; fi
+echo "$0 is a script that copies a Phaeton/Roadster install ISO image"
+echo "to a flash/thumb drive such that it can be booted. There are a few items"
+echo "to be aware of."
+echo "  1. The flash device must have at least one partition. The first"
+echo "     partition will be used and must be formatted with FAT-16 or"
+echo "     FAT-32. Prepare it now if necessary."
+echo "  2. You will be prompted to plug in a USB thumb/flash drive."
 
-# Won't work as a mere mortal
-if [ $UID -ne 0 ]; then
-  echo "This script MUST be run as root. Please su or sudo and try again!"
-  echo
-  exit 1
-fi
+case `basename $0` in
+  make_flash)
+    echo "  3. You will be prompted to enter an ISO pathname. The script will"
+    echo "     list those it finds in the 'usual' places; you can copy/paste"
+    echo "     the desired pathname."
+    echo
+    echo -n "Enter 'yes' to continue or press <ENTER> to skip this step: "
+    read ans </dev/tty
+    if [ "$ans" != "yes" ]; then exit 0; fi
+    ;;
+esac
 
 # Pause for reflection
 sleep 3
@@ -59,54 +65,52 @@ sleep 3
 echo
 echo
 
-(
-  cd /sys/block
-  echo "Available nodes (dev:MB)"
-  typeset -i SIZE
-  for i in *; do
-    if test -e $i/device/modalias; then
-      MODALIAS=`cat $i/device/modalias`
-      if test `cat $i/device/modalias` == 'scsi:t-0x00' -o \
-              `cat $i/device/modalias` == 'ide:m-disk'; then
-        SIZE=`cat $i/size` > /dev/null 2>&1
-        if test $SIZE -ne 0; then
-          SIZE=SIZE*512/1000/1000
-          echo "$i $SIZE"
-        fi
-      fi
+echo "Plug in flash drive"
+
+# Wait until a new [0-9] node appears in /dev
+#   This should be OK because there should be few device changes during operation
+DEV_FILE="/tmp/inotify_devs"
+INOTIFY_CMD="inotifywait -q"
+WATCH="CREATE"
+
+# Watch for CREATEs in /dev of xxx[0-9]*
+$INOTIFY_CMD -m --exclude "t[my]" /dev | while read a b c; do
+  if [ "$b" != "$WATCH" ]; then continue; fi
+  C="${c/[0-9]*/}"
+  if [ "$c" != "$C" -a -e "$a$C" -a -e "$a${C}1" ]; then
+    echo "${C}" > ${DEV_FILE}
+    exit  # This exits the 'while read' subprocess
+  fi
+done
+read fldev <$DEV_FILE
+rm -f $DEV_FILE
+
+case `basename $0` in
+  make_flash)
+    echo -e "\nAvailable ISO(s)"
+    ls -C1 target/isos/*.iso 2>/dev/null | sed -e 's/^/    /'
+    ls -C1 *.iso 2>/dev/null | sed -e 's/^/    /'
+
+    MOUNT_OPT="-o loop,ro "
+    echo -n "   Enter the ISO filename: "
+    read isoname
+    if [ ! -f "$isoname" ]; then
+      echo "ISO image '$isoname' does not exist. Try again."
+      exit 1
     fi
-  done | gawk '{printf("    %s:%s\n", $1, $2);}'
-)
-
-echo -n "Enter the flash node name: "
-read fldev1
-
-echo -n "         Enter it again! : "
-read fldev2
-
-if [ "$fldev1" != "$fldev2" ]; then
-  echo "The names do not match! Try again."
-  exit 1
-fi
-
-echo -e "\nAvailable ISO(s)"
-ls -C1 target/isos/*.iso 2>/dev/null | sed -e 's/^/    /'
-ls -C1 *.iso 2>/dev/null | sed -e 's/^/    /'
-
-echo -n "   Enter the ISO filename: "
-read isoname
-
-fldev=${fldev1}
-
-if [ ! -b "/dev/$fldev" ]; then
-  echo "Device '/dev/${fldev}' does not exist. Try again."
-  exit 1
-fi
-
-if [ ! -f "$isoname" ]; then
-  echo "ISO image '$isoname' does not exist. Try again."
-  exit 1
-fi
+    ;;
+  auto_flash)
+    if [ -e /dev/sr0 -o -e /dev/cdrom ]; then
+      MOUNT_OPT="-o ro "
+      if [ -e /dev/sr0 ]; then isoname=/dev/sr0; fi
+      if [ -e /dev/cdrom ]; then isoname=/dev/cdrom; fi
+    else
+      echo "ERROR: optical drive not found! (Changing to runlevel 1)"
+      init 1
+      exit
+    fi
+    ;;
+esac
 
 CNTDWN=5
 echo "Will continue in $CNTDWN seconds..."
@@ -118,28 +122,40 @@ FL="flmnt${RANDOM}"
 
 # Be sure the ISO and flash are unmounted and the mount point deleted
 #   if the script abends.
-trap "cleanup $CD $FL; exit" EXIT SIGINT SIGQUIT
+case `basename $0` in
+  make_flash)
+    trap "cleanup $CD $FL; exit" EXIT SIGINT SIGQUIT
+    ;;
+  auto_flash)
+    trap "cleanup $CD $FL; echo \"(Changing to runlevel 1)\"; init 1; exit" EXIT SIGINT SIGQUIT
+    ;;
+esac
 
 echo
 echo "Preparing..."
 
-# Be sure loop device is availabe
-/sbin/modprobe loop || \
-    (echo "Couldn't modprobe loop device!"; exit 1)
+# Set partition 1's 'bootable' flag
+parted /dev/${fldev} set 1 boot on >/dev/null 2>&1
 
 # Make it bootable
 syslinux /dev/${fldev}1 || \
-    (echo "Couldn't make /dev/${fldev}1 bootable!"; exit 1)
+    { echo "Couldn't make /dev/${fldev}1 bootable!"; exit 1; }
 
 # Make the mount points
 mkdir -p $CD || \
-    (echo "Couldn't make '$CD' ISO mount point!"; exit 1)
+    { echo "Couldn't make '$CD' ISO mount point!"; exit 1; }
 mkdir -p $FL || \
-    (echo "Couldn't make '$FL' flash mount point!"; exit 1)
+    { echo "Couldn't make '$FL' flash mount point!"; exit 1; }
+
+# Be sure loop device is available
+/sbin/modprobe loop || \
+    { echo "Couldn't modprobe loop device!"; exit 1; }
 
 # Mount the ISO and flash
-mount -t iso9660 ${isoname} $CD -o loop || exit 1
-mount -t vfat /dev/${fldev}1 $FL || exit 1
+mount -t iso9660 ${isoname} $CD ${MOUNT_OPT} || \
+    { echo "Couldn't mount the CD or ISO image!"; exit 1; }
+mount -t vfat /dev/${fldev}1 $FL || \
+    { echo "Couldn't mount flash partition #1!"; exit 1; }
 
 echo
 echo "Copying..."
@@ -167,4 +183,13 @@ cleanup $CD $FL
 trap "" EXIT
 
 echo
-echo "Phaeton iso2flash complete."
+echo "iso2flash complete."
+
+case `basename $0` in
+  make_flash)
+    exit;
+    ;;
+  auto_flash)
+    echo "Changing to runlevel 1"; init 1; exit
+    ;;
+esac

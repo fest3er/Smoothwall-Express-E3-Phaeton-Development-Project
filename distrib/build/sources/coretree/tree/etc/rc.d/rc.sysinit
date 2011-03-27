@@ -4,8 +4,13 @@
 /sbin/udevd --daemon
 /sbin/udevadm trigger
 /sbin/udevadm settle
+/sbin/udevadm trigger --subsystem-match=block
+/sbin/udevadm trigger --attr-match=modalias
+/sbin/udevadm settle
 
 . /var/smoothwall/main/settings
+
+export STARTSTOP="startup"
 
 umask 022
 
@@ -56,6 +61,7 @@ mount -f /
 mount -f /proc
 mount -f /sys
 mount -f /dev
+mount -f /dev/pts
 
 
 echo -n "Checking other filesystems : "
@@ -91,10 +97,9 @@ echo "Module dependencies"
 /sbin/depmod -a
 echo "Clearing old files"
 chmod 660 /dev/ttyS*
-chmod 660 /dev/ttyI*
+chmod 660 /dev/ttyI* >/dev/null 2>&1
 chmod 1777 /tmp
 find /var/run -name '*.pid' -type f -exec rm -f '{}' \;
-rm -f /usr/etc/dhcpc/*.pid
 rm -f /var/smoothwall/red/*
 rm -f /var/lock/LCK..ttyS*
 rm -f /var/run/pppd*.tdb
@@ -148,9 +153,6 @@ echo "Starting syslogd"
 echo "Starting klogd"
 /usr/sbin/klogd
 
-echo "Loading USBFS"
-if [ -e /proc/bus/usb ]; then mount -t usbfs usbfs /proc/bus/usb; fi
-
 echo "Loading filesystems"
 /sbin/modprobe msdos
 /sbin/modprobe vfat
@@ -191,9 +193,27 @@ echo "Silencing kernel, syslog output on tty12"
 echo "View the log files in /var/log to trace errors."
 echo "1 4 1 7" >/proc/sys/kernel/printk
 
+# Remove the policing barricades (delete the ingress qdiscs)
+. /etc/rc.d/rc.open-ingress
+# QoS implementations that use ingress policers MUST be started
+#   after this point!!!!!
+
 echo "Saving dmesg buffer to /var/log/dmesg"
 dmesg >/var/log/dmesg
 
 logger -t smoothwall "SmoothWall started."
 
 /usr/bin/sounds/startupsound
+
+unset STARTSTOP
+
+# Start a 'daemon' that waits for the power button to be pressed
+(
+  while read a b c d; do
+    if [ "$a" == "button/power" ]; then
+      shutdown -h -P -t 2 now \"Power button pressed\"
+      exit
+    fi
+  done </proc/acpi/event
+)&
+

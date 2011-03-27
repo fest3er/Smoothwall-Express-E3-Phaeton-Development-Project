@@ -14,3 +14,5 @@ PRODUCT_EXTRA = -roadster
 UI_VERSION = 3.0
 FIXES_NUMBER = 0
 REVISION = polar
+
+RELEASE = Roadster-2.0.0-rc1

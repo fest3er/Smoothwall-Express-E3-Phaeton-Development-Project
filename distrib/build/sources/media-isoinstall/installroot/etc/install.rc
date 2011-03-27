@@ -1,31 +1,166 @@
-#!/bin/bash
+#!/bin/bash 
 
+CLS="\033[0;0f\033[2J"
+BO="\033[1m"
+UL="\033[4m"
+BOUL="\033[1;4m"
+NO="\033[0m"
+set `stty size`
+ROWS=$1
+COLS=$2
+
+# do-sid executes a program in a CTTY environment
+#
+function do-sid {
+  case $3 in
+    "")
+      setsid sh -c "exec $1 </dev/tty$2 >/dev/tty$2 2>&1"
+      ;;
+    "BG")
+      setsid sh -c "exec $1 </dev/tty$2 >/dev/tty$2 2>&1"&
+      return $!
+      ;;
+    "EXEC")
+      exec setsid sh -c "exec $1 </dev/tty$2 >/dev/tty$2 2>&1"
+      ;;
+  esac
+}
+
+# rsr() clears the scrolling region and restores the saved cursor position
+#
+function rsr {
+  echo -ne "\033[r\033[20;1f\033[J\033"
+  echo -ne "8"
+}
+# ssr() saves the cursor position and sets the scrolling region
+#
+function ssr {
+  echo -ne "\033"
+  echo -ne "7\033[21;${ROWS}r"
+  echo -ne "\033[20;1fExecuting: "
+  echo -n $1
+  echo -ne "\033[21;1f"
+}
+
+# do_or_die() executes the given command in a sub-scrolling region. If the
+#   command fails, the user is notified and the system can reboot
+#
+function do_or_die {
+  ssr "$1"
+  eval "$1"
+  exitcode=$?
+  rsr
+  
+  if [ $exitcode -ne 0 ]; then
+    echo "FAILED: \"$1\""
+    echo "  exit code: $exitcode"
+    echo
+    echo "Type <CTRL/C> to try again."
+    echo "Press <ENTER> to reboot the system and try again."
+    read a </dev/tty
+    reboot -f
+  fi
+}
+
+# undo_alot() unmounts, unswaps, kills udevd, and other stuff
+function undo_alot {
+  umount /harddisk/var/log >/dev/null 2>&1
+  umount /harddisk/boot >/dev/null 2>&1
+  umount /harddisk >/dev/null 2>&1
+  umount /cdrom >/dev/null 2>&1
+  umount /restore >/dev/null 2>&1
+
+  swapoff -a >/dev/null 2>&1
+
+  echo "0 0 0 0" > /proc/sys/kernel/printk
+}
+
+
+function kill_udev() {
+  # Stop udevd, we may miss a few events while we run init, but we'll catch up
+  for proc in /proc/[0-9]*; do
+    [ -x $proc/exe ] || continue
+    [ "$(/usr/lib/klibc/bin/readlink $proc/exe)" == /bin/udevd ] && kill ${proc#/proc/}
+  done
+}
+
+
+# The shell calls EXITTRAP() when init (this script) exits; it attempts to restore
+#   the operating state so that init (this script) can be restarted.
+#   
 function EXITTRAP {
   trap - EXIT
-  kill -9 $BASHPID
+
   echo "Unexpected exit! Restarting..."
   sleep 2
 
-  echo "Dropping to a shell..."
-  /bin/bash </dev/tty1 >/dev/tty1 2>/dev/tty1
+  # Reverse a bunch of stuff
+  undo_alot
 
-  exec /init
+  echo "Press <ENTER> to try again..."
+  read a </dev/tty
 }
-  
+
+echo -e "${BOUL}Wait for udev to settle${NO}"
+while [ -e /tmp/trigger-lock ]; do
+  usleep 100000
+done
+
+# Sort and rename NICs
+. /etc/eth-addr-sort
+
+sleep 2
+
+echo "1 4 1 7" >/proc/sys/kernel/printk
+
+# If init (this script) exits for any reason, it will be trapped
 trap EXITTRAP EXIT
 
-/bin/iowrap /dev/tty4 /bin/bash -mi&
-BASHPID=$!
+[ -t 0 ] || (echo "STDIN not a tty"; exit)
 
-(
-  [ -t 0 ] || (echo "STDIN not a tty"; exit)
+echo "Configuring installer"
+. /etc/config-install.rc
 
-  echo "Configuring installer"
-  . /etc/config-install.rc
+echo "Executing installer"
+. /etc/exec-install.rc
 
-  echo "Executing installer"
-  . /etc/exec-install.rc
-)
+case $restore in
+  1)
+    echo -e "$TITLE"
+    echo
+    echo "Preparing Setup"
+    echo
+      echo "  cleaning up"
+        trap - EXIT
+        export TERM=linux
+        udevadm control --log-priority="none"
 
-echo "Dropping to a shell..."
-/bin/iowrap /dev/tty1 /bin/bash
+      echo "  run setup"
+        mount -n -o move /dev /harddisk/dev
+        mount -n -o move /dev/pts /harddisk/dev/pts
+        mount -n -o move /sys /harddisk/sys
+        mount -n -o move /proc /harddisk/proc
+        [ -d /proc/bus/usb ] && mount -n -o move /proc/bus/usb /harddisk/proc/bus/usb
+
+        cd /harddisk
+        chroot . /usr/sbin/setup /dev/tty2 INSTALL
+
+      echo -ne $CLS
+      echo; echo;
+      echo "  setup complete"
+    ;;
+  2)
+    echo -ne $CLS
+    echo; echo;
+    echo "  install and restore complete"
+    ;;
+  3)
+    echo -ne $CLS
+    echo; echo;
+    echo "  total restore complete"
+    ;;
+esac
+
+echo "  clean up and reboot"
+  undo_alot
+  /sbin/reboot -f

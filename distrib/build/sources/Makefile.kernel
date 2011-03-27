@@ -12,11 +12,11 @@ COMPILER = /usr/bin/gcc
 
 
 download:
-	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/linux-$(K_RAW_VERSION).tar.bz2
+	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/longterm/v$(KERNEL_MMR)/linux-$(K_RAW_VERSION).tar.bz2
 
 
 unpack: download
-	@tar -jxvf $(DOWNLOADS_DIR)/linux-$(K_RAW_VERSION).tar.bz2
+	@tar -xvf $(DOWNLOADS_DIR)/linux-$(K_RAW_VERSION).tar.bz2
 
 
 prepare: unpack
@@ -34,7 +34,7 @@ compile-kernel: prepare
 	sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../kernel.config$(SWETYPE)-$(ARCH) > linux/.config
 
 	make -C linux CC=$(COMPILER) clean
-	make -C linux CC=$(COMPILER) oldconfig
+	make $(JOBS) -C linux CC=$(COMPILER) oldconfig
 	make $(JOBS) -C linux CC=$(COMPILER) bzImage
 	make $(JOBS) -C linux CC=$(COMPILER) modules
 
@@ -53,7 +53,7 @@ package-kernel: compile-kernel
 build-tarball: package-kernel $(PACKAGES)
 	@(cd $(PKG_ROOT); \
 	tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz .; \
-	tar -zxvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /);
+	tar -xvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /);
 
 
 clean:

@@ -21,21 +21,21 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    httpd smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace \
 	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
 	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
-	    libdnet daq \
-	    beep2 pcre trafficstats iftop ppp isdn4k-utils \
+	    libdnet daq libnet libnetfilter_queue libnfnetlink inotify-tools \
+	    readline beep2 pcre trafficstats iftop ppp isdn4k-utils \
 	    rp-pppoe ibod dhcpcd eciadsl-synch_bin eciadsl-usermode \
 	    cnxadsl dhcp snort oinkmaster openswan wireless_tools imspector  \
 	    diffutils traceroute clamav p3scan libosip2 siproxd which miniupnpd \
-	    ez-ipupdate noip cdrtools \
+	    ez-ipupdate noip cdrtools suricata \
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
-	    reiserfsprogs xtables-addons zlib slang cpio \
-	    udev lm_sensors \
+	    reiserfsprogs parted xtables-addons zlib slang cpio \
+	    udev udev-config lm_sensors xz pcmciautils \
 	    Net-Netmask NetAddr-IP sysfsutils \
 	    coretree
 
 OBSOLETE_PKGS = devnodes libstdc++ 
 TOOLCHAIN_PKGS = expect
-OTHER_PKGS = updates jam sqlite udev-config
+OTHER_PKGS = updates jam sqlite
 
 # Last line is Phaeton
 DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu gcc \
@@ -88,9 +88,6 @@ cdrom/smoothwall.tgz:
 	        echo; \
 	done; \
 	);
-	echo "Copying udev.rc to distrib:"
-	@cp runtimeroot/etc/udev.rc distrib/etc/udev/
-
 	@echo "Moving includes to distrib-dev:"
 	@if [ -d distrib/usr/include ]; then \
 	  mkdir -p distrib-dev/usr/include; \
@@ -125,6 +122,7 @@ cdrom/smoothwall.tgz:
 	@( \
 	echo "  PRODUCT='$(PRODUCT_NAME)'"; \
 	echo "  VERSION='$(PRODUCT_VERSION)$(SWETYPE)'"; \
+	echo "  RELEASE='$(RELEASE)'" ; \
 	echo "  REVISION='$(REVISION)'"; \
 	echo "  UI_VERSION='$(UI_VERSION)'"; \
 	echo "  FIXES='$(FIXES_NUMBER)'"; \
@@ -135,6 +133,7 @@ cdrom/smoothwall.tgz:
 	( \
 	  echo "PRODUCT='$(PRODUCT_NAME)'" ; \
 	  echo "VERSION='$(PRODUCT_VERSION)$(SWETYPE)'" ; \
+	  echo "RELEASE='$(RELEASE)'" ; \
 	  echo "REVISION='$(REVISION)'" ; \
 	  echo "UI_VERSION='$(UI_VERSION)'" ; \
 	  echo "FIXES='$(FIXES_NUMBER)'" ; \
@@ -142,22 +141,6 @@ cdrom/smoothwall.tgz:
 	) > distrib/var/smoothwall/main/productdata
 
 	@chown nobody:nobody distrib/var/smoothwall/main/productdata
-
-	@echo -e "\nMake some initial device nodes:"
-	@( \
-	mknod distrib/dev/console c 5 1; \
-	  chown root:root distrib/dev/console; \
-	  chmod 600 distrib/dev/console; \
-	mknod distrib/dev/kmem c 1 2; \
-	  chown root:root distrib/dev/kmem; \
-	  chmod 600 distrib/dev/kmem; \
-	mknod distrib/dev/mem c 1 1; \
-	  chown root:root distrib/dev/mem; \
-	  chmod 600 distrib/dev/mem; \
-	mknod distrib/dev/null c 1 3; \
-	  chown root:root distrib/dev/null; \
-	  chmod 666 distrib/dev/null; \
-	) | sed -u -e 's/^/  /'
 
 	@echo -e "\nSecuring tree ..."
 	@( \
@@ -184,8 +167,13 @@ cdrom/smoothwall.tgz:
 	@echo -e "\nTidying ..."
 	#@rm -f distrib/etc/resolv.conf
 	@find distrib -name .gitignore -exec rm -f {} \;
-	@cp ../../make_flash cdrom
 	@ln -s /var/smoothwall/vpn/ipsec.conf distrib/etc/ipsec.conf
+
+	@echo -e "\nCopying to OffRoad ..."
+	@mkdir -p offroad
+	@cd cdrom; cp -av . ../offroad
+	@cd offroad/isolinux; sed -ie 's/r0 scroll/r0 scroll explore/' isolinux.cfg
+	@cd offroad/isolinux; sed -ie 's/115200/115200 explore/' isolinux.cfg
 
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
 	@tar -zcf cdrom/smoothwall.tgz -C distrib .
@@ -219,13 +207,18 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	/sbin/mkisofs -o $(TARGET_DIR)/isos/smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso \
 	  -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
 	  -no-emul-boot -boot-load-size 4 -boot-info-table \
-	  -V $(BASENAME) --publisher "Smoothwall Express Phaeton" cdrom
+	  -V $(BASENAME) --publisher "Smoothwall Express Roadster" cdrom
 	@echo "smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso build complete"
+	/sbin/mkisofs -o $(TARGET_DIR)/isos/smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-offroad.iso \
+	  -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
+	  -no-emul-boot -boot-load-size 4 -boot-info-table \
+	  -V $(BASENAME) --publisher "Smoothwall Express Roadster (OffRoad)" offroad
+	@echo "smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-offroad.iso build complete"
 
 clean:
 	@echo -n " $(PACKAGE)"
 	@rm -f Media.roadsterdevISO.built
-	@rm -rf cdrom distrib distrib-dev distrib-doc klibc
+	@rm -rf cdrom offroad distrib distrib-dev distrib-doc klibc temp
 	@make --no-print-directory -C cdromboot clean >/dev/null 2>&1
 	@make --no-print-directory -C installroot clean >/dev/null 2>&1
 	@make --no-print-directory -C runtimeroot clean >/dev/null 2>&1

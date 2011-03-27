@@ -3,11 +3,16 @@
 typeset -i j
 j=0
 
+
 cd /sys/class/net
+
+echo -e "${BOUL}Renaming NICs in MAC address order${NO}"
+
 
 mkdir -p /etc/udev/rules.d
 
 # Every IF that has a MAC address is assumed to be a NIC, even bridges
+#   Bridges may not appear in this file; see the 75* NIC rule generator.
 for i in *; do
   addr=`cat $i/address`
   if [ "$addr" != "" -a "$addr" != "00:00:00:00:00:00" ]; then
@@ -15,6 +20,13 @@ for i in *; do
   fi
 done | sort | while read addr eth; do
   sed -i -e '/'$addr'/ s/NAME="[^"]*"/NAME="eth'$j'"/' /etc/udev/rules.d/70-persistent-net.rules
-  echo "  $eth -> eth$j"
   j=j+1
+done
+
+DRIVERS=`grep ":0x" /etc/udev/rules.d/70-persistent-net.rules | sed -e 's/.*(\([^)]*\))/\1/' |sort|uniq`
+for i in $DRIVERS; do
+  rmmod $i
+done
+for i in $DRIVERS; do
+  modprobe $i
 done

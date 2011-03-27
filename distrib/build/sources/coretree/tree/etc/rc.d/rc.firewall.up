@@ -279,7 +279,7 @@ fi
 /sbin/iptables -A FORWARD -i ppp0 ! -o ppp0 -j MINIUPNPD
 /sbin/iptables -A FORWARD -i ippp0 ! -o ippp0 -j MINIUPNPD
 if [ "$RED_DEV" != "" ]; then
-        /sbin/iptables -A FORWARD -i $RED_DEV -o ! $RED_DEV -j MINIUPNPD
+	/sbin/iptables -A FORWARD -i $RED_DEV ! -o $RED_DEV -j MINIUPNPD
 fi
 
 /sbin/iptables -A FORWARD -j LOG
