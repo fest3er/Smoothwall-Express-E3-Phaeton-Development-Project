@@ -1,4 +1,0 @@
-#!/bin/sh
-
-echo "Installing e1000 Module for ExampleMod"
-/sbin/insmod /var/smoothwall/mods/ExampleMod/lib/modules/2.6.16.60/kernel/drivers/net/e1000/e1000.ko

@@ -1,5 +1,0 @@
-#!/bin/sh
-
-echo "This is the tools mod installing..."
-
-tar -zxvf patch.tar.gz -C /
