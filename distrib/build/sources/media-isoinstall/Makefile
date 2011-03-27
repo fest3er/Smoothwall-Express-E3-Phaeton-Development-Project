@@ -204,16 +204,26 @@ extracontent:
 	find cdrom -name .svn -exec rm -rf {} \;
 
 all: cdrom cdrom/smoothwall.tgz extracontent
-	/sbin/mkisofs -o $(TARGET_DIR)/isos/smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso \
-	  -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
-	  -no-emul-boot -boot-load-size 4 -boot-info-table \
-	  -V $(BASENAME) --publisher "Smoothwall Express Roadster" cdrom
-	@echo "smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-iniramfs.iso build complete"
-	/sbin/mkisofs -o $(TARGET_DIR)/isos/smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-offroad.iso \
-	  -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
-	  -no-emul-boot -boot-load-size 4 -boot-info-table \
-	  -V $(BASENAME) --publisher "Smoothwall Express Roadster (OffRoad)" offroad
-	@echo "smoothwall-$(BASENAME)$(PRODUCT_EXTRA)$(TYPE)-$(ARCH)-offroad.iso build complete"
+	@( \
+	  RELEASE=$(RELEASE); \
+	  set $${RELEASE/-/ }; \
+	  ISONAME=$(TARGET_DIR)/isos/smoothwall$(PRODUCT_EXTRA)-$${2}.iso; \
+	  /sbin/mkisofs -o $${ISONAME} \
+	    -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
+	    -no-emul-boot -boot-load-size 4 -boot-info-table \
+	    -V $(BASENAME) --publisher "Smoothwall Roadster Test" cdrom; \
+	  echo "$${ISONAME} build complete"; \
+	)
+	@( \
+	  RELEASE=$(RELEASE); \
+	  set $${RELEASE/-/ }; \
+	  ISONAME=$(TARGET_DIR)/isos/smoothwall$(PRODUCT_EXTRA)-$${2}-offroad.iso; \
+	  /sbin/mkisofs -o $${ISONAME} \
+	    -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
+	    -no-emul-boot -boot-load-size 4 -boot-info-table \
+	    -V $(BASENAME) --publisher "Smoothwall Roadster Test (OffRoad)" offroad; \
+	  echo "$${ISONAME} build complete"; \
+	)
 
 clean:
 	@echo -n " $(PACKAGE)"
