@@ -168,6 +168,7 @@ echo "Running /etc/rc.d/rc.network"
 . /etc/rc.d/rc.network
 
 echo "Starting cron"
+rm -f /var/run/crond.reboot
 /usr/sbin/cron
 echo "Starting httpd"
 #/usr/apache2/sbin/httpd -DSSL -DDEFLATE
