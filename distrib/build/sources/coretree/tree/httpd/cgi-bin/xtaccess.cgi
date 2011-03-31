@@ -370,7 +370,7 @@ print <<END
 		<TD WIDTH='25%'>&nbsp;</TD>
 </TR>
 <TR>
-	<TD WIDTH='25%' CLASS='base'>$tr{'protocol long'}</TD>
+	<TD WIDTH='25%' CLASS='base'>$tr{'protocol longc'}</TD>
 	<TD WIDTH='25%'><SELECT NAME='PROTOCOL'>
 END
 ;

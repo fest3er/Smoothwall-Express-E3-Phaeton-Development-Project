@@ -1363,7 +1363,7 @@ foreach $dev (sort(keys(%availablenetdevices))) {
 print "      </select>
     </td>
     <td class='base' width='25%'>
-      $tr{'destination ifacec'}
+      $tr{'new destination ifacec'}
     </td>
     <td width='25%'>
       <select style='color: $DEST_COLOR' onchange='ffoxSelectUpdate(this);' name='DEST_IFACE'>
@@ -1432,7 +1432,7 @@ print "      </select>
     </td>
     <td class='base' nowrap='nowrap'>
       <img src='/ui/img/blob.gif' valign='top'>
-      $tr{'destination ippfc'}
+      $tr{'new destination ippfc'}
     </td>
     <td>
       <input type='text' name='DEST_IPMAC' value='$destinationipmac' size='18'>
@@ -1449,7 +1449,7 @@ print "      </select>
     <td class='base' nowrap='nowrap'>
       <img src='/ui/img/blob.gif' valign='top'>
       <img src='/ui/img/blob.gif' valign='top'>
-      $tr{'destination portc'}
+      $tr{'new destination port or rangec'}
     </td>
     <td>
       <input type='text' name='NEW_DEST_PORT' value='$destinationport' size='11'>
@@ -1460,7 +1460,7 @@ print "      </select>
 
       <table width='100%' border=$border style='margin:6pt 0'>
         <tr>
-          <td class='base'>$tr{'protocol long'}</td>
+          <td class='base'>$tr{'protocol longc'}</td>
           <td>
             <select name='PROTOCOL'>
 ";
@@ -1515,7 +1515,7 @@ print "      </select>
 
 print "            </select>
           </td>
-          <td class='base'>$tr{'ffc-target'}</td>
+          <td class='base'>$tr{'ffc-targetc'}</td>
           <td>
             <select name='TARGET'>
               <option value='ACCEPT' $selected{'TARGET'}{'ACCEPT'}>$tr{'target accept'}</option>
@@ -1523,7 +1523,7 @@ print "            </select>
               <option value='DROP' $selected{'TARGET'}{'DROP'}>$tr{'target drop'}</option>
               <option value='LOG' $selected{'TARGET'}{'LOG'}>$tr{'target log'}</option>
             </select></td>
-          <td class='base'>$tr{'order number'}</td>
+          <td class='base'>$tr{'order numberc'}</td>
           <td>
             <select name='ORDER_NUMBER'>
 ";
@@ -1653,62 +1653,62 @@ my %render_settings =
   [
     { 
       column => '1',
-      title  => 'Order',
+      title  => $tr{'order'},
       size   => 10,
       sort   => '<=>',
     },
     { 
       column => '2',
-      title  => 'Src Dev',
+      title  => $tr{'src dev'},
       size   => 15,
       sort   => 'cmp',
       tr	=> \%{$ifcolorsmap},
     },
     {
       column => '3',
-      title  => 'Source IP/MAC',
+      title  => $tr{'original destination ipmac'},
       size   => 15,
       sort   => 'cmp',
       tr	=> { '0.0.0.0/0' => 'Any' },
     },
     { 
       column => '4',
-      title  => 'Dest Port',
+      title  => $tr{'original destination port'},
       size   => 10,
       sort   => 'cmp',
       tr	=> \%{$portmap},
     },
     { 
       column => '5',
-      title  => 'Dest Dev',
+      title  => $tr{'new destination dev'},
       size   => 15,
       sort   => 'cmp',
       tr	=> \%{$ifcolorsmap},
     },
     { 
       column => '6',
-      title  => 'Destination IP',
+      title  => $tr{'new destination ip'},
       size   => 15,
       sort   => 'cmp',
       tr	=> { '0.0.0.0/0' => 'Any' },		
     },
     { 
       column => '7',
-      title  => 'New Dest Port',
+      title  => $tr{'new destination port or range'},
       size   => 10,
       sort   => 'cmp',
       tr	=> \%{$portmap},
     },
     {
       column => '8',
-      title  => 'Protocol',
+      title  => $tr{'protocol long'},
       size   => 10,
       sort   => 'cmp',
       tr     => \%{$protocolmap},
     },
     {
       column => '9',
-      title  => "$tr{'ffc-targetc'}",
+      title  => "$tr{'ffc-target'}",
       size   => 10,
       sort   => 'cmp',
     },
@@ -1739,7 +1739,7 @@ print "
   <tr>
     <td width='33%' style='text-align:center'>
       <input type='submit' name='ACTION' value='$tr{'remove'}'
-             onClick='if(confirm(\"You are about to completely remove port forwarding rules. Are you sure you want to do this?\")) {return true;} return false;'>
+             onClick='if(confirm(\"$tr{'del port fwd rules'}\")) {return true;} return false;'>
     </td>
     <td width='34%' style='text-align:center'>
       <input type='submit' name='ACTION' value='$tr{'ffc-enable rule'}'>
@@ -1780,7 +1780,7 @@ print "
 <table style='width:100%; margin:6pt 0' border='$border'>
   <tr>
     <td class='base'>
-      Red Alias IP:
+      $tr{'red alias ipc'}
     </td>
     <td>
       <input type='text' name='ADDRESS' value='$cgiparams{'ADDRESS'}'
@@ -1795,7 +1795,7 @@ print "
     </td>
     <td class='base'>
       <img src='/ui/img/blob.gif' valign='top'>
-      Internal IP:
+      $tr{'internal ipc'}
     </td>
     <td>
       <input type='text' name='INTADDRESS' value='$cgiparams{'INTADDRESS'}'
@@ -1830,8 +1830,7 @@ print "
   <tr>
     <td colspan='6' align='left'>
       <img src='/ui/img/blob.gif' valign='top'>
-      Enter an internal LAN IP address to associate with a specific red alias
-      address, if needed. Otherwise leave blank.
+      $tr{'enter internal lan ip'}
     </td>
   </tr>
 </table>
@@ -1850,47 +1849,47 @@ my %render_settings =
   [
     { 
       column => '2',
-      title  => 'Interface',
+      title  => $tr{'interface'},
       size   => 15,
       sort   => 'cmp',
       tr	=> \%{$ifcolorsmap},
     },
     {
       column => '4',
-      title  => 'Alias IP Address',
+      title  => $tr{'alias ip addr'},
       size   => 20,
       sort   => 'cmp',
     },
     {
       column => '10',
-      title  => 'Internal IP Address',
+      title  => $tr{'internal ip addr'},
       size   => 20,
       sort   => 'cmp',
       tr	=> { '' => 'N/A' },
     },
     { 
       column => '7',
-      title  => 'Running',
+      title  => $tr{'active'},
       size   => 5,
       tr     => 'onoff',
       align  => 'center',
     },
     { 
       column => '8',
-      title  => "$tr{'multi-ip enabled'}",
+      title  => $tr{'multi-ip enabled'},
       size   => 5,
       tr     => 'onoff',
       align  => 'center',
     },
     {
-      title  => "$tr{'mark'}", 
+      title  => $tr{'mark'}, 
       size   => 5,
       mark   => ' ',
     },
     { 
       column => '9',
-      title => "$tr{'comment'}",
-      break => 'line',
+      title  => $tr{'comment'},
+      break  => 'line',
     }
   ]
 );
