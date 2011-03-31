@@ -296,7 +296,7 @@ print qq{
 <form method='post'>
 <table style='width: 100%;'>
 <tr>
-	<td class='base' style='width: 25%;'>$tr{'interface'}</td>
+	<td class='base' style='width: 25%;'>$tr{'interfacec'}</td>
 	<td style='width: 25%;'>
 	<select name='INTERFACE'>
 };

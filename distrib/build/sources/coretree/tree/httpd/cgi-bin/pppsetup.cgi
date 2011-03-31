@@ -382,7 +382,7 @@ END
 print <<END
 <TABLE WIDTH='100%'>
 <TR>
-	<TD CLASS='base' WIDTH='25%'>$tr{'interface'}</TD>
+	<TD CLASS='base' WIDTH='25%'>$tr{'interfacec'}</TD>
 	<TD WIDTH='25%'>
 	<SELECT NAME='COMPORT'>
 	<OPTION VALUE='ttyS0' $selected{'COMPORT'}{'ttyS0'}>$tr{'modem on com1'}
