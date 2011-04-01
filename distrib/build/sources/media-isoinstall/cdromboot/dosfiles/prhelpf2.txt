@@ -12,7 +12,7 @@ You can do more than just install Phaeton/Roadster:
 
 At a shell prompt, type:
   init [ S | 1 | 2 | 3 ]
-to change run levels, or '0' to halt/powerdown, or '1' to reboot.
+to change run levels, or '0' to halt/powerdown, or '6' to reboot.
 
 If there are commands missing that would be helpful when exploring the
 hardware, please request them via the Phaeton forums.
