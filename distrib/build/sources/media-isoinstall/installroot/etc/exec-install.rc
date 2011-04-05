@@ -88,13 +88,24 @@ echo
   bootsize=100*2048
   bootstart=PerTrk
 
-  # swap fixed to installed RAM
+  # swap fixed to installed RAM, but must be shrunk if RAM > .25*hdsize
   set `grep MemTotal /proc/meminfo`
   memsize=$2
   memunit=$3
-  swapsize=memsize*2
   swapstart=bootstart+bootsize
-  Mswapsize=memsize/1024
+
+  # If memory is > 1/8 of the disk, crowbar swap to 1/8 of the disk
+  typeset -i mem_mib disk_eighth
+  mem_mib=memsize/1024
+  disk_eighth=sTotal/8/2048
+  if [ $mem_mib -lt $disk_eighth ]; then
+    # Base swap on memory size
+    swapsize=memsize*2
+    Mswapsize=memsize/1024
+  else
+    swapsize=disk_eighth*2048
+    Mswapsize=$disk_eighth
+  fi
 
   # Compute partition sizes
   #
