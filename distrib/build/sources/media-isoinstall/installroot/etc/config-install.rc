@@ -194,7 +194,7 @@ while [ 1 -eq 1 ]; do
   echo -n "[1]        Selection: "
   read hd #</dev/tty
   if [ x$hd == "x" ]; then hd=1; fi
-  if [ $hd -lt $i ]; then break; fi
+  if [ $hd -lt $i ]; then driveMiB="${hd_size[$hd]}"; break; fi
 done
 
 # Get the by-id name
@@ -340,8 +340,8 @@ while [ 1 -eq 1 ]; do
   echo -n "[1]        Selection: "
   read dev #</dev/tty
   if [ x$dev == "x" ]; then dev=1; fi
-  if [ $dev -eq 1 ]; then minMiB=9000; break; fi
-  if [ $dev -eq 2 ]; then minMiB=18000; break; fi
+  if [ $dev -eq 1 ]; then break; fi
+  if [ $dev -eq 2 ]; then break; fi
 done
 
 while [ 1 -eq 1 ]; do
@@ -352,15 +352,24 @@ while [ 1 -eq 1 ]; do
   echo -e "${BO}Disk Utilization${NO}"
 
   typeset -i hd_size[$hd]  driveMiB  maxMiB
-  driveMiB="${hd_size[$hd]}"
-  echo "      Press <ENTER> to use entire disk or enter a number between"
-  echo "      $minMiB and $driveMiB to limit disk usage to that many MiB."
-  echo "      Unused space will be available for extended partitions."
-  echo
+  minMiB=4000
+  if [ $driveMiB -le $minMiB ]; then
+    echo "      The selected disk is very small (${driveMiB}MiB) and is too small to build"
+    echo "      Phaeton/Roadster. Press <ENTER> to use the entire disk."
+  else
+    if [ $driveMiB -lt 12000 ]; then
+      echo "      The selected disk is too small (${driveMiB}MiB) to build Phaeton/Roadster."
+    fi
+    echo "      Press <ENTER> to use the entire disk or enter a number between"
+    echo "      $minMiB and $driveMiB to limit disk usage to that many MiB."
+    echo "      Unused space will be available for extended partitions."
+    echo
+  fi
 
   echo -en "[whole disk]        Selection: "
   read maxMiB #</dev/tty
   if [ x$maxMiB == x ]; then maxMiB="0"; fi
+  if [ $driveMiB -lt $minMib -a $maxMiB -ne 0 ]; then continue; fi
   if [ $maxMiB -eq 0 ]; then break; fi
   if [ $maxMiB -ge $minMiB -a $maxMiB -le $driveMiB ]; then break; fi
 done

@@ -1,5 +1,26 @@
 #! /bin/bash
 
+function compute_swap () {
+  # swap fixed to installed RAM, but must be shrunk if RAM > .25*hdsize
+  set `grep MemTotal /proc/meminfo`
+  memsize=$2
+  memunit=$3
+  swapstart=bootstart+bootsize
+
+  # If memory is > 1/8 of the disk, crowbar swap to 1/8 of the disk
+  typeset -i mem_mib disk_eighth
+  mem_mib=memsize/1024
+  disk_eighth=remainder/8/2048
+  if [ $mem_mib -lt $disk_eighth ]; then
+    # Base swap on memory size
+    swapsize=memsize*2
+    Mswapsize=memsize/1024
+  else
+    swapsize=disk_eighth*2048
+    Mswapsize=$disk_eighth
+  fi
+}
+
 # sed changes this to the currently used kernel version
 #
 KERNEL_VER=KeRnElVeRsIoN
@@ -88,30 +109,12 @@ echo
   bootsize=100*2048
   bootstart=PerTrk
 
-  # swap fixed to installed RAM, but must be shrunk if RAM > .25*hdsize
-  set `grep MemTotal /proc/meminfo`
-  memsize=$2
-  memunit=$3
-  swapstart=bootstart+bootsize
-
-  # If memory is > 1/8 of the disk, crowbar swap to 1/8 of the disk
-  typeset -i mem_mib disk_eighth
-  mem_mib=memsize/1024
-  disk_eighth=sTotal/8/2048
-  if [ $mem_mib -lt $disk_eighth ]; then
-    # Base swap on memory size
-    swapsize=memsize*2
-    Mswapsize=memsize/1024
-  else
-    swapsize=disk_eighth*2048
-    Mswapsize=$disk_eighth
-  fi
-
   # Compute partition sizes
   #
   if [ $maxMiB -eq 0 ]; then
     # using whole disk
     remainder=sTotal-PerTrk          # less one track
+    compute_swap                     # swap is based on memory and disk size
     echo "  ${hdd}1  100MiB -> /boot"
     echo "  ${hdd}2  ${Mswapsize}MiB -> swap"
     remainder=remainder-bootsize-swapsize
@@ -129,8 +132,9 @@ echo
     echo "  ${hdd}5    ${Mlogsize}MiB -> /log"
   else
     # using limited size
-    remainder=$hdsize*2048-PerTrk   # less one track
+    remainder=$hdsize*2048-PerTrk    # less one track
     unused=remainder-maxMiB*2048
+    compute_swap                     # swap is based on memory and disk size
     echo "  ${hdd}1    100MiB -> /boot"
     echo "  ${hdd}2    ${Mswapsize}MiB -> swap"
     remainder=remainder-bootsize-swapsize
