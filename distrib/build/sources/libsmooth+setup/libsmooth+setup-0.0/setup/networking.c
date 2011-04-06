@@ -685,7 +685,7 @@ int dnsgatewaymenu(void)
 	struct keyvalue *kv = initkeyvalues();
 	char message[1000];
 	char temp[STRING_SIZE] = "0";
-	struct newtWinEntry entries[DNSGATEWAY_TOTAL];
+	struct newtWinEntry entries[DNSGATEWAY_TOTAL+1];
 	char *values[DNSGATEWAY_TOTAL];         /* pointers for the values. */
 	int error;
 	int configtype;

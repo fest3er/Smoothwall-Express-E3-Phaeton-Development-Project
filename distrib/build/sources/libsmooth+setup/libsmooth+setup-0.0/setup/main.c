@@ -70,19 +70,18 @@ int main(int argc, char *argv[])
 
 	if (automode == 0)
 	{
-		sections[0] = ctr[TR_RESTORE_CONFIGURATION];
-		sections[1] = ctr[TR_KEYBOARD_MAPPING];
-		sections[2] = ctr[TR_HOSTNAME];
-		sections[3] = ctr[TR_WEB_PROXY];
-		sections[4] = ctr[TR_DEFAULT_SECURITY_LEVEL];
-		sections[5] = ctr[TR_ISDN_CONFIGURATION];
-		sections[6] = ctr[TR_ADSL_CONFIGURATION];
-		sections[7] = ctr[TR_NETWORKING];	
-		sections[8] = ctr[TR_DHCP_SERVER_CONFIGURATION],
-		sections[9] = ctr[TR_ROOT_PASSWORD];
-		sections[10] = ctr[TR_SETUP_PASSWORD];
-		sections[11] = ctr[TR_ADMIN_PASSWORD];
-		sections[12] = NULL;	
+		sections[0] = ctr[TR_KEYBOARD_MAPPING];
+		sections[1] = ctr[TR_HOSTNAME];
+		sections[2] = ctr[TR_WEB_PROXY];
+		sections[3] = ctr[TR_DEFAULT_SECURITY_LEVEL];
+		sections[4] = ctr[TR_ISDN_CONFIGURATION];
+		sections[5] = ctr[TR_ADSL_CONFIGURATION];
+		sections[6] = ctr[TR_NETWORKING];	
+		sections[7] = ctr[TR_DHCP_SERVER_CONFIGURATION],
+		sections[8] = ctr[TR_ROOT_PASSWORD];
+		sections[9] = ctr[TR_SETUP_PASSWORD];
+		sections[10] = ctr[TR_ADMIN_PASSWORD];
+		sections[11] = NULL;	
 	
 		usbfail = 1;
 		if (!stat("/proc/bus/usb/devices", &statbuf))
@@ -106,50 +105,46 @@ int main(int argc, char *argv[])
 			switch (choice)
 			{
 				case 0:
-					handlerestore();
-					break;
-
-				case 1:
 					handlekeymap();
 					break;
 				
-				case 2:
+				case 1:
 					handlehostname();
 					break;
 
-				case 3:
+				case 2:
 					handlewebproxy();
 					break;
 					
-				case 4:
+				case 3:
 					handledefaults();
 					break;
 
-				case 5:
+				case 4:
 					handleisdn();
 					break;
 
-				case 6:
+				case 5:
 					handleadsl();
 					break;
 				
-				case 7:
+				case 6:
 					handlenetworking();
 					break;
 					
-				case 8:
+				case 7:
 					handledhcp();
 					break;
 									
-				case 9:
+				case 8:
 					handlerootpassword();
 					break;
 
-				case 10:
+				case 9:
 					handlesetuppassword();
 					break;
 					
-				case 11:
+				case 10:
 					handleadminpassword();
 					break;
 		
@@ -164,13 +159,6 @@ int main(int argc, char *argv[])
 		if (!stat("/proc/bus/usb/devices", &statbuf))
 			usbfail = 0;
 				
-		if (newtWinChoice(TITLE, ctr[TR_NO], ctr[TR_YES],
-			ctr[TR_RESTORE_LONG]) != 1)
-		{
-			if (!(handlerestore()))
-				goto EXIT;
-		}
-	
 		if (!(handlekeymap()))
 			goto EXIT;
 		if (!(handlehostname()))
