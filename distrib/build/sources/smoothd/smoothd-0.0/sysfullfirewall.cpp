@@ -109,6 +109,9 @@
 /* ============================================================================ */
 /* add source IP to mask for VPN issue     Version 3.3.1  10/12/03        --slp */
 /* ============================================================================ */
+/* Add a check to avoid deleting non-existant rules in jmpsquid                 */
+/* discontinue use of deprecated negation  Version 3.3.2  10/12/03        --slp */
+/* ============================================================================ */
 
 #include <iostream>
 #include <fstream>
@@ -149,6 +152,7 @@ extern "C"
  int chkaliases(std::vector<std::string>   & parameters);
  int wrtaliases(std::string                & response);
  int edit_crontab(std::vector<std::string> & parameters, std::string       & response);
+ bool chkproxy();
 }
 
 //#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
@@ -162,7 +166,7 @@ int load(std::vector<CommandFunctionPair> & pairs)
           int version will supersede earlier .so versions);
  */
 
- int version = 331;
+ int version = 332;
 
  CommandFunctionPair set_xtaccess_function ("setxtaccess","set_xtaccess",0,0,version);
  CommandFunctionPair set_portfw_function   ("setportfw",    "set_portfw",0,0,version);
@@ -503,11 +507,15 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
  std::string proxy_jmpt = " -m mark --mark 0x80000000/0x80000000 -j RETURN";
 
  // the match mark mask does not correctly mask for some reason
+ // the position of flag and mask might be reversed
 
- rmdupes (ipb, proxy_jmph + "-D jmpim" + proxy_jmpt);
- rmdupes (ipb, proxy_jmph + "-D jmpp3scan" + proxy_jmpt);
- rmdupes (ipb, proxy_jmph + "-D jmpsip" + proxy_jmpt);
- rmdupes (ipb, proxy_jmph + "-D jmpsquid" + proxy_jmpt);
+ if (chkproxy())
+ {
+  rmdupes (ipb, proxy_jmph + "-D jmpim" + proxy_jmpt);
+  rmdupes (ipb, proxy_jmph + "-D jmpp3scan" + proxy_jmpt);
+  rmdupes (ipb, proxy_jmph + "-D jmpsip" + proxy_jmpt);
+  rmdupes (ipb, proxy_jmph + "-D jmpsquid" + proxy_jmpt);
+ }
 
  if (mark_seq > 0x800)
  {
@@ -723,17 +731,15 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
    srcipmac_out = "";
    if (temp_source.find_first_not_of(IP_NUMBERS) == std::string::npos)
    {
-    // must be a space between "!" and the value
-
     srcipmac_out = " -s " + temp_source;
-    if (negated_source) srcipmac_out = " !" + srcipmac_out;
    }
    if (temp_source.find_first_not_of(MAC_HEX) == std::string::npos)
    {
-    srcipmac_out = " -m mac ";
-    if (negated_source) srcipmac_out = srcipmac_out + "! ";
-    srcipmac_out = srcipmac_out + "--mac-source " + temp_source;
+    srcipmac_out = " -m mac --mac-source " + temp_source;
    }
+    // must be a space between "!" and the descriptor
+    if (negated_source) srcipmac_out = " ! " + srcipmac_out;
+
    tgt_out = " -j " + f_action;
    if (f_action == "LOG") tgt_out = " -j LOG --log-prefix ..FFC..";
 
@@ -1180,4 +1186,27 @@ int edit_crontab(std::vector<std::string> & parameters, std::string & response)
  if (error) response = "Edit crontab failed!";
 
  return errrpt(response);
+}
+//#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
+bool chkproxy()
+{
+ unsigned int i = 0;
+ std::vector<std::string> argv;
+ std::vector<std::string> args;
+ std::vector<std::string> argc;
+ std::string              chkst;
+
+ args.push_back("iptables -t nat -nvL jmpsquid");
+
+ argv = simplesecurepopenvector(args, argc);
+
+ while (i < argv.size())
+ {
+  chkst = argv[i++];
+  if (chkst.find_first_of("MARK match 0x80000000/0x80000000") != std::string::npos)
+  {
+   return true;
+  }
+ }
+ return false;
 }
