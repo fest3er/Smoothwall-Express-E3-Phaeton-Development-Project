@@ -98,7 +98,7 @@
 /* "Abort".  Moved the subnet check rule generator to a subfunction.  Changed   */
 /* ifaliasup to create an up to date list of HOME_NET for snort (also correct   */
 /* long standing error for DNS_SERVERS, meant to be local DNS servers) in       */
-/* /var/smoothwall/mods/fullfirewall/portfw/snort.var                           */
+/* /var/smoothwall/portfw/snort.var                                             */
 /* a few other syntax changes.     Version 3.2.0          10/03/31        --slp */
 /* ============================================================================ */
 /* Error in External Access.       Version 3.2.1          10/06/02        --slp */

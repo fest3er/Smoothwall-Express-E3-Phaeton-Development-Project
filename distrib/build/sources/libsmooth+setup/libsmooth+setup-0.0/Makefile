@@ -5,8 +5,8 @@
 # This code is distributed under the terms of the GPL v2.
 
 all:
-	@+make -C libsmooth
-	@+make -C setup
+	@make -C libsmooth
+	@make -C setup
 
 clean:
 	@make -C libsmooth clean
