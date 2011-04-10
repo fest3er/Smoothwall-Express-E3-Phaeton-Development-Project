@@ -19,7 +19,7 @@ usage () {
 #   or to STDOUT if started manually
 feedback () {
   if [ "$1" == "AUTO" ]; then
-    echo $2 > /${BACK_FLAG}
+    echo -e $2 > /${BACK_FLAG}
   else
     if [ "$3" == "same" ]; then
       echo -e "\033[A$2\033[K"
@@ -56,7 +56,8 @@ if [ -z "$RELEASE" ]; then
 fi
 
 # Prepare a bunch of shorthand
-BACK_DIR=var/smoothwall/backup
+REL_BACK_DIR=var/smoothwall/backup
+BACK_DIR=/${REL_BACK_DIR}
 BACK_FLAG="${BACK_DIR}/backup.flag"
 
 set ${RELEASE/-/ }
@@ -74,10 +75,10 @@ EXCLUDES="--exclude=proc/* --exclude=dev/* --exclude=sys/* --exclude=backup/*"
 TO_BITBKT=">/dev/null 2>&1"
 
 INOTIFY_CMD="inotifywait -q"
-DEV_FILE="/${BACK_DIR}/backup.devices"
+DEV_FILE="${BACK_DIR}/backup.devices"
 
 # Go to the working dir
-cd /$BACK_DIR
+cd $BACK_DIR
 
 # Normalize the flag file
 touch backup.flag
@@ -93,8 +94,8 @@ if [ $AUTOBACK == "AUTO" ]; then
     set `$INOTIFY_CMD -e $WATCH /${BACK_FLAG} 2>/dev/null`
 
     # Get the backup type and break out of loop if it's correct
-    BACKUP_TYPE=`cat /${BACK_FLAG}`
-    if [ "$BACKUP_TYPE"=="var" -o "$BACKUP_TYPE"=="total" ]; then break; fi
+    BACKUP_TYPE=`cat ${BACK_FLAG}`
+    if [ "$BACKUP_TYPE" == "var" -o "$BACKUP_TYPE" == "total" ]; then break; fi
 
     # Go 'round again
   done
@@ -104,7 +105,7 @@ fi
 
 # Now set the flag file names
 FNAME="${HOST}_${DATE}_${RELTYPE}_${RELVER}_${BACKUP_TYPE}"
-HNAME="${BACK_DIR}/${FNAME}"
+HNAME="${REL_BACK_DIR}/${FNAME}"
 touch /${HNAME}.tarhead
 touch /${HNAME}.tarheel
 
@@ -113,8 +114,8 @@ case ${BACKUP_TYPE} in
   var)
     FILES_TO_SAVE="${EXCLUDES} ${HNAME}.tarhead"
     FILES_TO_SAVE="${FILES_TO_SAVE} var usr/etc @var/smoothwall/backup"
-    FILES_TO_SAVE="${FILES_TO_SAVE} /etc/shadow etc/passwd etc/group etc/httpd/server.*"
-    FILES_TO_SAVE="${FILES_TO_SAVE} /etc/passwd /etc/shadow /etc/httpd/server.*"
+    FILES_TO_SAVE="${FILES_TO_SAVE} etc/shadow etc/passwd etc/group etc/httpd/server.*"
+    FILES_TO_SAVE="${FILES_TO_SAVE} etc/udev/rules.d/*"
     FILES_TO_SAVE="${FILES_TO_SAVE} ${HNAME}.tarheel"
     ;;
 
@@ -173,10 +174,9 @@ else
   feedback $AUTOBACK "Flushing data to backup device"
 
   # Unmount
-  while :; do
-    umount $MOUNT_PT >/dev/null 2>&1 && break;
-    sleep 1
-  done
+  (sleep .1; umount $MOUNT_PT >/dev/null 2>&1)&
+  inotifywait -q -e unmount /backup >/dev/null 2>&1
+
   rmdir $MOUNT_PT
 fi
 
