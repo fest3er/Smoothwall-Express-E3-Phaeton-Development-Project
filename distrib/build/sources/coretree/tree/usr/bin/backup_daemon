@@ -70,7 +70,8 @@ TIME=`date +"%H:%M:%S"`
 
 KERNEL=`uname -r`
 
-EXCLUDES="--exclude=proc/* --exclude=dev/* --exclude=sys/* --exclude=backup/*"
+EXCLUDES="--exclude=proc/* --exclude=dev/* --exclude=sys/*"
+EXCLUDES="$EXCLUDES --exclude=backup/* --exclude=/var/smoothwall/backup/*"
 
 TO_BITBKT=">/dev/null 2>&1"
 
@@ -113,9 +114,8 @@ touch /${HNAME}.tarheel
 case ${BACKUP_TYPE} in
   var)
     FILES_TO_SAVE="${EXCLUDES} ${HNAME}.tarhead"
-    FILES_TO_SAVE="${FILES_TO_SAVE} var usr/etc @var/smoothwall/backup"
-    FILES_TO_SAVE="${FILES_TO_SAVE} etc/shadow etc/passwd etc/group etc/httpd/server.*"
-    FILES_TO_SAVE="${FILES_TO_SAVE} etc/udev/rules.d/*"
+    FILES_TO_SAVE="${FILES_TO_SAVE} var usr/etc etc/shadow etc/passwd etc/group"
+    FILES_TO_SAVE="${FILES_TO_SAVE} etc/httpd/server.* etc/udev/rules.d/*"
     FILES_TO_SAVE="${FILES_TO_SAVE} ${HNAME}.tarheel"
     ;;
 
@@ -153,8 +153,7 @@ feedback $AUTOBACK "Couldn't mount the flash drive. Please verify that it is par
 else
   /usr/bin/sounds/mount_succeeded.bps
   # Get the file count first (for progress feedback)
-  tar cvf /dev/null -C / ${FILES_TO_SAVE} > ${FNAME}.list 2>/dev/null
-  sed -ie 's=^/==' ${FNAME}.list
+  (cd /; tar cvf /dev/null ${FILES_TO_SAVE}) > /${HNAME}.list 2>/dev/null
   typeset -i i FILECOUNT
   FILECOUNT=`cat ${FNAME}.list | wc -l`
   FILECOUNT=FILECOUNT+2
@@ -162,11 +161,11 @@ else
   if [ $AUTOBACK == "MANUAL" ]; then echo; fi
 
   # Finally, why we're here.
-  tar cvfz ${MOUNT_PT}/${FNAME}.tar.gz \
+  (cd /; tar cvfz ${MOUNT_PT}/${FNAME}.tar.gz \
       --no-recursion \
-      -C / \
-      ${HNAME}.tarhead -T ${FNAME}.list ${HNAME}.tarheel \
-      2>/dev/null | while read a; do
+      ${HNAME}.tarhead -T ${HNAME}.list ${HNAME}.tarheel \
+      2>/dev/null
+  ) | while read a; do
     i=i+1
     feedback $AUTOBACK "$i/$FILECOUNT: $a" "same"
   done
