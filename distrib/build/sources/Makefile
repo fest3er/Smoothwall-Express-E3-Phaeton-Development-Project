@@ -15,4 +15,4 @@ UI_VERSION = 3.0
 FIXES_NUMBER = 0
 REVISION = polar
 
-RELEASE = Phaeton-5.0.6-rc1
+RELEASE = Phaeton-5.0.6
