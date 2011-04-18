@@ -22,7 +22,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
 	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
 	    libdnet daq libnet libnetfilter_queue libnfnetlink inotify-tools \
-	    readline beep2 pcre trafficstats iftop ppp isdn4k-utils \
+	    readline beep2 pcre trafficstats iftop setuids ppp isdn4k-utils \
 	    rp-pppoe ibod dhcpcd eciadsl-synch_bin eciadsl-usermode \
 	    cnxadsl dhcp snort oinkmaster openswan wireless_tools imspector  \
 	    diffutils traceroute clamav p3scan libosip2 siproxd which miniupnpd \
@@ -146,6 +146,8 @@ cdrom/smoothwall.tgz:
 	  chmod u+s distrib/bin/traceroute; \
 	  chmod u+s distrib/usr/bin/ping; \
 	  chmod u+s distrib/usr/sbin/listtables; \
+	  chown root:nobody distrib/usr/bin/setuids/*; \
+	  chmod 4750 distrib/usr/bin/setuids/*; \
 	  mkdir -p /distrib/tmp; chmod 1777 distrib/tmp; \
 	) | sed -u -e 's/^/  /'
 	
