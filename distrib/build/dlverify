@@ -39,7 +39,7 @@ fi
 
 # Mirror sources
 set | grep "MIRROR_UNO=" >/dev/null 2>&1 || MIRROR_UNO=""
-set | grep "MIRROR_DOS=" >/dev/null 2>&1 || MIRROR_DOS="http://downloads.smoothwall.org/buildmirror"
+set | grep "MIRROR_DOS=" >/dev/null 2>&1 || MIRROR_DOS="http://roadster.agcl.us/downloads"
 
 DIRECTORY=$1
 URL=$2
