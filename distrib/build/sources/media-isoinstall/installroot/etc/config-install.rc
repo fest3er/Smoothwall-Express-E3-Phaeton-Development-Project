@@ -46,45 +46,34 @@ while [ 1 -eq 1 ]; do
   >/tmp/cd.list
   ALT_CD=0
 
-  ls -C1 | while read a; do
-    if [ -e $a/device ]; then
-      # if an optical drive, add it to /tmp/cd.list
-      size=""
-      egrep "$CDs" $a/device/modalias >/dev/null 2>&1
-      if [ $? -eq 0 ]; then
-        set `cat $a/size`
-        if [ $1 -gt 0 ]; then
-          size=$1
-        else
-          size=0
-        fi
-        UDEVINFO="/sbin/udevadm info --path=${PWD}/$a --query=all"
-        model=`$UDEVINFO | grep ID_MODEL= | sed -e 's/.*=//'`
-        [ -z "$model" ] && model=`cat $a/device/model 2>&1 | sed -e 's/ /-/g'`
-        [ -z "$model" ] && model="UNK_MODEL"
-        serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
-        [ -z "$serial" ] && serial=`cat $a/device/serial >/dev/null 2>&1 | sed -e 's/ /-/g'`
-        [ -z "$serial" ] && serial="UNK_SERIAL"
-        echo "$a $size $model $serial" >> /tmp/cd.list
-      fi
-      # if a disk drive, add it to /tmp/hd.list
-      size=""
-      egrep "$HDs" $a/device/modalias >/dev/null 2>&1
-      if [ $? -eq 0 ]; then
-        set `cat $a/size`
-        if [ $1 -gt 0 ]; then
-          size=$1
-          UDEVINFO="udevadm info --path=${PWD}/$a --query=all"
-          model=`$UDEVINFO | grep "ID_MODEL=" | sed -e 's/.*=//'`
-          [ -z "$model" ] && model=`cat $a/device/model 2>&1 | sed -e 's/ /-/g'`
-          [ -z "$model" ] && model="UNK_MODEL"
-          serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
-          [ -z "$serial" ] && serial=`cat $a/device/serial >/dev/null 2>&1 | sed -e 's/ /-/g'`
-          [ -z "$serial" ] && serial="UNK_SERIAL"
-          echo "$a $size $model $serial" >> /tmp/hd.list
-        fi
-      fi
+  # Find all disks and optical drives
+  for device in *; do
+    UDEVINFO="/sbin/udevadm info --path=${PWD}/${device} --query=all"
+    ID_TYPE=`$UDEVINFO | grep ID_TYPE | sed -e 's/.*=//'`
+    DEVNAM=`$UDEVINFO | grep DEVNAM | sed -e 's|.*=/dev/||'`
+    set `cat ${device}/size`
+    if [ $1 -gt 0 ]; then
+      size=$1
+    else
+      size=0
     fi
+    model=`$UDEVINFO | grep ID_MODEL= | sed -e 's/.*=//'`
+    [ -z "$model" ] && model=`cat ${device}/device/model 2>&1 | sed -e 's/ /-/g'`
+    [ -z "$model" ] && model="UNK_MODEL"
+    serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
+    [ -z "$serial" ] && serial=`cat ${device}/device/serial >/dev/null 2>&1 | sed -e 's/ /-/g'`
+    [ -z "$serial" ] && serial="UNK_SERIAL"
+    case $ID_TYPE in
+      cd)
+        # if an optical drive, add it to /tmp/cd.list
+        echo "$DEVNAM $size $model $serial" >> /tmp/cd.list
+        ;;
+      disk)
+        # if a disk drive with size>0, add it to /tmp/hd.list
+        if [ $size -gt 0 ]; then
+          echo "$DEVNAM $size $model $serial" >> /tmp/hd.list
+        fi
+    esac
   done
 
   # Find anything?
