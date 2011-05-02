@@ -13,10 +13,9 @@ BASE_URL = ftp://alpha.gnu.org/gnu/grub/
 
 COMPILE_DIR = $(PACKAGE)-$(VERSION)-compile
 
-#PATCH_URL1 = http://www.linuxfromscratch.org/patches/lfs/6.4/grub-0.97-disk_geometry-1.patch
-#PATCH_URL2 = http://www.linuxfromscratch.org/patches/lfs/6.4/grub-0.97-256byte_inode-1.patch
 PATCH_FILE1 = grub-0.97-disk_geometry-1.patch
 PATCH_FILE2 = grub-0.97-256byte_inode-1.patch
+PATCH_FILE3 = device.c.patch
 
 CONFIG_OPTS = --prefix=$(PKG_DIR)
 

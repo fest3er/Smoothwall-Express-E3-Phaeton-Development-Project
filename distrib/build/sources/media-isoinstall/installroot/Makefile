@@ -84,11 +84,12 @@ all: clean bin lib klibc
 	  cp -aR ../etc/install.rc etc; chmod 755 etc/install.rc; \
 	  cp -aR ../etc/flash.rc etc; chmod 755 etc/flash.rc; \
 	  cp -aR ../etc/config-install.rc etc; chmod 755 etc/config-install.rc; \
-	  cp -aR ../etc/exec-install.rc etc; chmod 755 etc/exec-install.rc; \
+	  sed -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' <../etc/exec-install.rc.src \
+	    >etc/exec-install.rc; \
+	  chmod 755 etc/exec-install.rc; \
 	  cp -aR ../../../../make_flash etc/auto_flash; chmod 755 etc/auto_flash; \
 	  cp -aR ../etc/eth-addr-sort etc; chmod 755 etc/eth-addr-sort; \
 	  cp -aR ../etc/udev-trigger.rc etc; chmod 755 etc/udev-trigger.rc; \
-	  sed -i -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' etc/exec-install.rc; \
 	  cp -aR ../etc/halt etc; chmod 755 etc/halt; \
 	  cp -aR ../etc/modules.conf etc; \
 	  cp -aR ../etc/storagedevices etc; \
