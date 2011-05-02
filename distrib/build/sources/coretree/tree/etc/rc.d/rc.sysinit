@@ -121,16 +121,16 @@ if [ ! -e /usr/etc/ssh_host_rsa_key ]; then
 	/usr/bin/ssh-keygen -t rsa -f /usr/etc/ssh_host_rsa_key -N ""
 fi
 if [ ! -e /usr/etc/ssh_host_dsa_key ]; then
-        echo "Generating SSH DSA key.  This may take several minutes."
-        /usr/bin/ssh-keygen -t dsa -f /usr/etc/ssh_host_dsa_key -N "" 
+	echo "Generating SSH DSA key.  This may take several minutes."
+	/usr/bin/ssh-keygen -t dsa -f /usr/etc/ssh_host_dsa_key -N "" 
 fi
 if [ ! -e /usr/etc/ssh_host_ecdsa_key ]; then
-        echo "Generating SSH ECDSA key.  This may take several minutes."
-        /usr/bin/ssh-keygen -t ecdsa -f /usr/etc/ssh_host_ecdsa_key -N "" 
+	echo "Generating SSH ECDSA key.  This may take several minutes."
+	/usr/bin/ssh-keygen -t ecdsa -f /usr/etc/ssh_host_ecdsa_key -N "" 
 fi
 
 if [ ! -e /etc/httpd/server.key ]; then
-        echo "Generating https server key."
+	echo "Generating https server key."
 	/usr/ssl/bin/openssl genrsa -rand \
 		/boot/vmlinuz-`uname -r`:/var/smoothwall/ethernet/settings:/var/log/dmesg -out \
 		/etc/httpd/server.key 1024
