@@ -34,7 +34,7 @@ KERNEL_VER=KeRnElVeRsIoN
 
 CONFIG_ROOT=/var/smoothwall
 
-TITLE="$CLS           ${BOUL}Smoothwall Express 3 (Roadster Test Vehicle) Installation$NO"
+TITLE="$CLS           ${BOUL}Smoothwall Express 3 (Phaeton Development) Installation$NO"
 
 echo -e "$TITLE"
 echo
@@ -152,7 +152,7 @@ echo
     echo "  ${hdd}5    ${Mlogsize}MiB -> /log"
   fi
   cat >/tmp/sfdisk.parts <<END
-63,$bootsize,83,*
+$bootstart,$bootsize,83,*
 $swapstart,$swapsize,82,
 $extstart,$extsize,85,
 $rootstart,$rootsize,83,
@@ -186,9 +186,9 @@ echo
 
 # If installing with or without a var data restore, mount the source medium
 if [ $restore -eq 1 -o $restore -eq 2 ]; then
-  # Confuser: First try to mount the whole medium as an ISO9660 CD-/DVD-ROM; failing
-  #   that, try mounting it as type 'isofs'. Failing that, try mounting partition #1
-  #   as VFAT.
+  # Confuser: First try to mount the whole medium as an ISO9660 CD-/DVD-ROM;
+  # failing that, try mounting it as type 'isofs'. Failing that, try mounting
+  # partition #1 as VFAT.
   echo "Mounting source media"
   CDMNTLOG="/cdmount.log"
   > $CDMNTLOG
@@ -436,7 +436,14 @@ echo "  installing boot loader"
 do_or_die "mount --bind /proc /harddisk/proc"
 do_or_die "mount --bind /sys /harddisk/sys"
 do_or_die "mount --bind /dev /harddisk/dev"
-do_or_die "/sbin/chroot /harddisk ${GRUB_CMD} /dev/harddisk"
+cat<<END >/harddisk/tmp/grub.cmds
+device (hd0) /dev/harddisk
+root (hd0,0) 
+setup (hd0) 
+quit
+END
+do_or_die "/sbin/chroot /harddisk /usr/sbin/grub --batch </harddisk/tmp/grub.cmds"
+
 
 sleep 2
 

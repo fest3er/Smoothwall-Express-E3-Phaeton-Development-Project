@@ -22,7 +22,7 @@ HDs="ide:m-disk|scsi:t-0x00"
 PCI_IDS="/etc/filled.pci.ids"
 
 # Uber title
-TITLE="$CLS            ${BOUL}Smoothwall Express 3 (Roadster Test Vehicle) Installation$NO"
+TITLE="$CLS            ${BOUL}Smoothwall Express 3 (Phaeton Development) Installation$NO"
 
 echo -e $TITLE; echo
 #echo "Preparing lists of CDROM and hard drives and NICs"
@@ -412,6 +412,9 @@ while [ 1 -eq 1 ]; do
 
   i=1; echo "  $i. Yes (default)"
   i=2; echo "  $i. No (enable 'noatime' for /, /boot and /var/log)"
+  echo
+  echo "Select (1) if installing to rotating drive."
+  echo "Select (2) if installing to flash drive."
   echo
 
   echo -n "[1]        Selection: "
