@@ -34,7 +34,7 @@ KERNEL_VER=KeRnElVeRsIoN
 
 CONFIG_ROOT=/var/smoothwall
 
-TITLE="$CLS           ${BOUL}Smoothwall Express 3 (Phaeton Development) Installation$NO"
+TITLE="$CLS           ${BOUL}Smoothwall Express 3 (Roadster Test Vehicle) Installation$NO"
 
 echo -e "$TITLE"
 echo
