@@ -184,7 +184,7 @@ fi
       JOBS=$JOBS_MP
       build wget
       build sudo
-      build kernel-phaeton
+      build kernel-roadster
       build iptables
       build ipset
       build xtables-addons
@@ -265,8 +265,6 @@ fi
       build cdrtools
       build busybox
 
-      build setuids
-
       build ppp
       build isdn4k-utils
       build rp-pppoe
@@ -325,6 +323,7 @@ fi
       build libnetfilter_queue
       #build libcap-ng  # needs Python; it can wait
       build suricata
+      build smartmontools
 
       touch crumbs/Final.grp6.compiled
     fi
