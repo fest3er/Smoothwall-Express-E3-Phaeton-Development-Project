@@ -15,7 +15,7 @@ use File::Copy;
 		standard   => [ @EXPORT_OK ],
 		);
 
-our $server        = "downloads.smoothwall.org";
+our $server        = "roadster.agcl.us/updates";
 
 my $download_store = "/var/patches/downloads/";
 my $progress_store = "/var/patches/pending/";
@@ -132,12 +132,13 @@ sub progress
 	my ( $down, $percent, $speed, $complete ) = ( 0, "0px", 0, "" );
 
 	while ( $status = <$status_file> ) { 
-		my ( $ddown, $dpercent, $dspeed ) = ( $status =~ /(\d+K|M)[^\d]*(\d+%)\s+(\d+\.\d+ ..\/s)/ );
+		my ( $ddown, $dpercent, $dspeed ) = ( $status =~ /(\d+K|M)[^0-9]+(\d+%)\s+(\d*\.*\d*[KMG][ =]+\d*\.*\d*s)/ );
 		if ( defined $ddown ){
 			$down = $ddown;
 			$percent = $dpercent;
 			$speed = $dspeed;
 		}
+                #print STDERR "down/speed/percent: $down/$speed/$percent\n";
 		if ( $percent eq "100%" ){
 			print STDERR "Checking for completion $status\n";
 			if ( $status =~ /`([^`]*)'/ ){
