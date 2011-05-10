@@ -36,7 +36,7 @@ sub downloadlist
 	my $host; my $port;
         unless ($proxy{'SERVER'})
         {
-                $host = 'www.smoothwall.org';
+                $host = 'roadster.agcl.us';
                 $port = 80;
         }
         else
@@ -49,10 +49,10 @@ sub downloadlist
 		Proto => 'tcp', Timeout => 5))
 	{
 		print STDERR "unable to connect\n";
-		$errormessage = $tr{'could not connect to smoothwall org'};
+		$errormessage = $tr{'could not connect to Roadster updates'};
 		return 0;
 	}
-	print $sock "GET http://www.smoothwall.org/updates/$version/info HTTP/1.1\r\nHost: www.smoothwall.org\r\nConnection: close\r\n\r\n";
+	print $sock "GET http://$host/updates/$major/info HTTP/1.1\r\nHost: $host\r\nConnection: close\r\n\r\n";
 	my $ret = '';
 	while (<$sock>) {
 		$ret .= $_; }

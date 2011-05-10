@@ -13,7 +13,7 @@ require Exporter;
 our @_validation_items;
 
 @EXPORT       = qw();
-@EXPORT_OK    = qw( $language $version $webuirevision $viewsize @menu $swroot $thisscript showhttpheaders showmenu showsection openpage closepage openbigbox closebigbox openbox closebox alertbox pageinfo readvalue writevalue writehash readhash getcgihash log pipeopen age validip validmask validipormask validipandmask validport validportrange validmac validhostname validcomment basename connectedstate %tr @_validation_items getsystemid outputfile );
+@EXPORT_OK    = qw( $language $version $webuirevision $viewsize @menu $swroot $thisscript showhttpheaders showmenu showsection openpage closepage openbigbox closebigbox openbox closebox alertbox pageinfo readvalue writevalue writehash readhash getcgihash log pipeopen age validip validmask validipormask validipandmask validport validportrange validmac validhostname validcomment basename connectedstate %tr @_validation_items getsystemid outputfile $major $minor $point $relname $relnum $longversion );
 %EXPORT_TAGS  = (
 		standard   => [@EXPORT_OK],
 		);
@@ -28,6 +28,10 @@ my %productdata;
 &readhash( "/var/smoothwall/main/productdata", \%productdata );
 
 $version = "$productdata{'VERSION'}-$productdata{'REVISION'}-$productdata{'ARCH'}";
+($relname, $relnum) = split(/-/, $productdata{'RELEASE'});
+($major, $minor, $point) = split(/\./, $relnum);
+$longversion = $point + $minor * 1000 + $major * 1000000;
+#print "LV=$longversion, MA=$major, MI=$minor, PT=$point, RNA=$relname, RNU=$relnum\n";
 
 $webuirevision = $productdata{'UI_VERSION'};
 $viewsize = 200;
