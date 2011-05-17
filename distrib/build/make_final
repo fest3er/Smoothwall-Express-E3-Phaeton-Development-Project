@@ -323,6 +323,7 @@ fi
       build libnetfilter_queue
       #build libcap-ng  # needs Python; it can wait
       build suricata
+      build smartmontools
 
       touch crumbs/Final.grp6.compiled
     fi
