@@ -9,9 +9,7 @@ include ../Makefile.conf
 PACKAGE = setuids
 VERSION = 0.0
 
-PROGS = installpackage
-
-NOT_INSTALLED_PROGS = setdmzholes setportfw setoutbound setxtaccess restartdhcp \
+PROGS = installpackage setdmzholes setportfw setoutbound setxtaccess restartdhcp \
 	restartsnort restartsquid smoothiedeath smoothierebirth alcateladslfw \
 	ipsecctrl restartdnsproxy restartssh setadvnet setipblock restartupnp \
 	restartntpd updown
