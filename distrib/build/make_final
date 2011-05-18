@@ -265,6 +265,8 @@ fi
       build cdrtools
       build busybox
 
+      setuids
+
       build ppp
       build isdn4k-utils
       build rp-pppoe
