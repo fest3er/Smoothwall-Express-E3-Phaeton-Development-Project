@@ -22,21 +22,3 @@ clean :
 
 % : %.c
 	$(COMPILE) $< -o $@
-
-setdmzholes : setdmzholes.c
-setportfw : setportfw.c
-setoutbound : setoutbound.c
-setxtaccess : setxtaccess.c
-restartdhcp : restartdhcp.c
-restartsnort : restartsnort.c
-restartsquid : restartsquid.c
-smoothiedeath : smoothiedeath.c
-smoothierebirth : smoothierebirth.c
-restartdnsproxy : restartdnsproxy.c
-restartssh : restartssh.c
-alcateladslfw : alcateladslfw.c
-setadvnet : setadvnet.c
-setipblock : setipblock.c
-restartupnp : restartupnp.c
-restartntpd : restartntpd.c
-updown : updown.c
