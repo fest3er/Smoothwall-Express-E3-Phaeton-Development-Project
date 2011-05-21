@@ -54,8 +54,13 @@ fi
 if [ "$CONFIG_TYPE" = "2" -o "$CONFIG_TYPE" = "3" -o "$CONFIG_TYPE" = "6" -o "$CONFIG_TYPE" = "7" ]; then
 	if [ "$RED_DEV" != "" ]; then
 		if [ "$RED_TYPE" = "DHCP" ]; then
+			if [ "$RED_IGNOREMTU" == "on" ]; then
+                          IGNOREMTU=" -M"
+                        else
+                          IGNOREMTU=""
+                        fi
 			rm /var/lib/dhcpcd/*.info -f
-			/usr/sbin/dhcpcd -h $RED_DHCP_HOSTNAME -R $RED_DEV -c /etc/rc.d/rc.updatered
+			/usr/sbin/dhcpcd -h $RED_DHCP_HOSTNAME -R $RED_DEV -c /etc/rc.d/rc.updatered${IGNOREMTU}
 		elif [ "$RED_TYPE" = "STATIC" ]; then
 			/sbin/ifconfig $RED_DEV $RED_ADDRESS netmask $RED_NETMASK broadcast $RED_BROADCAST up
 			if [ "$DEFAULT_GATEWAY" != "" ]; then

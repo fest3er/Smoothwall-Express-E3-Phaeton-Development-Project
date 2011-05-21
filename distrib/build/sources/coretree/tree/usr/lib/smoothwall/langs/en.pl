@@ -22,6 +22,7 @@
 'help' => 'Help',
 'primary dns' => 'Primary DNS:',
 'secondary dns' => 'Secondary DNS:',
+'ignore mtu' => 'Ignore ISP\'s MTU:',
 'invalid primary dns' => 'Invalid primary DNS.',
 'invalid secondary dns' => 'Invalid secondary DNS.',
 'invalid username' => 'Invalid username.',
