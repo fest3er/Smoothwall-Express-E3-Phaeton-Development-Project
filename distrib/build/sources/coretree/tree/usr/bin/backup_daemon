@@ -116,6 +116,7 @@ case ${BACKUP_TYPE} in
     FILES_TO_SAVE="${EXCLUDES} ${HNAME}.tarhead"
     FILES_TO_SAVE="${FILES_TO_SAVE} var usr/etc etc/shadow etc/passwd etc/group"
     FILES_TO_SAVE="${FILES_TO_SAVE} etc/httpd/server.* etc/udev/rules.d/*"
+    FILES_TO_SAVE="${FILES_TO_SAVE} root/.ssh/*"
     FILES_TO_SAVE="${FILES_TO_SAVE} ${HNAME}.tarheel"
     ;;
 
