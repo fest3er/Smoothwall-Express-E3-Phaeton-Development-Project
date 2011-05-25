@@ -593,7 +593,7 @@ sub dispaliastab
         if ( $mark ne " " ){
           $newmark = $mark;
         }
-        if ($cols[1] =~ /:/ or !($cols[3] =~ /^eth/)) { 
+        if ($cols[1] =~ /:/ or !($cols[3] =~ /^eth/ or $cols[3] =~ /^ppp/)) { 
           $text = '';
         } else {
           $text = 'DISABLED';
