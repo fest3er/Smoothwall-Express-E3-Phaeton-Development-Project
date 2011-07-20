@@ -22,6 +22,8 @@
 'help' => 'Help',
 'primary dns' => 'Primary DNS:',
 'secondary dns' => 'Secondary DNS:',
+'primary dns override' => 'Primary DNS Override:',
+'secondary dns override' => 'Secondary DNS Override:',
 'ignore mtu' => 'Ignore ISP\'s MTU:',
 'invalid primary dns' => 'Invalid primary DNS.',
 'invalid secondary dns' => 'Invalid secondary DNS.',

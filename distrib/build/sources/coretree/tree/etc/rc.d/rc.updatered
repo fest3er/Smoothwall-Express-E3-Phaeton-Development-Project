@@ -9,8 +9,13 @@ if [ "$RED_TYPE" = "DHCP" ]; then
 	echo "$IPADDR" >/var/smoothwall/red/local-ipaddress
 	echo "$GATEWAY" >/var/smoothwall/red/remote-ipaddress
 elif [ "$RED_TYPE" = "STATIC" ]; then
-	DNSMASQ_DNS1=$DNS1
-	DNSMASQ_DNS2=$DNS2
+	if [ "$DNS1_OVERRIDE" != "" -o "$DNS2_OVERRIDE" != "" ]; then
+	  DNSMASQ_DNS1=$DNS1_OVERRIDE
+	  DNSMASQ_DNS2=$DNS2_OVERRIDE
+        else
+	  DNSMASQ_DNS1=$DNS1
+	  DNSMASQ_DNS2=$DNS2
+        fi
 	echo "$RED_ADDRESS" >/var/smoothwall/red/local-ipaddress
 	echo "$DEFAULT_GATEWAY" >/var/smoothwall/red/remote-ipaddress
 fi

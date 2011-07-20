@@ -28,34 +28,37 @@ if ($settings{'RED_DHCP'} != 'on')
   die "RED is not on DHCP";
 }
 
-if (-e "/var/smoothwall/dhcp/dnsoverride")
+if ($settings{'DNS1_OVERRIDE'} ne "" or $settings{'DNS2_OVERRIDE'} ne "")
 {
-  $dns_file = "/var/smoothwall/dhcp/dnsoverride";
-}
-else
-{
+  # If either override is set, return the respective override addr
+  my $idx="DNS".$count."_OVERRIDE";
+  print "$settings{$idx}\n";
+  exit;
+} else {
   $dns_file = "/var/lib/dhcpcd/dhcpcd-$settings{'RED_DEV'}.info";
-}
+  # return the respective main DNS address
+  if (!&readhash($dns_file, \%dhcpc))
+  {
+    die "Could not open dhcpc info file";
+  }
 
-if (!&readhash($dns_file, \%dhcpc)) {
-  die "Could not open dhcpc info file"; }
-
-$dns = $dhcpc{'DNS'};
-if ($dns ne "")
-{
-  @alldns = split(',', $dns);
-}
-else
-{
-  $dns = $dhcpc{'DNSSERVERS'};
+  $dns = $dhcpc{'DNS'};
   if ($dns ne "")
   {
-    @alldns = split(' ', $dns);
+    @alldns = split(',', $dns);
   }
   else
   {
-    %alldns = ();
+    $dns = $dhcpc{'DNSSERVERS'};
+    if ($dns ne "")
+    {
+      @alldns = split(' ', $dns);
+    }
+    else
+    {
+      %alldns = ();
+    }
   }
-}
 
-print "$alldns[$count - 1]\n";
+  print "$alldns[$count - 1]\n";
+}

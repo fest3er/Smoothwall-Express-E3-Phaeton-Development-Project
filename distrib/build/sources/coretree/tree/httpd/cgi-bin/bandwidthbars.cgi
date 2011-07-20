@@ -104,8 +104,13 @@ sub realtime_graphs
 		$iftitle =~ s/_/ /g;
 		$iftitle =~ s/(GREEN|RED|ORANGE|PURPLE)//;
 		$iftitle = printableiface($iftitle);
+		if ($iftitle eq 'Red') { $bgcolor = '#ffaaaa'; }
+		elsif ($iftitle eq "Green") {$bgcolor = "#bbffbb";}
+		elsif ($iftitle eq "Purple") {$bgcolor = "#ddaaff";}
+		elsif ($iftitle eq "Orange") {$bgcolor = "#ffaa77";}
+		else { $bgcolor = ""; }
 		print qq{
-		<table id='${interface}_container' style='width: 90%; border-collapse: collapse; border: 0px; margin-left: auto; margin-right: auto;'>
+		<table id='${interface}_container' style='width: 90%; border-collapse: collapse; border: 0px; margin-left: auto; margin-right: auto; background-color:$bgcolor'>
 		<tr style='background-color: #C3D1E5;'>
 			<td style="background-position: top left; background-repeat: no-repeat; text-align: left; vertical-align: middle;">&nbsp;<strong>$iftitle</strong></td>
 			<td style="width: 40%; background-position: top right; background-repeat: no-repeat; text-align: left; vertical-align: middle;">&nbsp;</td>

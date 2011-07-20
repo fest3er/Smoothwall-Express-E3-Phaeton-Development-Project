@@ -50,6 +50,8 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'save'} )
       $cgiparams{'RED_IGNOREMTU'} = "off";
   }
   $settings{'RED_IGNOREMTU'} = $cgiparams{'RED_IGNOREMTU'} if ( defined $cgiparams{'RED_IGNOREMTU'} );
+  $settings{'DNS1_OVERRIDE'} = $cgiparams{'DNS1_OVERRIDE'} if ( defined $cgiparams{'DNS1_OVERRIDE'} );
+  $settings{'DNS2_OVERRIDE'} = $cgiparams{'DNS2_OVERRIDE'} if ( defined $cgiparams{'DNS2_OVERRIDE'} );
 
   # now some sanity checks of the settings we've just tried
   
@@ -151,10 +153,10 @@ print "<form method='post'>";
 # if red is on an etherNet, if so we can show some configuration options for it.
 &display_red_interface( \%settings );
 
-print qq{
+print <<END;
   <div style='text-align: center;'><input type='submit' name='ACTION' value='$tr{'save'}'></div>
   </form>
-};
+END
 
 &alertbox('add','add');
 
@@ -168,18 +170,20 @@ sub display_interface
 
   my $interface = $settings{"${prefix}_DEV"};
 
-  my $ifconfig_details;
-  open (CFG, "/sbin/ifconfig $interface|") or die "no pipe";
-  while (<CFG>)
+  # Get the MAC address
+  if (open (MACADDR, "/sys/class/net/${interface}/address"))
   {
-    next if ($_ =~ /.*inet6.*/);
-    $ifconfig_details .= "$_ ";
+    $_ = <MACADDR>;
+    chomp;
+    $macaddress = $_;
+    close (MACADDR);
   }
-  close (CFG);
+  else
+  {
+    $macaddress = "";
+  }
 
-  $ifconfig_details =~s/\n//mg;
-  my ( $macaddress, $currentip, $currentbcast, $currentmask, $status, $currentmtu, $currentmetric, $rx, $tx, $hwaddress ) = ( $ifconfig_details =~ /.*HWaddr\s+(..:..:..:..:..:..).*inet\s+addr:(\d+\.\d+\.\d+\.\d+)\s+Bcast:(\d+\.\d+\.\d+\.\d+)\s+Mask:(\d+\.\d+\.\d+\.\d+)\s+([^\s]+)\s+.*MTU:(\d+)\s+Metric:(\d+).*RX bytes:(\d+\s+\([^\)]*\))\s+TX bytes:(\d+\s+\([^\)]*\)).*(Memory.*)/i );
-
+  # Get the driver name and bus
   if (open (DRIVER, "/bin/ls -C1 /sys/class/net/${interface}/device/driver/module/drivers|"))
   {
     $_ = <DRIVER>;
@@ -225,18 +229,20 @@ sub display_red_interface
 
   my $interface = $settings{"RED_DEV"};
 
-  my $ifconfig_details;
-  open (CFG, "/sbin/ifconfig $interface|") or die "no pipe";
-  while (<CFG>)
+  # Get the MAC address
+  if (open (MACADDR, "/sys/class/net/${interface}/address"))
   {
-    next if ($_ =~ /.*inet6.*/);
-    $ifconfig_details .= "$_ ";
+    $_ = <MACADDR>;
+    chomp;
+    $macaddress = $_;
+    close (MACADDR);
   }
-  close (CFG);
+  else
+  {
+    $macaddress = "";
+  }
 
-  $ifconfig_details =~s/\n//mg;
-  my ( $macaddress, $currentip, $currentbcast, $currentmask, $status, $currentmtu, $currentmetric, $rx, $tx, $hwaddress ) = ( $ifconfig_details =~ /.*HWaddr\s+(..:..:..:..:..:..).*inet\s+addr:(\d+\.\d+\.\d+\.\d+)\s+Bcast:(\d+\.\d+\.\d+\.\d+)\s+Mask:(\d+\.\d+\.\d+\.\d+)\s+([^\s]+)\s+.*MTU:(\d+)\s+Metric:(\d+).*RX bytes:(\d+\s+\([^\)]*\))\s+TX bytes:(\d+\s+\([^\)]*\)).*(Memory.*)/i );
-
+  # Get the driver name and bus
   if (open (DRIVER, "/bin/ls -C1 /sys/class/net/${interface}/device/driver/module/drivers|"))
   {
     $_ = <DRIVER>;
@@ -280,6 +286,8 @@ function optify( field )
     _disable('gateway');
     _disable('primary');
     _disable('secondary');
+    _enable('primaryoverride');
+    _enable('secondaryoverride');
   } else if ( inputval == 'STATIC' ){
     _disable('hostname');
     _disable('ignoremtu');
@@ -288,6 +296,8 @@ function optify( field )
     _enable('gateway');
     _enable('primary');
     _enable('secondary');
+    _enable('primaryoverride');
+    _enable('secondaryoverride');
   } else if ( inputval == 'PPPOE' ){
     _disable('hostname');
     _disable('ignoremtu');
@@ -296,6 +306,8 @@ function optify( field )
     _disable('gateway');
     _disable('primary');
     _disable('secondary');
+    _disable('primaryoverride');
+    _disable('secondaryoverride');
   }
 }
       </script>
@@ -320,34 +332,52 @@ function optify( field )
       <td><input id='ipaddress'  @{[jsvalidip('ipaddress')]}  type='text' name='RED_ADDRESS' value='$settings{\"RED_ADDRESS\"}'></td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
+      <td rowspan='5' colspan='2'>
+";
+  &openbox("Overrides");
+  print "
+        <table style='width:100%'>
+          <tr>
+            <td class='base'>$tr{'ignore mtu'}</td>
+            <td style='width: 25%;'>
+              <input id='ignoremtu'  type='checkbox' name='RED_IGNOREMTU'$ignoremtuchecked>
+            </td>
+          </tr>
+          <tr>
+            <td class='base' style='width: 25%;'>$tr{'primary dns override'}</td>
+            <td style='width: 25%;'>
+              <input id='primaryoverride'
+                     @{[jsvalidip('primaryoverride','true')]}
+                     type='text' name='DNS1_OVERRIDE'
+                     value='$settings{\"DNS1_OVERRIDE\"}'>
+            </td>
+          </tr>
+          <tr>
+            <td class='base' style='width: 25%;'>$tr{'secondary dns override'}</td>
+            <td style='width: 25%;'>
+              <input id='secondaryoverride'
+                     @{[jsvalidip('secondaryoverride','true')]}
+                     type='text' name='DNS2_OVERRIDE'
+                     value='$settings{\"DNS2_OVERRIDE\"}'>
+            </td>
+          </tr>
+        </table>";
+  &closebox();
+print "
+      </td>
       <td class='base'>$tr{'netmaskc'}</td>
       <td><input id='netmask' type='text'  @{[jsvalidip('netmask')]}  name='RED_NETMASK' value='$settings{\"RED_NETMASK\"}'></td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
       <td class='base' style='width: 25%;'>$tr{'default gateway'}</td>
       <td style='width: 25%;'><input id='gateway'  @{[jsvalidip('gateway','true')]}  type='text' name='DEFAULT_GATEWAY' value='$settings{\"DEFAULT_GATEWAY\"}'></td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
       <td class='base' style='width: 25%;'>$tr{'primary dns'}</td>
       <td style='width: 25%;'><input id='primary'  @{[jsvalidip('primary','true')]}  type='text' name='DNS1' value='$settings{\"DNS1\"}'></td>
     </tr>
-    <tr>
-      <td></td>
-      <td></td>
       <td class='base'>$tr{'secondary dns'}</td>
       <td style='width: 25%;'><input id='secondary'  @{[jsvalidip('secondary','true')]}  type='text' name='DNS2' value='$settings{\"DNS2\"}'></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td class='base'>$tr{'ignore mtu'}</td>
-      <td style='width: 25%;'><input id='ignoremtu'  type='checkbox' name='RED_IGNOREMTU'$ignoremtuchecked></td>
     </tr>
     </table>
 ";
