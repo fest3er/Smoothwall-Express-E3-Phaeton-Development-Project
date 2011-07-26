@@ -263,59 +263,59 @@ function updatepage(str){
 			var s1; var s2; var s3; var s4;
 			if ( results[ 3 ] < (1024) ) {
 				s1 = '&nbsp;'; s2 = '&nbsp;'; s3 = '&nbsp;'; s4 = '&nbsp;';
-			} else if ( results[ 3 ] < (1024*64) ) {
-				/* 64 KBps */
-				divider = (400 / ( 1024*64 )) * results[ 3 ];
-				rate = parseInt( results[3] / 1024 );
-				rate += " Kbps";
-				s1 = '16K'; s2 = '32K'; s3 = '48K'; s4 = '64K';
-			} else if ( results[ 3 ] < (1024*512) ) {
-				/* 512 KBps */
-				divider = (400 / ( 1024*512 )) * results[ 3 ];
-				rate = parseInt( results[3] / 1024 );
-				rate += " Kbps";
-				s1 = '128K'; s2 = '256K'; s3 = '384K'; s4 = '512K';
-			} else if ( results[ 3 ] < (1024 * 1024) ){
-				/* 1 MBps */
-				divider = (400 / ( 1024 * 1024 )) * results[ 3 ];
-				rate = parseInt( results[3] / 1024 );
-				rate += " Kbps";
-				s1 = '256K'; s2 = '512K'; s3 = '768K'; s4 = '1M';
-			} else if ( results[ 3 ] < (1024 * 1024 *2) ){
-				/* 2 MBps */
-				divider = (400 / ( 1024 * 1024 *2 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024 * 1024) * 10) / 10;
-				rate += " Mbps";
-				s1 = '512K'; s2 = '1M'; s3 = '1.5M'; s4 = '2M';
-			} else if ( results[ 3 ] < (1024 * 1024 *4) ){
-				/* 4 MBps */
-				divider = (400 / ( 1024 * 1024 *4 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024 * 1024) * 10) / 10;
-				rate += " Mbps";
+			} else if ( results[ 3 ] < (1000*64) ) {
+				/* 64 kb/s */
+				divider = (400 / ( 1000*64 )) * results[ 3 ];
+				rate = parseInt( results[3] / 1000 );
+				rate += " kb/s";
+				s1 = '16k'; s2 = '32k'; s3 = '48k'; s4 = '64k';
+			} else if ( results[ 3 ] < (1000*512) ) {
+				/* 512 kb/s */
+				divider = (400 / ( 1000*512 )) * results[ 3 ];
+				rate = parseInt( results[3] / 1000 );
+				rate += " kb/s";
+				s1 = '128k'; s2 = '256k'; s3 = '384k'; s4 = '512k';
+			} else if ( results[ 3 ] < (1000 * 1000) ){
+				/* 1 MB/s */
+				divider = (400 / ( 1000 * 1000 )) * results[ 3 ];
+				rate = parseInt( results[3] / 1000 );
+				rate += " kb/s";
+				s1 = '256k'; s2 = '512k'; s3 = '768k'; s4 = '1M';
+			} else if ( results[ 3 ] < (1000 * 1000 *2) ){
+				/* 2 MB/s */
+				divider = (400 / ( 1000 * 1000 *2 )) * results[ 3 ];
+				rate = parseInt( results[3] / (1000 * 1000) * 10) / 10;
+				rate += " Mb/s";
+				s1 = '512k'; s2 = '1M'; s3 = '1.5M'; s4 = '2M';
+			} else if ( results[ 3 ] < (1000 * 1000 *4) ){
+				/* 4 MB/s */
+				divider = (400 / ( 1000 * 1000 *4 )) * results[ 3 ];
+				rate = parseInt( results[3] / (1000 * 1000) * 10) / 10;
+				rate += " Mb/s";
 				s1 = '1M'; s2 = '2M'; s3 = '3M'; s4 = '4M';
-			} else if ( results[ 3 ] < (1024 * 1024 *8) ){
-				/* 8 MBps */
-				divider = (400 / ( 1024 * 1024 *8 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024 * 1024) * 10) / 10;
-				rate += " Mbps";
+			} else if ( results[ 3 ] < (1000 * 1000 *8) ){
+				/* 8 MB/s */
+				divider = (400 / ( 1000 * 1000 *8 )) * results[ 3 ];
+				rate = parseInt( results[3] / (1000 * 1000) * 10) / 10;
+				rate += " Mb/s";
 				s1 = '2M'; s2 = '4M'; s3 = '6M'; s4 = '8M';
-			} else if ( results[ 3 ] < (1024*1024*10) ){
-				/* 10 MBps */
-				divider = (400 / ( 1024 * 1024 * 10 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024*1024) );
-				rate += " Mbps";
+			} else if ( results[ 3 ] < (1000*1000*10) ){
+				/* 10 MB/s */
+				divider = (400 / ( 1000 * 1000 * 10 )) * results[ 3 ];
+				rate = parseInt( results[3] / (1000*1000) );
+				rate += " Mb/s";
 				s1 = '2.5M'; s2 = '5M'; s3 = '7.5M'; s4 = '10M';
-			} else if ( results[ 3 ] < (1024*1024*100) ){
-				/* 100 MBps */
-				divider = (400 / ( 1024 * 1024 * 100 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024*1024) );
-				rate += " Mbps";
+			} else if ( results[ 3 ] < (1000*1000*100) ){
+				/* 100 MB/s */
+				divider = (400 / ( 1000 * 1000 * 100 )) * results[ 3 ];
+				rate = parseInt( results[3] / (1000*1000) );
+				rate += " Mb/s";
 				s1 = '25M'; s2 = '50M'; s3 = '75M'; s4 = '100M';
 			} else {
-				/* GBps Scale */
-				divider = (400 / ( 1024 * 1024 * 1024 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024*1024) );
-				rate += " Mbps";
+				/* GB/s Scale */
+				divider = (400 / ( 1000 * 1000 * 1000 )) * results[ 3 ];
+				rate = parseInt( results[3] / (1000*1000*1000) );
+				rate += " Gb/s";
 				s1 = '250M'; s2 = '500M'; s3 = '750M'; s4 = '1G';
 			}
 
