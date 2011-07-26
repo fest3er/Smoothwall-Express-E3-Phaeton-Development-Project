@@ -15,7 +15,7 @@ if ($count eq "" || $count < 1)
   die "Bad DNS number given";
 }
 
-readhash("${swroot}/ethernet/settings", \%settings);
+&readhash("${swroot}/ethernet/settings", \%settings);
 
 if (!($settings{'CONFIG_TYPE'} == 2 || $settings{'CONFIG_TYPE'} == 3 ||
 	$settings{'CONFIG_TYPE'} == 6 || $settings{'CONFIG_TYPE'} == 7))
