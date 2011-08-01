@@ -93,6 +93,8 @@ foreach (@files) {
   foreach (readdir IRQS) {
     next if /\./;
     next if /\.\./;
+    next if /affinity_hint/;
+    next if /node/;
     next if /smp_affinity/;
     next if /spurious/;
     print "$_\n";
