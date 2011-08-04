@@ -1,0 +1,147 @@
+#! /bin/bash
+
+# Get the NIC definitions
+. /var/smoothwall/ethernet/settings
+if [ $RED_ADDRESS == "0.0.0.0" ]; then
+  RED_ADDRESS=`cat /var/smoothwall/red/local-ipaddress`
+fi
+
+export PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# function usage() displays a usage statement and exits 'false'
+#
+function usage () {
+  echo "Usage: $0 stop | start | restart"
+  exit 1
+}
+
+# function restart calls stop() and start()
+#
+function restart () {
+  stop
+  start
+}
+
+# function start loads the scheduling modules as needed and enables TC
+#
+function start () {
+  # First be sure the needed modules are loaded
+  /sbin/modprobe cls_basic
+  /sbin/modprobe cls_flow
+  /sbin/modprobe cls_fw
+  /sbin/modprobe cls_route
+  /sbin/modprobe cls_tcindex
+  /sbin/modprobe cls_u32
+  /sbin/modprobe sch_cbq
+  /sbin/modprobe sch_dsmark
+  /sbin/modprobe sch_gred
+  /sbin/modprobe sch_hfsc
+  /sbin/modprobe sch_htb
+  /sbin/modprobe sch_prio
+  /sbin/modprobe sch_red
+  /sbin/modprobe sch_sfq
+  /sbin/modprobe sch_tbf
+  /sbin/modprobe sch_teql
+
+  # Clear the iptables TC guck
+  iptables -t mangle -D FORWARD -o $RED_DEV -j trafficControl >/dev/null 2>&1
+  iptables -t mangle -F trafficControl >/dev/null 2>&1
+  iptables -t mangle -X trafficControl >/dev/null 2>&1
+  # Prepare the iptables TC guck
+  iptables -t mangle -N trafficControl
+  iptables -t mangle -A FORWARD -o $RED_DEV -j trafficControl
+
+  # Start of commands for GREEN
+  #
+  #
+
+  if [ "$GREEN_DEV" != "" ]; then
+    # Always silently clear the NIC, configured or not, if it has an IF
+    tc qdisc del dev $GREEN_DEV root >/dev/null 2>&1
+  fi
+
+  #
+  #
+  # End of commands for GREEN
+
+  # Start of commands for PURPLE
+  #
+  #
+
+  if [ "$PURPLE_DEV" != "" ]; then
+    # Always silently clear the NIC, configured or not, if it has an IF
+    tc qdisc del dev $PURPLE_DEV root >/dev/null 2>&1
+  fi
+
+  #
+  #
+  # End of commands for PURPLE
+
+  # Start of commands for ORANGE
+  #
+  #
+
+  if [ "$ORANGE_DEV" != "" ]; then
+    # Always silently clear the NIC, configured or not, if it has an IF
+    tc qdisc del dev $ORANGE_DEV root >/dev/null 2>&1
+  fi
+
+  #
+  #
+  # End of commands for ORANGE
+
+  # Start of commands for RED
+  #
+  #
+
+  if [ "$RED_DEV" != "" ]; then
+    # Always silently clear the NIC, configured or not, if it has an IF
+    tc qdisc del dev $RED_DEV root >/dev/null 2>&1
+  fi
+
+  #
+  #
+  # End of commands for RED
+
+}
+
+# function stop disables TC; the system restores the default qdisc
+#
+function stop () {
+  # Clear the iptables TC guck
+  iptables -t mangle -D FORWARD -o $RED_DEV -j trafficControl >/dev/null 2>&1
+  iptables -t mangle -F trafficControl >/dev/null 2>&1
+  iptables -t mangle -X trafficControl >/dev/null 2>&1
+
+  if [ "$GREEN_DEV" != "" ]; then
+    echo "Stopping TC on GREEN ($GREEN_DEV)"
+    tc qdisc del dev $GREEN_DEV root >/dev/null 2>&1
+  fi
+
+  if [ "$PURPLE_DEV" != "" ]; then
+    echo "Stopping TC on PURPLE ($PURPLE_DEV)"
+    tc qdisc del dev $PURPLE_DEV root >/dev/null 2>&1
+  fi
+
+  if [ "$ORANGE_DEV" != "" ]; then
+    echo "Stopping TC on ORANGE ($ORANGE_DEV)"
+    tc qdisc del dev $ORANGE_DEV root >/dev/null 2>&1
+  fi
+
+  if [ "$RED_DEV" != "" ]; then
+    echo "Stopping TC on RED ($RED_DEV)"
+    tc qdisc del dev $RED_DEV root >/dev/null 2>&1
+  fi
+}
+
+# The main actions
+#
+case $1 in
+  stop) stop; ;;
+  start) start; ;;
+  restart) restart; ;;
+  *) usage; ;;
+esac
+
+exit
+
