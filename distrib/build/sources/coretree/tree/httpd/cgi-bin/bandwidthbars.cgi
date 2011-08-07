@@ -137,10 +137,16 @@ sub realtime_graphs
 				<td style='width: 400px; background-color: $table2colour; font-size: 6pt; padding: 0px;'  id='${section}_${interface}_scale' >
 				<table style='width: 100%; border: 0px; border-collapse: collapse;'>
 				<tr>
-				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 25%; background-colour: #efefef; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_1'>25%</td>
-				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 25%; background-colour: #dfdfdf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_2'>50%</td>
-				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 25%; background-colour: #cfcfcf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_3'>75%</td>
-				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 25%; background-colour: #bfbfbf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_4'>100%<td>
+				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 10%; background-colour: #efefef; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10'>10</td>
+				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 10%; background-colour: #dfdfdf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100'>100</td>
+				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 10%; background-colour: #cfcfcf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_1'>1k</td>
+				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 10%; background-colour: #bfbfbf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10'>10<td>
+				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 10%; background-colour: #efefef; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100k'>100</td>
+				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 10%; background-colour: #dfdfdf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_2'>1M</td>
+				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 10%; background-colour: #cfcfcf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10m'>10</td>
+				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 10%; background-colour: #bfbfbf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100m'>100<td>
+				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 10%; background-colour: #cfcfcf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_3'>1G</td>
+				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 10%; background-colour: #bfbfbf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10g'>10G<td>
 				</tr>
 				</table>
 				</td>
@@ -260,63 +266,26 @@ function updatepage(str){
 			}
 			var divider = 0;;
 			var rate = 0;
-			var s1; var s2; var s3; var s4;
-			if ( results[ 3 ] < (1024) ) {
-				s1 = '&nbsp;'; s2 = '&nbsp;'; s3 = '&nbsp;'; s4 = '&nbsp;';
-			} else if ( results[ 3 ] < (1000*64) ) {
-				/* 64 kb/s */
-				divider = (400 / ( 1000*64 )) * results[ 3 ];
-				rate = parseInt( results[3] / 1000 );
+			
+			// The divider is based on the full bit rate. The displayed rate
+                        //   is adjusted to use multipliers.
+			divider = (40 * Math.log(results[3])/Math.log(10));
+
+			if ( results[ 3 ] < 1000 ) {
+				rate = parseInt( results[3] );
+				rate += " b/s";
+			} else if ( results[ 3 ] < (1000*1000) ) {
+				results[3] /= 1000;
+				rate = parseInt( results[3] );
 				rate += " kb/s";
-				s1 = '16k'; s2 = '32k'; s3 = '48k'; s4 = '64k';
-			} else if ( results[ 3 ] < (1000*512) ) {
-				/* 512 kb/s */
-				divider = (400 / ( 1000*512 )) * results[ 3 ];
-				rate = parseInt( results[3] / 1000 );
-				rate += " kb/s";
-				s1 = '128k'; s2 = '256k'; s3 = '384k'; s4 = '512k';
-			} else if ( results[ 3 ] < (1000 * 1000) ){
-				/* 1 MB/s */
-				divider = (400 / ( 1000 * 1000 )) * results[ 3 ];
-				rate = parseInt( results[3] / 1000 );
-				rate += " kb/s";
-				s1 = '256k'; s2 = '512k'; s3 = '768k'; s4 = '1M';
-			} else if ( results[ 3 ] < (1000 * 1000 *2) ){
-				/* 2 MB/s */
-				divider = (400 / ( 1000 * 1000 *2 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1000 * 1000) * 10) / 10;
+			} else if ( results[ 3 ] < (1000*1000*1000) ) {
+				results[3] /= 1000*1000;
+				rate = parseInt( results[3] );
 				rate += " Mb/s";
-				s1 = '512k'; s2 = '1M'; s3 = '1.5M'; s4 = '2M';
-			} else if ( results[ 3 ] < (1000 * 1000 *4) ){
-				/* 4 MB/s */
-				divider = (400 / ( 1000 * 1000 *4 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1000 * 1000) * 10) / 10;
-				rate += " Mb/s";
-				s1 = '1M'; s2 = '2M'; s3 = '3M'; s4 = '4M';
-			} else if ( results[ 3 ] < (1000 * 1000 *8) ){
-				/* 8 MB/s */
-				divider = (400 / ( 1000 * 1000 *8 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1000 * 1000) * 10) / 10;
-				rate += " Mb/s";
-				s1 = '2M'; s2 = '4M'; s3 = '6M'; s4 = '8M';
-			} else if ( results[ 3 ] < (1000*1000*10) ){
-				/* 10 MB/s */
-				divider = (400 / ( 1000 * 1000 * 10 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1000*1000) );
-				rate += " Mb/s";
-				s1 = '2.5M'; s2 = '5M'; s3 = '7.5M'; s4 = '10M';
-			} else if ( results[ 3 ] < (1000*1000*100) ){
-				/* 100 MB/s */
-				divider = (400 / ( 1000 * 1000 * 100 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1000*1000) );
-				rate += " Mb/s";
-				s1 = '25M'; s2 = '50M'; s3 = '75M'; s4 = '100M';
-			} else {
-				/* GB/s Scale */
-				divider = (400 / ( 1000 * 1000 * 1000 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1000*1000*1000) );
+			} else if ( results[ 3 ] < (1000*1000*1000*1000) ){
+				results[3] /= 1000*1000*1000;
+				rate = parseInt( results[3] );
 				rate += " Gb/s";
-				s1 = '250M'; s2 = '500M'; s3 = '750M'; s4 = '1G';
 			}
 
 
@@ -325,10 +294,6 @@ function updatepage(str){
 			cur[ id ] = parseInt( divider );
 			document.getElementById( id ).style.width = cur[ id ] + 'px';
 			document.getElementById( id + '_rate' ).innerHTML = rate;
-			document.getElementById( id + '_scale_1' ).innerHTML = s1;
-			document.getElementById( id + '_scale_2' ).innerHTML = s2;
-			document.getElementById( id + '_scale_3' ).innerHTML = s3;
-			document.getElementById( id + '_scale_4' ).innerHTML = s4;
 		
 			iftotals[ results[ 2 ] ] += parseInt( results[ 3 ] );
 
