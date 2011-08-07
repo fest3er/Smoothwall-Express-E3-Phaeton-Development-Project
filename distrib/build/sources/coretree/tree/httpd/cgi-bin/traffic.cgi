@@ -256,11 +256,15 @@ if ($cgiparams{'ACTION'} eq "Save Changes")
   $name = $cgiparams{'CFGGRP'};
   $name =~ s/\.js$//;
   $dir = &getDirname ($name);
+  $shortdir = $dir;
   $newName = $cgiparams{'newName'};
-  if ($newName ne "")
+  if ($newName eq "")
   {
-    if (-e "$devdir/$newName.js" ||
-        -e "$permdir/$newName.js" ||
+    $newName = $name;
+  }
+  if ($shortdir ne "dev")
+  {
+    if (-e "$permdir/$newName.js" ||
         -e "$stockdir/$newName.js")
     {
       $name = "$newName-a";
@@ -272,8 +276,7 @@ if ($cgiparams{'ACTION'} eq "Save Changes")
   }
   else
   {
-    if (-e "$devdir/$name.js" ||
-        -e "$permdir/$name.js" ||
+    if (-e "$permdir/$name.js" ||
         -e "$stockdir/$name.js")
     {
       $name = "$name-a";
@@ -376,24 +379,26 @@ elsif ($cgiparams{'ACTION'} eq "Move to Dev")
 
   local ($name, $newName, $dir);
 
+  # Prep the name(s).
   $name = $cgiparams{'CFGGRP'};
   $name =~ s/\.js$//;
+
+  # Get the current directory
+  $dir = &getDirname ($name);
+  $shortdir = $dir;
+  $shortdir =~ s=.*/==;
+
   $newName = $cgiparams{'newName'};
   if ($newName eq "")
   {
     $newName = $name;
   }
-  if (-e "$devdir/$newName.js")
-  {
-    $newName .= "-a";
-  }
-  $dir = &getDirname ($name);
-  $shortdir = $dir;
-  $shortdir =~ s=.*/==;
-
+  # Duplicate names should never occur when moving between dev and perm
   &addFeedback ("Move to Dev '$shortdir/$name' 'dev/$newName'", 'note');
 
-  if ($dir eq "/var/smoothwall/mods/trafficControl/perm")
+  if ($dir eq "/var/smoothwall/mods/trafficControl/perm" ||
+      ($dir eq "/var/smoothwall/mods/trafficControl/dev" &&
+       $name ne $newName))
   {
     # Get script filename
     if ($name ne "")
@@ -423,6 +428,12 @@ elsif ($cgiparams{'ACTION'} eq "Move to Dev")
       # Can't move nothing!?!
       &addFeedback ("Traffic needs a filename in order to move it!", "warning");
     }
+  }
+  elsif ($dir eq "/var/smoothwall/mods/trafficControl/dev" &&
+         $name eq $newName)
+  {
+    # Same file
+    &addFeedback ("Traffic: can't rename: file are the same!", "warning");
   }
   else
   {
@@ -495,7 +506,7 @@ elsif ($cgiparams{'ACTION'} eq "Copy to Dev")
   }
 }
 
-elsif ($cgiparams{'ACTION'} eq "Copy to Saved")
+elsif ($cgiparams{'ACTION'} eq "Move to Saved")
 {
   # Copy the selected dev config to perm.
 
@@ -508,37 +519,31 @@ elsif ($cgiparams{'ACTION'} eq "Copy to Saved")
   {
     $newName = $name;
   }
-  if (-e "$devdir/$newName.js" ||
-      -e "$permdir/$newName.js" ||
-      -e "$stockdir/$newName.js")
-  {
-    $newName .= "-a";
-  }
   $dir = &getDirname ($name);
   $shortdir = $dir;
   $shortdir =~ s=.*/==;
 
-  &addFeedback ("Copy to Saved '$shortdir/$name' 'perm/$newName'", 'note');
+  &addFeedback ("Move to Saved '$shortdir/$name' 'perm/$newName'", 'note');
 
   if ($dir eq "/var/smoothwall/mods/trafficControl/dev")
   {
     # Get script filename
     if ($name ne "")
     {
-      # Copy the script
+      # Move the script
       if (-e "$dir/rc.$name")
       {
-        if (!copy ("$dir/rc.$name", "$permdir/rc.$newName"))
+        if (!move ("$dir/rc.$name", "$permdir/rc.$newName"))
         {
-          &addFeedback ("Traffic couldn't copy 'dev/rc.$name' to perm/rc.$newName.", "error");
+          &addFeedback ("Traffic couldn't move 'dev/rc.$name' to perm/rc.$newName.", "error");
         }
       }
-      # Copy the config
+      # Move the config
       if (-e "$dir/$name.js")
       {
-        if (!copy ("$dir/$name.js", "$permdir/$newName.js"))
+        if (!move ("$dir/$name.js", "$permdir/$newName.js"))
         {
-          &addFeedback ("Traffic couldn't copy 'dev/$name.js' to perm/$newName.js", "error");
+          &addFeedback ("Traffic couldn't move 'dev/$name.js' to perm/$newName.js", "error");
         }
       }
       $cgiparams{'newName'} = "";
@@ -548,13 +553,13 @@ elsif ($cgiparams{'ACTION'} eq "Copy to Saved")
     else
     {
       # Can't move nothing!?!
-      &addFeedback ("Traffic needs a filename in order to copy it!", "warning");
+      &addFeedback ("Traffic needs a filename in order to move it!", "warning");
     }
   }
   else
   {
     # Can't move!?!
-    &addFeedback ("Traffic: can't copy config from stock to perm!", "warning");
+    &addFeedback ("Traffic: can't move config from stock to perm!", "warning");
   }
 }
 
@@ -839,7 +844,7 @@ print qq|
         <input type='submit' name="ACTION" value="Move to Dev"
                id="moveToDev"
                style="margin:0 .5em; display:inline-block; font-size:8pt">
-        <input type='submit' name="ACTION" value="Copy to Saved"
+        <input type='submit' name="ACTION" value="Move to Saved"
                id="CopyToSav"
                style="margin:0 .5em; display:inline-block; font-size:8pt">
         <input type='submit' name="ACTION" value="Copy to Dev"
