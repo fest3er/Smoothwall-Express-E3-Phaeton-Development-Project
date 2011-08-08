@@ -25,7 +25,7 @@ my @bar_names;
 my $oururl = "/cgi-bin/trafficstats.cgi";
 
 my @devices = ( "eth0", "eth1", "eth2", "eth3", "ippp0" , "ppp0" );
-open (HDL, "/sbin/ip link|grep 'state UP'|sed -e 's/^[0-9]*: //' -e 's/:.*//'|");
+open (HDL, "/usr/sbin/ip link|grep -v lo: | grep ',UP'|sed -e 's/^[0-9]*: //' -e 's/:.*//'|");
 @devices = <HDL>;
 close (HDL);
 chomp @devices;

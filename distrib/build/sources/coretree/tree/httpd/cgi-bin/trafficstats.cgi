@@ -12,7 +12,8 @@ my (%incaddr,%outaddr);
 while ( my $line = <INPUT> ){
 	next if ( not $line =~ /^cur_/ );
 	my ( $rule, $interface, $value ) = ( $line =~ /cur_(inc|out)_rate_([^=]+)=([\d\.]+)$/i );
-	next if $value == 0;
+        next if ($interface =~ /0.0.0.0.*/);
+	#next if $value == 0;
 	if($interface =~ /^\d+\.\d+\.\d+\.\d+/) {
 		if($rule eq 'out') {
 			$outaddr{$interface} = [$value,$line];
@@ -28,10 +29,6 @@ while ( my $line = <INPUT> ){
 }
 my @biggest_users = sort { $incaddr{$b}->[0] cmp $incaddr{$a}->[0]; } keys %incaddr;
 my $num_users = scalar(@biggest_users);
-if($num_users > $ADDRS_TO_SHOW) {
-	splice(@biggest_users,$ADDRS_TO_SHOW);
-	warn "Ignoring " . ($num_users - $ADDRS_TO_SHOW);
-}
 print @out;
 for(@biggest_users) {
 	print $incaddr{$_}->[1], $outaddr{$_}->[1];
