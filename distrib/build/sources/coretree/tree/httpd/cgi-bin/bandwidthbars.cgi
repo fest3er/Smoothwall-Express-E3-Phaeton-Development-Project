@@ -11,6 +11,7 @@ use header qw( :standard );
 
 my %netsettings;
 
+&readhash("${swroot}/main/productdata", \%productdata);
 &readhash("${swroot}/ethernet/settings", \%netsettings);
 &showhttpheaders();
 
@@ -22,11 +23,19 @@ my %netsettings;
 my $initial_position = "10";
 my @bars;
 my @bar_names;
-my $oururl = "/cgi-bin/trafficstats.cgi";
+my $oururl = "/cgi-bin/trafficstats.cgi?BARS=1";
 
-my @devices = ( "eth0", "eth1", "eth2", "eth3", "ippp0" , "ppp0" );
-open (HDL, "/sbin/ip link|grep 'state UP'|sed -e 's/^[0-9]*: //' -e 's/:.*//'|");
-@devices = <HDL>;
+if ($productdata{'RELEASE'} ne "")
+{
+  # Is P/R
+  open (HDL, "/sbin/ip link | grep -v lo: | grep 'state UP' | sed -e 's/^[0-9]*: //' -e 's/:.*//'|");
+}
+else
+{
+  # Is SWE3
+  open (HDL, "/usr/sbin/ip link | grep -v lo: | grep ',UP' | sed -e 's/^[0-9]*: //' -e 's/:.*//'|");
+}
+my @devices = <HDL>;
 close (HDL);
 chomp @devices;
 
@@ -99,7 +108,7 @@ sub realtime_graphs
 		.s18{ opacity: 0.95 ; -moz-opacity: 0.95 ; -khtml-opacity:0.95 ; filter:alpha(opacity=95)} 
 		.s19{ } 
 	</style>
-		<div style='width: 90%; margin-left: auto; margin-right: auto;'>
+		<div style='width: 81%; border:1px solid #7f7f7f; margin-left: auto; margin-right: auto;'>
 	};
 	my @rules;
 
@@ -114,10 +123,10 @@ sub realtime_graphs
 		elsif ($iftitle eq "Orange") {$bgcolor = "#ffaa77";}
 		else { $bgcolor = ""; }
 		print qq{
-<table id='${interface}_container' style='width: 90%; border-collapse: collapse; border: 0px; margin-left: auto; margin-right: auto; background-color:$bgcolor' cellspacing='0' cellpadding='0'>
+<table id='${interface}_container' style='width: 100%; border-collapse: collapse; border:none; margin-left: auto; margin-right: auto; background-color:$bgcolor' cellspacing='0' cellpadding='0'>
   <tr>
     <td colspan='2' style='background-position: top left; background-repeat: no-repeat; vertical-align: top;' >
-      <table style='width: 100%; margin-left: auto; margin-right: auto; border: 0px; border-collapse: collapse;' cellspacing='0' cellpadding='0'>
+      <table style='width: 100%; margin-left: auto; margin-right: auto; border: none; border-collapse: collapse;' cellspacing='0' cellpadding='0'>
         <tr>
         <tr>
           <td colspan='6' style='background-color:#c3d1e5; height:2px'></td>
@@ -126,16 +135,16 @@ sub realtime_graphs
           <td style='width:400px; background-color:#c3d1e5'>
             <table style='width: 100% border: 0; border-collapse: collapse;' cellpadding='0' cellspacing='0'>
               <tr>
-                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 40px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10'>10</td>
-                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 40px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100'>100</td>
-                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 40px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_1'>1k</td>
-                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 40px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10k'>10<td>
-                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 40px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100k'>100</td>
-                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 40px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_2'>1M</td>
-                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 40px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10m'>10</td>
-                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 40px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100m'>100<td>
-                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 40px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_3'>1G</td>
-                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 40px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10g'>10<td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10'>10&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100'>100&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_1'>1k&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10k'>10&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100k'>100&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_2'>1M&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10m'>10&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100m'>100&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_3'>1G&nbsp;</td>
+                <td style='height: 8px; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10g'>10&nbsp;</td>
               </tr>
             </table>
           </td>
@@ -253,7 +262,7 @@ function xmlhttpPost()
 		}
     	}
 
-	document.getElementById('status').style.display = "inline";
+	//document.getElementById('status').style.display = "inline";
 
     	self.xmlHttpReq.send( null );
 }
@@ -261,7 +270,7 @@ function xmlhttpPost()
 var splitter = /^cur_(inc|out)_rate_([^=]+)=([\\d\\.]+)\$/i;
 
 function updatepage(str){
-	document.getElementById('status').style.display = "none";
+	//document.getElementById('status').style.display = "none";
 	var rows = str.split( '\\n' );
 	
 	for ( var i = 0; i < ifnames.length ; i++ ){
@@ -282,7 +291,10 @@ function updatepage(str){
 			
 			// The divider is based on the full bit rate. It
 			//   is crowbarred to stay within the lines.
-			divider = (41 * Math.log(results[3])/Math.log(10));
+			divider = (40 * Math.log(results[3])/Math.log(10));
+			if (divider == -Infinity) {
+				divider = 0;
+			}
 			if (divider < 0) {
 				divider = 0;
 			}
