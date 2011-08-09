@@ -13,7 +13,7 @@ input[type=submit] {
 }
 
 input[type=text],option,select {
-	font-family: Courier New; Courier, fixed;
+	font-family: Courier New, Courier, fixed;
 }
 
 
@@ -477,7 +477,6 @@ div.menushaddow {
 	padding: 5px;
 	width: 150px;
 	filter: alpha(opacity=30);
-        -moz-opacity: 0.30;
         opacity: 0.30;
 }
 
@@ -516,7 +515,7 @@ th.extension {
 	height: 25px;
 }
 
-# trafficControl page
+/* trafficControl page */
 .nicForm {
         font-size: 8pt;
         margin: 0;

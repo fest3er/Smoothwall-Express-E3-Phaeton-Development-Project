@@ -23,17 +23,26 @@ my ($errormessage, $script_name, $config_name, $plain_name, $cfggrp_name);
 my ($dir_name, $dir_cfggrp);
 my $tcdir = "${swroot}/mods/trafficControl";
 my $settingsfile = "${tcdir}/settings";
-# devdir: works-in-progress, can delete and save; can move to perm
+
+# devdir: works-in-progress, can delete; can save to (overwrite);
+#   can move to perm; can move to dev (rename)
 my $devdir = "${tcdir}/dev";
-# permdir: protected scripts; can copy, move and save to dev
+
+# permdir: protected configs; cannot delete; can copy, move and save to dev
 my $permdir = "${tcdir}/perm";
-# stockdir: scripts as shipped; cannot move; can copy and save to dev
+
+# stockdir: configs as shipped; cannot move or delete from; cannot save to;
+#   can copy and save to dev
 my $stockdir = "${tcdir}/stock";
 
-# Files must be moved from perm to dev before they can be deleted.
-# Files can be copied from dev to perm to prevent accidental deletion.
-# Files can be copied from stock to dev to modify, but can only then
-#   be copied to perm.
+# Config names must be unique among dev, perm and stock.
+
+# Configs must be moved from perm to dev before they can be deleted.
+# Configs can be copied from dev to perm to prevent accidental deletion.
+# Configs can be copied from stock to dev to be modified.
+
+# 'Save Changes' ALWAYS saves to dev.
+
 
 
 # Function files2RadioButtons() lists the files in DIR as radio buttons
@@ -48,17 +57,19 @@ sub files2RadioButtons {
   foreach $i (0 .. $#dirlist)
   {
     my $tmp = $dirlist[$i];
-    print "      <p style='margin:.3em 0 0 0' vertical-align:middle'>\n";
+    my $idtmp = $tmp;
+    $idtmp =~ s/ //;
+    print "      <p style='margin:.3em 0 0 0; vertical-align:middle'>\n";
     print "        <input type='radio' name='$GRP' value='$tmp'\n";
     if ($tmp eq "$cgiparams{'CFGGRP'}")
     {
       print " checked='checked'";
     }
-    print "               id='$tmp'\n";
+    print "               id='$idtmp'\n";
     # Do this later; it needs a JS function
     # print "               onclick='setButtons(\"$BKT\");'\n";
     print "               style='margin:0 .3em 0 1em; vertical-align:middle' />\n";
-    print "        <label for='$tmp'>\n";
+    print "        <label for='$idtmp'>\n";
     $tmp =~ s/\.js//;
     print "          $tmp\n";
     print "        </label>\n";
@@ -160,35 +171,27 @@ sub doShorthand {
 #   specified color.
 #   Defined severities: error, warning, note. Anything else is charcoal grey.
 
+# Feedback message colors (red, amber, green, charcoal)
+%fbColor = ('error', "#ef0000", 'warning', "#bb9900",
+             'note', "#008f00", 'anon', "#3f3f3f");
+
 sub addFeedback
 {
   local ($msg, $severity);
+  # Give the severity the default value if not specified
   if (!defined $_[1])
   {
-    $_[1] = "";
+    $_[1] = "anon";
   }
   ($msg, $severity) = @_;
-
-  # Set the color
-  if ($severity eq 'error')
+  # And give it the default value if it's unknown
+  if (!defined $fbColor{$severity})
   {
-    $color = "#df0000";
-  }
-  elsif ($severity eq 'warning')
-  {
-    $color = "#bb9900";
-  }
-  elsif ($severity eq 'note')
-  {
-    $color = "#008f00";
-  }
-  else
-  {
-    $color = "#3f3f3f";
+    $severity = "anon";
   }
 
   # Add the message
-  $errormessage .= "<span style='color:$color'>$msg</span><br />\n";
+  $errormessage .= "<span style='color:$fbColor{$severity}'>$msg</span><br />\n";
 }
 
 
@@ -315,7 +318,7 @@ if ($cgiparams{'ACTION'} eq "Save Changes")
   else
   {
     # Can't proceed without a filename
-    &addFeedback ("Traffic needs a filename to save to!", "warning");
+    &addFeedback ("Traffic needs a filename to save to!", "error");
   }
 }
 
@@ -334,42 +337,56 @@ elsif ($cgiparams{'ACTION'} eq "Delete Config")
   &addFeedback ("Delete Config '$shortdir/$name'", 'note');
 
   # Get script filename
-  if ($dir eq "/var/smoothwall/mods/trafficControl/dev")
+  if ($dir eq "")
+  {
+    &addFeedback ("Traffic couldn't find the config.", "error");
+    $cgiparams{'CFGGRP'} = "$settings{'CURRENT_CONFIG'}.js";
+    &doShorthand();
+  }
+  elsif ($dir eq "/var/smoothwall/mods/trafficControl/dev")
   {
     if ($name ne "")
     {
+      my $total = 0;
       # Delete it
       if (-e "$dir/rc.$name")
       {
-        $count = "";
+        my $count = 0;
         $count = unlink ("$dir/rc.$name");
+        $total += $count;
         if ($count ne 1)
         {
-          &addFeedback ("Traffic: couldn't delete script '$shortdir/rc.$name': $count!", "error");
+          &addFeedback ("Traffic couldn't delete RC script", "error");
         }
       }
       if (-e "$dir/$name.js")
       {
-        $count = "";
+        my $count = 0;
         $count = unlink ("$dir/$name.js");
+        $total += $count;
         if ($count ne 1)
         {
-          &addFeedback ("Traffic: couldn't delete config '$shortdir/$name.js': $count!", "error");
+          &addFeedback ("Traffic couldn't delete JS config.", "error");
         }
       }
-      $cgiparams{'CFGGRP'} = "$settings{'CURRENT_CONFIG'}.js";
-      &doShorthand();
+      if ($total eq 2)
+      {
+        $cgiparams{'CFGGRP'} = "$settings{'CURRENT_CONFIG'}.js";
+        &doShorthand();
+      }
     }
     else
     {
       # Can't delete nothing!?!
-      &addFeedback ("Traffic needs a filename in order to delete it!", "warning");
+      &addFeedback ("Traffic needs a filename in order to delete it.", "error");
     }
   }
   else
   {
     # Can't delete!?!
-    &addFeedback ("Traffic: Can't delete a config domiciled in $shortdir!", "warning");
+    $shortdir = "Saved" if $shortdir eq "perm";
+    $shortdir = "Stock" if $shortdir eq "stock";
+    &addFeedback ("Traffic: Can't delete a $shortdir config.", "error");
   }
 }
 
@@ -377,12 +394,11 @@ elsif ($cgiparams{'ACTION'} eq "Move to Dev")
 {
   # Move the selected perm config to dev.
 
-  local ($name, $newName, $dir);
+  local ($name, $newName, $dir, $fromdir, $tmpMsg, $shortdir);
 
   # Prep the name(s).
   $name = $cgiparams{'CFGGRP'};
   $name =~ s/\.js$//;
-
   # Get the current directory
   $dir = &getDirname ($name);
   $shortdir = $dir;
@@ -393,8 +409,17 @@ elsif ($cgiparams{'ACTION'} eq "Move to Dev")
   {
     $newName = $name;
   }
-  # Duplicate names should never occur when moving between dev and perm
+  if (-e "$devdir/$newName.js" && $shortdir ne "dev")
+  {
+    $newName .= "-a";
+    $tmpMsg .= "Appended '-a' to the new name.";
+  }
+
   &addFeedback ("Move to Dev '$shortdir/$name' 'dev/$newName'", 'note');
+  if ($tmpMsg ne "")
+  {
+    &addFeedback ($tmpMsg, 'warning');
+  }
 
   if ($dir eq "/var/smoothwall/mods/trafficControl/perm" ||
       ($dir eq "/var/smoothwall/mods/trafficControl/dev" &&
@@ -408,7 +433,7 @@ elsif ($cgiparams{'ACTION'} eq "Move to Dev")
       {
         if (!move ("$dir/rc.$name", "$devdir/rc.$newName"))
         {
-          &addFeedback ("Traffic couldn't move 'perm/rc.$name' to dev/rc.$newName.", "error");
+          &addFeedback ("Traffic couldn't move the RC script.", "error");
         }
       }
       # Rename the config
@@ -416,7 +441,7 @@ elsif ($cgiparams{'ACTION'} eq "Move to Dev")
       {
         if (!move ("$dir/$name.js", "$devdir/$newName.js"))
         {
-          &addFeedback ("Traffic couldn't move 'perm/$name.js' to dev/$newName.js.", "error");
+          &addFeedback ("Traffic couldn't move the JS config.", "error");
         }
       }
       $cgiparams{'newName'} = "";
@@ -426,19 +451,19 @@ elsif ($cgiparams{'ACTION'} eq "Move to Dev")
     else
     {
       # Can't move nothing!?!
-      &addFeedback ("Traffic needs a filename in order to move it!", "warning");
+      &addFeedback ("Traffic needs a filename in order to move it.", "error");
     }
   }
   elsif ($dir eq "/var/smoothwall/mods/trafficControl/dev" &&
          $name eq $newName)
   {
     # Same file
-    &addFeedback ("Traffic: can't rename: file are the same!", "warning");
+    &addFeedback ("Traffic can't rename; files are the same.", "error");
   }
   else
   {
     # Can't move!?!
-    &addFeedback ("Traffic: can't move config out of $shortdir!", "warning");
+    &addFeedback ("Traffic can't move config from Stock to Dev.", "error");
   }
 }
 
@@ -446,7 +471,7 @@ elsif ($cgiparams{'ACTION'} eq "Copy to Dev")
 {
   # Copy the selected perm/stock config to dev.
 
-  local ($name, $newName, $dir, $fromdir);
+  local ($name, $newName, $dir, $fromdir, $tmpMsg);
 
   $name = $cgiparams{'CFGGRP'};
   $name =~ s/\.js$//;
@@ -460,14 +485,21 @@ elsif ($cgiparams{'ACTION'} eq "Copy to Dev")
       -e "$stockdir/$newName.js")
   {
     $newName .= "-a";
+    $tmpMsg .= "Appended '-a' to the new name.";
   }
   $dir = &getDirname ($name);
   $fromdir = $dir;
   $fromdir =~ s=.*/==;
 
   &addFeedback ("Copy to Dev '$fromdir/$name' 'dev/$newName'", 'note');
+  if ($tmpMsg ne "")
+  {
+    &addFeedback ($tmpMsg, 'warning');
+  }
 
-  if ($dir eq "/var/smoothwall/mods/trafficControl/perm" ||
+  # Can copy from any of the three to dev
+  if ($dir eq "/var/smoothwall/mods/trafficControl/dev" ||
+      $dir eq "/var/smoothwall/mods/trafficControl/perm" ||
       $dir eq "/var/smoothwall/mods/trafficControl/stock")
   {
     # Get script filename
@@ -478,7 +510,7 @@ elsif ($cgiparams{'ACTION'} eq "Copy to Dev")
       {
         if (!copy ("$dir/rc.$name", "$devdir/rc.$newName"))
         {
-          &addFeedback ("Traffic couldn't copy '$fromdir/rc.$name' to dev/rc.$newName.", "error");
+          &addFeedback ("Traffic couldn't copy the RC script.", "error");
         }
       }
       # Rename the config
@@ -486,7 +518,7 @@ elsif ($cgiparams{'ACTION'} eq "Copy to Dev")
       {
         if (!copy ("$dir/$name.js", "$devdir/$newName.js"))
         {
-          &addFeedback ("Traffic couldn't copy '$fromdir/$name.js' to dev/$newName.js", "error");
+          &addFeedback ("Traffic couldn't copy the JS config.", "error");
         }
       }
       $cgiparams{'newName'} = "";
@@ -496,13 +528,8 @@ elsif ($cgiparams{'ACTION'} eq "Copy to Dev")
     else
     {
       # Can't move nothing!?!
-      &addFeedback ("Traffic needs a filename in order to copy it!", "warning");
+      &addFeedback ("Traffic needs a filename in order to copy it.", "error");
     }
-  }
-  else
-  {
-    # Can't move!?!
-    &addFeedback ("Traffic can't copy config from $fromdir!", "warning");
   }
 }
 
@@ -553,13 +580,18 @@ elsif ($cgiparams{'ACTION'} eq "Move to Saved")
     else
     {
       # Can't move nothing!?!
-      &addFeedback ("Traffic needs a filename in order to move it!", "warning");
+      &addFeedback ("Traffic needs a filename in order to move it!", "error");
     }
   }
   else
   {
     # Can't move!?!
-    &addFeedback ("Traffic: can't move config from stock to perm!", "warning");
+    if ($shortdir eq 'perm') {
+      &addFeedback ("Traffic can't rename config in Saved.", "error");
+    }
+    if ($shortdir eq 'stock') {
+      &addFeedback ("Traffic can't move config from Stock to Saved.", "error");
+    }
   }
 }
 
@@ -783,7 +815,7 @@ else
 
 # Show 'em
 print qq|
-    <div style="margin:0; spacing:0;  vertical-align:middle">
+    <div style="margin:0; padding:0;  vertical-align:middle">
       <p style="width:9em; margin:1em 0 1em 0; text-align:right; display:inline-block">
         <span class='base'>Current config:</span>
       </p>
@@ -791,7 +823,7 @@ print qq|
         <b>$settings{'CURRENT_CONFIG'}</b>
       </p>
     </div>
-    <div style="margin:0; spacing:0;  vertical-align:bottom">
+    <div style="margin:0; padding:0;  vertical-align:bottom">
       <input type='submit' name="ACTION" value="$start"
              style="margin-left: 8em; background-color:#d2e8d2; display:inline-block"$usable[0]
              onclick="uiToggleStart(); return true;">
@@ -809,7 +841,7 @@ print qq|
 
 print qq|
   <div style='width:30%; vertical-align:top; display:inline-block; margin:.3em; padding:.3em'>
-    <p class='box'>Dev:</p>
+    <p class='box' style='margin:0'>Dev:</p>
 |;
 
 &files2RadioButtons ($devdir, "CFGGRP", "moveToDev");
@@ -819,7 +851,7 @@ print qq|
 |;
 print qq|
   <div style='width:30%; vertical-align:top; display:inline-block; margin:.3em; padding:.3em'>
-    <p class='box'>Saved:</p>
+    <p class='box' style='margin:0'>Saved:</p>
 |;
 
 &files2RadioButtons ($permdir, "CFGGRP", "copyToSav");
@@ -829,7 +861,7 @@ print qq|
 |;
 print qq|
   <div style='width:30%; vertical-align:top; display:inline-block; margin:.3em; padding:.3em'>
-    <p class='box'>Stock:</p>
+    <p class='box' style='margin:0'>Stock:</p>
 |;
 
 &files2RadioButtons ($stockdir, "CFGGRP", "copyToDev");
@@ -895,6 +927,7 @@ print<<END;
             onclick='return changePanel("config_div", "configbutton_div");'>Interface Config</button>
   </span>
 </p>
+</div>
 
 <hr style="margin:18pt">
 <div id="tree_div" style="text-align:left; display:none"></div>
