@@ -1,0 +1,22 @@
+GREEN,on,Infrastructure,,Both,N/A,ACCEPT,,off
+GREEN,on,Web,,TCP,N/A,ACCEPT,,off
+GREEN,on,Remote access,,TCP,N/A,ACCEPT,,off
+GREEN,on,File transfer,,TCP,N/A,ACCEPT,,off
+GREEN,on,222,,TCP,N/A,ACCEPT,,off
+GREEN,on,1194,,TCP,N/A,ACCEPT,,off
+GREEN,on,N/A,,IPSEC,N/A,ACCEPT,,off
+GREEN,on,N/A,,PPTP,N/A,ACCEPT,,off
+PURPLE,on,Infrastructure,,Both,N/A,ACCEPT,,off
+PURPLE,on,Web,,TCP,N/A,ACCEPT,,off
+PURPLE,on,Remote access,,TCP,N/A,ACCEPT,,off
+PURPLE,on,File transfer,,TCP,N/A,ACCEPT,,off
+PURPLE,on,1194,,TCP,N/A,ACCEPT,,off
+PURPLE,on,N/A,,IPSEC,N/A,ACCEPT,,off
+PURPLE,on,N/A,,PPTP,N/A,ACCEPT,,off
+ORANGE,on,53,,Both,N/A,ACCEPT,,off
+ORANGE,on,Web,,TCP,N/A,ACCEPT,,off
+ORANGE,on,Remote access,,Both,N/A,ACCEPT,,off
+ORANGE,on,File transfer,,TCP,N/A,ACCEPT,,off
+ORANGE,on,1194,,TCP,N/A,ACCEPT,,off
+ORANGE,on,N/A,,IPSEC,N/A,ACCEPT,,off
+ORANGE,on,N/A,,PPTP,N/A,ACCEPT,,off
