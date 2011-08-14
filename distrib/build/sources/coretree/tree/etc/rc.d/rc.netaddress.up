@@ -15,11 +15,8 @@ echo "Setting up advanced networking features"
 /usr/bin/smoothcom setadvnet
 echo "Setting up IP block"
 /usr/bin/smoothcom setipblock
-echo "Setting up outgoing filter"
-/usr/bin/smoothcom setoutgoing
-echo "Setting up timed access rules"
-/usr/bin/smoothcom settimedaccess
-
+echo "Setting up timed outgoing filtering"
+/usr/bin/smoothcom settimedoutgoing
 echo "Poking udev"
 /sbin/udevadm trigger
 /sbin/udevadm settle

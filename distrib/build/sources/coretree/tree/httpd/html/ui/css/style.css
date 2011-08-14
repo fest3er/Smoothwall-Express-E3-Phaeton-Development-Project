@@ -14,6 +14,10 @@ input[type=submit] {
 
 input[type=text],option,select {
 	font-family: Courier New, Courier, fixed;
+	red: #dc143c;
+	green: #00ff00;
+	orange: #ff4500;
+	purple: #9400d3;
 }
 
 
