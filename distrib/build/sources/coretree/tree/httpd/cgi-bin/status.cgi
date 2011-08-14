@@ -136,9 +136,9 @@ sub isrunning
 	# qos is a special case
 	if ($cmd eq 'qos')
 	{
-		my $running = qx{/usr/sbin/tc qdisc list | fgrep htb | wc -l};
-    		chomp $running; # loose \n or 0\n is considered true!
-		$status = status_line( "running" ) if $running;
+		my $running = qx{/usr/sbin/tc qdisc list | fgrep -v "pfifo_fast 0:" | wc -l};
+    		chomp $running; # If only pfifo_fast with major #0 found, service is stopped.
+		$status = status_line( "running" ) if ($running gt 0);
 	}
 	elsif (open(FILE, "/var/run/${cmd}.pid"))
 	{

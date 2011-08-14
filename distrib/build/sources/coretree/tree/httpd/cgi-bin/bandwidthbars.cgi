@@ -11,6 +11,7 @@ use header qw( :standard );
 
 my %netsettings;
 
+&readhash("${swroot}/main/productdata", \%productdata);
 &readhash("${swroot}/ethernet/settings", \%netsettings);
 &showhttpheaders();
 
@@ -22,9 +23,21 @@ my %netsettings;
 my $initial_position = "10";
 my @bars;
 my @bar_names;
-my $oururl = "/cgi-bin/trafficstats.cgi";
+my $oururl = "/cgi-bin/trafficstats.cgi?BARS=1";
 
-my @devices = ( "eth0", "eth1", "eth2", "eth3", "ippp0" , "ppp0" );
+if ($productdata{'RELEASE'} ne "")
+{
+  # Is P/R
+  open (HDL, "/sbin/ip link | grep -v lo: | grep 'state UP' | sed -e 's/^[0-9]*: //' -e 's/:.*//'|");
+}
+else
+{
+  # Is SWE3
+  open (HDL, "/usr/sbin/ip link | grep -v lo: | grep ',UP' | sed -e 's/^[0-9]*: //' -e 's/:.*//'|");
+}
+my @devices = <HDL>;
+close (HDL);
+chomp @devices;
 
 &openbox('Bandwidth bars:');
 &realtime_graphs();
@@ -95,7 +108,7 @@ sub realtime_graphs
 		.s18{ opacity: 0.95 ; -moz-opacity: 0.95 ; -khtml-opacity:0.95 ; filter:alpha(opacity=95)} 
 		.s19{ } 
 	</style>
-		<div style='width: 90%; margin-left: auto; margin-right: auto;'>
+		<div style='width: 81%; border:1px solid #7f7f7f; margin-left: auto; margin-right: auto;'>
 	};
 	my @rules;
 
@@ -104,14 +117,44 @@ sub realtime_graphs
 		$iftitle =~ s/_/ /g;
 		$iftitle =~ s/(GREEN|RED|ORANGE|PURPLE)//;
 		$iftitle = printableiface($iftitle);
+		if ($iftitle eq 'Red') { $bgcolor = '#ffaaaa'; }
+		elsif ($iftitle eq "Green") {$bgcolor = "#bbffbb";}
+		elsif ($iftitle eq "Purple") {$bgcolor = "#ddaaff";}
+		elsif ($iftitle eq "Orange") {$bgcolor = "#ffaa77";}
+		else { $bgcolor = ""; }
 		print qq{
-		<table id='${interface}_container' style='width: 90%; border-collapse: collapse; border: 0px; margin-left: auto; margin-right: auto;'>
-		<tr style='background-color: #C3D1E5;'>
-			<td style="background-position: top left; background-repeat: no-repeat; text-align: left; vertical-align: middle;">&nbsp;<strong>$iftitle</strong></td>
-			<td style="width: 40%; background-position: top right; background-repeat: no-repeat; text-align: left; vertical-align: middle;">&nbsp;</td>
-		</tr>
-		<tr>
-			<td colspan='2' style='background-position: top left; background-repeat: no-repeat; vertical-align: top;' ><br/><table style='width: 95%; margin-left: auto; margin-right: auto; border: 0px; border-collapse: collapse;'>
+<table id='${interface}_container' style='width: 100%; border-collapse: collapse; border:none; margin-left: auto; margin-right: auto; background-color:$bgcolor' cellspacing='0' cellpadding='0'>
+  <tr>
+    <td colspan='2' style='background-position: top left; background-repeat: no-repeat; vertical-align: top;' >
+      <table style='width: 100%; margin-left: auto; margin-right: auto; border: none; border-collapse: collapse;' cellspacing='0' cellpadding='0'>
+        <tr>
+        <tr>
+          <td colspan='6' style='background-color:#c3d1e5; height:2px'></td>
+        </tr>
+          <td colspan='2' style='width: 85px; text-align: left; background-color:#c3d1e5;'>&nbsp;<strong>$iftitle</strong></td>
+          <td style='width:400px; background-color:#c3d1e5'>
+            <table style='width: 100% border: 0; border-collapse: collapse;' cellpadding='0' cellspacing='0'>
+              <tr>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10'>10&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100'>100&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_1'>1k&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10k'>10&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100k'>100&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_2'>1M&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10m'>10&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_100m'>100&nbsp;</td>
+                <td style='height: 8px; overflow: hidden; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_3'>1G&nbsp;</td>
+                <td style='height: 8px; font-size: 6pt; color: #303030; background-color:#c3d1e5; width: 39px; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_10g'>10&nbsp;</td>
+              </tr>
+            </table>
+          </td>
+          <td style='height:10px; width: 4px; margin:0; background-color:#c3d1e5'>&nbsp;</td>
+          <td style='height:10px; width:55px; margin:0; background-color:#c3d1e5' id='${section}_${interface}_rate'></td>
+          <td style='width: 2.5%; margin:0; background-color:#c3d1e5'>&nbsp;</td>
+        </tr>
+        <tr>
+          <td colspan='6' style='background-color:none; height:5px'></td>
+        </tr>
 		};
 
 		foreach my $section ( keys %{$interfaces{$interface}} ){
@@ -120,32 +163,22 @@ sub realtime_graphs
 		
 			if ( $section eq "cur_inc_rate" ){
 				$title  = "Incoming";
-				$colour = "#4D71A3";
+				$colour = "#5f5f9f";
 			} elsif ( $section = "cur_out_rate" ){
 				$title  = "Outgoing";
-				$colour = "#4F8E83";
+				$colour = "#9f5f5f";
 			}
 
 			print qq{
 			<tr>
-				<td style='width: 15%;' rowspan='2' style='vertical-align: top;'>$title</td>
-				<td style='width: 400px; background-color: $table2colour; font-size: 6pt; padding: 0px;'  id='${section}_${interface}_scale' >
-				<table style='width: 100%; border: 0px; border-collapse: collapse;'>
-				<tr>
-				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 25%; background-colour: #efefef; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_1'>25%</td>
-				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 25%; background-colour: #dfdfdf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_2'>50%</td>
-				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 25%; background-colour: #cfcfcf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_3'>75%</td>
-				<td style='height: 8px; overlow: hiddent; font-size: 6pt; color: #303030; width: 25%; background-colour: #bfbfbf; border-right: 1px solid #505050; text-align: right;' id='${section}_${interface}_scale_4'>100%<td>
-				</tr>
-				</table>
-				</td>
-				<td style='width: 2%;' rowspan='2' style='vertical-align: top;'>&nbsp;</td>
-				<td rowspan='2' id='${section}_${interface}_rate'></td>
-			</tr>
-			<tr>
-				<td style='width: 400px; background-color: $table2colour; padding: 0px;'>
-				<div style='width: 0px; border: 0px; background-color: $colour;' id='${section}_$interface'>&nbsp;</div>	
-				</td>
+                                <td style='width: 2.5%; margin:0; background-color:none'>&nbsp;</td>
+				<td style='height:10px;'>$title</td>
+				<td style='height:10px; background-color: #efefef; font-size:0; margin:0; padding: 0px'>
+                                  <div style='height:10pt; width: 0px; font-size:0; margin:0; padding:0; border: 0px; background-color: $colour;' id='${section}_$interface'>&nbsp;</div>
+                                </td>
+				<td style='height:10px; vertical-align: top;'>&nbsp;</td>
+				<td style='height:10px' id='${section}_${interface}_rate'></td>
+                                <td style='width: 2.5%; margin:0; background-color:none'>&nbsp;</td>
 			</tr>
 			<tr style='height: 5px;'><td colspan='3'></td></tr>
 			};
@@ -165,7 +198,7 @@ sub realtime_graphs
 	show_script( \@rules );
 	print "</script>";
 	print "</div>";
-	print "<script> monitor(); fader(); </script>\n";
+	print "<script> monitor(); </script>\n";
 }
 
 sub show_script
@@ -229,7 +262,7 @@ function xmlhttpPost()
 		}
     	}
 
-	document.getElementById('status').style.display = "inline";
+	//document.getElementById('status').style.display = "inline";
 
     	self.xmlHttpReq.send( null );
 }
@@ -237,7 +270,7 @@ function xmlhttpPost()
 var splitter = /^cur_(inc|out)_rate_([^=]+)=([\\d\\.]+)\$/i;
 
 function updatepage(str){
-	document.getElementById('status').style.display = "none";
+	//document.getElementById('status').style.display = "none";
 	var rows = str.split( '\\n' );
 	
 	for ( var i = 0; i < ifnames.length ; i++ ){
@@ -255,75 +288,48 @@ function updatepage(str){
 			}
 			var divider = 0;;
 			var rate = 0;
-			var s1; var s2; var s3; var s4;
-			if ( results[ 3 ] < (1024) ) {
-				s1 = '&nbsp;'; s2 = '&nbsp;'; s3 = '&nbsp;'; s4 = '&nbsp;';
-			} else if ( results[ 3 ] < (1024*64) ) {
-				/* 64 KBps */
-				divider = (400 / ( 1024*64 )) * results[ 3 ];
-				rate = parseInt( results[3] / 1024 );
-				rate += " Kbps";
-				s1 = '16K'; s2 = '32K'; s3 = '48K'; s4 = '64K';
-			} else if ( results[ 3 ] < (1024*512) ) {
-				/* 512 KBps */
-				divider = (400 / ( 1024*512 )) * results[ 3 ];
-				rate = parseInt( results[3] / 1024 );
-				rate += " Kbps";
-				s1 = '128K'; s2 = '256K'; s3 = '384K'; s4 = '512K';
-			} else if ( results[ 3 ] < (1024 * 1024) ){
-				/* 1 MBps */
-				divider = (400 / ( 1024 * 1024 )) * results[ 3 ];
-				rate = parseInt( results[3] / 1024 );
-				rate += " Kbps";
-				s1 = '256K'; s2 = '512K'; s3 = '768K'; s4 = '1M';
-			} else if ( results[ 3 ] < (1024 * 1024 *2) ){
-				/* 2 MBps */
-				divider = (400 / ( 1024 * 1024 *2 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024 * 1024) * 10) / 10;
-				rate += " Mbps";
-				s1 = '512K'; s2 = '1M'; s3 = '1.5M'; s4 = '2M';
-			} else if ( results[ 3 ] < (1024 * 1024 *4) ){
-				/* 4 MBps */
-				divider = (400 / ( 1024 * 1024 *4 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024 * 1024) * 10) / 10;
-				rate += " Mbps";
-				s1 = '1M'; s2 = '2M'; s3 = '3M'; s4 = '4M';
-			} else if ( results[ 3 ] < (1024 * 1024 *8) ){
-				/* 8 MBps */
-				divider = (400 / ( 1024 * 1024 *8 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024 * 1024) * 10) / 10;
-				rate += " Mbps";
-				s1 = '2M'; s2 = '4M'; s3 = '6M'; s4 = '8M';
-			} else if ( results[ 3 ] < (1024*1024*10) ){
-				/* 10 MBps */
-				divider = (400 / ( 1024 * 1024 * 10 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024*1024) );
-				rate += " Mbps";
-				s1 = '2.5M'; s2 = '5M'; s3 = '7.5M'; s4 = '10M';
-			} else if ( results[ 3 ] < (1024*1024*100) ){
-				/* 100 MBps */
-				divider = (400 / ( 1024 * 1024 * 100 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024*1024) );
-				rate += " Mbps";
-				s1 = '25M'; s2 = '50M'; s3 = '75M'; s4 = '100M';
-			} else {
-				/* GBps Scale */
-				divider = (400 / ( 1024 * 1024 * 1024 )) * results[ 3 ];
-				rate = parseInt( results[3] / (1024*1024) );
-				rate += " Mbps";
-				s1 = '250M'; s2 = '500M'; s3 = '750M'; s4 = '1G';
+			
+			// The divider is based on the full bit rate. It
+			//   is crowbarred to stay within the lines.
+			divider = (40 * Math.log(results[3])/Math.log(10));
+			if (divider == -Infinity) {
+				divider = 0;
+			}
+			if (divider < 0) {
+				divider = 0;
+			}
+			if (divider > 400) {
+				divider = 400;
+			}
+
+			// The displayed rate is adjusted to use multipliers.
+			if ( results[ 3 ] < 1000 ) {
+				rate = parseFloat( results[3] )+'     ';
+				rate = String(rate).substring(0,5);
+				rate += " b/s";
+			} else if ( results[ 3 ] < (1000*1000) ) {
+				results[3] /= 1000;
+				rate = parseFloat( results[3] )+'     ';
+				rate = String(rate).substring(0,5);
+				rate += " kb/s";
+			} else if ( results[ 3 ] < (1000*1000*1000) ) {
+				results[3] /= 1000*1000;
+				rate = parseFloat( results[3] )+'     ';
+				rate = String(rate).substring(0,5);
+				rate += " Mb/s";
+			} else if ( results[ 3 ] < (1000*1000*1000*1000) ){
+				results[3] /= 1000*1000*1000;
+				rate = parseFloat( results[3] )+'     ';
+				rate = String(rate).substring(0,5);
+				rate += " Gb/s";
 			}
 
 
-			scale[ id ] = s4;
+			scale[ id ] = "10G";
 			old[ id ] = cur[ id ];
 			cur[ id ] = parseInt( divider );
 			document.getElementById( id ).style.width = cur[ id ] + 'px';
 			document.getElementById( id + '_rate' ).innerHTML = rate;
-			document.getElementById( id + '_scale_1' ).innerHTML = s1;
-			document.getElementById( id + '_scale_2' ).innerHTML = s2;
-			document.getElementById( id + '_scale_3' ).innerHTML = s3;
-			document.getElementById( id + '_scale_4' ).innerHTML = s4;
 		
 			iftotals[ results[ 2 ] ] += parseInt( results[ 3 ] );
 

@@ -13,7 +13,7 @@ input[type=submit] {
 }
 
 input[type=text],option,select {
-	font-family: Courier New; Courier, fixed;
+	font-family: Courier New, Courier, fixed;
 }
 
 
@@ -21,7 +21,6 @@ body {
 	font-size : 11px;
 	font-family: Arial, Helvetica, sans-serif;
 	font-weight : normal;
-	color : #000000;
 	text-decoration : none;
 	background-color: #efefef;
 }
@@ -30,7 +29,6 @@ p {
 	font-size : 11px;
 	font-family: Arial, Helvetica, sans-serif;
 	font-weight : normal;
-	color : #000000;
 	text-decoration : none;
 }
 
@@ -87,7 +85,6 @@ td {
         font-size : 11px;
 	font-family: Arial, Helvetica, sans-serif;
         font-weight : normal;
-        color : #000000;
         text-decoration : none;
 	padding-left:0;
 }
@@ -480,7 +477,6 @@ div.menushaddow {
 	padding: 5px;
 	width: 150px;
 	filter: alpha(opacity=30);
-        -moz-opacity: 0.30;
         opacity: 0.30;
 }
 
@@ -519,4 +515,38 @@ th.extension {
 	height: 25px;
 }
 
-
+/* trafficControl page */
+.nicForm {
+        font-size: 8pt;
+        margin: 0;
+        font-weight: bold;
+        font-family: arial, sans-serif;
+}
+input.qForm {
+        font-weight: bold;
+        font-family: arial, sans-serif;
+}
+.endnotes {
+        cursor: pointer;
+        font-size: 12pt;
+        font-family: times-newroman, serif;
+}
+p.lineitem {
+        cursor: pointer;
+        font-size: 14px;
+        font-family: arial, sans-serif;
+        vertical-align: middle;
+}
+p.menuitem {
+        border: none;
+        cursor: pointer;
+        font-family: arial, sans-serif;
+        font-size: 10pt;
+        font-weight: bold;
+        margin: 0;
+        padding: 1.5pt 4pt 1.5pt 4pt;
+        text-align: left;
+}
+p.menuitem:hover {
+        background-color: #cfcfcf;
+}
