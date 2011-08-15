@@ -1,0 +1,27 @@
+#! /bin/bash
+
+MSG1="Installing extra packages needed to build on Debian:\n"
+
+for package in build-essential bison flex gawk screen; do
+  set `dpkg -s $package | egrep "^Status: "`
+  if [ "$4" != "installed" ]; then
+    echo -ne $MSG1; MSG1=""
+    tput smso; echo "$package:"; tput rmso
+    apt-get install $package | sed -e 's/^/  /'
+    echo
+  fi
+done
+
+MSG2="Symlinking /bin/sh to /bin/bash; just say, \"No.\"\n"
+set `readlink /bin/sh`
+set `basename $1`
+LNK=$1
+if [ "$LNK" == "dash" ]; then
+  echo -ne $MSG2; MSG2=""
+  sleep 2
+  dpkg-reconfigure dash
+fi
+
+if [ "$MSG1" != "" -a "$MSG2" != "" ]; then
+  echo "Debian host already prepared"
+fi
