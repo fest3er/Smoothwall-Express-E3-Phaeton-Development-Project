@@ -116,7 +116,7 @@ int load_portlist()
 int load(std::vector<CommandFunctionPair> & pairs)
 {
    /* CommandFunctionPair name("command", "function"); */
-   CommandFunctionPair  set_timedoutgoing_function("settimedoutgoing", "set_timedoutgoing", 0, 0, version);
+   CommandFunctionPair  set_timedoutgoing_function("settimedoutgoing", "set_timedoutgoing", 0, 0);
 
    pairs.push_back( set_timedoutgoing_function);
 
