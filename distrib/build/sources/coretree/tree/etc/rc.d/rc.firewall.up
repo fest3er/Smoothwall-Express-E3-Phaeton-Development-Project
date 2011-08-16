@@ -201,27 +201,23 @@ fi
 /sbin/iptables -A INPUT -j LOG
 /sbin/iptables -A INPUT -j REJECT
 
-########################################################################################################
-# Legacy outgoing chains superceded by TOFC
-#
 # Green, Orange and Purple chains for outbound, and allows for always allowed.
-#/sbin/iptables -N outgreen
-#/sbin/iptables -N outorange
-#/sbin/iptables -N outpurple
-#/sbin/iptables -N allows
-#
-# Setup our outgoing filter stub chains.
-#/sbin/iptables -N outbound
-#/sbin/iptables -A outbound -p icmp -j ACCEPT
-#/sbin/iptables -A outbound -j allows
-#/sbin/iptables -A outbound -i $GREEN_DEV -j outgreen
-#if [ "$ORANGE_DEV" != "" ]; then
-#	/sbin/iptables -A outbound -i $ORANGE_DEV -j outorange
-#fi
-#if [ "$PURPLE_DEV" != "" ]; then
-#	/sbin/iptables -A outbound -i $PURPLE_DEV -j outpurple
-#fi
-#########################################################################################################
+/sbin/iptables -N outgreen
+/sbin/iptables -N outorange
+/sbin/iptables -N outpurple
+/sbin/iptables -N allows
+
+ Setup our outgoing filter stub chains.
+/sbin/iptables -N outbound
+/sbin/iptables -A outbound -p icmp -j ACCEPT
+/sbin/iptables -A outbound -j allows
+/sbin/iptables -A outbound -i $GREEN_DEV -j outgreen
+if [ "$ORANGE_DEV" != "" ]; then
+	/sbin/iptables -A outbound -i $ORANGE_DEV -j outorange
+fi
+if [ "$PURPLE_DEV" != "" ]; then
+	/sbin/iptables -A outbound -i $PURPLE_DEV -j outpurple
+fi
 
 # These strange rules are to make bouncing forwards work.
 /sbin/iptables -A FORWARD -i $GREEN_DEV -o $GREEN_DEV -m state --state ESTABLISHED,RELATED -j ACCEPT
