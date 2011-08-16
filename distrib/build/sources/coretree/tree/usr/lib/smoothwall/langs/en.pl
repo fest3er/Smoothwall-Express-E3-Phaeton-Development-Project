@@ -685,7 +685,7 @@
 'tofc-start eq end' => 'Start time cannot equal end time!',
 'tofc-exceporcron comment' => 'Exceptions or crontab comments:',
 'tofc-change action' => 'Change Action',
-'tofc-log outgoing' => '-- 'tofc Log: Outgoing state on',
+'tofc-log outgoing' => '-- TOFC Log: Outgoing state on',
 'tofc-log changed' => 'changed to',
 'tofc-closed' => 'Closed',
 'tofc-update' => 'Update',
