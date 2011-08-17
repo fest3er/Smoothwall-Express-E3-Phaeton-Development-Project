@@ -2,22 +2,30 @@
 
 function compute_swap () {
   # swap fixed to installed RAM, but must be shrunk if RAM > .25*hdsize
+  # measure in bytes!
+
+  typeset -i memsize mem_mib disk_eighth $2
+
   set `grep MemTotal /proc/meminfo`
-  memsize=$2
-  memunit=$3
-  swapstart=bootstart+bootsize
+  # Convert size to 1MiB blocks
+  case $3 in
+    kB) memsize=$2/1024;;
+    MB) memsize=$2;;
+    GB) memsize=$2*1024;;
+    TB) memsize=$2*1024**2;;
+    *) memsize=$2/1024;;      # Assume it is kB
+  esac
 
   # If memory is > 1/8 of the disk, crowbar swap to 1/8 of the disk
-  typeset -i mem_mib disk_eighth
-  mem_mib=memsize/1024
-  disk_eighth=remainder/8/2048
-  if [ $mem_mib -lt $disk_eighth ]; then
+  disk_eighth=remainder/8
+  if [ $memsize -lt $disk_eighth ]; then
     # Base swap on memory size
-    swapsize=memsize*2
-    Mswapsize=memsize/1024
+    swapMiB=memsize
+    swapsize=swapMiB
   else
-    swapsize=disk_eighth*2048
-    Mswapsize=$disk_eighth
+    # Base swap on 1/8 disk size
+    swapMiB=disk_eighth
+    swapsize=swapMiB
   fi
 }
 
@@ -91,76 +99,87 @@ echo
 echo "Partitioning hard drive"
 echo "Partitioning hard drive" >/dev/tty2
 echo
-  typeset -i remainder bootsize swapsize rootsize extsize logsize memsize
-  typeset -i sRemainder bootstart swapstart rootstart extstart logstart sMemsize
-  typeset -i Mremainder Mbootsize Mswapsize Mrootsize Mextsize Mlogsize Mmemsize
-  typeset -i sTotal sPerCyl Cyls Hds PerTrk
-  hdd="/dev/harddisk"
-  set `sfdisk -g $hdd 2>&1`
-  Cyls=$2
-  Hds=$4
-  PerTrk=$6
-  sTotal=Cyls*Hds*PerTrk
-  hdsize=sTotal/2048
-  sPerCyl=$4*$6
-  sPerTrack=$6
+  typeset -i remainder bootsize swapsize rootsize logsize memsize
+  typeset -i bootMiB swapMiB rootMiB logMiB
+  typeset -i bootstart swapstart rootstart logstart
+  typeset -i bootend swapend rooten
+  typeset -i sTotal hw_sector_size unused unusedMiB
 
-  # boot partition fixed size
-  bootsize=100*2048
-  bootstart=PerTrk
+  # Get disk parameters
+  hdd="${hd_dev[$hd]}"
+  hw_sector_size=`cat /sys/block/$hdd/queue/hw_sector_size 2>/dev/null`
+  if [ "$hw_sector_size" -eq 0 ]; then hw_sector_size=512; fi
+  sTotal=`cat /sys/block/$hdd/size`
+  sTotal=sTotal*$hw_sector_size/1024**2
+
+  # Find out how much we're to use: all or part
+  if [ $maxMiB -eq 0 ]; then
+    remainder=$sTotal
+    unused=0
+  else
+    remainder=$maxMiB
+    unused=sTotal-remainder
+  fi
 
   # Compute partition sizes
   #
-  if [ $maxMiB -eq 0 ]; then
-    # using whole disk
-    remainder=sTotal-PerTrk          # less one track
-    compute_swap                     # swap is based on memory and disk size
-    echo "  ${hdd}1  100MiB -> /boot"
-    echo "  ${hdd}2  ${Mswapsize}MiB -> swap"
-    remainder=remainder-bootsize-swapsize
-    logsize=remainder/3
-    logstart=swapstart+swapsize+PerTrk
-    Mlogsize=logsize/2048
-    extsize=logsize+PerTrk
-    extstart=swapstart+swapsize
-    Mextsize=extsize/2048
-    echo "  ${hdd}3    ${Mextsize}MiB -> (extended)"
-    rootsize=remainder-extsize
-    rootstart=extstart+extsize
-    Mrootsize=rootsize/2048
-    echo "  ${hdd}4    ~${Mrootsize}MiB -> / (root)"
-    echo "  ${hdd}5    ${Mlogsize}MiB -> /log"
-  else
-    # using limited size
-    remainder=$hdsize*2048-PerTrk    # less one track
-    unused=remainder-maxMiB*2048
-    compute_swap                     # swap is based on memory and disk size
-    echo "  ${hdd}1    100MiB -> /boot"
-    echo "  ${hdd}2    ${Mswapsize}MiB -> swap"
-    remainder=remainder-bootsize-swapsize
-    logsize=(remainder-unused)/3
-    logstart=swapstart+swapsize+PerTrk
-    Mlogsize=logsize/2048
-    extsize=unused+logsize+PerTrk
-    extstart=swapstart+swapsize
-    Mextsize=extsize/2048
-    echo "  ${hdd}3    ${Mextsize}MiB -> (extended)"
-    rootsize=remainder-extsize
-    rootstart=extstart+extsize
-    Mrootsize=rootsize/2048
-    echo "  ${hdd}4    ~${Mrootsize}MiB -> / (root)"
-    echo "  ${hdd}5    ${Mlogsize}MiB -> /log"
-  fi
-  cat >/tmp/sfdisk.parts <<END
-$bootstart,$bootsize,83,*
-$swapstart,$swapsize,82,
-$extstart,$extsize,85,
-$rootstart,$rootsize,83,
-$logstart,$logsize,83,
+  # boot partition fixed size
+  bootMiB=200
+  bootsize=bootMiB                   # 200MiB
+  bootstart=1                        # 1 MiB
+  bootend=bootstart+bootsize-1
+  echo "  ${hdd}1  ${bootMiB}MiB -> /boot"
+
+  # swap partition fixed size
+  remainder=remainder-2            # less one MiB at each end
+  compute_swap                     # swapsize is based on memory vs. disk size
+  swapstart=bootend+1
+  swapend=swapstart+swapsize-1
+  echo "  ${hdd}2  ${swapMiB}MiB -> swap"
+
+  # log partition: 1/3 remainder
+  remainder=remainder-bootsize-swapsize
+  logMiB=remainder/3
+  #logMiB=logMiB/1024/2
+  logsize=logMiB
+  logstart=swapend+1
+  logend=logstart+logsize-1
+  echo "  ${hdd}3  ${logMiB}MiB -> /log"
+
+  # root partition: remainder
+  remainder=remainder-logsize
+  rootMiB=remainder
+  rootsize=rootMiB
+  rootstart=logend+1
+  rootend=rootstart+rootsize-1
+  echo "  ${hdd}4  ${rootMiB}MiB -> / (root)"
+
+  # all that's left
+  remainder=remainder-rootsize
+  unused=unused+remainder
+  unusedMiB=unused
+  echo "           ${unusedMiB}MiB -> (free space)"
+
+  # prep the input
+  cat <<END >/tmp/partitions
+unit MiB
+select /dev/$hdd
+mklabel gpt
+mkpart boot reiserfs $bootstart $bootend
+set 1 bios_grub on
+name 1 "/boot"
+mkpart swap linux-swap $swapstart $swapend
+name 2 swap
+mkpart log reiserfs $logstart $logend
+name 3 "/var/log"
+mkpart root reiserfs $rootstart $rootend
+name 4 "/"
+print
+quit
 END
 
   echo
-  do_or_die "sfdisk -uSq --force --no-reread /dev/harddisk </tmp/sfdisk.parts"
+  do_or_die "parted /dev/$hdd </tmp/partitions"
 
   sleep 2
 
@@ -174,10 +193,10 @@ echo
   do_or_die "$MKFS /dev/harddisk1"
   echo "  swap"
   do_or_die "mkswap /dev/harddisk2"
+  echo "  /var/log"
+  do_or_die "$MKFS /dev/harddisk3"
   echo "  /"
   do_or_die "$MKFS /dev/harddisk4"
-  echo "  /var/log"
-  do_or_die "$MKFS /dev/harddisk5"
 
   echo
   echo "Enabling swap"
@@ -229,7 +248,7 @@ fi
   echo "Mounting /boot and /var/log"
   mkdir -p -m 755 /harddisk/boot /harddisk/var/log
   do_or_die "mount $FS /dev/harddisk1 /harddisk/boot"
-  do_or_die "mount $FS /dev/harddisk5 /harddisk/var/log"
+  do_or_die "mount $FS /dev/harddisk3 /harddisk/var/log"
 
   sleep 2
 
@@ -277,7 +296,7 @@ if [ $restore -eq 1 -o $restore -eq 2 ]; then
     echo
     echo "/dev/harddisk4  /               $FSTYPE         $ROOTOPTION           0       1"
     echo "/dev/harddisk1  /boot           $FSTYPE         $OPTION  0       2"
-    echo "/dev/harddisk5  /var/log        $FSTYPE         $OPTION  0       2"
+    echo "/dev/harddisk3  /var/log        $FSTYPE         $OPTION  0       2"
   ) >/harddisk/etc/fstab
   echo "$FTYPE" >/harddisk/etc/modules
 
