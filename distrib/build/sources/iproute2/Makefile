@@ -12,7 +12,7 @@ PACKAGE = iproute2
 VERSION = 2.6.39
 
 BASE_URL = http://devresources.linuxfoundation.org/dev/iproute2/download
-EXTENSION=.tar.bz2
+EXTENSION=.tar.gz
 
 CONFIGURE = yes
 COMPILE = yes
