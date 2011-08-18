@@ -102,7 +102,7 @@ echo
   typeset -i remainder bootsize swapsize rootsize logsize memsize
   typeset -i bootMiB swapMiB rootMiB logMiB
   typeset -i bootstart swapstart rootstart logstart
-  typeset -i bootend swapend rooten
+  typeset -i bootend swapend rootend logend
   typeset -i sTotal hw_sector_size unused unusedMiB
 
   # Get disk parameters
