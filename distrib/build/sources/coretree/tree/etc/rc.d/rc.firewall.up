@@ -60,16 +60,37 @@ if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A FORWARD -i $RED_DEV -j ipblock
 fi
 
+###############################################################################
+# Legacy timed access chains superceded by TOFC
+#
 # Setup timed access chains.
-/sbin/iptables -N timedaccess
-/sbin/iptables -N timedaction
-/sbin/iptables -A timedaction -j LOG --log-prefix Denied-by-Timed-Access:-
-/sbin/iptables -A timedaction -j REJECT
+#/sbin/iptables -N timedaccess
+#/sbin/iptables -N timedaction
+#/sbin/iptables -A timedaction -j LOG --log-prefix Denied-by-Timed-Access:-
+#/sbin/iptables -A timedaction -j REJECT
 
 
 # Apply the time rules to deny the traffic.
-/sbin/iptables -A INPUT -j timedaccess
-/sbin/iptables -A FORWARD -j timedaccess
+#/sbin/iptables -A INPUT -j timedaccess
+#/sbin/iptables -A FORWARD -j timedaccess
+################################################################################
+
+# Setup timedoutgoing chain for outbound rules
+# and for timed outbound access
+/sbin/iptables -N timedoutgoing
+/sbin/iptables -A INPUT -j timedoutgoing
+/sbin/iptables -A FORWARD -j timedoutgoing
+
+# Setup tofcdrop chain to use for all denied outbound traffic
+/sbin/iptables -N tofcdrop
+/sbin/iptables -A timedoutgoing -i $GREEN_DEV -j tofcdrop
+if [ "$PURPLE_DEV" != "" ]; then 
+	/sbin/iptables -A timedoutgoing -i $PURPLE_DEV -j tofcdrop
+fi
+if [ "$ORANGE_DEV" != "" ]; then
+	/sbin/iptables -A timedoutgoing -i $ORANGE_DEV -j tofcdrop
+fi
+
 
 # For IGMP and multicast
 /sbin/iptables -N advnet
@@ -186,7 +207,7 @@ fi
 /sbin/iptables -N outpurple
 /sbin/iptables -N allows
 
-# Setup our outgoing filter stub chains.
+ Setup our outgoing filter stub chains.
 /sbin/iptables -N outbound
 /sbin/iptables -A outbound -p icmp -j ACCEPT
 /sbin/iptables -A outbound -j allows
@@ -220,6 +241,9 @@ if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A FORWARD -m state --state NEW -o $RED_DEV -j outbound
 fi
 
+#############################################################################################
+# Legacy bouncing port forward chain
+#
 # Port forwarding & Bouncing portforwards
 # /sbin/iptables -N portfwf
 # /sbin/iptables -A FORWARD -i ppp0 -j portfwf
@@ -234,7 +258,9 @@ fi
 # if [ "$PURPLE_DEV" != "" ]; then
 # 	/sbin/iptables -A FORWARD -m mark --mark 3 -j portfwf
 # fi
+##############################################################################################
 
+# Setup dmzholes chains for internal pinholes
 /sbin/iptables -N dmzholes
 
 # Allow GREEN to talk to ORANGE.
