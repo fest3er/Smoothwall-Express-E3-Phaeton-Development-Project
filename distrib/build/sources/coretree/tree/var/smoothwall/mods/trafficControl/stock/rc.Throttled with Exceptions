@@ -66,15 +66,15 @@ function start () {
 
   # class: Unthrottled Exceptions
   tc class add dev $GREEN_DEV parent 1:0 classid 1:2 htb prio 1 \
-     rate 91000000 burst 30000
+     rate 900000000 burst 30000
 
   # class: Admin
   tc class add dev $GREEN_DEV parent 1:2 classid 1:3 htb prio 1 \
-     rate 18200000 burst 3000 ceil 91000000 cburst 15000
+     rate 180000000 burst 3000 ceil 900000000 cburst 15000
 
   # class: SSH
   tc class add dev $GREEN_DEV parent 1:3 classid 1:4 htb prio 1 \
-     rate 5460000 burst 1500 ceil 91000000 cburst 6000
+     rate 54000000 burst 1500 ceil 900000000 cburst 6000
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 0 u32 \
     match ip sport 222 0xffff \
     match ip src $GREEN_ADDRESS/32 \
@@ -82,7 +82,7 @@ function start () {
 
   # class: HTTP
   tc class add dev $GREEN_DEV parent 1:3 classid 1:5 htb prio 1 \
-     rate 12740000 burst 3000000 ceil 91000000 cburst 15000
+     rate 126000000 burst 3000000 ceil 900000000 cburst 15000
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 0 u32 \
     match ip sport 81 0xffff \
     match ip src $GREEN_ADDRESS/32 \
@@ -94,16 +94,25 @@ function start () {
 
   # class: Through Traffic
   tc class add dev $GREEN_DEV parent 1:2 classid 1:6 htb prio 1 \
-     rate 72800000 burst 3000 ceil 91000000 cburst 15000
+     rate 720000000 burst 3000 ceil 900000000 cburst 15000
 
-  # class: FTP
-  tc class add dev $GREEN_DEV parent 1:6 classid 1:a htb prio 4 \
-     rate 10920000 burst 16000 ceil 91000000 cburst 4000
+  # class: File Transfer
+  tc class add dev $GREEN_DEV parent 1:6 classid 1:a htb prio 1 \
+     rate 108000000 burst 16000 ceil 900000000 cburst 1000
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip dport 20 0xfffe \
     flowid 1:a
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 20 0xfffe \
+    flowid 1:a
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 9418 0xffff \
+    flowid 1:a
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 9418 0xffff \
+    flowid 1:a
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 28656 0xffff \
     flowid 1:a
 
   # qdisc: Fair
@@ -111,18 +120,22 @@ function start () {
 
   # class: DNS
   tc class add dev $GREEN_DEV parent 1:6 classid 1:b htb prio 0 \
-     rate 728000 burst 1500 ceil 910000 cburst 1500
+     rate 7200000 burst 1500 ceil 9000000 cburst 1500
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 53 0xffff \
+    match ip protocol 15 0xff \
+    flowid 1:b
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 53 0xffff \
     match ip protocol 15 0xff \
     flowid 1:b
 
   # qdisc: Fair
   tc qdisc add dev $GREEN_DEV parent 1:b handle b:0 sfq perturb 10 quantum 10000
 
-  # class: IM
+  # class: Instant Messaging
   tc class add dev $GREEN_DEV parent 1:6 classid 1:c htb prio 2 \
-     rate 728000 burst 1500 ceil 910000 cburst 1500
+     rate 7200000 burst 1500 ceil 9000000 cburst 1500
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 5190 0xfffe \
     flowid 1:c
@@ -151,9 +164,9 @@ function start () {
   # qdisc: Fair
   tc qdisc add dev $GREEN_DEV parent 1:c handle a:0 sfq perturb 10 quantum 10000
 
-  # class: Web
-  tc class add dev $GREEN_DEV parent 1:6 classid 1:d htb prio 2 \
-     rate 14560000 burst 125000 ceil 91000000 cburst 250000
+  # class: Web Surfing
+  tc class add dev $GREEN_DEV parent 1:6 classid 1:d htb prio 1 \
+     rate 144000000 burst 125000 ceil 900000000 cburst 250000
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 80 0xffff \
     flowid 1:d
@@ -207,8 +220,8 @@ function start () {
   tc qdisc add dev $GREEN_DEV parent 1:d handle 9:0 sfq perturb 10 quantum 10000
 
   # class: Email
-  tc class add dev $GREEN_DEV parent 1:6 classid 1:e htb prio 3 \
-     rate 14560000 burst 250000 ceil 91000000 cburst 1000000
+  tc class add dev $GREEN_DEV parent 1:6 classid 1:e htb prio 1 \
+     rate 144000000 burst 250000 ceil 900000000 cburst 1000000
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 25 0xffff \
     flowid 1:e
@@ -233,13 +246,25 @@ function start () {
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip dport 993 0xffff \
     flowid 1:e
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 995 0xffff \
+    flowid 1:e
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 995 0xffff \
+    flowid 1:e
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 587 0xffff \
+    flowid 1:e
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 587 0xffff \
+    flowid 1:e
 
   # qdisc: Fair
   tc qdisc add dev $GREEN_DEV parent 1:e handle 8:0 sfq perturb 10 quantum 10000
 
   # class: SSH
   tc class add dev $GREEN_DEV parent 1:6 classid 1:f htb prio 1 \
-     rate 14560000 burst 1500 ceil 91000000 cburst 8000
+     rate 144000000 burst 1500 ceil 900000000 cburst 8000
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 22 0xffff \
     flowid 1:f
@@ -258,7 +283,7 @@ function start () {
 
   # class: VoIP
   tc class add dev $GREEN_DEV parent 1:6 classid 1:10 htb prio 0 \
-     rate 72800 burst 1500 ceil 273000 cburst 4500
+     rate 720000 burst 1500 ceil 2700000 cburst 4500
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 1503 0xffff \
     flowid 1:10
@@ -287,24 +312,66 @@ function start () {
   # qdisc: Fair
   tc qdisc add dev $GREEN_DEV parent 1:10 handle 6:0 sfq perturb 10 quantum 1500
 
+  # class: VPN
+  tc class add dev $GREEN_DEV parent 1:6 classid 1:12 htb prio 1 \
+     rate 144000000 burst 9000 ceil 900000000 cburst 18000
+
   # class: PPTP
-  tc class add dev $GREEN_DEV parent 1:6 classid 1:11 htb prio 0 \
-     rate 14560000 burst 10000 ceil 91000000 cburst 20000
+  tc class add dev $GREEN_DEV parent 1:12 classid 1:13 htb prio 1 \
+     rate 47520000 burst 3000 ceil 900000000 cburst 6000
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip dport 1732 0xffff \
-    flowid 1:11
+    match ip sport 1732 0xffff \
+    flowid 1:13
   tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip protocol 47 0xff \
-    flowid 1:11
-  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip protocol 50 0xff \
-    flowid 1:11
-  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip protocol 51 0xff \
-    flowid 1:11
+    flowid 1:13
 
   # qdisc: Fair
-  tc qdisc add dev $GREEN_DEV parent 1:11 handle 5:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $GREEN_DEV parent 1:13 handle d:0 sfq perturb 10 quantum 10000
+
+  # class: IPSEC
+  tc class add dev $GREEN_DEV parent 1:12 classid 1:14 htb prio 1 \
+     rate 47520000 burst 3000 ceil 900000000 cburst 6000
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip protocol 50 0xff \
+    flowid 1:14
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip protocol 51 0xff \
+    flowid 1:14
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 500 0xffff \
+    flowid 1:14
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 4500 0xffff \
+    flowid 1:14
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 4500 0xffff \
+    flowid 1:14
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 500 0xffff \
+    flowid 1:14
+
+  # qdisc: Fair
+  tc qdisc add dev $GREEN_DEV parent 1:14 handle e:0 sfq perturb 10 quantum 10000
+
+  # class: OpenVPN
+  tc class add dev $GREEN_DEV parent 1:12 classid 1:15 htb prio 1 \
+     rate 47520000 burst 3000 ceil 900000000 cburst 6000
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 1194 0xffff \
+    flowid 1:15
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 1194 0xffff \
+    flowid 1:15
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 1195 0xffff \
+    flowid 1:15
+  tc filter add dev $GREEN_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 1195 0xffff \
+    flowid 1:15
+
+  # qdisc: Fair
+  tc qdisc add dev $GREEN_DEV parent 1:15 handle f:0 sfq perturb 10 quantum 10000
 
   # class: Throttled Traffic
   tc class add dev $GREEN_DEV parent 1:0 classid 1:9 htb prio 7 \
@@ -332,15 +399,15 @@ function start () {
 
   # class: Unthrottled Exceptions
   tc class add dev $PURPLE_DEV parent 1:0 classid 1:2 htb prio 1 \
-     rate 91000000 burst 30000
+     rate 28000000 burst 30000
 
   # class: Admin
   tc class add dev $PURPLE_DEV parent 1:2 classid 1:3 htb prio 1 \
-     rate 18200000 burst 3000 ceil 91000000 cburst 15000
+     rate 5600000 burst 3000 ceil 28000000 cburst 15000
 
   # class: SSH
   tc class add dev $PURPLE_DEV parent 1:3 classid 1:4 htb prio 1 \
-     rate 5460000 burst 1500 ceil 91000000 cburst 6000
+     rate 1680000 burst 1500 ceil 28000000 cburst 6000
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 0 u32 \
     match ip sport 222 0xffff \
     match ip src $PURPLE_ADDRESS/32 \
@@ -348,7 +415,7 @@ function start () {
 
   # class: HTTP
   tc class add dev $PURPLE_DEV parent 1:3 classid 1:5 htb prio 1 \
-     rate 12740000 burst 3000000 ceil 91000000 cburst 15000
+     rate 3920000 burst 3000000 ceil 28000000 cburst 15000
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 0 u32 \
     match ip sport 81 0xffff \
     match ip src $PURPLE_ADDRESS/32 \
@@ -360,16 +427,22 @@ function start () {
 
   # class: Through Traffic
   tc class add dev $PURPLE_DEV parent 1:2 classid 1:6 htb prio 1 \
-     rate 72800000 burst 3000 ceil 91000000 cburst 15000
+     rate 22400000 burst 3000 ceil 28000000 cburst 15000
 
-  # class: FTP
-  tc class add dev $PURPLE_DEV parent 1:6 classid 1:a htb prio 4 \
-     rate 10920000 burst 16000 ceil 91000000 cburst 4000
+  # class: File Transfer
+  tc class add dev $PURPLE_DEV parent 1:6 classid 1:a htb prio 1 \
+     rate 3360000 burst 16000 ceil 28000000 cburst 1000
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip dport 20 0xfffe \
     flowid 1:a
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 20 0xfffe \
+    flowid 1:a
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 9418 0xffff \
+    flowid 1:a
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 9418 0xffff \
     flowid 1:a
 
   # qdisc: Fair
@@ -377,18 +450,22 @@ function start () {
 
   # class: DNS
   tc class add dev $PURPLE_DEV parent 1:6 classid 1:b htb prio 0 \
-     rate 728000 burst 1500 ceil 910000 cburst 1500
+     rate 224000 burst 1500 ceil 280000 cburst 1500
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 53 0xffff \
+    match ip protocol 15 0xff \
+    flowid 1:b
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 53 0xffff \
     match ip protocol 15 0xff \
     flowid 1:b
 
   # qdisc: Fair
   tc qdisc add dev $PURPLE_DEV parent 1:b handle b:0 sfq perturb 10 quantum 10000
 
-  # class: IM
+  # class: Instant Messaging
   tc class add dev $PURPLE_DEV parent 1:6 classid 1:c htb prio 2 \
-     rate 728000 burst 1500 ceil 910000 cburst 1500
+     rate 224000 burst 1500 ceil 280000 cburst 1500
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 5190 0xfffe \
     flowid 1:c
@@ -417,9 +494,9 @@ function start () {
   # qdisc: Fair
   tc qdisc add dev $PURPLE_DEV parent 1:c handle a:0 sfq perturb 10 quantum 10000
 
-  # class: Web
-  tc class add dev $PURPLE_DEV parent 1:6 classid 1:d htb prio 2 \
-     rate 14560000 burst 125000 ceil 91000000 cburst 250000
+  # class: Web Surfing
+  tc class add dev $PURPLE_DEV parent 1:6 classid 1:d htb prio 1 \
+     rate 4480000 burst 125000 ceil 28000000 cburst 250000
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 80 0xffff \
     flowid 1:d
@@ -473,8 +550,8 @@ function start () {
   tc qdisc add dev $PURPLE_DEV parent 1:d handle 9:0 sfq perturb 10 quantum 10000
 
   # class: Email
-  tc class add dev $PURPLE_DEV parent 1:6 classid 1:e htb prio 3 \
-     rate 14560000 burst 250000 ceil 91000000 cburst 1000000
+  tc class add dev $PURPLE_DEV parent 1:6 classid 1:e htb prio 1 \
+     rate 4480000 burst 250000 ceil 28000000 cburst 1000000
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 25 0xffff \
     flowid 1:e
@@ -499,13 +576,25 @@ function start () {
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip dport 993 0xffff \
     flowid 1:e
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 995 0xffff \
+    flowid 1:e
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 995 0xffff \
+    flowid 1:e
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 587 0xffff \
+    flowid 1:e
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 587 0xffff \
+    flowid 1:e
 
   # qdisc: Fair
   tc qdisc add dev $PURPLE_DEV parent 1:e handle 8:0 sfq perturb 10 quantum 10000
 
   # class: SSH
   tc class add dev $PURPLE_DEV parent 1:6 classid 1:f htb prio 1 \
-     rate 14560000 burst 1500 ceil 91000000 cburst 8000
+     rate 4480000 burst 1500 ceil 28000000 cburst 8000
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 22 0xffff \
     flowid 1:f
@@ -524,7 +613,7 @@ function start () {
 
   # class: VoIP
   tc class add dev $PURPLE_DEV parent 1:6 classid 1:10 htb prio 0 \
-     rate 72800 burst 1500 ceil 273000 cburst 4500
+     rate 22400 burst 1500 ceil 84000 cburst 4500
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 1503 0xffff \
     flowid 1:10
@@ -553,24 +642,66 @@ function start () {
   # qdisc: Fair
   tc qdisc add dev $PURPLE_DEV parent 1:10 handle 6:0 sfq perturb 10 quantum 1500
 
+  # class: VPN
+  tc class add dev $PURPLE_DEV parent 1:6 classid 1:12 htb prio 1 \
+     rate 4480000 burst 9000 ceil 28000000 cburst 18000
+
   # class: PPTP
-  tc class add dev $PURPLE_DEV parent 1:6 classid 1:11 htb prio 0 \
-     rate 14560000 burst 10000 ceil 91000000 cburst 20000
+  tc class add dev $PURPLE_DEV parent 1:12 classid 1:13 htb prio 1 \
+     rate 1478400 burst 3000 ceil 28000000 cburst 6000
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip dport 1732 0xffff \
-    flowid 1:11
+    match ip sport 1732 0xffff \
+    flowid 1:13
   tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip protocol 47 0xff \
-    flowid 1:11
-  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip protocol 50 0xff \
-    flowid 1:11
-  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip protocol 51 0xff \
-    flowid 1:11
+    flowid 1:13
 
   # qdisc: Fair
-  tc qdisc add dev $PURPLE_DEV parent 1:11 handle 5:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $PURPLE_DEV parent 1:13 handle d:0 sfq perturb 10 quantum 10000
+
+  # class: IPSEC
+  tc class add dev $PURPLE_DEV parent 1:12 classid 1:14 htb prio 1 \
+     rate 1478400 burst 3000 ceil 28000000 cburst 6000
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip protocol 50 0xff \
+    flowid 1:14
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip protocol 51 0xff \
+    flowid 1:14
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 500 0xffff \
+    flowid 1:14
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 4500 0xffff \
+    flowid 1:14
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 4500 0xffff \
+    flowid 1:14
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 500 0xffff \
+    flowid 1:14
+
+  # qdisc: Fair
+  tc qdisc add dev $PURPLE_DEV parent 1:14 handle e:0 sfq perturb 10 quantum 10000
+
+  # class: OpenVPN
+  tc class add dev $PURPLE_DEV parent 1:12 classid 1:15 htb prio 1 \
+     rate 1478400 burst 3000 ceil 28000000 cburst 6000
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 1194 0xffff \
+    flowid 1:15
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 1194 0xffff \
+    flowid 1:15
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 1195 0xffff \
+    flowid 1:15
+  tc filter add dev $PURPLE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 1195 0xffff \
+    flowid 1:15
+
+  # qdisc: Fair
+  tc qdisc add dev $PURPLE_DEV parent 1:15 handle f:0 sfq perturb 10 quantum 10000
 
   # class: Throttled Traffic
   tc class add dev $PURPLE_DEV parent 1:0 classid 1:9 htb prio 7 \
@@ -628,14 +759,20 @@ function start () {
   tc class add dev $ORANGE_DEV parent 1:2 classid 1:6 htb prio 1 \
      rate 72800000 burst 3000 ceil 91000000 cburst 15000
 
-  # class: FTP
-  tc class add dev $ORANGE_DEV parent 1:6 classid 1:a htb prio 4 \
-     rate 10920000 burst 16000 ceil 91000000 cburst 4000
+  # class: File Transfer
+  tc class add dev $ORANGE_DEV parent 1:6 classid 1:a htb prio 1 \
+     rate 10920000 burst 16000 ceil 91000000 cburst 1000
   tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip dport 20 0xfffe \
     flowid 1:a
   tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 20 0xfffe \
+    flowid 1:a
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 9418 0xffff \
+    flowid 1:a
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 9418 0xffff \
     flowid 1:a
 
   # qdisc: Fair
@@ -648,11 +785,15 @@ function start () {
     match ip sport 53 0xffff \
     match ip protocol 15 0xff \
     flowid 1:b
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 53 0xffff \
+    match ip protocol 15 0xff \
+    flowid 1:b
 
   # qdisc: Fair
   tc qdisc add dev $ORANGE_DEV parent 1:b handle b:0 sfq perturb 10 quantum 10000
 
-  # class: IM
+  # class: Instant Messaging
   tc class add dev $ORANGE_DEV parent 1:6 classid 1:c htb prio 2 \
      rate 728000 burst 1500 ceil 910000 cburst 1500
   tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
@@ -683,8 +824,8 @@ function start () {
   # qdisc: Fair
   tc qdisc add dev $ORANGE_DEV parent 1:c handle a:0 sfq perturb 10 quantum 10000
 
-  # class: Web
-  tc class add dev $ORANGE_DEV parent 1:6 classid 1:d htb prio 2 \
+  # class: Web Surfing
+  tc class add dev $ORANGE_DEV parent 1:6 classid 1:d htb prio 1 \
      rate 14560000 burst 125000 ceil 91000000 cburst 250000
   tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 80 0xffff \
@@ -739,7 +880,7 @@ function start () {
   tc qdisc add dev $ORANGE_DEV parent 1:d handle 9:0 sfq perturb 10 quantum 10000
 
   # class: Email
-  tc class add dev $ORANGE_DEV parent 1:6 classid 1:e htb prio 3 \
+  tc class add dev $ORANGE_DEV parent 1:6 classid 1:e htb prio 1 \
      rate 14560000 burst 250000 ceil 91000000 cburst 1000000
   tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip sport 25 0xffff \
@@ -764,6 +905,18 @@ function start () {
     flowid 1:e
   tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip dport 993 0xffff \
+    flowid 1:e
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 995 0xffff \
+    flowid 1:e
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 995 0xffff \
+    flowid 1:e
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 587 0xffff \
+    flowid 1:e
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 587 0xffff \
     flowid 1:e
 
   # qdisc: Fair
@@ -819,24 +972,66 @@ function start () {
   # qdisc: Fair
   tc qdisc add dev $ORANGE_DEV parent 1:10 handle 6:0 sfq perturb 10 quantum 1500
 
+  # class: VPN
+  tc class add dev $ORANGE_DEV parent 1:6 classid 1:12 htb prio 1 \
+     rate 14560000 burst 9000 ceil 91000000 cburst 18000
+
   # class: PPTP
-  tc class add dev $ORANGE_DEV parent 1:6 classid 1:11 htb prio 0 \
-     rate 14560000 burst 10000 ceil 91000000 cburst 20000
+  tc class add dev $ORANGE_DEV parent 1:12 classid 1:13 htb prio 1 \
+     rate 4804800 burst 3000 ceil 91000000 cburst 6000
   tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip dport 1732 0xffff \
-    flowid 1:11
+    match ip sport 1732 0xffff \
+    flowid 1:13
   tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip protocol 47 0xff \
-    flowid 1:11
-  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip protocol 50 0xff \
-    flowid 1:11
-  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip protocol 51 0xff \
-    flowid 1:11
+    flowid 1:13
 
   # qdisc: Fair
-  tc qdisc add dev $ORANGE_DEV parent 1:11 handle 5:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $ORANGE_DEV parent 1:13 handle d:0 sfq perturb 10 quantum 10000
+
+  # class: IPSEC
+  tc class add dev $ORANGE_DEV parent 1:12 classid 1:14 htb prio 1 \
+     rate 4804800 burst 3000 ceil 91000000 cburst 6000
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip protocol 50 0xff \
+    flowid 1:14
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip protocol 51 0xff \
+    flowid 1:14
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 500 0xffff \
+    flowid 1:14
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 4500 0xffff \
+    flowid 1:14
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 4500 0xffff \
+    flowid 1:14
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 500 0xffff \
+    flowid 1:14
+
+  # qdisc: Fair
+  tc qdisc add dev $ORANGE_DEV parent 1:14 handle e:0 sfq perturb 10 quantum 10000
+
+  # class: OpenVPN
+  tc class add dev $ORANGE_DEV parent 1:12 classid 1:15 htb prio 1 \
+     rate 4804800 burst 3000 ceil 91000000 cburst 6000
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 1194 0xffff \
+    flowid 1:15
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 1194 0xffff \
+    flowid 1:15
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip sport 1195 0xffff \
+    flowid 1:15
+  tc filter add dev $ORANGE_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 1195 0xffff \
+    flowid 1:15
+
+  # qdisc: Fair
+  tc qdisc add dev $ORANGE_DEV parent 1:15 handle f:0 sfq perturb 10 quantum 10000
 
   # class: Throttled Traffic
   tc class add dev $ORANGE_DEV parent 1:0 classid 1:9 htb prio 7 \
@@ -863,25 +1058,25 @@ function start () {
   tc qdisc add dev $RED_DEV root handle 1:0 htb default 9
 
   # class: Unthrottled Exceptions
-  tc class add dev $RED_DEV parent 1:0 classid 1:2 htb prio 0 \
-     rate 2800000 burst 30000
+  tc class add dev $RED_DEV parent 1:0 classid 1:2 htb prio 1 \
+     rate 3000000 burst 30000
 
   # class: Admin
   tc class add dev $RED_DEV parent 1:2 classid 1:3 htb prio 1 \
-     rate 840000 burst 3000 ceil 2800000 cburst 15000
+     rate 600000 burst 3000 ceil 3000000 cburst 15000
 
   # class: SSH
   tc class add dev $RED_DEV parent 1:3 classid 1:4 htb prio 1 \
-     rate 252000 burst 1500 ceil 2800000 cburst 1500
-  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+     rate 180000 burst 1500 ceil 3000000 cburst 6000
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 0 u32 \
     match ip sport 222 0xffff \
     match ip src $RED_ADDRESS/32 \
     flowid 1:4
 
   # class: HTTP
   tc class add dev $RED_DEV parent 1:3 classid 1:5 htb prio 1 \
-     rate 588000 burst 3000 ceil 2800000 cburst 15000
-  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+     rate 420000 burst 3000000 ceil 3000000 cburst 15000
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 0 u32 \
     match ip sport 81 0xffff \
     match ip src $RED_ADDRESS/32 \
     flowid 1:5
@@ -892,11 +1087,11 @@ function start () {
 
   # class: Through Traffic
   tc class add dev $RED_DEV parent 1:2 classid 1:6 htb prio 1 \
-     rate 1960000 burst 3000 ceil 2800000 cburst 15000
+     rate 2400000 burst 3000 ceil 3000000 cburst 15000
 
-  # class: FTP
+  # class: File Transfer
   tc class add dev $RED_DEV parent 1:6 classid 1:a htb prio 1 \
-     rate 352800 burst 10000 ceil 2800000 cburst 10000
+     rate 360000 burst 16000 ceil 3000000 cburst 1000
   tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip dport 20 0xfffe \
     flowid 1:a
@@ -904,28 +1099,35 @@ function start () {
     --sport 20 \
     -j CLASSIFY --set-class 1:a
 
+  iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
+    --sport 9418 \
+    -j CLASSIFY --set-class 1:a
+
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 9418 0xffff \
+    flowid 1:a
 
   # qdisc: Fair
-  tc qdisc add dev $RED_DEV parent 1:a handle 4:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $RED_DEV parent 1:a handle c:0 sfq perturb 10 quantum 10000
 
   # class: DNS
   tc class add dev $RED_DEV parent 1:6 classid 1:b htb prio 0 \
-     rate 58800 burst 1500 ceil 84000 cburst 1500
+     rate 24000 burst 1500 ceil 30000 cburst 1500
+  iptables -t mangle -A trafficControl -o $RED_DEV --protocol 15/ff \
+    --sport 53 \
+    -j CLASSIFY --set-class 1:b
+
   tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip dport 53 0xffff \
     match ip protocol 15 0xff \
     flowid 1:b
-  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip dport 53 0xffff \
-    match ip protocol 6 0xff \
-    flowid 1:b
 
   # qdisc: Fair
-  tc qdisc add dev $RED_DEV parent 1:b handle 5:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $RED_DEV parent 1:b handle b:0 sfq perturb 10 quantum 10000
 
-  # class: IM
-  tc class add dev $RED_DEV parent 1:6 classid 1:c htb prio 1 \
-     rate 58800 burst 1500 ceil 84000 cburst 1500
+  # class: Instant Messaging
+  tc class add dev $RED_DEV parent 1:6 classid 1:c htb prio 2 \
+     rate 24000 burst 1500 ceil 30000 cburst 1500
   iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
     --sport 5190 \
     -j CLASSIFY --set-class 1:c
@@ -956,11 +1158,11 @@ function start () {
     flowid 1:c
 
   # qdisc: Fair
-  tc qdisc add dev $RED_DEV parent 1:c handle 6:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $RED_DEV parent 1:c handle a:0 sfq perturb 10 quantum 10000
 
-  # class: Web
+  # class: Web Surfing
   tc class add dev $RED_DEV parent 1:6 classid 1:d htb prio 1 \
-     rate 352800 burst 40000 ceil 2800000 cburst 80000
+     rate 480000 burst 125000 ceil 3000000 cburst 250000
   iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
     --sport 80 \
     -j CLASSIFY --set-class 1:d
@@ -1010,13 +1212,20 @@ function start () {
   tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip dport 441 0xffff \
     flowid 1:d
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 2083 0xffff \
+    flowid 1:d
+  iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
+    --sport 2083 \
+    -j CLASSIFY --set-class 1:d
+
 
   # qdisc: Fair
-  tc qdisc add dev $RED_DEV parent 1:d handle 7:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $RED_DEV parent 1:d handle 9:0 sfq perturb 10 quantum 10000
 
   # class: Email
   tc class add dev $RED_DEV parent 1:6 classid 1:e htb prio 1 \
-     rate 352800 burst 10000 ceil 2800000 cburst 30000
+     rate 480000 burst 250000 ceil 3000000 cburst 1000000
   iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
     --sport 25 \
     -j CLASSIFY --set-class 1:e
@@ -1046,6 +1255,13 @@ function start () {
     match ip dport 993 0xffff \
     flowid 1:e
   iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
+    --sport 995 \
+    -j CLASSIFY --set-class 1:e
+
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 995 0xffff \
+    flowid 1:e
+  iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
     --sport 587 \
     -j CLASSIFY --set-class 1:e
 
@@ -1058,7 +1274,7 @@ function start () {
 
   # class: SSH
   tc class add dev $RED_DEV parent 1:6 classid 1:f htb prio 1 \
-     rate 352800 burst 1500 ceil 2800000 cburst 8000
+     rate 480000 burst 1500 ceil 3000000 cburst 8000
   iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
     --sport 22 \
     -j CLASSIFY --set-class 1:f
@@ -1073,20 +1289,13 @@ function start () {
   tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip dport 8627 0xffff \
     flowid 1:f
-  iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
-    --sport 222 \
-    -j CLASSIFY --set-class 1:f
-
-  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip dport 222 0xffff \
-    flowid 1:f
 
   # qdisc: Fair
-  tc qdisc add dev $RED_DEV parent 1:f handle 9:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $RED_DEV parent 1:f handle 7:0 sfq perturb 10 quantum 10000
 
   # class: VoIP
   tc class add dev $RED_DEV parent 1:6 classid 1:10 htb prio 0 \
-     rate 78400 burst 1500 ceil 224000 cburst 1500
+     rate 2400 burst 1500 ceil 9000 cburst 4500
   iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
     --sport 1503 \
     -j CLASSIFY --set-class 1:10
@@ -1117,34 +1326,80 @@ function start () {
     flowid 1:10
 
   # qdisc: Fair
-  tc qdisc add dev $RED_DEV parent 1:10 handle a:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $RED_DEV parent 1:10 handle 6:0 sfq perturb 10 quantum 1500
 
   # class: VPN
-  tc class add dev $RED_DEV parent 1:6 classid 1:11 htb prio 1 \
-     rate 352800 burst 10000 ceil 2800000 cburst 20000
+  tc class add dev $RED_DEV parent 1:6 classid 1:12 htb prio 1 \
+     rate 480000 burst 9000 ceil 3000000 cburst 18000
+
+  # class: PPTP
+  tc class add dev $RED_DEV parent 1:12 classid 1:13 htb prio 1 \
+     rate 158400 burst 3000 ceil 3000000 cburst 6000
   iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
     --sport 1732 \
-    -j CLASSIFY --set-class 1:11
+    -j CLASSIFY --set-class 1:13
 
   tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
     match ip protocol 47 0xff \
-    flowid 1:11
-  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip protocol 50 0xff \
-    flowid 1:11
-  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
-    match ip protocol 51 0xff \
-    flowid 1:11
+    flowid 1:13
 
   # qdisc: Fair
-  tc qdisc add dev $RED_DEV parent 1:11 handle b:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $RED_DEV parent 1:13 handle d:0 sfq perturb 10 quantum 10000
+
+  # class: IPSEC
+  tc class add dev $RED_DEV parent 1:12 classid 1:14 htb prio 1 \
+     rate 158400 burst 3000 ceil 3000000 cburst 6000
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip protocol 50 0xff \
+    flowid 1:14
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip protocol 51 0xff \
+    flowid 1:14
+  iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
+    --sport 500 \
+    -j CLASSIFY --set-class 1:14
+
+  iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
+    --sport 4500 \
+    -j CLASSIFY --set-class 1:14
+
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 4500 0xffff \
+    flowid 1:14
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 500 0xffff \
+    flowid 1:14
+
+  # qdisc: Fair
+  tc qdisc add dev $RED_DEV parent 1:14 handle e:0 sfq perturb 10 quantum 10000
+
+  # class: OpenVPN
+  tc class add dev $RED_DEV parent 1:12 classid 1:15 htb prio 1 \
+     rate 158400 burst 3000 ceil 3000000 cburst 6000
+  iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
+    --sport 1194 \
+    -j CLASSIFY --set-class 1:15
+
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 1194 0xffff \
+    flowid 1:15
+  iptables -t mangle -A trafficControl -o $RED_DEV --protocol 6 \
+    --sport 1195 \
+    -j CLASSIFY --set-class 1:15
+
+  tc filter add dev $RED_DEV protocol ip parent 1:0 prio 1 u32 \
+    match ip dport 1195 0xffff \
+    flowid 1:15
+
+  # qdisc: Fair
+  tc qdisc add dev $RED_DEV parent 1:15 handle f:0 sfq perturb 10 quantum 10000
 
   # class: Throttled Traffic
   tc class add dev $RED_DEV parent 1:0 classid 1:9 htb prio 7 \
      rate 56000 burst 1500
 
   # qdisc: Fair
-  tc qdisc add dev $RED_DEV parent 1:9 handle c:0 sfq perturb 10 quantum 10000
+  tc qdisc add dev $RED_DEV parent 1:9 handle 4:0 sfq perturb 10 quantum 10000
 
   #
   #
