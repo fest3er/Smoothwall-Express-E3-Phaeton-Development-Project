@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+print "  Updates disabled for Phaeton/Roadster.\n";
+exit;
+
 use IO::Socket;
 
 use lib "/usr/lib/smoothwall";
@@ -8,7 +11,6 @@ use update qw( :standard );
 
 my @this;
 my $return = &downloadlist();
-print $return;
 if ($return =~ m/^HTTP\/\d+\.\d+ 200/) {
 	unless(open(LIST, ">${swroot}/patches/available")) {
 		die "Could not open available updates file."; }
