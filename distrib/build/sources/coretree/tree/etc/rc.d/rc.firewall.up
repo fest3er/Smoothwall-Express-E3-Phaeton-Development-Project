@@ -207,7 +207,7 @@ fi
 /sbin/iptables -N outpurple
 /sbin/iptables -N allows
 
- Setup our outgoing filter stub chains.
+# Setup our outgoing filter stub chains.
 /sbin/iptables -N outbound
 /sbin/iptables -A outbound -p icmp -j ACCEPT
 /sbin/iptables -A outbound -j allows
