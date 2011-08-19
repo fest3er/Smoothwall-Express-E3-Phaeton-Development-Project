@@ -28,7 +28,7 @@ my $oururl = "/cgi-bin/trafficstats.cgi?BARS=1";
 if ($productdata{'RELEASE'} ne "")
 {
   # Is P/R
-  open (HDL, "/sbin/ip link | grep -v lo: | grep 'state UP' | sed -e 's/^[0-9]*: //' -e 's/:.*//'|");
+  open (HDL, "/sbin/ip link | grep -v lo: | grep ',UP' | sed -e 's/^[0-9]*: //' -e 's/:.*//'|");
 }
 else
 {
