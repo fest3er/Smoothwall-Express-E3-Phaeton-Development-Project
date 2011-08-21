@@ -1,4 +1,4 @@
-<p><font size='3'><strong><u>Timed Outgoing Firewall Control</u></strong></font></p>
+<p><font size='3'><strong><u>Outgoing Filtering and Timed Access</u></strong></font></p>
 
 <p><strong>Timed Outgoing Firewall Control</strong> allows disabling or limiting access
 to the Internet based on each internal interface and IP or MAC addresses for all protocols. 
