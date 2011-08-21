@@ -128,9 +128,9 @@ int set_timedoutgoing(std::vector<std::string> & parameters, std::string & respo
 {
    int error = 0;
 
-   ConfigVAR settings("/var/smoothwall/outgoing/config_files/settings");
+   ConfigVAR settings("/var/smoothwall/outgoing/settings");
    ConfigVAR netsettings("/var/smoothwall/ethernet/settings");
-   ConfigCSV config("/var/smoothwall/outgoing/config_files/config");
+   ConfigCSV config("/var/smoothwall/outgoing/config");
    std::vector<std::string>ipb;
    std::string::size_type n;
 
