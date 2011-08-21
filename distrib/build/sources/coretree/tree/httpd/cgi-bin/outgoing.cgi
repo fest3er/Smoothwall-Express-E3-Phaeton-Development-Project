@@ -18,23 +18,22 @@
 #  -Added ability to remove only time frames from an exception and leave the exception in place /
 #  -Smoothd module enhanced and updated courtesy of Steve Pittman (MtnLion)			     /
 #													     /
+# August 2011 More modifications for use of the xtables-addons xt_iprange xt_multiport and      /
+#   xt_time. Also ported this mod to Roadster                                                   /
+#													     /
 #################################################################################################
 
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
 use smoothtype qw( :standard );
-use SmoothInstall qw( :standard );
-use Shell qw(rm touch);
 use NetAddr::IP;
 
-Init("outgoing");
-
 my $moddir = '/var/smoothwall/outgoing';
-my $config = "$moddir/config_files/config";
-my $settingsfile = "$moddir/config_files/settings";
-my $halfopen = "$moddir/config_files/halfopen";
-my $hashfile = "$moddir/config_files/confighash";
+my $config = "$moddir/config";
+my $settingsfile = "$moddir/settings";
+my $hashfile = "$moddir/confighash";
+my $halfopen = "/var/smoothwall-halfopen/outgoing/config";
 
 my %netsettings;
 &readhash("${swroot}/ethernet/settings", \%netsettings);
@@ -1019,7 +1018,7 @@ foreach my $interface (keys %interfaces) {
 print qq{
 	</select>
 	</td>
-	<td class='base' width='30%'>$tr{'tofc-ipmac blank'}</td>
+	<td class='base' width='30%'>$tr{'tofc-ipmac blank'} <IMG SRC='/ui/img/blob.gif'></td>
 	<td width='20%'><input type='text' name='IPMAC' value='$cgiparams{'IPMAC'}'></td>
 </tr>
 <tr>
@@ -1098,7 +1097,7 @@ $tr{'tofc-blank all'}
 
 &openbox($tr{'current exceptions'});
 
-my $ports = &portsmap();
+my $ports = &portmap();
 
 my %render_settings =
 (
