@@ -76,7 +76,7 @@
 'ssip info' => 'ip information',
 'sstime' => 'time',
 'ssip tools' => 'ip tools',
-'ssfiltering' => 'outgoing',
+'ssfiltering' => 'outgoing and timed access',
 'ssadvanced' => 'advanced',
 'ssip block' => 'ip block',
 'ssbackup' => 'backup',
@@ -473,6 +473,7 @@
 'stopped' => 'STOPPED',
 'running' => 'RUNNING',
 'swapped' => 'SWAPPED',
+'smoothd server' => 'SUID server',
 
 # Old portfw.cgi, dmzhole.cgi and xtaccess.cgi
 #   Must be before FFC: let FFC overwrite duplicates
@@ -673,7 +674,7 @@
 'tofc-traffic allowed'  => 'Traffic will be <b>ALLOWED</b> on',
 'tofc-traffic blocked'  => 'Traffic will be <b>BLOCKED</b> on',
 'tofc-during time'  => 'machine during the specified time frames',
-'tofc-green'  => '<b><font color=#00ff00>GREEN</font></b>',
+'tofc-green'  => '<b><font color=#05E867>GREEN</font></b>',
 'tofc-orange'  => '<b><font color=#ff8c00>ORANGE</font></b>',
 'tofc-purple'  => '<b><font color=#9400d3>PURPLE</font></b>',
 'tofc-sstimedoutgoing' => 'timed outgoing',
@@ -705,7 +706,7 @@
 'tofc-day 7' => 'Weekdays',
 'tofc-day 8' => 'Weekends',
 'tofc-day 9' => 'All',
-'tofc-source ip bad green' => 'Source IP(range)/MAC is not in your <b><font color=#00ff00>GREEN</font></b> subnet!',
+'tofc-source ip bad green' => 'Source IP(range)/MAC is not in your <b><font color=#05E867>GREEN</font></b> subnet!',
 'tofc-source ip bad orange' => 'Source IP(range)/MAC is not in your <b><font color=#ff8c00>ORANGE</font></b> subnet!',
 'tofc-source ip bad purple' => 'Source IP(range)/MAC is not in your <b><font color=#9400d3>PURPLE</font></b> subnet!',
 
