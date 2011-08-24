@@ -2,7 +2,7 @@
 
 MSG1="Installing extra packages needed to build on Debian:\n"
 
-for package in build-essential bison flex gawk screen; do
+for package in build-essential bison flex gawk inotify-tools screen; do
   set `dpkg -s $package | egrep "^Status: "`
   if [ "$4" != "installed" ]; then
     echo -ne $MSG1; MSG1=""
