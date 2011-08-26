@@ -13,7 +13,7 @@
 /* back into the code.  Removed the label and the "goto" statements.         */
 /*                              110508                                 --slp */
 /*===========================================================================*/
-/* Redesigned this module to use the iptables add-on modules xt_iprange,     */
+/* Redesigned this module to use the xtables add-on modules xt_iprange,     */
 /* xt_multiport and xt_time that allow use of multiple IP addresses and      */
 /* IP ranges, multiple ports and ranges and multiple time frames in a        */
 /* single rule that are managed by iptables and not by multiple iptables     */
@@ -261,21 +261,31 @@ int set_timedoutgoing(std::vector<std::string> & parameters, std::string & respo
          if (port != "N/A")
          {
             tmpports = port;
+
+            // replace all hyphens with commas
             std::replace(tmpports.begin(), tmpports.end(), '-', ','); 
-                           // replace all hyphens with commas
             
             if (tmpports.find_first_not_of(MULTI_PORTS) == std::string::npos)
             {
-               tmpports = " -m multiport --ports " + tmpports;
+		if (tmpports.find_first_not_of(NUMBERS_COLON) == std::string::npos)
+		{
+		   /* It's a single port */
+
+		   tmpports = " --dport " + tmpports;
+		}
+		else
+		{
+		   /* It's a multiport */
+
+                 tmpports = " -m multiport --ports " + tmpports;
+		}
             }
             else
             { 
-            // it's an entry from the application or service(s) menu
+            /* it's an entry from the application or service(s) menu (mapped port) */
                
                if (portlist[port.c_str()].size() > 0)
-               {
-                     /* it's a mapped port! */
-                  
+               {                  
                   std::string nport = "";
                   std::vector<std::string> & vect = portlist[port.c_str()];
                   unsigned int i = 0;
@@ -285,13 +295,6 @@ int set_timedoutgoing(std::vector<std::string> & parameters, std::string & respo
                      nport += vect[i++].c_str();
                   }
                   tmpports = " -m multiport --ports " + nport;
-               }
-               else
-               {
-               // User must have somehow entered rubbish from the Application or services(s) menu
-                  
-                  response = "Bad entry from services menu: " + port;
-                  return errrpt(response);
                }
             }
          }
@@ -388,13 +391,13 @@ int set_timedoutgoing(std::vector<std::string> & parameters, std::string & respo
       if (settings["PURPLE_REJECTS"] == "on") 
          rmdupes(ipb, rulehead  + pdev + log_prefix);
           
-      rmdupes(ipb, rulehead + odev + " -j REJECT");
+      rmdupes(ipb, rulehead + pdev + " -j REJECT");
       
       if (settings["PURPLE"] == "REJECT" || settings["PURPLE"] == "CLOSED") 
          rmdupes(ipb, chain + " -i " + pdev + " -j tofcdrop");
    }
     
-   error = ipbitch(ipb);
+   error = ipbatch(ipb);
     
    if (error)
       response = "IPTables failure";
