@@ -79,7 +79,7 @@ fi
 # and for timed outbound access
 /sbin/iptables -N timedoutgoing
 /sbin/iptables -A INPUT -j timedoutgoing
-/sbin/iptables -A FORWARD -j timedoutgoing
+/sbin/iptables -A FORWARD -o $RED_DEV -j timedoutgoing
 
 # Setup tofcdrop chain to use for all denied outbound traffic
 /sbin/iptables -N tofcdrop
