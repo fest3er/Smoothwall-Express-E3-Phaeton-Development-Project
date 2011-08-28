@@ -1,29 +1,28 @@
---- snort-2.8.5.1.orig/src/util.c	2009-08-10 21:41:42.000000000 +0100
-+++ snort-2.8.5.1/src/util.c	2009-11-17 13:55:19.000000000 +0000
-@@ -662,8 +662,16 @@
+--- snort-2.9.1/src/util.c-ORIG	2011-08-27 20:44:32.000000000 -0400
++++ snort-2.9.1/src/util.c	2011-08-27 20:48:31.000000000 -0400
+@@ -676,8 +676,16 @@
          FatalError("CreatePidFile() failed to lookup interface or pid_path is unknown!\n");
      }
  
 -    SnortSnprintf(snort_conf->pid_filename, sizeof(snort_conf->pid_filename),
--                  "%s/snort_%s%s.pid", snort_conf->pid_path, intf, snort_conf->pidfile_suffix);
-+	if( ScAdapterInlineMode() )
-+	{
-+		SnortSnprintf(snort_conf->pid_filename, sizeof(snort_conf->pid_filename),
++    if( ScAdapterInlineMode() )
++    {
++        SnortSnprintf(snort_conf->pid_filename, sizeof(snort_conf->pid_filename),
 +                  "%s/ips%s.pid", snort_conf->pid_path, snort_conf->pidfile_suffix);
-+	}
-+	else
-+	{
-+		SnortSnprintf(snort_conf->pid_filename, sizeof(snort_conf->pid_filename),
-+                  "%s/snort_%s%s.pid", snort_conf->pid_path, intf, snort_conf->pidfile_suffix);
-+	}
++    }
++    else
++    {
++        SnortSnprintf(snort_conf->pid_filename, sizeof(snort_conf->pid_filename),
+                   "%s/snort_%s%s.pid", snort_conf->pid_path, intf, snort_conf->pidfile_suffix);
++    }
  
  #ifndef WIN32
      if (!ScNoLockPidFile())
-@@ -701,6 +709,7 @@
-         LogMessage("Writing PID \"%d\" to file \"%s\"\n", pid, snort_conf->pid_filename);
-         fprintf(pid_file, "%d\n", pid);
+@@ -715,6 +723,7 @@
+         LogMessage("Writing PID \"%d\" to file \"%s\"\n", (int)pid, snort_conf->pid_filename);
+         fprintf(pid_file, "%d\n", (int)pid);
          fflush(pid_file);
-+	chmod(snort_conf->pid_filename, 0644);
++        chmod(snort_conf->pid_filename, 0644);
      }
      else
      {
