@@ -7,7 +7,7 @@ for package in build-essential bison flex gawk inotify-tools screen; do
   if [ "$4" != "installed" ]; then
     echo -ne $MSG1; MSG1=""
     tput smso; echo "$package:"; tput rmso
-    apt-get install $package | sed -e 's/^/  /'
+    apt-get -y install $package | sed -e 's/^/  /'
     echo
   fi
 done
