@@ -1079,7 +1079,7 @@ print qq{
 </tr>
 </table>
 <br/>
-$tr{'tofc-blank all'}
+<img src='/ui/img/blob.gif'> $tr{'tofc-blank all'}
 <table width='100%'>
 <tr>
 	<td colspan='3' style='text-align: center;'>

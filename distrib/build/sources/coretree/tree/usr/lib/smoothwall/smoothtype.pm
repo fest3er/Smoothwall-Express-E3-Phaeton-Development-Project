@@ -138,7 +138,7 @@ sub portlist
 
 	$response .= qq{
 	</select></td>
-	<td class='base'>$blobgif$inputfieldname</td>
+	<td class='base'>$inputfieldname&nbsp;<img src=\'/ui/img/blob.gif\'></td>
 	<td><input type='text' id='$inputfield' name='$inputfield' @{[script("validport('$inputfield', $allowblank);")]} value='$found'/></td>
 	};
 
