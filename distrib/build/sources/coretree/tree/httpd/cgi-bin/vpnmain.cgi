@@ -16,6 +16,9 @@ my $filename = "${swroot}/vpn/config";
 
 $cgiparams{'ENABLED'} = 'off';
 &getcgihash(\%cgiparams);
+my %netsettings = "";
+&readhash("${swroot}/ethernet/settings", \%netsettings);
+
 
 my $errormessage = '';
 
@@ -97,33 +100,43 @@ foreach $line (@current)
         chomp($line);
         my @temp = split(/\,/,$line);
         my $name = $temp[0];
-        my $redl = $temp[1];
-        my $netmaskl = $temp[2];
-        $netmaskl =~ /\//; $netmaskl = $`;
-        my $redr = $temp[3];
-        my $netmaskr = $temp[4];
-        $netmaskr =~ /\//; $netmaskr = $`;
+        my $left = $temp[1];
+        my $left_subnet = $temp[2];
+        $left_subnet =~ /\//; $left_subnet = $`;
+        my $right = $temp[3];
+        my $right_subnet = $temp[4];
+        $right_subnet =~ /\//; $right_subnet = $`;
         my $status = $temp[6];
         my $active = "<img src='/ui/img/closed.jpg' alt='$tr{'capsclosed'}'>";
         if ($status eq 'off') {
                 $active = "<img src='/ui/img/disabled.jpg' alt='$tr{'capsdisabled'}'>";
         }
+        my $left_private = $temp[9];
+        $left_private =~ /\//; $left_private = $` unless $left_private eq '';
+        my $right_private = $temp[10];
+        $right_private =~ /\//; $right_private = $` unless $right_private eq '';
 
         foreach $line (@active)
         {
                 chomp($line);
                 @temp = split(/[\t ]+/,$line);
                 $d = 0;
-                $targetl = $temp[1];
-                $targetl =~ /\//; $targetl = $`;
-                $targetr = $temp[3];
-                $targetr =~ /\//; $targetr = $`;
+                $left_vpnnet = $temp[1];
+                $left_vpnnet =~ /\//; $left_vpnnet = $`;
+                $right_vpnnet = $temp[3];
+                $right_vpnnet =~ /\//; $right_vpnnet = $`;
                 my $remote = $temp[5];
                 $remote =~ /\@/; $remote = $';
-                if (($targetl eq $netmaskl && $targetr eq $netmaskr &&
-                     $redr eq $remote && $status eq 'on') ||
-                    ($targetl eq $netmaskr && $targetr eq $netmaskl &&
-                     $redl eq $remote && $status eq 'on'))
+                if ($status eq 'on' &&
+                    (($left_vpnnet eq $left_subnet &&
+                      $right_vpnnet eq $right_subnet &&
+                      (($right_private eq '' && $right eq $remote) ||
+                       ($right_private ne '' && $right eq '%any')))
+                     or
+                     ($left_vpnnet eq $right_subnet &&
+                      $right_vpnnet eq $left_subnet &&
+                      (($left_private eq '' && $left eq $remote) ||
+                       ($left_private ne '' && $left eq '%any')))))
                 {
                         $active = "<img src='/ui/img/open.jpg' alt='$tr{'capsopen'}'>";
                 }
