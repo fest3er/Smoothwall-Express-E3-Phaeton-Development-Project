@@ -266,7 +266,7 @@ int set_incoming(std::vector<std::string> & parameters, std::string & response)
 	return (error);
 }
 
-int set_outgoing(std::vector<std::string> & parameters, std::string & response)
+/*int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 {
 	int error = 0;
 	ConfigVAR settings("/var/smoothwall/outgoing/settings");
@@ -310,7 +310,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 			{
 				if (portlist[port.c_str()].size() > 0)
 				{
-					/* it's a mapped port! */
+					// it's a mapped port! 
 					std::vector<std::string> & vect = portlist[port.c_str()];
 					for (std::vector<std::string>::iterator i = vect.begin();
 						i != vect.end(); i++)
@@ -368,8 +368,111 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 		response = "Outbound ports set";
 
 	return error;
-}
+}*/
 
+int set_outgoing(std::vector<std::string> & parameters, std::string & response)
+{
+	int error = 0;
+	ConfigVAR settings("/var/smoothwall/outgoing/settings");
+	ConfigCSV config("/var/smoothwall/outgoing/config");
+	//ConfigCSV machineconfig("/var/smoothwall/outgoing/machineconfig");
+	std::vector<std::string>ipb;
+	std::string::size_type n;
+	
+	load_portlist();
+
+	ipb.push_back("iptables -F outgreen\n");
+	ipb.push_back("iptables -F outorange");
+	ipb.push_back("iptables -F outpurple");
+
+	for (int line = config.first(); line == 0; line = config.next())
+	{
+		const std::string & colour = config[0];
+		const std::string & enabled = config[1];
+		const std::string & port = config[2];
+
+		// are we complete?
+		if (colour == "" || port == "" || enabled == "")
+			continue;
+
+		if (!(colour == "GREEN" || colour == "ORANGE" || colour == "PURPLE"))
+		{
+			response = "Bad colour: " + colour;
+			error = 1;
+			return error;
+		}
+
+		std::string chain = "out" + colour;
+		std::transform(chain.begin(), chain.end(), chain.begin(), tolower);
+		
+		std::string action = settings[colour.c_str()];
+		if (action == "") action = "REJECT";
+		
+		if (enabled == "x")
+		{
+			if ((n = port.find_first_not_of(NUMBERS_COLON)) != std::string::npos)
+			{
+				if (portlist[port.c_str()].size() > 0)
+				{
+					// it's a mapped port! 
+					std::vector<std::string> & vect = portlist[port.c_str()];
+					for (std::vector<std::string>::iterator i = vect.begin();
+						i != vect.end(); i++)
+					{
+						std::string nport = *i;
+						ipb.push_back("iptables -A " + chain + " -p tcp --dport " + nport + " -j " + action);
+						ipb.push_back("iptables -A " + chain + " -p udp --dport " + nport + " -j " + action);
+					}
+				}
+				else
+				{
+					response = "Bad port: " + port;
+					error = 1;
+					return error;
+				}
+			} 
+			else
+			{
+				ipb.push_back("iptables -A " + chain + " -p tcp --dport " + port + " -j " + action);
+				ipb.push_back("iptables -A " + chain + " -p udp --dport " + port + " -j " + action);
+			}
+		}
+	}
+
+	ipb.push_back("iptables -A outgreen -j ACCEPT");
+	ipb.push_back("iptables -A outorange -j ACCEPT");
+	ipb.push_back("iptables -A outpurple -j ACCEPT");
+/*
+	ipb.push_back("iptables -F allows");
+
+	for (int line = machineconfig.first(); line == 0; line = machineconfig.next())
+	{
+		const std::string & ip = machineconfig[0];
+		const std::string & enabled = machineconfig[1];
+
+		// are we complete?
+		if (ip == "" || enabled == "")
+			continue;
+	
+		if ((n = ip.find_first_not_of(IP_NUMBERS)) != std::string::npos)
+		{
+			response = "Bad IP: " + ip;
+			error = 1;
+			return error;
+		}
+		
+		if (enabled == "on")
+			ipb.push_back("iptables -A allows -s " + ip + " -j ACCEPT");
+	}
+*/	
+	error = ipbatch(ipb);
+	if (error)
+		response = "ipbatch failure";
+	else
+		response = "Outbound ports set";
+
+	return error;
+}
 
 int set_internal(std::vector<std::string> & parameters, std::string & response)
 {
