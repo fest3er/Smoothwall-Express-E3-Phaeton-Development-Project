@@ -327,6 +327,7 @@ int set_timedoutgoing(std::vector<std::string> & parameters, std::string & respo
          if ( protocol == "PPTP" )
          {
             protos.push_back(" -p 47");
+            protos.push_back(" -p 17 --dport 4500");
          }
           
          if ( ! (protos.size()) )
