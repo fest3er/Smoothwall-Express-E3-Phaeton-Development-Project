@@ -272,7 +272,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'save'} )
 	my $success = message('settimedoutgoing');
 
 	unless (defined $success) {
-		$errormessage = $tr{'smoothd failure'}; }
+		$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
 }
 
 &readhash("$settingsfile", \%settings);
@@ -335,7 +335,7 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 	} elsif ( (&validipormask ($cgiparams{'IPMAC'})) or (&validmac ($cgiparams{'IPMAC'}) or $cgiparams{'IPMAC'} =~ /\-/) ) {
 		$ipmac = $cgiparams{'IPMAC'};
 	} else {
-		$errormessage = $tr{'tofc-ipmac bad'};
+		$errormessage .= "$tr{'tofc-ipmac bad'}<BR />\n";
 	}
 
 	if (($settings{'GREEN'} eq "REJECT" or $settings{'GREEN'} eq "CLOSED") and $cgiparams{'INTERFACE'} eq "GREEN") {
@@ -398,17 +398,17 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 
       	if ($cgiparams{'INTERFACE'} eq 'GREEN') {
        	if (!$greenipobj->contains($srcipaddrobj)) {
-          		$errormessage .= "$tr{'tofc-source ip bad green'}<BR />";
+          		$errormessage .= "$tr{'tofc-source ip bad green'}<BR />\n";
       		}
       	} elsif (($netsettings{'ORANGE_ADDRESS'} ne '') &&
        	($cgiparams{'INTERFACE'} eq 'ORANGE')) {
         	if (!$orangeipobj->contains($srcipaddrobj)) {
-          		$errormessage .= "$tr{'tofc-source ip bad orange'}<BR />";
+          		$errormessage .= "$tr{'tofc-source ip bad orange'}<BR />\n";
         	}
       	} elsif (($netsettings{'PURPLE_ADDRESS'} ne '') &&
               ($cgiparams{'INTERFACE'} eq 'PURPLE')) {
         	if (!$purpleipobj->contains($srcipaddrobj)) {
-          		$errormessage .= "$tr{'tofc-source ip bad purple'}<BR />";
+          		$errormessage .= "$tr{'tofc-source ip bad purple'}<BR />\n";
         	}
       	}
 EXIT:
@@ -470,7 +470,7 @@ EXIT:
 		my $success = message('settimedoutgoing');
 
 		unless (defined $success) {
-			$errormessage = $tr{'smoothd failure'}; }
+			$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
 	}
 
 	undef $cgiparams{'INTERFACE'};
@@ -492,7 +492,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-schedule
 	my $timestop = "$ehour:$eminute";
 
 	if ($shour eq $ehour and $sminute eq $eminute) {
-		$errormessage = 'Start time cannot equal End time!';
+		$errormessage .= "Start time cannot equal End time!<BR />\n";
 	}
     unless ($errormessage) {
 	my ($Sun, $Mon, $Tue, $Wed, $Thu, $Fri, $Sat, $days);
@@ -601,7 +601,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-schedule
 	$success = message('settimedoutgoing');
 
 	unless (defined $success) {
-		$errormessage = 'Unable to set outgoing exceptions';
+		$errormessage .= "Unable to set outgoing exceptions<BR />\n";
 	}
    }
 	undef $cgiparams{'START_MINUTE'};
@@ -630,9 +630,9 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
 	}
 
 	if ($count == 0) {
-		$errormessage = $tr{'nothing selected'};  }
+		$errormessage .= "$tr{'nothing selected'}<BR />\n";  }
 	if ($count > 1 && $cgiparams{'ACTION'} eq $tr{'edit'}) {
-		$errormessage = $tr{'you can only select one item to edit'};  }
+		$errormessage .= "$tr{'you can only select one item to edit'}<BR />\n";  }
 
 	unless ($errormessage)
 	{
@@ -688,7 +688,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
 		my $success = message('settimedoutgoing');
 
 		unless (defined $success) {
-			$errormessage = $tr{'smoothd failure'}; }
+			$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
 	}
 }
 
@@ -719,7 +719,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-enabledc
 		my $success = message('settimedoutgoing');
 	
 		unless (defined $success) {
-			$errormessage = $tr{'smoothd failure'}; }
+			$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
 	}
 }
 
@@ -752,7 +752,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-change a
 	my $success = message('settimedoutgoing');
 
 	unless (defined $success) {
-		$errormessage = $tr{'smoothd failure'}; }
+		$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
 }
 
 # Protocol listing
@@ -1022,7 +1022,7 @@ print qq{
 	<td width='20%'><input type='text' name='IPMAC' value='$cgiparams{'IPMAC'}'></td>
 </tr>
 <tr>
-	@{[&portlist('SERVICE', $tr{'application servicec'}, 'PORT', $tr{'tofc-portc'}, $service)]}
+	@{[&portlist('SERVICE', $tr{'application servicec'}, 'PORT', $tr{'portc'}, $service)]}
 </tr>
 <tr>
 	<td class='base' width='30%'>$tr{'tofc-protocol'}</td>
@@ -1097,7 +1097,7 @@ print qq{
 
 &openbox($tr{'current exceptions'});
 
-my $ports = &portmap();
+my $portmap = &portmap();
 
 my %render_settings =
 (
@@ -1116,7 +1116,7 @@ my %render_settings =
 			title  => "$tr{'application service'}",
 			size   => 20,
 			sort   => 'cmp',
-			tr     => \%{$ports},
+			tr     => \%{$portmap},
 		},
 		{ 
 			column => '5',
