@@ -571,7 +571,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-schedule
 			}
 			push (@cfg_ln, $days, $timestart, $timestop2);
 
-			$timestart2 = "00:01";
+			$timestart2 = "00:00";
 			$cfg_ln[9] = "$cfg_ln[9] | $cfg_ln[6] on $timedays $timestart2 to $timestop";
 			push (@cfg_ln, $days, $timestart2, $timestop);
 			my $cfg_ln_cnt = @cfg_ln;
