@@ -205,7 +205,8 @@ sub addFeedback
 # If the settings file doesn't exist, create it and set the defaults.
 if (! -e $settingsfile)
 {
-  $settings{'CURRENT_CONFIG'} = "throttled-with-exceptions";
+  $settings{'DEFAULT_CONFIG'} = "Throttled with Exceptions";
+  $settings{'CURRENT_CONFIG'} = $settings{'DEFAULT_CONFIG'};
   $settings{'STATE'} = "off";
   &writehash ($settingsfile, \%settings);
 }

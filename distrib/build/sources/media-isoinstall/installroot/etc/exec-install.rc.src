@@ -179,6 +179,7 @@ quit
 END
 
   echo
+  do_or_die "dd if=/dev/zero of=/dev/$hdd bs=512 count=34"
   do_or_die "parted /dev/$hdd </tmp/partitions"
 
   sleep 2
