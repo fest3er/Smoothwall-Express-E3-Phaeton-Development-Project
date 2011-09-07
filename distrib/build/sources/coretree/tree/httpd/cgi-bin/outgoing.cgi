@@ -320,9 +320,9 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 		}
 	}
 
-	unless ( $protocol eq "TCP" or $protocol eq "UDP" or $protocol eq "Both" ) {
-		unless ( $service eq "N/A" ) {
-			$errormessage = $tr{'tofc-port and protocol'};
+	if ($protocol eq "PPTP" or $protocol eq "IPSEC" or $protocol eq "ICMP") {
+		if ($service ne "user" and $port ne "") {
+			$errormessage .= "$tr{'tofc-port and protocol'}<BR />\n";
 		}
 	}
 
