@@ -35,6 +35,7 @@ int handletimezone(void)
 	struct keyvalue *kv = initkeyvalues();	
 	int rc;
 	int result;
+	int tz_offset = 0;
 	char timezone[STRING_SIZE];
 
 	filenamecount = 0;	
@@ -53,7 +54,7 @@ int handletimezone(void)
 	}
 	displaynames[c] = NULL;
 	
-	if (!(readkeyvalues(kv, CONFIG_ROOT "main/settings")))
+	if (!(readkeyvalues(kv, CONFIG_ROOT "time/settings")))
 	{
 		freekeyvalues(kv);
 		errorbox(ctr[TR_UNABLE_TO_OPEN_SETTINGS_FILE]);
@@ -61,7 +62,7 @@ int handletimezone(void)
 	}	
 	
 	strcpy(timezone, ZONEFILES "/Europe/London");
-	findkey(kv, "TIMEZONE", timezone);
+	findkey(kv, "TIMEZONE", timezone+strlen(ZONEFILES)+1);
 	
 	choice = 0;
 	for (c = 0; filenames[c]; c++)
@@ -77,10 +78,18 @@ int handletimezone(void)
 	
 	if (rc != 2)
 	{
-		replacekeyvalue(kv, "TIMEZONE", timezone);
-		writekeyvalues(kv, CONFIG_ROOT "main/settings");
-		unlink("/etc/localtime");
-		link(timezone, "/etc/localtime");
+		if (strncmp(timezone, ZONEFILES, strlen(ZONEFILES)) == 0)
+		{
+			tz_offset = strlen(ZONEFILES)+1;
+		}
+		else
+		{
+			tz_offset = 0;
+		}
+		replacekeyvalue(kv, "TIMEZONE", timezone+tz_offset);
+		writekeyvalues(kv, CONFIG_ROOT "time/settings");
+		unlink(CONFIG_ROOT "time/localtime");
+		symlink(timezone, CONFIG_ROOT "time/localtime");
 		result = 1;
 	}
 	else
