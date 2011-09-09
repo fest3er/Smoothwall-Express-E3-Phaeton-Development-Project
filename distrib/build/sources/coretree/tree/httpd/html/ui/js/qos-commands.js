@@ -133,7 +133,7 @@ function commands_rule(qRule) {
           // Hierarchical Token Bucket (classful)
           cmd_txt += cmd_pref +' htb';
           if (qRules[qRule].params['qdefault'] != '') {
-            cmd_txt += ' default '+ qRules[qRule].params['qdefault'].toHex();
+            cmd_txt += ' default '+ String(qRules[qRule].params['qdefault']).toHex(16);
           }
           break;
 
