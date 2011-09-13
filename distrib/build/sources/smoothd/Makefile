@@ -47,7 +47,6 @@ install: compile
 	@install -D $(COMPILE_DIR)/systraffic.so $(PKG_ROOT)/usr/lib/smoothd/systraffic.so 
 	@install -D $(COMPILE_DIR)/syssip.so $(PKG_ROOT)/usr/lib/smoothd/syssip.so 
 	@install -D $(COMPILE_DIR)/sysclamav.so $(PKG_ROOT)/usr/lib/smoothd/sysclamav.so 
-	@install -D $(COMPILE_DIR)/systimedaccess.so $(PKG_ROOT)/usr/lib/smoothd/systimedaccess.so 
 
 all: install
 	@mkdir -p $(PKG_ROOT)

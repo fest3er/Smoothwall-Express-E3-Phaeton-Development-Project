@@ -47,6 +47,7 @@ my $updatebutton = 0;
 &showhttpheaders();
 
 my ( %interfaces, %settings, %netsettings, %cgiparams, %selected, %checked, %confighash );
+my ($templine, @configs);
 
 $cgiparams{'ACTION'} = '';
 
@@ -77,6 +78,35 @@ if ($ENV{'QUERY_STRING'} && ( not defined $cgiparams{'ACTION'} or $cgiparams{'AC
 # Load inbound interfaces into %interfaces (excluding RED)
 
 &readhash("${swroot}/ethernet/settings", \%netsettings);
+
+# Before we do anything else, let's make sure that if there are config file lines for the Purple or Orange
+#  interfaces that the interfaces exist. This should fix any issues when a user changes his interfaces
+#
+open(FILE, $config) or die 'Unable to open config file';
+my @tempfile = <FILE>;
+close FILE;
+
+open(FILE, ">$config") or die 'Unable to open config file';
+foreach $templine (@tempfile) {
+	chomp $templine;
+	@configs = split /,/, $templine;
+	if ($configs[0] eq "GREEN") { 	# GREEN is always configured
+		print FILE "$templine\n";
+	} elsif ($configs[0] eq "PURPLE") {
+		if ($netsettings{'PURPLE_DEV'}) {
+			print FILE "$templine\n";
+		} else {
+			next;
+		}
+	} elsif ($configs[0] eq "ORANGE") {
+		if ($netsettings{'ORANGE_DEV'}) {
+			print FILE "$templine\n";
+		} else {
+			next;
+		}
+	}
+}
+close FILE;
 
 $interfaces{'GREEN'} = $netsettings{'GREEN_DEV'};
 $interfaces{'ORANGE'} = $netsettings{'ORANGE_DEV'};
@@ -901,78 +931,89 @@ END
 
 &openbox($tr{'filtered interfaces'} . ':');
 print "<form method='post'>\n";
-print '<table style=\'width: 100%;\'>' . "\n";
+#print '<table style=\'width: 100%;\'>' . "\n";
 
 my $unused = 6;
 my $ifcolor;
 my $dispcolor;
 my $width = 90 / $unused;
+print "<div style=\"margin:0\; display:inline-block\; width:60%; text-align:left\">";
 foreach $interface (keys(%interfaces))
 {
 	if ($interfaces{$interface} eq '') { next; }
 
 	if ($interface eq 'GREEN') {
 		print qq{
+	<table style='width: 100%'>
 		<tr>
-		<td class='base' style='width: 30%;'>$tr{'traffic is 1'}$tr{'tofc-green'}$tr{'traffic is 2'}</td>
-		<td style='width: 20%;'>
+			<td class='base'>$tr{'traffic is 1'}$tr{'tofc-green'}$tr{'traffic is 2'}</td>
+			<td>
 			<select name=\"$interface\">
 				<option $selected{"$interface"}{'ACCEPT'} value='ACCEPT'>$tr{'allowed'}</option>
 				<option $selected{"$interface"}{'REJECT'} value='REJECT'>$tr{'blocked'}</option>
 				<option $selected{"$interface"}{'CLOSED'} value='CLOSED'>$tr{'tofc-closed'}</option>
 			</select>
-		</td>
+			</td>
 		</tr>
+	</table>
+	<table style='width: 100%'>
 		<tr>
-		<td class='base' width='30%'>Log rejected packets on $tr{'tofc-green'}:</td>
-		<td width='20%'><input type='checkbox' name='GREEN_REJECTS' $checked{'GREEN_REJECTS'}{'on'}></td>
-		<td class='base' width='30%'>Allow related packets on $tr{'tofc-green'}:</td>
-		<td width='20%'><input type='checkbox' name='GREEN_RELATED' $checked{'GREEN_RELATED'}{'on'}></td>
+			<td class='base'>Log rejected packets on $tr{'tofc-green'}:</td>
+			<td><input type='checkbox' name='GREEN_REJECTS' $checked{'GREEN_REJECTS'}{'on'}></td>
+			<td class='base'>Allow related packets on $tr{'tofc-green'}:</td>
+			<td><input type='checkbox' name='GREEN_RELATED' $checked{'GREEN_RELATED'}{'on'}></td>
 		</tr>
+	</table>
 		};
 	} elsif ($interface eq 'PURPLE') {
-		print qq{
-		<td>&nbsp;</td>
+	print qq{
+	<table style='width: 100%'>
 		<tr>
-		<td class='base' style='width: 30%;'>$tr{'traffic is 1'}$tr{'tofc-purple'}$tr{'traffic is 2'}</td>
-		<td style='width: 20%;'>
+			<td class='base'>$tr{'traffic is 1'}$tr{'tofc-purple'}$tr{'traffic is 2'}</td>
+			<td>
 			<select name=\"$interface\">
 				<option $selected{"$interface"}{'ACCEPT'} value='ACCEPT'>$tr{'allowed'}</option>
 				<option $selected{"$interface"}{'REJECT'} value='REJECT'>$tr{'blocked'}</option>
 				<option $selected{"$interface"}{'CLOSED'} value='CLOSED'>$tr{'tofc-closed'}</option>
 			</select>
-		</td>
+			</td>
 		</tr>
+	</table>
+	<table style='width: 100%'>
 		<tr>
-		<td class='base'>Log rejected packets on $tr{'tofc-purple'}:</td>
-		<td><input type='checkbox' name='PURPLE_REJECTS' $checked{'PURPLE_REJECTS'}{'on'}></td>
-		<td class='base'>Allow related packets on $tr{'tofc-purple'}:</td>
-		<td><input type='checkbox' name='PURPLE_RELATED' $checked{'PURPLE_RELATED'}{'on'}></td>
+			<td class='base'>Log rejected packets on $tr{'tofc-purple'}:</td>
+			<td><input type='checkbox' name='PURPLE_REJECTS' $checked{'PURPLE_REJECTS'}{'on'}></td>
+			<td class='base'>Allow related packets on $tr{'tofc-purple'}:</td>
+			<td><input type='checkbox' name='PURPLE_RELATED' $checked{'PURPLE_RELATED'}{'on'}></td>
 		</tr>
+	</table>
 		};
 	} elsif ($interface eq 'ORANGE') {
-		print qq{
-		<td>&nbsp;</td>
+	print qq{
+	<table style='width: 100%'>
 		<tr>
-		<td class='base' style='width: 30%;'>$tr{'traffic is 1'}$tr{'tofc-orange'}$tr{'traffic is 2'}</td>
-		<td style='width: 20%;'>
+			<td class='base'>$tr{'traffic is 1'}$tr{'tofc-orange'}$tr{'traffic is 2'}</td>
+			<td>
 			<select name=\"$interface\">
 				<option $selected{"$interface"}{'ACCEPT'} value='ACCEPT'>$tr{'allowed'}</option>
 				<option $selected{"$interface"}{'REJECT'} value='REJECT'>$tr{'blocked'}</option>
 				<option $selected{"$interface"}{'CLOSED'} value='CLOSED'>$tr{'tofc-closed'}</option>
 			</select>
-		</td>
+			</td>
 		</tr>
+	</table>
+	<table style='width: 100%'>
 		<tr>
-		<td class='base'>Log rejected packets on $tr{'tofc-orange'}:</td>
-		<td><input type='checkbox' name='ORANGE_REJECTS' $checked{'ORANGE_REJECTS'}{'on'}></td>
-		<td class='base'>Allow related packets on $tr{'tofc-orange'}:</td>
-		<td><input type='checkbox' name='ORANGE_RELATED' $checked{'ORANGE_RELATED'}{'on'}></td>
+			<td class='base'>Log rejected packets on $tr{'tofc-orange'}:</td>
+			<td><input type='checkbox' name='ORANGE_REJECTS' $checked{'ORANGE_REJECTS'}{'on'}></td>
+			<td class='base'>Allow related packets on $tr{'tofc-orange'}:</td>
+			<td><input type='checkbox' name='ORANGE_RELATED' $checked{'ORANGE_RELATED'}{'on'}></td>
 		</tr>
+	</table>
 		};
 	}
 }
-print "</table>" . "\n";
+print "</div>" . "\n";
 print qq{
 <br>
 <table width='100%'>
@@ -993,7 +1034,7 @@ print qq{
 <form method='post'>
 <table style='width: 100%;'>
 <tr>
-	<td class='base' style='width: 30%;'>$tr{'interface'}</td>
+	<td class='base' style='width: 30%;'>$tr{'interface'}:</td>
 	<td style='width: 20%;'>
 	<select style='color: green' onchange="ffoxSelectUpdate(this);" name='INTERFACE'>
 };
@@ -1018,7 +1059,7 @@ foreach my $interface (keys %interfaces) {
 print qq{
 	</select>
 	</td>
-	<td class='base' width='30%'>$tr{'tofc-ipmac blank'} <IMG SRC='/ui/img/blob.gif'></td>
+	<td class='base' width='30%'><IMG SRC='/ui/img/blob.gif'> $tr{'tofc-ipmac blank'}</td>
 	<td width='20%'><input type='text' name='IPMAC' value='$cgiparams{'IPMAC'}'></td>
 </tr>
 <tr>
@@ -1290,6 +1331,7 @@ print <<END
 </tr>
 </table>
 </div>
+<img src='/ui/img/blob.gif'> Remember to select the exception you want <br>&nbsp;&nbsp;to add time frames to before selecting the time frames.
 <div align='center'>
 <table width='100%'>
 <tr>

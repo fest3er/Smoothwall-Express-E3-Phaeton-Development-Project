@@ -40,6 +40,37 @@ if ($ENV{'QUERY_STRING'} && ( not defined $cgiparams{'ACTION'} or $cgiparams{'AC
 
 
 my $errormessage = '';
+my ($templine, @ethtemp, $var, @configs);
+
+# Before we do anything, let's make sure that any existing ethernet devices (eth[x]) 
+#   in the xtaccess config file are actually the red device (like if the user changed his NICs)
+
+open(FILE, "$filename") or die 'Unable to open config file';
+my @tempfile = <FILE>;
+close FILE;
+
+open (FILE, ">$filename") or die 'Unable to open config file';
+foreach $templine (@tempfile) {
+	chomp $templine;
+	@configs = split /,/, $templine;
+	if ($configs[0] =~ /:/) {
+		@ethtemp = split /:/, $configs[0];
+	}
+	if ($ethtemp[0]) {
+		if ($ethtemp[0] eq $netsettings{'RED_DEV'}) {
+			print FILE "$templine\n";
+		} else {
+			$configs[0] = "$netsettings{'RED_DEV'}:$ethtemp[1]";
+			print FILE "$configs[0],$configs[1],$configs[2],$configs[3],$configs[4],$configs[5]\n";
+		}
+	} elsif ($configs[0] ne $netsettings{'RED_DEV'}) {
+		$configs[0] = $netsettings{'RED_DEV'};
+		print FILE "$configs[0],$configs[1],$configs[2],$configs[3],$configs[4],$configs[5]\n";
+	} else {
+		print FILE "$templine\n";
+	}
+}
+close FILE;
 
 if ($cgiparams{'ACTION'} eq $tr{'add'})
 {

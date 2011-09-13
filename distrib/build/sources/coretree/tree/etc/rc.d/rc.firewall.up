@@ -91,7 +91,8 @@ fi
 # and for timed outbound access
 /sbin/iptables -N timedoutgoing
 /sbin/iptables -A INPUT -j timedoutgoing
-/sbin/iptables -A FORWARD -o $RED_DEV -j timedoutgoing
+/sbin/iptables -A FORWARD -i $RED_DEV -o $RED_DEV -j REJECT
+/sbin/iptables -A timedoutgoing -p icmp -j RETURN
 
 # Setup tofcdrop chain to use for all denied outbound traffic
 /sbin/iptables -N tofcdrop
@@ -102,7 +103,6 @@ fi
 if [ "$ORANGE_DEV" != "" ]; then
 	/sbin/iptables -A timedoutgoing -i $ORANGE_DEV -j tofcdrop
 fi
-
 
 # For IGMP and multicast
 /sbin/iptables -N advnet

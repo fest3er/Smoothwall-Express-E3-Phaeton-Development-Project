@@ -58,7 +58,6 @@ extern "C" {
    int set_timedoutgoing(std::vector<std::string>    & parameters, std::string       & response);
    int rmdupes(std::vector<std::string>              & parameters, const std::string & newparm);
    int errrpt(const std::string                      & parameter);
-   int ipbitch(std::vector<std::string>              & parameters);
 }
 
 std::map<std::string, std::vector<std::string>, eqstr> portlist;
@@ -162,12 +161,21 @@ int set_timedoutgoing(std::vector<std::string> & parameters, std::string & respo
          continue;   
             /* Skip lines with these values empty */
 
-      if (colour == "ORANGE")
-            input_dev = " -i " + odev;
       if (colour == "GREEN")
+      {
+            // GREEN is always configured
             input_dev = " -i " + gdev;
+      }
+      if (colour == "ORANGE")
+      {
+            if (odev == "" ) continue;  // skip if ORANGE is not configured
+            input_dev = " -i " + odev;
+      }
       if (colour == "PURPLE")
+      {     
+            if (pdev == "" ) continue;  // skip if PURPLE is not configured
             input_dev = " -i " + pdev;
+      }
       if ( input_dev == "" )
       {
          response = "Bad colour: " + colour;
