@@ -52,7 +52,6 @@ echo "Loading SPI modules"
 /sbin/modprobe xt_length
 /sbin/modprobe xt_mac
 /sbin/modprobe xt_iprange
-/sbin/modprobe xt_multiport
 /sbin/modprobe xt_time
 
 echo "Loading MASQ helper modules"
