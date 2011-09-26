@@ -299,7 +299,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'save'} )
 
 	&writehash("$settingsfile", \%settings);
 		
-	my $success = message('settimedoutgoing');
+	my $success = message('setoutgoing');
 
 	unless (defined $success) {
 		$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
@@ -350,7 +350,7 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 		}
 	}
 
-	if ($protocol eq "PPTP" or $protocol eq "IPSEC" or $protocol eq "ICMP") {
+	if ($protocol eq "PPTP" or $protocol eq "IPSEC") {
 		if ($service ne "user" and $port ne "") {
 			$errormessage .= "$tr{'tofc-port and protocol'}<BR />\n";
 		}
@@ -360,9 +360,9 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 		$protocol = 'Both';
 	}
 
-	if ($cgiparams{'IPMAC'} eq "") {
+	if ($ipmac eq "") {
 		$ipmac = 'N/A';
-	} elsif ( (&validipormask ($cgiparams{'IPMAC'})) or (&validmac ($cgiparams{'IPMAC'}) or $cgiparams{'IPMAC'} =~ /\-/) ) {
+	} elsif ( (&validipormask ($ipmac)) or (&validmac ($ipmac) or $ipmac =~ /\-/) ) {
 		$ipmac = $cgiparams{'IPMAC'};
 	} else {
 		$errormessage .= "$tr{'tofc-ipmac bad'}<BR />\n";
@@ -401,7 +401,7 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
   	#########################################
   	# Check for IP's in subnets
   	#########################################
-	if ($ipmac =~ /:/) {
+	if ($ipmac =~ /:/ or $ipmac eq 'N/A') {
 		goto EXIT;
 	}
 	if ($ipmac =~ /-/) {
@@ -497,7 +497,7 @@ EXIT:
 			&log($tr{'tofc-outgoing updated'});
 		}
 		
-		my $success = message('settimedoutgoing');
+		my $success = message('setoutgoing');
 
 		unless (defined $success) {
 			$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
@@ -628,7 +628,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-schedule
 	}
 	close FILE;
 
-	$success = message('settimedoutgoing');
+	$success = message('setoutgoing');
 
 	unless (defined $success) {
 		$errormessage .= "Unable to set outgoing exceptions<BR />\n";
@@ -688,8 +688,6 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
 					$cgiparams{'PROTOCOL'} = "6";
 				} elsif ($temp[4] eq "UDP") {
 					$cgiparams{'PROTOCOL'} = "17";
-				} elsif ($temp[4] eq "ICMP") {
-					$cgiparams{'PROTOCOL'} = "1";
 				} elsif ($temp[4] eq "PPTP") {
 					$cgiparams{'PROTOCOL'} = "PPTP";
 				} elsif ($temp[4] eq "IPSEC") {
@@ -715,7 +713,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
 		}
 		close(FILE);
 
-		my $success = message('settimedoutgoing');
+		my $success = message('setoutgoing');
 
 		unless (defined $success) {
 			$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
@@ -746,7 +744,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-enabledc
 			}
 		}
 		close FILE;
-		my $success = message('settimedoutgoing');
+		my $success = message('setoutgoing');
 	
 		unless (defined $success) {
 			$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
@@ -779,7 +777,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-change a
 	}
 	close FILE;
 
-	my $success = message('settimedoutgoing');
+	my $success = message('setoutgoing');
 
 	unless (defined $success) {
 		$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
@@ -1086,12 +1084,6 @@ print qq{
 		print "<option value='Both' selected>TCP|UDP</option>";
 	} else {
 		print "<option value='Both'>TCP|UDP</option>";
-	}
-
-	if ($cgiparams{'PROTOCOL'} eq '1') {
-		print "<option value='ICMP' selected>$availableprotocols{1}</option>";
-	} else {
-		print "<option value='ICMP'>$availableprotocols{1}</option>";
 	}
 
 	if ($cgiparams{'PROTOCOL'} eq 'PPTP') {
