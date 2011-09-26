@@ -38,7 +38,6 @@ install: compile
 	@install -D $(COMPILE_DIR)/sysadvnet.so $(PKG_ROOT)/usr/lib/smoothd/sysadvnet.so 
 	@install -D $(COMPILE_DIR)/sysipblock.so $(PKG_ROOT)/usr/lib/smoothd/sysipblock.so 
 	@install -D $(COMPILE_DIR)/sysfullfirewall.so $(PKG_ROOT)/usr/lib/smoothd/sysfullfirewall.so 
-	@install -D $(COMPILE_DIR)/sysoutgoing.so $(PKG_ROOT)/usr/lib/smoothd/sysoutgoing.so
 	@install -D $(COMPILE_DIR)/syssmoothinfo.so $(PKG_ROOT)/usr/lib/smoothd/syssmoothinfo.so 
 	@install -D $(COMPILE_DIR)/sysupdown.so $(PKG_ROOT)/usr/lib/smoothd/sysupdown.so 
 	@install -D $(COMPILE_DIR)/sysipsec.so $(PKG_ROOT)/usr/lib/smoothd/sysipsec.so 
