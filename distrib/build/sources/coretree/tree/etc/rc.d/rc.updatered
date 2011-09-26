@@ -32,7 +32,7 @@ echo "Bringing up interface aliases (if they exist)"
 echo "Setting up full firewall rules"
 /usr/bin/smoothcom setportfw
 echo "Setting up outgoing filtering and timed access"
-/usr/bin/smoothcom settimedoutgoing
+/usr/bin/smoothcom setoutgoing
 echo "Setting up external access rules"
 /usr/bin/smoothcom setxtaccess
 echo "Starting snort if enabled"
