@@ -72,36 +72,27 @@ if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A FORWARD -i $RED_DEV -j ipblock
 fi
 
-###############################################################################
-# Legacy timed access chains superceded by TOFC
-#
-# Setup timed access chains.
-#/sbin/iptables -N timedaccess
-#/sbin/iptables -N timedaction
-#/sbin/iptables -A timedaction -j LOG --log-prefix Denied-by-Timed-Access:-
-#/sbin/iptables -A timedaction -j REJECT
-
-
-# Apply the time rules to deny the traffic.
-#/sbin/iptables -A INPUT -j timedaccess
-#/sbin/iptables -A FORWARD -j timedaccess
-################################################################################
-
-# Setup timedoutgoing chain for outbound rules
-# and for timed outbound access
+# Setup chains for controlling outgoing traffic. Place them
+# here so that setting timed access on outgoing rules can immediately
+# shut down all outgoing traffic from a source device or machine if desired
+/sbin/iptables -N outGoing
 /sbin/iptables -N timedoutgoing
-/sbin/iptables -A INPUT -j timedoutgoing
-/sbin/iptables -A FORWARD -i $RED_DEV -o $RED_DEV -j REJECT
-/sbin/iptables -A timedoutgoing -p icmp -j RETURN
-
-# Setup tofcdrop chain to use for all denied outbound traffic
 /sbin/iptables -N tofcdrop
-/sbin/iptables -A timedoutgoing -i $GREEN_DEV -j tofcdrop
-if [ "$PURPLE_DEV" != "" ]; then 
-	/sbin/iptables -A timedoutgoing -i $PURPLE_DEV -j tofcdrop
-fi
-if [ "$ORANGE_DEV" != "" ]; then
-	/sbin/iptables -A timedoutgoing -i $ORANGE_DEV -j tofcdrop
+
+# Send preferred outgoing traffic on its merry way
+/sbin/iptables -A outGoing -p icmp -j ACCEPT
+/sbin/iptables -A outGoing -p tcp -i $GREEN_DEV -m multiport --ports 81,222,441 -j ACCEPT # Always allow admin on green
+
+# Send everything else to timedoutging.
+/sbin/iptables -A outGoing -j timedoutgoing
+
+# Send all outbound traffic to the outGoing chains
+/sbin/iptables -A INPUT -j outGoing
+/sbin/iptables -A FORWARD -o ppp0 -j outGoing
+/sbin/iptables -A FORWARD -o ippp0 -j outGoing
+if [ "$RED_DEV" != "" ]; then
+	/sbin/iptables -A FORWARD -i $RED_DEV -o $RED_DEV -j REJECT # This rule excludes red as a source device for outgoing traffic
+	/sbin/iptables -A FORWARD -o $RED_DEV -j outGoing
 fi
 
 # For IGMP and multicast
@@ -240,6 +231,7 @@ fi
 if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A FORWARD -m state --state NEW -o $RED_DEV -j outbound
 fi
+/sbin/iptables -A outgreen -j ACCEPT
 
 # New PURPLE-to-GREEN, ORANGE-to-GREEN, and ORANGE-to-PURPLE 'connections'
 #   must pass the pinhole gauntlet.
