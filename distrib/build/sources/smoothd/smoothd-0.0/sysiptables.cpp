@@ -43,10 +43,8 @@
 
 extern "C" {
 	int load(std::vector<CommandFunctionPair> & );
-
 	int set_outgoing(std::vector<std::string> & parameters, std::string & response);
 	int set_internal(std::vector<std::string> & parameters, std::string & response);
-
    	int rmdupes(std::vector<std::string>              & parameters, const std::string & newparm);
    	int errrpt(const std::string                      & parameter);
    	int ipbitch(std::vector<std::string>              & parameters);
@@ -123,23 +121,30 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 
    ConfigVAR settings("/var/smoothwall/outgoing/settings");
    ConfigVAR netsettings("/var/smoothwall/ethernet/settings");
+   ConfigVAR squidsettings("/var/smoothwall/proxy/settings");
+   ConfigVAR upnpsettings("/var/smoothwall/advnet/settings");
    ConfigCSV config("/var/smoothwall/outgoing/config");
+   ConfigSTR red_iface("/var/smoothwall/red/iface");
+
    std::vector<std::string>ipb;
    std::string::size_type n;
 
+   std::string rdev = red_iface.str();
    std::string gdev = netsettings["GREEN_DEV"];
    std::string odev = netsettings["ORANGE_DEV"];
    std::string pdev = netsettings["PURPLE_DEV"];
-   std::string chain = "iptables -A timedoutgoing";
+   std::string chainfwd = "iptables -A tofcfwd";
+   std::string chainproxy = "iptables -A tofcproxy";
 
    load_portlist();
 
-   rmdupes(ipb, "iptables -F timedoutgoing");
+   rmdupes(ipb, "iptables -F tofcfwd");
+   rmdupes(ipb, "iptables -F tofcproxy");
    rmdupes(ipb, "iptables -F tofcdrop");
 
    for (int line = config.first(); line == 0; line = config.next())
    {
-      const std::string & colour = config[0];
+      const std::string & color = config[0];
       const std::string & enabled = config[1];
       const std::string & port = config[2];
       const std::string & protocol = config[4];
@@ -149,28 +154,28 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 
       std::string input_dev  = "";
 
-      if (colour == "" || port == "" || enabled == "")
+      if (color == "" || port == "" || enabled == "")
          continue;   
             /* Skip lines with these values empty */
 
-      if (colour == "GREEN")
+      if (color == "GREEN")
       {
             // GREEN is always configured
             input_dev = " -i " + gdev;
       }
-      if (colour == "ORANGE")
+      if (color == "ORANGE")
       {
             if (odev == "" ) continue;  // skip if ORANGE is not configured
             input_dev = " -i " + odev;
       }
-      if (colour == "PURPLE")
+      if (color == "PURPLE")
       {     
             if (pdev == "" ) continue;  // skip if PURPLE is not configured
             input_dev = " -i " + pdev;
       }
       if ( input_dev == "" )
       {
-         response = "Bad colour: " + colour;
+         response = "Bad color: " + color;
          return errrpt(response);
       }
                            
@@ -179,6 +184,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
       if (enabled == "on")
       {
          std::string ipormac = "";
+         std::string dstipmac = "";
          std::string action2 = "";
          std::string daysow = "";
          std::string time_str = "";
@@ -187,13 +193,17 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
          std::vector<std::string> full_time_str;
          std::vector<std::string> protos;
            
-         if ( action == "ACCEPT" ) action2 = " -j ACCEPT";
+         if ( action == "ACCEPT" ) 
+		action2 = " -j ACCEPT";
+	  else
+		action2 = " -j tofcdrop";
                            
                             /* ===========Source============= */   
                                        
          if ((n = srcipmac.find_first_not_of(IP_NUMBERS)) == std::string::npos)
          {
             ipormac = " -s " + srcipmac;
+            dstipmac = " -d " + srcipmac;
          }
          else
          {
@@ -206,12 +216,14 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                if ((n = srcipmac.find_first_not_of(IP_RANGE)) == std::string::npos)
                {
                   ipormac = " -m iprange --src-range " + srcipmac;
+                  dstipmac = " -m iprange --dst-range " + srcipmac;
                }
                else
                {
                   if (srcipmac == "N/A")
                   {
                      ipormac = "";
+                     dstipmac = "";
                   }
                   else
                   {
@@ -264,18 +276,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
             
             if (tmpports.find_first_not_of(MULTI_PORTS) == std::string::npos)
             {
-		if (tmpports.find_first_not_of(NUMBERS_COLON) == std::string::npos)
-		{
-		   /* It's a single port */
-
-		   tmpports = " --dport " + tmpports;
-		}
-		else
-		{
-		   /* It's a multiport */
-
                  tmpports = " -m multiport --ports " + tmpports;
-		}
             }
             else
             { 
@@ -309,10 +310,16 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
             protos.push_back(" -p 17" + tmpports);
          }
                     
+         if (protocol == "ICMP" )
+         {
+            protos.push_back(" -p icmp");
+         }
+          
          if ( protocol == "IPSEC" )
          {
             protos.push_back(" -p 50");
             protos.push_back(" -p 51");
+            protos.push_back(" -p 17 -m multiport --ports 500,4500");
          }
           
          if ( protocol == "PPTP" )
@@ -334,11 +341,28 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
             unsigned int z = 0;
             while ( z < full_time_str.size() )
             {
-               rmdupes(ipb, chain + protos[x] + input_dev + ipormac + full_time_str[z] + action2);
+               rmdupes(ipb, chainfwd + protos[x] + input_dev + ipormac + full_time_str[z] + action2);
+               rmdupes(ipb, chainfwd + protos[x] + " -i " + rdev + dstipmac + full_time_str[z] 
+			+ " -m state --state RELATED,ESTABLISHED " + action2);
+
+		 /* If a "proxyable" port is blocked, block the proxy's port in INPUT as well. */
+		 /* But only if the proxy is enabled 						  */
+	  	 if ( port == "80" )
+	  	 {
+	     	    if ( action == "REJECT" )
+	           {
+		 	if ( squidsettings["ENABLE"] == "on" )
+		 	{
+		     	   rmdupes(ipb, chainproxy + " -p tcp " + input_dev + 
+			     ipormac + full_time_str[z] + " -m multiport --ports 800 " + action2);
+		  	}
+	     	    }
+	  	 }
                z++;
             }
             x++;
          }
+
       } //      <<= End of enabled
    } //   <<= End reading config
 
@@ -355,9 +379,6 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
    if (settings["GREEN_REJECTS"] == "on") 
       rmdupes(ipb, rulehead + gdev + log_prefix);
     
-   if (settings["GREEN"] == "ACCEPT") 
-      rmdupes(ipb, "iptables -A timedoutgoing -i " + gdev +  " -j ACCEPT");
-
    if (odev != "")
    {
       if (settings["ORANGE_RELATED"] == "on") 
@@ -365,9 +386,6 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
           
       if (settings["ORANGE_REJECTS"] == "on") 
          rmdupes(ipb, rulehead + odev + log_prefix);
-
-      if (settings["ORANGE"] == "ACCEPT") 
-         rmdupes(ipb, "iptables -A timedoutgoing -i " + odev +  " -j ACCEPT");
    }
     
    if (pdev != "")
@@ -377,13 +395,14 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
            
       if (settings["PURPLE_REJECTS"] == "on") 
          rmdupes(ipb, rulehead  + pdev + log_prefix);
-
-      if (settings["PURPLE"] == "ACCEPT") 
-         rmdupes(ipb, "iptables -A timedoutgoing -i " + pdev +  " -j ACCEPT");
    }
     
-   rmdupes(ipb, chain + relestab + " -j ACCEPT");
-   rmdupes(ipb, chain + " -j tofcdrop");
+   rmdupes(ipb, chainfwd + relestab + " -j ACCEPT");
+   if (upnpsettings["ENABLE_UPNP"] == "on")
+   {
+   	rmdupes(ipb, chainfwd + " -j MINIUPNPD");
+   }
+   rmdupes(ipb, chainfwd + " -j tofcdrop");
    rmdupes(ipb, "iptables -A tofcdrop -j REJECT --reject-with icmp-admin-prohibited");
 
    error = ipbitch(ipb);

@@ -38,6 +38,3 @@ int handleadsl(void);
 
 /* webproxy.c */
 int handlewebproxy(void); 
-
-/* defaults.c */
-int handledefaults(void);
