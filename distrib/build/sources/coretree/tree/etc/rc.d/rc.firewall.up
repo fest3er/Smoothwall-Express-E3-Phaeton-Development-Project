@@ -97,7 +97,7 @@ fi
 
 # We must let NEW traffic in INPUT received by the local machine that is 
 #  then sent through OUTPUT out
-/sbin/iptables -A tofc -m state --state NEW -j ACCEPT
+/sbin/iptables -A tofc -m state --state NEW -j RETURN
 
 # Send all outbound traffic to the tofc chains
 /sbin/iptables -A INPUT -j tofcproxy
