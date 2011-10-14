@@ -267,13 +267,13 @@ EXIT:
         if ($cgiparams{'PROTOCOL'} eq "Both") {
           print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
           print FILE "$service,$cgiparams{'COMMENT'},";
-          print FILE "TCP,$cgiparams{'IPMAC'},";
+          print FILE "TCP,$ipmac,";
           print FILE "$cgiparams{'TARGET'},$cnt,";
           print FILE "$cgiparams{'TIMED'},+$cgiparams{'TIMES'}\n";
           $cnt++;
           print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
           print FILE "$service,$cgiparams{'COMMENT'},";
-          print FILE "UDP,$cgiparams{'IPMAC'},";
+          print FILE "UDP,$ipmac,";
           print FILE "$cgiparams{'TARGET'},$cnt,";
           print FILE "$cgiparams{'TIMED'},+$cgiparams{'TIMES'}\n";
           $notadded = 0;
@@ -281,7 +281,7 @@ EXIT:
         } else {
           print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
           print FILE "$service,$cgiparams{'COMMENT'},";
-          print FILE "$cgiparams{'PROTOCOL'},$cgiparams{'IPMAC'},";
+          print FILE "$cgiparams{'PROTOCOL'},$ipmac,";
           print FILE "$cgiparams{'TARGET'},$cnt,";
           print FILE "$cgiparams{'TIMED'},+$cgiparams{'TIMES'}\n";
           $notadded = 0;
@@ -299,17 +299,17 @@ EXIT:
       if ($cgiparams{'PROTOCOL'} eq "Both") {
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
         print FILE "$service,$cgiparams{'COMMENT'},";
-        print FILE "TCP,$cgiparams{'IPMAC'},";
+        print FILE "TCP,$ipmac,";
         print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},off";
         $cgiparams{'ORDER_NUMBER'}++;
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
         print FILE "$service,$cgiparams{'COMMENT'},";
-        print FILE "UDP,$cgiparams{'IPMAC'},";
+        print FILE "UDP,$ipmac,";
         print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},off";
       } else {
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
         print FILE "$service,$cgiparams{'COMMENT'},";
-        print FILE "$cgiparams{'PROTOCOL'},$cgiparams{'IPMAC'},";
+        print FILE "$cgiparams{'PROTOCOL'},$ipmac,";
         print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},off";
         $cgiparams{'ORDER_NUMBER'}++;
       }
