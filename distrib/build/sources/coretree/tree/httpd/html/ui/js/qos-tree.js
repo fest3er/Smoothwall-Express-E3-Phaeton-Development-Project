@@ -136,9 +136,13 @@ function display_nic_tree(nic, qRuleIdx, margin, indent) {
   // Is parent a QDisc?
   var qRC = qR_sh.parent_rule.indexOf(':0');
 
+  var qDash = qRuleIdx.indexOf('-');
+  var qDev = qRuleIdx.substring(0, qDash);
+  var qHandle = qRuleIdx.substring(qDash+1);
+
   // If the view is closed, print a short synopsis of the class and return
   if (qR_sh.view == 'closed') {
-    item_text += qRuleIdx + " " + qR_sh.comment;
+    item_text += qDev +'-'+ qHandle.toHex() + " " + qR_sh.comment;
 
     // If it's a subclass, tersely display the guaranteed, courtesy and allocated speeds %s.
     // If it's a root class, tersely display the bandwidth and % allocated.
@@ -232,15 +236,20 @@ function nodeOrder(a, b) {
   // Compare NIC names
   if (aSplit[0] < bSplit[0]) return -1;
   if (aSplit[0] > bSplit[0]) return 1;
-  // Compare Major nums
+
+  // NICs are the same, so compare major #s
   if (Number(aSplit[1]) < Number(bSplit[1])) return -1;
   if (Number(aSplit[1]) > Number(bSplit[1])) return 1;
-  // Compare Minor nums
+
+  // Major #s are the same, so compare minor #s
   if (Number(aSplit[2]) < Number(bSplit[2])) return -1;
   if (Number(aSplit[2]) > Number(bSplit[2])) return 1;
-  // Compare Filter nums
+
+  // Minor #s are the same, so compare filter #s
   if (Number(aSplit[3]) < Number(bSplit[3])) return -1;
   if (Number(aSplit[3]) > Number(bSplit[3])) return 1;
+
+  // Incontinence! Two nodes *cannot* have the same name/index!
   return 0;
 }
 
@@ -249,11 +258,12 @@ function nodeOrder(a, b) {
 //
 // Unconditionally renumber the tree to compact the used major/minor number space.
 
+var currNodes = new Array();
+var currNodeIndex = 0;
 function reNumberQDiscTree() {
 
   // Define some locally needed storage
   var i=0;
-  var currNodes = new Array();
   var newNodes = new Array();
   var nextMajor = new Array();
   var nextMinor = new Array();
@@ -261,9 +271,9 @@ function reNumberQDiscTree() {
   var defaultNode = new Array();
 
   // Task I: Populate and sort the array of Rule names
-  //
+  
   for (var pro in qRules) {
-    currNodes[i++] = pro;
+    currNodes[currNodeIndex++] = pro;
   }
   currNodes = currNodes.sort(nodeOrder);
 
@@ -305,8 +315,8 @@ function reNumberQDiscTree() {
     }
     // If it's a qdisc (n:0), bump the NIC's nextMajor[] and store the new default class
     if (currMinor == 0) {
-      nextMajor[currNIC] = currMajor + 1;
-      nextMinor[currNIC + '-' + currMajor + ':0'] = 1;
+      nextMajor[currNIC]++;
+      nextMinor[currNIC +'-'+ currMajor +':0'] = 1;
       var tmp = qRules[currNodes[pro]].params.qdefault;
       if (tmp != '') {
         defaultNode[nodeSplit[0]+'-'+nodeSplit[1]+':'+tmp] = currNIC+'-'+currMajor+':0';
@@ -314,7 +324,7 @@ function reNumberQDiscTree() {
     }
     // If it's a class, replace the qdisc's nextMinor[]
     if (currMinor != 0 && nodeSplit[3] == undefined) {
-      nextMinor[currNIC+'-'+currMajor+':0'] = currMinor + 1;
+      nextMinor[currNIC +'-'+ currMajor +':0']++;
     }
 
     // Copy the rule to the new array
@@ -383,6 +393,8 @@ function reNumberQDiscTree() {
 
   // Task IV: Copy the new qRules to qRules
     qRules = qRulesNew;
+
+    return false;
 }
 
 

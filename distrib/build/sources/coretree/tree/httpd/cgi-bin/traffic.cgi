@@ -708,10 +708,10 @@ var commands = '';
 var ipt_stop_txt = '';
 
 String.prototype.toHex = function() {
-  var cDash = this.indexOf(":");
-  if (cDash != -1 ) {
-    var major = Number(this.substring(0, cDash));
-    var minor = Number(this.substring(cDash+1));
+  var cColon = this.indexOf(":");
+  if (cColon != -1 ) {
+    var major = Number(this.substring(0, cColon));
+    var minor = Number(this.substring(cColon+1));
     return major.toString(16)+ ":" +minor.toString(16);
   } else {
     var major = Number(this.valueOf());

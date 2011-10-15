@@ -12,6 +12,23 @@
 
 
 
+// tweakTcMask()
+//
+// Make the mask proper for TC
+//
+
+function tweakTcMask(value, sep, hasMask, sansMask) {
+
+  var maskLoc = value.indexOf(sep);
+  if (maskLoc == -1) {
+    // Mask not specified, add the default
+    return value + hasMask + sansMask;
+  } else {
+    // Mask specified, change '/' to ' 0x'
+    return value.replace(sep, hasMask);
+  }
+}
+
 // getTrueCeil()
 //
 //   Get the true rate for this class; recurse back to root class
@@ -116,7 +133,7 @@ function commands_rule(qRule) {
           // Hierarchical Token Bucket (classful)
           cmd_txt += cmd_pref +' htb';
           if (qRules[qRule].params['qdefault'] != '') {
-            cmd_txt += ' default '+ qRules[qRule].params['qdefault'].toHex();
+            cmd_txt += ' default '+ String(qRules[qRule].params['qdefault']).toHex(16);
           }
           break;
 
@@ -248,7 +265,7 @@ function commands_filter(qFilter) {
   var qLDash = qFilter.lastIndexOf('.');
   var qDev, qHandle, qFlowId, pDash, pHandle;
   var mustBuildClassify = 0, mustBuildFilter = 0, mustBuildNATfilter = 0;
-  var haveProtocol;
+  var havePort, haveProtocol;
 
   qDev = qFilter.substring(0, qDash);
   qFlowId = qFilter.substring(qDash+1, qLDash);
@@ -274,10 +291,12 @@ function commands_filter(qFilter) {
       // A spot of shorthand
       qFm_sh = qRules[qFilter].matches[i];
 
+      havePort = 0;  // no port matches found
       haveProtocol = 6;  // default to TCP
       switch (qFm_sh.type) {
-        case "saddr":
         case "sport":
+          havePort = 1;
+        case "saddr":
         case "saddrhost":
           // saddr and sport force a CLASSIFY command if the NIC is NATted
           // But saddrhost forces a filter command if the NIC is NATted, because
@@ -295,6 +314,10 @@ function commands_filter(qFilter) {
           {
             mustBuildFilter = 1;
           }
+          break;
+
+        case "dport":
+          havePort = 1;
           break;
 
         case "protocol":
@@ -339,7 +362,7 @@ function commands_filter(qFilter) {
             if (tmp[1] != 32) ipt_txt += "/"+ tmp[1];
             break;
           case "sport":
-            ipt_txt += ' \\\n    --sport '+ tmp[0];
+            ipt_txt += ' \\\n    -m multiport --sports '+ tmp[0];
             break;
           default:
             // Do nothing; we only care about source addr and/or port
@@ -374,31 +397,30 @@ function commands_filter(qFilter) {
             cmd_txt += ' \\\n    match ip src '+ qFm_sh.value +'/32';
             break;
           case "saddr":
+            tmpVal = tweakTcMask (qFm_sh.value, '/', '/', '32');
             cmd_txt += ' \\\n    match ip src '+ qFm_sh.value;
             break;
           case "sport":
-            // TODO: the mask is mandatory; need to provide a default.
-            // This is likely true for other fields as well.
-            tmpVal = qFm_sh.value.replace("/", " 0x");
+            tmpVal = tweakTcMask (qFm_sh.value, '/', ' 0x', 'ffff');
             cmd_txt += ' \\\n    match ip sport '+ tmpVal;
             break;
           case "daddr":
             cmd_txt += ' \\\n    match ip dst '+ qFm_sh.value;
             break;
           case "dport":
-            tmpVal = qFm_sh['value'].replace("/", " 0x");
+            tmpVal = tweakTcMask (qFm_sh.value, '/', ' 0x', 'ffff');
             cmd_txt += ' \\\n    match ip dport '+ tmpVal;
             break;
           case "protocol":
-            tmpVal = qFm_sh['value'].replace("/", " 0x");
+            tmpVal = tweakTcMask (qFm_sh.value, '/', ' 0x', 'ff');
             cmd_txt += ' \\\n    match ip protocol '+ tmpVal;
             break;
           case "tos":
-            tmpVal = qFm_sh['value'].replace("/", " 0x");
+            tmpVal = tweakTcMask (qFm_sh.value, '/', ' 0x', 'ff');
             cmd_txt += ' \\\n    match ip tos '+ tmpVal;
             break;
           case "u8":
-            tmpVal = qFm_sh['value'].replace("/", " 0x");
+            tmpVal = tweakTcMask (qFm_sh.value, '/', ' 0x', 'ff');
             cmd_txt += ' \\\n    match u8 '+ tmpVal;
             if (qFm_sh['offset']) {
               cmd_txt += ' at '+ qFm_sh['offset'];
@@ -407,7 +429,7 @@ function commands_filter(qFilter) {
             }
             break;
           case "u16":
-            tmpVal = qFm_sh['value'].replace("/", " 0x");
+            tmpVal = tweakTcMask (qFm_sh.value, '/', ' 0x', 'ffff');
             cmd_txt += ' \\\n    match u16 '+ tmpVal;
             if (qFm_sh['offset']) {
               cmd_txt += ' at '+ qFm_sh['offset'];
@@ -416,7 +438,7 @@ function commands_filter(qFilter) {
             }
             break;
           case "u32":
-            tmpVal = qFm_sh['value'].replace("/", " 0x");
+            tmpVal = tweakTcMask (qFm_sh.value, '/', ' 0x', 'ffffffff');
             cmd_txt += ' \\\n    match u32 '+ tmpVal;
             if (qFm_sh['offset']) {
               cmd_txt += ' at '+ qFm_sh['offset'];

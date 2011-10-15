@@ -40,7 +40,7 @@ function buildLineItem(qType, qRuleIdx, symbol, text, marginLeft, indentHTML) {
   html += '" style="margin:0; padding:1pt;'+ background +'">\n';
   if (qRules[qRuleIdx] && qRules[qRuleIdx].parent_rule.indexOf(':0') != -1) {
     // Not a root class, line is normal height
-    html += '<p class="lineitem" style="margin:4pt 0 0 '+ pMarginLeft.toString();
+    html += '<p class="lineitem" style="margin:2pt 0 2pt '+ pMarginLeft.toString();
   } else {
     // Is a root class, line is larger
     html += '<p class="lineitem" style="margin:0 0 0 '+ pMarginLeft.toString();
@@ -126,6 +126,10 @@ function display_rule(nic, qRule, margin, indent) {
   var qR_sh = qRules[qRule];
   var qRp_sh = qRules[qRule].params;
 
+  var qDash = qRule.indexOf('-');
+  var qDev = qRule.substring(0, qDash);
+  var qHandle = qRule.substring(qDash+1);
+
   switch (qR_sh.type) {
 
     // Queueing disciplines
@@ -133,13 +137,13 @@ function display_rule(nic, qRule, margin, indent) {
       switch (qR_sh.family) {
         case '':
           // Not configured
-          item_text += qRule +' <i>'+ qR_sh.comment +'</i>';
+          item_text += qDev +'-'+ qHandle.toHex() +' <i>'+ qR_sh.comment +'</i>';
           item_text += ' ' + boldFace('NOT CONFIGURED');
           html =  buildLineItem('qR', qRule, '-', item_text, margin, indent);
           break;
         case 'htb':
           // Hierarchical Token Bucket (classful)
-          item_text += qRule +' <i>'+ qR_sh.comment +'</i>';
+          item_text += qDev +'-'+ qHandle.toHex() +' <i>'+ qR_sh.comment +'</i>';
           item_text += ' ' + boldFace('HTB');
           if (qRp_sh['qdefault'] != '') {
             var qcolon = qRule.indexOf(':');
@@ -154,7 +158,7 @@ function display_rule(nic, qRule, margin, indent) {
 
         case 'pfifofast':
           // Packet FIFO_FAST (classless); this is the default qdisc; no parameters
-          item_text += qRule +' <i>'+ qR_sh.comment +'</i>';
+          item_text += qDev +'-'+ qHandle.toHex() +' <i>'+ qR_sh.comment +'</i>';
           item_text += ' ' + boldFace('PFIFO_FAST');
 
           // Again with the menu selection
@@ -163,7 +167,7 @@ function display_rule(nic, qRule, margin, indent) {
 
         case 'pfifo':
           // Packet FIFO (classless) - has some logging/counting capacity
-          item_text += qRule +' <i>'+ qR_sh.comment +'</i>';
+          item_text += qDev +'-'+ qHandle.toHex() +' <i>'+ qR_sh.comment +'</i>';
           item_text += ' ' + boldFace('PFIFO');
           if (qRp_sh['limit'] != '')
             item_text += ' limit:'+ boldFace(qRp_sh['limit'] +' packets');
@@ -174,7 +178,7 @@ function display_rule(nic, qRule, margin, indent) {
 
         case 'bfifo':
           // Byte FIFO (classless) - has some logging/counting capacity
-          item_text += qRule +' <i>'+ qR_sh.comment +'</i>';
+          item_text += qDev +'-'+ qHandle.toHex() +' <i>'+ qR_sh.comment +'</i>';
           item_text += ' ' + boldFace('BFIFO');
           if (qRp_sh['limit'] != '')
             item_text += ' limit:'+ boldFace(qRp_sh['limit'] +' bytes');
@@ -185,7 +189,7 @@ function display_rule(nic, qRule, margin, indent) {
 
         case 'tbf':
           // Token Bucket Filter (classless)
-          item_text += qRule +' <i>'+ qR_sh.comment +'</i>';
+          item_text += qDev +'-'+ qHandle.toHex() +' <i>'+ qR_sh.comment +'</i>';
           item_text += ' ' + boldFace('TBF');
           if (qRp_sh['limit'] != '')
             item_text += ' limit:'+ boldFace(qRp_sh['limit'] +' bytes');
@@ -204,7 +208,7 @@ function display_rule(nic, qRule, margin, indent) {
 
         case 'sfq':
           // Stochastic Fair Queueing (classless)
-          item_text += qRule +' <i>'+ qR_sh.comment +'</i>';
+          item_text += qDev +'-'+ qHandle.toHex() +' <i>'+ qR_sh.comment +'</i>';
           item_text += ' ' + boldFace('SFQ');
           if (qRp_sh['perturb'] != '')
             item_text += ' perturb:'+ boldFace(qRp_sh['perturb'] +'sec');
@@ -227,7 +231,7 @@ function display_rule(nic, qRule, margin, indent) {
     case 'class':
       switch (qR_sh.family) {
         case 'htb':
-          item_text += qRule +' <i>'+ qR_sh.comment +'</i>';
+          item_text += qDev +'-'+ qHandle.toHex() +' <i>'+ qR_sh.comment +'</i>';
           item_text += ' '+ boldFace('HTB');
           if (qRp_sh['priority'] != '')
             item_text += ' priority:'+ boldFace(qRp_sh['priority']);
