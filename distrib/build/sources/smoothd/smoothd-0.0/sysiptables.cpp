@@ -140,7 +140,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 
    rmdupes(ipb, "iptables -F tofcfwd");
    rmdupes(ipb, "iptables -F tofcproxy");
-   rmdupes(ipb, "iptables -F tofcdrop");
+   rmdupes(ipb, "iptables -F tofcblock");
 
    for (int line = config.first(); line == 0; line = config.next())
    {
@@ -150,7 +150,8 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
       const std::string & protocol = config[4];
       const std::string & srcipmac = config[5];
       const std::string & action = config[6];
-      const std::string & timed = config[8];
+      const std::string & setproxy = config[8];
+      const std::string & timed = config[9];
 
       std::string input_dev  = "";
 
@@ -190,13 +191,14 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
          std::string time_str = "";
          std::string tmpdays = "";
          std::string tmpports = "";
+         std::string proxyports = "";
          std::vector<std::string> full_time_str;
          std::vector<std::string> protos;
            
          if ( action == "ACCEPT" ) 
 		action2 = " -j ACCEPT";
 	  else
-		action2 = " -j tofcdrop";
+		action2 = " -j tofcblock";
                            
                             /* ===========Source============= */   
                                        
@@ -236,7 +238,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                            
                             /* =========Timed========== */
                              
-         unsigned int myx = 10;
+         unsigned int myx = 11;
          if (timed == "on") // <<= it's a timed rule!
          {
             while (config[myx+2] != "")
@@ -274,9 +276,19 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
             // replace all hyphens with commas
             std::replace(tmpports.begin(), tmpports.end(), '-', ','); 
             
-            if (tmpports.find_first_not_of(MULTI_PORTS) == std::string::npos)
+            if ((n = tmpports.find_first_not_of(MULTI_PORTS)) == std::string::npos)
             {
                  tmpports = " -m multiport --ports " + tmpports;
+          	   if ( setproxy == "on" )
+		   {
+			if ( action == "REJECT" )
+			{
+			   if ( squidsettings["ENABLE"] == "on" )
+			   {
+                           proxyports = " -p 6 -m multiport --ports 800 ";
+			   }
+		   	}
+		   }
             }
             else
             { 
@@ -292,6 +304,10 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                      if (strlen ( nport.c_str() ) > 0) nport += ",";
                      nport += vect[i++].c_str();
                   }
+		    if (port == "Web")
+		    {
+			proxyports = " -p 6 -m multiport --ports 800 ";
+		    }
                   tmpports = " -m multiport --ports " + nport;
                }
             }
@@ -310,16 +326,10 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
             protos.push_back(" -p 17" + tmpports);
          }
                     
-         if (protocol == "ICMP" )
-         {
-            protos.push_back(" -p icmp");
-         }
-          
          if ( protocol == "IPSEC" )
          {
             protos.push_back(" -p 50");
             protos.push_back(" -p 51");
-            protos.push_back(" -p 17 -m multiport --ports 500,4500");
          }
           
          if ( protocol == "PPTP" )
@@ -347,16 +357,9 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 
 		 /* If a "proxyable" port is blocked, block the proxy's port in INPUT as well. */
 		 /* But only if the proxy is enabled 						  */
-	  	 if ( port == "80" )
+            	 if ( proxyports != "" )
 	  	 {
-	     	    if ( action == "REJECT" )
-	           {
-		 	if ( squidsettings["ENABLE"] == "on" )
-		 	{
-		     	   rmdupes(ipb, chainproxy + " -p tcp " + input_dev + 
-			     ipormac + full_time_str[z] + " -m multiport --ports 800 " + action2);
-		  	}
-	     	    }
+		    rmdupes(ipb, chainproxy + proxyports + input_dev + ipormac + full_time_str[z] + action2);
 	  	 }
                z++;
             }
@@ -366,11 +369,11 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
       } //      <<= End of enabled
    } //   <<= End reading config
 
-   // <<= Begin setting up tofcdrop drop table
-   // Log then drop packets and allowing ESTABLISHED,RELATED through drop table tofcdrop
+   // <<= Begin setting up tofcblock drop table
+   // Log then drop packets and allowing ESTABLISHED,RELATED through drop table tofcblock
    
    std::string log_prefix = " -j LOG --log-prefix Denied-by-outgoing-rules";
-   std::string rulehead = "iptables -A tofcdrop -i ";
+   std::string rulehead = "iptables -A tofcblock -i ";
    std::string relestab = " -m state --state ESTABLISHED,RELATED";
      
    if (settings["GREEN_RELATED"] == "on") 
@@ -402,8 +405,8 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
    {
    	rmdupes(ipb, chainfwd + " -j MINIUPNPD");
    }
-   rmdupes(ipb, chainfwd + " -j tofcdrop");
-   rmdupes(ipb, "iptables -A tofcdrop -j REJECT --reject-with icmp-admin-prohibited");
+   rmdupes(ipb, chainfwd + " -j tofcblock");
+   rmdupes(ipb, "iptables -A tofcblock -j REJECT --reject-with icmp-admin-prohibited");
 
    error = ipbitch(ipb);
     

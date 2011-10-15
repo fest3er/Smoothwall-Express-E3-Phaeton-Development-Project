@@ -35,9 +35,6 @@ my $settingsfile = "$moddir/settings";
 my $hashfile = "$moddir/confighash";
 my $halfopen = "/var/smoothwall-halfopen/outgoing/config";
 
-my %netsettings;
-&readhash("${swroot}/ethernet/settings", \%netsettings);
-
 my @hour = ( 0 .. 23 );
 my @minute = ( '00', '01', '02', '03', '04', '05', '06', '07', '08', '09', 10 .. 59 );
 
@@ -46,7 +43,7 @@ my $updatebutton = 0;
 
 &showhttpheaders();
 
-my ( %interfaces, %settings, %netsettings, %cgiparams, %selected, %checked, %confighash );
+my ( %interfaces, %settings, %netsettings, %cgiparams, %selected, %checked );
 my ($templine, @configs);
 
 $cgiparams{'ACTION'} = '';
@@ -61,14 +58,14 @@ $cgiparams{'RULEENABLED'} = 'on';
 
 &getcgihash(\%cgiparams);
 
+&readhash("${swroot}/ethernet/settings", \%netsettings);
+
 if ($ENV{'QUERY_STRING'} && ( not defined $cgiparams{'ACTION'} or $cgiparams{'ACTION'} eq "" ))
 {
 	my @temp = split(',',$ENV{'QUERY_STRING'});
 	$cgiparams{'ORDER'}  = $temp[1] if ( defined $temp[ 1 ] and $temp[ 1 ] ne "" );
 	$cgiparams{'COLUMN'} = $temp[0] if ( defined $temp[ 0 ] and $temp[ 0 ] ne "" );
 }
-
-&readhash("${swroot}/ethernet/settings", \%netsettings);
 
 # Before we do anything else, let's make sure that if there are config file lines for the Purple or Orange
 #  interfaces that the interfaces exist. This should fix any issues when a user changes his interfaces
@@ -131,8 +128,11 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 	my $target	 = $cgiparams{'TARGET'};
 	my $comment    = $cgiparams{'COMMENT'};
 	my @singleip;
+	my $setproxy = "off";
 
 	&writehash("$hashfile", \%cgiparams);
+
+	&readhash("$settingsfile", \%settings);
 
 	if ( $service eq "user" )
 	{
@@ -175,6 +175,12 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 		&readhash("$hashfile", \%cgiparams);
 		$service = $cgiparams{'PORT'};
 		$service =~ s/,/-/g;
+
+		if ($service eq "80" or $service =~ /^80-/ or $service =~ /-80-/ or $service =~ /-80$/ or $service eq "Web") {
+			$setproxy = "on";
+		} else {
+			$setproxy = "off";
+		}
 	}
 
   	#########################################
@@ -241,7 +247,7 @@ EXIT:
             my @temp = split(/\,/, $line);
             $temp[7]--;
             print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],";
-            print FILE "$temp[6],$temp[7],$temp[8],$temp[9]\n";
+            print FILE "$temp[6],$temp[7],$temp[8],$temp[9],$temp[10]\n";
           }
         } else {
             print FILE "$line";
@@ -268,13 +274,13 @@ EXIT:
           print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
           print FILE "$service,$cgiparams{'COMMENT'},";
           print FILE "TCP,$ipmac,";
-          print FILE "$cgiparams{'TARGET'},$cnt,";
+          print FILE "$cgiparams{'TARGET'},$cnt,$setproxy,";
           print FILE "$cgiparams{'TIMED'},+$cgiparams{'TIMES'}\n";
           $cnt++;
           print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
           print FILE "$service,$cgiparams{'COMMENT'},";
           print FILE "UDP,$ipmac,";
-          print FILE "$cgiparams{'TARGET'},$cnt,";
+          print FILE "$cgiparams{'TARGET'},$cnt,$setproxy,";
           print FILE "$cgiparams{'TIMED'},+$cgiparams{'TIMES'}\n";
           $notadded = 0;
           $cnt++;
@@ -282,7 +288,7 @@ EXIT:
           print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
           print FILE "$service,$cgiparams{'COMMENT'},";
           print FILE "$cgiparams{'PROTOCOL'},$ipmac,";
-          print FILE "$cgiparams{'TARGET'},$cnt,";
+          print FILE "$cgiparams{'TARGET'},$cnt,$setproxy,";
           print FILE "$cgiparams{'TIMED'},+$cgiparams{'TIMES'}\n";
           $notadded = 0;
           $cnt++;
@@ -292,30 +298,29 @@ EXIT:
       chomp $line;
       my @temp = split /,/, $line;
       print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],";
-      print FILE "$temp[6],$cnt,$temp[8],$temp[9]\n";
+      print FILE "$temp[6],$cnt,$temp[8],$temp[9],$temp[10]\n";
     }
 
     if ($notadded) {
       if ($cgiparams{'PROTOCOL'} eq "Both") {
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
-        print FILE "$service,$cgiparams{'COMMENT'},";
-        print FILE "TCP,$ipmac,";
-        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},off";
+        print FILE "$service,$cgiparams{'COMMENT'},TCP,$ipmac,";
+        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,off";
         $cgiparams{'ORDER_NUMBER'}++;
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
-        print FILE "$service,$cgiparams{'COMMENT'},";
-        print FILE "UDP,$ipmac,";
-        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},off";
+        print FILE "$service,$cgiparams{'COMMENT'},UDP,$ipmac,";
+        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,off";
       } else {
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
-        print FILE "$service,$cgiparams{'COMMENT'},";
-        print FILE "$cgiparams{'PROTOCOL'},$ipmac,";
-        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},off";
+        print FILE "$service,$cgiparams{'COMMENT'},$cgiparams{'PROTOCOL'},$ipmac,";
+        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,off";
         $cgiparams{'ORDER_NUMBER'}++;
       }
     }
     close(FILE);
    }
+
+    &writehash("$settingsfile", \%settings);
 
     if ($cgiparams{'ACTION'} eq $tr{'add'}) {
       &log($tr{'Outgoing rule added'});
@@ -428,15 +433,15 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-schedule
 			my $timestop2 = "23:59";
 			$timedisp = "$cfg_ln[6] from $timestart to $timestop2 on $timedays";
 			if ($cfg_ln[8] eq 'off') {
-				$cfg_ln[8] = 'on';
-				$cfg_ln[9] = "+$timedisp";
+				$cfg_ln[9] = 'on';
+				$cfg_ln[10] = "+$timedisp";
 			} else {
-				$cfg_ln[9] = "$cfg_ln[9] | $timedisp";
+				$cfg_ln[10] = "$cfg_ln[10] | $timedisp";
 			}
 			push (@cfg_ln, $days, $timestart, $timestop2);
 
 			$timestart2 = "00:00";
-			$cfg_ln[9] = "$cfg_ln[9] | $cfg_ln[6] from $timestart2 to $timestop on $timedays";
+			$cfg_ln[10] = "$cfg_ln[10] | $cfg_ln[6] from $timestart2 to $timestop on $timedays";
 			push (@cfg_ln, $days, $timestart2, $timestop);
 			my $cfg_ln_cnt = @cfg_ln;
 			for (my $i = 0; $i < $cfg_ln_cnt; $i++) {
@@ -447,10 +452,10 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-schedule
 		} else { 
 			$timedisp = "$cfg_ln[6] from $timestart to $timestop on $timedays";
 			if ($cfg_ln[8] eq 'off') {
-				$cfg_ln[8] = 'on';
-				$cfg_ln[9] = "+$timedisp";
+				$cfg_ln[9] = 'on';
+				$cfg_ln[10] = "+$timedisp";
 			} else {
-				$cfg_ln[9] = "$cfg_ln[9] | $timedisp";
+				$cfg_ln[10] = "$cfg_ln[10] | $timedisp";
 			}
 			push (@cfg_ln, $days, $timestart, $timestop);
 			my $cfg_ln_cnt = @cfg_ln;
@@ -542,7 +547,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
 				$cgiparams{'TARGET'} = $temp[6];
 				$cgiparams{'ORDER_NUMBER'} = $temp[7];
 				$cgiparams{'COMMENT'} = $temp[3];
-				$cgiparams{'TIMED'} = $temp[8];
+				$cgiparams{'TIMED'} = $temp[9];
 				$cgiparams{'TIMES'} = $times[1];
 
 				# Editing support
@@ -553,7 +558,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
 				chomp $line;
 				@temp = split /,/, $line;
         			$temp[7] = $count;
-				print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$temp[6],$temp[7],off,,\n";
+				print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$temp[6],$temp[7],$temp[8],off,,\n";
 				$count++;
 			}
 		}
@@ -976,7 +981,7 @@ my %render_settings =
 			sort   => 'cmp',
 		},
 		{
-			column => '9',
+			column => '10',
 			title  => 'Timed',
 			size   => 10,
 			tr     => 'onoff',
@@ -1000,7 +1005,7 @@ my %render_settings =
 			break => 'line',
 		},
 		{
-			column => '10',
+			column => '11',
 			title => "Time frames",
 			break => 'line',
 		}
