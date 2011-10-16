@@ -7,11 +7,13 @@
 include ../Makefile.conf
 
 PACKAGE = lm_sensors
-VERSION = 3.1.2
+VERSION = 3.3.1
 
 EXTENSION = .tar.bz2
 
 BASE_URL = http://dl.lm-sensors.org/lm-sensors/releases/
+
+PATCH_FILE1 = Makefile.patch
 
 CONFIGURE = yes
 COMPILE = yes
