@@ -244,10 +244,12 @@ EXIT:
         if ($cnt >= $cgiparams{'OLDID'}) {
           if ($cnt != $cgiparams{'OLDID'}) {
             chomp $line;
-            my @temp = split(/\,/, $line);
+            my @temp = split /,/, $line;
+	     my @times = split /\+/, $line;
+
             $temp[7]--;
             print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],";
-            print FILE "$temp[6],$temp[7],$temp[8],$temp[9],$temp[10]\n";
+            print FILE "$temp[6],$temp[7],$temp[8],$temp[9],+$times[1]\n";
           }
         } else {
             print FILE "$line";
@@ -297,49 +299,69 @@ EXIT:
 
       chomp $line;
       my @temp = split /,/, $line;
+      my @times = split /\+/, $line;
+      if ($times[1]) {
+	  $temp[10] = "+$times[1]";
+      }
       print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],";
       print FILE "$temp[6],$cnt,$temp[8],$temp[9],$temp[10]\n";
     }
 
     if ($notadded) {
+      my $timeon = 'off';
+      my $timechk = '';
+      if($cgiparams{'TIMES'}) {
+	 $timeon = 'on';
+	 $timechk = "+$cgiparams{'TIMES'}";
+      }
       if ($cgiparams{'PROTOCOL'} eq "Both") {
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
         print FILE "$service,$cgiparams{'COMMENT'},TCP,$ipmac,";
-        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,off";
+        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,";
+        print FILE "$timeon,$timechk\n";
         $cgiparams{'ORDER_NUMBER'}++;
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
         print FILE "$service,$cgiparams{'COMMENT'},UDP,$ipmac,";
-        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,off";
+        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,";
+        print FILE "$timeon,$timechk\n";
       } else {
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
         print FILE "$service,$cgiparams{'COMMENT'},$cgiparams{'PROTOCOL'},$ipmac,";
-        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,off";
-        $cgiparams{'ORDER_NUMBER'}++;
+        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,";
+        print FILE "$timeon,$timechk\n";
       }
     }
     close(FILE);
-   }
 
-    &writehash("$settingsfile", \%settings);
+    &writehash("$hashfile", \%cgiparams);
 
     if ($cgiparams{'ACTION'} eq $tr{'add'}) {
       &log($tr{'Outgoing rule added'});
     } else {
       &log($tr{'Outgoing rule updated'});
     }
-    ######################################
 
     my $success = message('setoutgoing');
   
     unless (defined $success) { 
 	$errormessage .= "$tr{'smoothd failure'}<BR />\n"; }
+  }
 
+	$cgiparams{'ORDER_NUMBER'} = "0";
+	open(FILE, "$config") or die 'Unable to open config file';
+	while (<FILE>) {
+		$cgiparams{'ORDER_NUMBER'}++;
+	}
+	close FILE;
+
+	$cgiparams{'ORDER_NUMBER'}++;
 	undef $cgiparams{'INTERFACE'};
 	undef $cgiparams{'PROTOCOL'};
 	undef $cgiparams{'IPMAC'}; 
 	undef $cgiparams{'PORT'};
 	undef $cgiparams{'COMMENT'};
 	undef $cgiparams{'TIMES'};
+	$cgiparams{'TARGET'} = "ACCEPT";
 }
 my $service = 'user';
 
@@ -419,7 +441,6 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-schedule
 	open(FILE, ">$config") or die 'unable to open config file';
 	flock FILE, 2;
 	$id = 0;
-	$count = 1;
 
 	foreach $line (@temp)
 	{
@@ -432,7 +453,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-schedule
 		} elsif ($shour > $ehour) {
 			my $timestop2 = "23:59";
 			$timedisp = "$cfg_ln[6] from $timestart to $timestop2 on $timedays";
-			if ($cfg_ln[8] eq 'off') {
+			if ($cfg_ln[9] eq 'off') {
 				$cfg_ln[9] = 'on';
 				$cfg_ln[10] = "+$timedisp";
 			} else {
@@ -451,7 +472,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-schedule
 	# This bit for the user who is careful and enters appropriate time frames
 		} else { 
 			$timedisp = "$cfg_ln[6] from $timestart to $timestop on $timedays";
-			if ($cfg_ln[8] eq 'off') {
+			if ($cfg_ln[9] eq 'off') {
 				$cfg_ln[9] = 'on';
 				$cfg_ln[10] = "+$timedisp";
 			} else {
@@ -514,13 +535,16 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
 		{
 			$id++;
 			unless ($cgiparams{$id} eq "on") {
-#				chomp $line;
-#				@temp = split /,/, $line;
-#       			$temp[7] = $count;
-#        			print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],";
-#        			print FILE "$temp[5],$temp[6],$temp[7],$temp[8],$temp[9]\n";
+				chomp $line;
+				@temp = split /,/, $line;
+				if ($temp[10]) {
+					@times = split /\+/, $line;
+					$temp[10] = $times[1];
+				}
+       			$temp[7] = $count;
+        			print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],";
+        			print FILE "$temp[5],$temp[6],$temp[7],$temp[8],$temp[9],+$temp[10]\n";
 				$count++; 
-				print FILE "$line";
 			} elsif ($cgiparams{'ACTION'} eq $tr{'edit'}) {
 				chomp $line;
 				@temp = split /,/, $line;
@@ -554,11 +578,12 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
         			$cgiparams{'OLDID'} = $id;
 				$updatebutton = 1;
 				print FILE "$line\n";
+				$count++;
 			} elsif ($cgiparams{'ACTION'} eq $tr{'tofc-remove-tf'}) {
 				chomp $line;
 				@temp = split /,/, $line;
         			$temp[7] = $count;
-				print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$temp[6],$temp[7],$temp[8],off,,\n";
+				print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$temp[6],$temp[7],$temp[8],off\n";
 				$count++;
 			}
 		}
@@ -570,7 +595,7 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
       			$cgiparams{'TARGET'} = 'ACCEPT';
       			$cgiparams{'RULEENABLED'} = 'on';
       			$cgiparams{'COMMENT'} = '';
-      			$cgiparams{'ORDER_NUMBER'} = $count;
+      			$cgiparams{'ORDER_NUMBER'} = $id;
 
       			&log('Outgoing rule removed');
     		} else {
@@ -653,6 +678,7 @@ open(FILE, "$config") or die 'Unable to open config file.';
 while (<FILE>) { $cgiparams{'RULE_COUNT'}++; }
 close(FILE);
 $cgiparams{'RULE_COUNT'}++;
+#$cgiparams{'ORDER_NUMBER'} = $cgiparams{'RULE_COUNT'};
 
 # Check for normal page load
 if ($cgiparams{'ACTION'} eq '') {
