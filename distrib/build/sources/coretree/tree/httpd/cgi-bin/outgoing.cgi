@@ -197,7 +197,8 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
   	my $greenipobj = new NetAddr::IP "$netsettings{'GREEN_ADDRESS'}/$netsettings{'GREEN_NETMASK'}";
   	my $orangeipobj = new NetAddr::IP "$netsettings{'ORANGE_ADDRESS'}/$netsettings{'ORANGE_NETMASK'}";;
   	my $purpleipobj = new NetAddr::IP "$netsettings{'PURPLE_ADDRESS'}/$netsettings{'PURPLE_NETMASK'}";;
-  	my $srcipaddrobj = "";
+  	my $srcipaddrobj1 = "";
+  	my $srcipaddrobj2 = "";
 
 	$greenipobj = new NetAddr::IP "$netsettings{'GREEN_ADDRESS'}/$netsettings{'GREEN_NETMASK'}";
 
@@ -209,22 +210,23 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
     		$purpleipobj = new NetAddr::IP "$netsettings{'PURPLE_ADDRESS'}/$netsettings{'PURPLE_NETMASK'}";
   	}
 
-    	$srcipaddrobj = new NetAddr::IP "$singleip[0]";
+    	$srcipaddrobj1 = new NetAddr::IP "$singleip[0]";
+    	$srcipaddrobj2 = new NetAddr::IP "$singleip[1]";
 
       	if ($cgiparams{'INTERFACE'} eq 'GREEN') {
-       	if (!$greenipobj->contains($srcipaddrobj)) {
-          		$errormessage .= "$tr{'tofc-source ip bad green'}<BR />\n";
+       	if (!$greenipobj->contains($srcipaddrobj1) or !$greenipobj->contains($srcipaddrobj2)) {
+          		$errormessage .= "IP range is not within your Green subnet!<BR />\n";
       		}
       	} elsif (($netsettings{'ORANGE_ADDRESS'} ne '') &&
        	($cgiparams{'INTERFACE'} eq 'ORANGE')) {
-        	if (!$orangeipobj->contains($srcipaddrobj)) {
-          		$errormessage .= "$tr{'tofc-source ip bad orange'}<BR />\n";
-        	}
+       	if (!$orangeipobj->contains($srcipaddrobj1) or !$orangeipobj->contains($srcipaddrobj2)) {
+          		$errormessage .= "IP range is not within your Orange subnet!<BR />\n";
+      		}
       	} elsif (($netsettings{'PURPLE_ADDRESS'} ne '') &&
               ($cgiparams{'INTERFACE'} eq 'PURPLE')) {
-        	if (!$purpleipobj->contains($srcipaddrobj)) {
-          		$errormessage .= "$tr{'tofc-source ip bad purple'}<BR />\n";
-        	}
+       	if (!$purpleipobj->contains($srcipaddrobj1) or !$purpleipobj->contains($srcipaddrobj2)) {
+          		$errormessage .= "IP range is not within your Purple subnet!<BR />\n";
+      		}
       	}
 EXIT:
   unless ($errormessage) {
@@ -970,7 +972,7 @@ my %render_settings =
 	[
 		{ 
 			column => '8',
-			title  => $tr{'order'},
+      			title  => $tr{'order'},
 			size   => 5,
 			sort   => '<=>',
 		},
