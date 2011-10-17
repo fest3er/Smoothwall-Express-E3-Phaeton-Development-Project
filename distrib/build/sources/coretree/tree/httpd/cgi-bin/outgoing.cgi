@@ -970,20 +970,20 @@ my %render_settings =
 	[
 		{ 
 			column => '8',
-			title  => 'Order',
+			title  => $tr{'order'},
 			size   => 5,
-			sort   => 'cmp',
+			sort   => '<=>',
 		},
 		{ 
 			column => '1',
-			title  => "$tr{'interfacenc'}",
+			title  => $tr{'interfacenc'},
 			tr     => { 'GREEN' => '<b><font color=#00ff00>GREEN</font></b>', 'ORANGE' => '<b><font color=#ff8c00>ORANGE</font></b>', 'PURPLE' => '<b><font color=#9400d3>PURPLE</font></b>' },
 			size   => 15,
 			sort   => 'cmp',
 		},
 		{
 			column => '3',
-			title  => "$tr{'application service'}",
+			title  => $tr{'application service'},
 			size   => 20,
 			sort   => 'cmp',
 			tr     => \%{$portmap},
@@ -1015,19 +1015,19 @@ my %render_settings =
 		},
 		{
 			column => '2',
-			title  => "$tr{'enabledtitle'}",
+			title  => $tr{'enabledtitle'},
 			size   => 10,
 			tr     => 'onoff',
 			align  => 'center',
 		},
 		{
-			title  => "$tr{'mark'}", 
+			title  => $tr{'mark'}, 
 			size   => 5,
 			mark   => ' ',
 		},
 		{ 
 			column => '4',
-			title => "$tr{'comment'}",
+			title => $tr{'comment'},
 			break => 'line',
 		},
 		{
