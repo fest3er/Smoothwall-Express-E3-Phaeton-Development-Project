@@ -128,7 +128,9 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 	my $target	 = $cgiparams{'TARGET'};
 	my $comment    = $cgiparams{'COMMENT'};
 	my @singleip;
-	my $setproxy = "off";
+	my $setproxy 	 = 'off';
+	my $timeon	 = 'off';
+	my $timechk	 = '';
 
 	&writehash("$hashfile", \%cgiparams);
 
@@ -193,6 +195,7 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 		@singleip = split /\-/, $ipmac;
 	} else {
 		$singleip[0] = $ipmac;
+		$singleip[1] = $ipmac;
 	}
   	my $greenipobj = new NetAddr::IP "$netsettings{'GREEN_ADDRESS'}/$netsettings{'GREEN_NETMASK'}";
   	my $orangeipobj = new NetAddr::IP "$netsettings{'ORANGE_ADDRESS'}/$netsettings{'ORANGE_NETMASK'}";;
@@ -248,10 +251,13 @@ EXIT:
             chomp $line;
             my @temp = split /,/, $line;
 	     my @times = split /\+/, $line;
-
+	     if ($times[1]) {
+		 $timeon = 'on';
+		 $timechk = "+$times[1]";
+	     }
             $temp[7]--;
             print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],";
-            print FILE "$temp[6],$temp[7],$temp[8],$temp[9],+$times[1]\n";
+            print FILE "$temp[6],$temp[7],$temp[8],$timeon,$timechk\n";
           }
         } else {
             print FILE "$line";
@@ -272,20 +278,30 @@ EXIT:
 
     foreach $line (@current) {
       $cnt++;
-
+      $timeon = 'off';
+      $timechk = '';
+      @times = split /\+/, $line;
+      if ($times[1]) {
+	   $timeon = 'on';
+	   $timechk = "+$times[1]";
+      }
+      if ($cgiparams{'TIMES'}) {
+	   $timeon = 'on';
+	   $timechk = "+$cgiparams{'TIMES'}";
+      }
       if ($cnt == $cgiparams{'ORDER_NUMBER'}) {
         if ($cgiparams{'PROTOCOL'} eq "Both") {
           print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
           print FILE "$service,$cgiparams{'COMMENT'},";
           print FILE "TCP,$ipmac,";
           print FILE "$cgiparams{'TARGET'},$cnt,$setproxy,";
-          print FILE "$cgiparams{'TIMED'},+$cgiparams{'TIMES'}\n";
+          print FILE "$timeon,$timechk\n";
           $cnt++;
           print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
           print FILE "$service,$cgiparams{'COMMENT'},";
           print FILE "UDP,$ipmac,";
           print FILE "$cgiparams{'TARGET'},$cnt,$setproxy,";
-          print FILE "$cgiparams{'TIMED'},+$cgiparams{'TIMES'}\n";
+          print FILE "$timeon,$timechk\n";
           $notadded = 0;
           $cnt++;
         } else {
@@ -293,7 +309,7 @@ EXIT:
           print FILE "$service,$cgiparams{'COMMENT'},";
           print FILE "$cgiparams{'PROTOCOL'},$ipmac,";
           print FILE "$cgiparams{'TARGET'},$cnt,$setproxy,";
-          print FILE "$cgiparams{'TIMED'},+$cgiparams{'TIMES'}\n";
+          print FILE "$timeon,$timechk\n";
           $notadded = 0;
           $cnt++;
         }
