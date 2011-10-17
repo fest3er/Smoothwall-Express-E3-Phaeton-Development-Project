@@ -81,7 +81,7 @@ fi
 /sbin/iptables -N tofc
 /sbin/iptables -N tofcfwd	# For outgoing traffic in FORWARD
 /sbin/iptables -N tofcproxy	# For outgoing taffic in INPUT e.g. proxies.
-/sbin/iptables -N tofcdrop
+/sbin/iptables -N tofcblock
 
 # Send preferred outgoing traffic on its merry way
 /sbin/iptables -A tofc -p icmp -j ACCEPT
@@ -97,7 +97,7 @@ fi
 
 # We must let NEW traffic in INPUT received by the local machine that is 
 #  then sent through OUTPUT out
-/sbin/iptables -A tofc -m state --state NEW -j RETURN
+/sbin/iptables -A tofc -m state --state NEW -j ACCEPT
 
 # Send all outbound traffic to the tofc chains
 /sbin/iptables -A INPUT -j tofcproxy
