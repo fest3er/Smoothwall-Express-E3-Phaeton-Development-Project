@@ -17,6 +17,8 @@ BASE_URL = ftp://ftp.cpan.org/pub/CPAN/src/5.0/
 # Toolchain, Stage 3 build
 #
 ifeq ($(BUILD_PHASE), Stage_3)
+
+# Fixme: improper "../"!!!!!
 PATCH_FILE1 = ../perl-5.10.1-libc-1.patch
 
 CONFIG_OPTS = -des -Dprefix=/tools -Dstatic_ext="Data/Dumper Fcntl IO POSIX" \

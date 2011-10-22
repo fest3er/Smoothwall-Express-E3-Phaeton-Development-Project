@@ -68,6 +68,9 @@ extern "C" {
 		if ( sig == SIGTERM ){
 		//	syslog( LOG_ERR, "%d Received Signal %d - %d ", getpid(), sig, SIGCHLD );
 		    	abort_now = 1;
+		} else if ( sig == SIGUSR2 ) {
+		//	syslog( LOG_ERR, "%d Received Signal %d - %d ", getpid(), sig, SIGUSR2 );
+		    	dshutdown = 1;
 		} else if ( sig == SIGCHLD ) {
 			client_signal_handler( sig );
 		}
@@ -85,11 +88,12 @@ extern "C" {
 		/* dont want child signals, want any interrupted syscalls to restart */
 //	    	act.sa_flags = SA_NOCLDSTOP|SA_RESTART;
 
-	    	sigaction(SIGINT,  &act, 0);		/* Integer error :( */
+	    	sigaction(SIGINT,  &act, 0);		/* Interrupt Signal */
 	    	sigaction(SIGTERM, &act, 0);	        /* Termination Signal */
 	    	sigaction(SIGHUP,  &act, 0);	        /* Hangup Signal */
 	    	sigaction(SIGQUIT, &act, 0); 	        /* Quit Signal */
     		sigaction(SIGUSR1, &act, 0);	        /* Child Down Nothing */
+    		sigaction(SIGUSR2, &act, 0);	        /* Restart Signal */
 	    	sigaction(SIGCHLD, &act, 0);	        /* Child Down Nothing */
 
 		return;
@@ -486,7 +490,7 @@ int main( int argc, char ** argv )
 	volatile pid_t pid;
 
 	/* register the child signal handler, we will probably register a different one later */
-
+	/* This handler is used solely for smoothd to background itself. */
 	struct sigaction sa;
 	memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = &master_signal_handler;	
@@ -498,7 +502,7 @@ int main( int argc, char ** argv )
     	/* detatch ourselves from calling process group */
 	if( ( pid = fork() ) > 0) {
 //syslog( LOG_ERR, "Setting Master GID to %d", master_pgid );
-		/* we are the parent - so exit right away */
+		/* we are the parent - so exit as soon as SIGUSR1 is received */
 		sleep ( 20 );
 		/* if we have reached this point, our children have failed to start    */
 		/* hence, we should kill them, just incase and then exit with suitable */
@@ -578,7 +582,13 @@ int main( int argc, char ** argv )
 			}
 			else if (ppid == 0)
 			{
+				/* This child process handles the timed functions. */
 //				reset_signal_handlers();
+				/* Do ignore SIGUSR2 */
+				struct sigaction sa_ign;
+				memset(&sa_ign, 0, sizeof(sa_ign));
+				sa_ign.sa_handler = SIG_IGN;
+				sigaction(SIGUSR2, &sa_ign, 0);
 
 				/* set our process group */
 //				syslog( LOG_ERR, "Setting Timed GID to %d -> %d", getpid() , master_pgid );
@@ -707,18 +717,19 @@ int main( int argc, char ** argv )
 			}
 		}	
 
-		syslog( LOG_INFO, "Performing system shutdown" );
+		syslog( LOG_INFO, "Initiating smoothd shutdown" );
 		syslog( LOG_INFO, "    Shutting down Timed function(s)" );
 
 		struct sigaction oldsa;
-		sigaction(SIGTERM, &sa, &oldsa); // ignore sigterm for us
+		memset(&sa, 0, sizeof(sa)); sa.sa_handler = SIG_IGN;
+		sigaction(SIGTERM, &sa, &oldsa); // ignore sigterm for me (this process)
       		int ret = kill( -pid, SIGTERM );
 				  	// send everyone in this process group a TERM
 					// which causes them to exit as the default action
 					// but it also seems to send itself a TERM
 					// so we ignore it
-      		sigaction(SIGTERM, &oldsa, NULL); // restore prev state			
 		int status = -1;
+		/* Reap all children as they perish; we don't want zombies */
 		pid_t child = wait3( &status, 0, NULL );
 
 		for ( std::vector<ModuleReg>::iterator rmod = modules.begin(); rmod != modules.end(); rmod++ ){
@@ -731,9 +742,10 @@ int main( int argc, char ** argv )
 		modules.clear();
 		functions.clear();
 		timedfunctions.clear();
+      		sigaction(SIGTERM, &oldsa, NULL); // restore prev state
+		syslog( LOG_INFO, "Smoothd shutdown complete." );
 	}
 
-	syslog( LOG_INFO, "Shutdown complete." );
 	remove_pid_file( PID );
 
 	return 0;

@@ -1,0 +1,13 @@
+--- lm_sensors-3.3.1/Makefile-ORIG	2011-10-16 14:29:58.000000000 -0400
++++ lm_sensors-3.3.1/Makefile	2011-10-16 14:30:15.000000000 -0400
+@@ -119,8 +119,8 @@
+ RMDIR := rmdir
+ RM := rm -f
+ MV := mv -f
+-BISON := bison
+-FLEX := flex
++BISON := /usr/bin/bison
++FLEX := /usr/bin/flex
+ AR := ar
+ INSTALL := install
+ LN := ln -sf

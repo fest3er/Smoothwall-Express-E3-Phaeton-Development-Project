@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 >/tmp/hd.list
 >/tmp/cd.list
@@ -30,13 +30,14 @@ echo "Preparing lists of CDROM and hard drives"
 OPWD=$PWD
 cd /sys/block
 
-typeset -i tries cd_cnt hd_cnt WORK_IDX sum size
+typeset -i tries cd_cnt hd_cnt WORK_IDX sum size TIME_START TIME_NOW TIME_DELTA
 tries=0
 WORKING[0]="|"
 WORKING[1]="/"
 WORKING[2]="-"
 WORKING[3]="\\\\"
 WORK_IDX=0
+TIME_START=`date +"%s"`
 
 # Loop until we have enough drives or concede obsequiously
 #
@@ -48,32 +49,35 @@ while [ 1 -eq 1 ]; do
 
   # Find all disks and optical drives
   for device in *; do
-    UDEVINFO="/sbin/udevadm info --path=${PWD}/${device} --query=all"
-    ID_TYPE=`$UDEVINFO | grep ID_TYPE | sed -e 's/.*=//'`
-    DEVNAM=`$UDEVINFO | grep DEVNAM | sed -e 's|.*=/dev/||'`
-    set `cat ${device}/size`
-    if [ $1 -gt 0 ]; then
-      size=$1
-    else
-      size=0
+    if [ -e "${device}/device" ]; then
+      UDEVINFO="/sbin/udevadm info --path=${PWD}/${device} --query=all"
+      ID_TYPE=`$UDEVINFO | grep ID_TYPE | sed -e 's/.*=//'`
+      DEVNAM=`$UDEVINFO | grep DEVNAM | sed -e 's|.*=/dev/||'`
+      set `cat ${device}/size`
+      if [ $1 -gt 0 ]; then
+        size=$1
+      else
+        size=0
+      fi
+      model=`$UDEVINFO | grep ID_MODEL= | sed -e 's/.*=//'`
+      [ -z "$model" ] && model=`cat ${device}/device/model 2>&1 | sed -e 's/ /-/g'`
+      [ -z "$model" ] && model="UNK_MODEL"
+      serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
+      [ -z "$serial" ] && serial=`cat ${device}/device/serial 2>&1 | sed -e 's/ /-/g'`
+      [ -z "$serial" ] && serial="UNK_SERIAL"
+      case $ID_TYPE in
+        cd)
+          # if an optical drive, add it to /tmp/cd.list
+          echo "$DEVNAM $size $model $serial" >> /tmp/cd.list
+          ;;
+        disk|generic)
+          # 'generic' added per Formesyn's testing using a SanDisk Ultra II CF.
+          # if a disk drive with size>0, add it to /tmp/hd.list
+          if [ $size -gt 0 ]; then
+            echo "$DEVNAM $size $model $serial" >> /tmp/hd.list
+          fi
+      esac
     fi
-    model=`$UDEVINFO | grep ID_MODEL= | sed -e 's/.*=//'`
-    [ -z "$model" ] && model=`cat ${device}/device/model 2>&1 | sed -e 's/ /-/g'`
-    [ -z "$model" ] && model="UNK_MODEL"
-    serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
-    [ -z "$serial" ] && serial=`cat ${device}/device/serial >/dev/null 2>&1 | sed -e 's/ /-/g'`
-    [ -z "$serial" ] && serial="UNK_SERIAL"
-    case $ID_TYPE in
-      cd)
-        # if an optical drive, add it to /tmp/cd.list
-        echo "$DEVNAM $size $model $serial" >> /tmp/cd.list
-        ;;
-      disk)
-        # if a disk drive with size>0, add it to /tmp/hd.list
-        if [ $size -gt 0 ]; then
-          echo "$DEVNAM $size $model $serial" >> /tmp/hd.list
-        fi
-    esac
   done
 
   # Find anything?
@@ -83,13 +87,13 @@ while [ 1 -eq 1 ]; do
   cd_cnt=$1
 
   # Search for hot-plugged drives for 6 seconds
+  # Short-circuit the counting if there are inexplicable delays
+  TIME_NOW=`date +"%s"`
+  TIME_DELTA=TIME_NOW-TIME_START
+  if [ $TIME_DELTA -gt 6 ]; then tries=30; fi
 
   case $tries in
-    5) echo -e -n " 5\r" ;;
-    10) echo -e -n " 4\r" ;;
-    15) echo -e -n " 3\r" ;;
-    20) echo -e -n " 2\r" ;;
-    25) echo -e -n " 1\r" ;;
+    5|10|15|20|25) echo -e -n " \r" ;;
     30)
       echo -e -n "\033[0J\r"
       case $hd_cnt in
@@ -106,6 +110,8 @@ while [ 1 -eq 1 ]; do
       if [ $sum -lt 2 ]; then
         echo -e "\nI do apologize. I cannot continue without at least two writable drives,"
         echo -e "or a writable drive and a CD/DVD drive.\n" 
+        echo "Hard drives found:"; sed -e 's/^/  /' /tmp/hd.list
+        echo "Optical drives found:"; sed -e 's/^/  /' /tmp/cd.list
         exit 1
       fi
       break
