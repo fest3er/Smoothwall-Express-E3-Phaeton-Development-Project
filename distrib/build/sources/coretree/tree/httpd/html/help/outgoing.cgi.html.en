@@ -1,80 +1,65 @@
 <p><font size='3'><strong><u>Outgoing Filtering and Timed Access</u></strong></font></p>
 
-<p><strong>Timed Outgoing Firewall Control</strong> allows disabling or limiting access
-to the Internet based on each internal interface and IP or MAC addresses for all protocols. 
-In addition, any of these rules may have up to four time frames scheduled to block or allow 
-a rule during the specified time frames.</p>
+<p><strong>Outgoing Filtering and Timed Access</strong> allows disabling or limiting access
+to the Internet based on each internal interface and IP or MAC addresses for the "forwardable" 
+protocols i.e. TCP, UDP, IPSec and PPTP passthrough. In addition, any of these rules may have 
+up to four time frames scheduled to block or allow a rule during the specified time frames.</p>
 
-<p>Each interface can be set to filter or not using the selection boxes on the
-<strong>Timed Outgoing Firewall Control</strong> page. The default installation of the
-<strong>Timed Outgoing Firewall Control</strong> modification is all outgoing traffic
-is allowed on all existing interfaces. This is called <strong>Allowed with exceptions</strong>.
-Any rules you add for individual IP or MAC addresses in this state will be blocking (or REJECT)
-rules.</p>
+<p>The default policy for all outgoing traffic is "REJECT". When Roadster is first installed there
+is a set of default rules that are created for the most commonly used ports and protocols for GREEN
+and PURPLE (if it exists). These are created "above" the default REJECT rule in the iptables chain to 
+allow them out.The order of any created rules may also be customized and changed as needed.</p>
 
-<p>Each interface may also be set to block all traffic on that interface. Setting any interface
-to the "Closed" state will block <strong>ALL</strong> outgoing protocols and ports (meaning all 
-network traffic)on that interface. Setting an interface to the "Blocked with exceptions" state
-will also block all outgoing network traffic on that interface but this state will add some default
-allowed exceptions to allow web browsing, remote access and VPN protocols. Any rules that you may 
-have already entered for that interface will be removed when the state of that interface is changed. 
-What this means is that in the closed state you will need to manually enter any allowed exceptions
-that you need. In the "Blocked with exceptions" state you will need to add any additional exceptions
-to the default exceptions that you need, or edit the default exceptions that you may need.</p>
+<p>Each rule may be created for a single source IP address or MAC or a range of IP addresses within
+the subnet the user defined for the source (LAN) interface in the format e.g. <b>10.0.0.100-10.0.0.200</b>. 
+Outgoing ports may also be selected either as a service (or application) from the <b>Sevice(s)</b> drop down menu 
+or a single port or a list of ports and/or ranges as comma separated values e.g. <b>80,443,6112:6119</b> in the 
+port entry field. When creating an outgoing rule the user may also select what order he wants the rule 
+to appear as in the display table or she may accept the default order number that is automatically determined 
+for the next rule to be created. A protocol should also be selected for the rule to be created. Remember that 
+ports can only be selected for TCP and UDP. The UI will prevent you from trying to enter any ports with a "portless" 
+protocol. A comment for the rule to be created may also be entered. Not all entry fields on the UI need to have an 
+entry. These are clearly labeled on the UI. When the user is done entering all desired options for a rule she 
+should then click on the <b>Add</b> button.</p>
 
-<p>When adding an exception you should select the interface the exception is for and enter an appropriate 
-IP or MAC address for that exception. You should also select a service from the select box or enter a user
-defined port or port range in the port text field. You should also select the protocol you desire
-from the select box. You may also enter a comment for the rule in the comment text field.</p>
+<p>When adding rules you may either enable them immediately with the <b>Enable</b> checkbox, or not enabled by
+unchecking tne <b>Enable</b> checkbox. If the rule is added as "disabled" the user may enable it at a later time 
+by clicking on the <b>Mark</b> box in the table display of rules and clicking the <b>Enable</b> button. Checking a rule 
+that is already enabled and then clicking the <b>Enable</b> button beneath the display table will disable the rule. 
+You may also completely remove a rule or edit a rule. Editing a rule preserves the order number of the rule 
+and any time frames associated with that rule. Select the rule to be edited then click the <b>Edit</b> button. The 
+currently existing options for a rule to be edited are filled in for the user in the entry fields and the <b>Add</b>
+button changes to an <b>Update</b> button. No changes are made to the existing rule until changes are made by the user 
+and the <b>Update</b> button is clicked. Any of the existing fields for the rule to be edited may be changed. After adding
+or updating a rule, the user may also change the action of a rule from ACCEPT to REJECT and vice versa by selecting 
+the rule in the display table and clicking on <b>Change Action</b>. If the user does not like how the rule has been created, 
+she can select the rule in the display table and click on the <b>Remove Rule</b> button. The rule will then be removed from
+the iptables chain and from the display table of the UI and the remaining rules will be reordered.</p>
 
-<p>When adding rules you may either enable them immediately with the Enable checkbox, or not enabled
-and then enable them at a later time by clicking on the "Mark" box in the table display of rules and
-clicking the Enable button. Checking a rule that is already enabled and then clicking the enable
-button will disable the rule. You may also completely remove a rule or edit a rule. Editing a rule
-removes it from the iptables chain and any scheduled time frames are also removed for that rule.</p>
 
+<p>For example:</p>
 
+<p>On the <strong>Outgoing Filtering and Timed Access</strong> UI page you would select the desired interface. Then
+enter the source IP address or range or the source MAC address OR leave this field blank for all addresses on that
+interface, select the destination port, ports and/or ranges (comma separated for multiple values) OR select the desired 
+port/service/application from the service(s) drop down menu OR leave blank for all ports and services/applications,
+select the desired protocol, select whether the rule will be an ACCEPT or a REJECT rule, select the desired order number 
+OR leave the default order number in place, uncheck the Enable checkbox if you do not want the rule enabled right away 
+OR leave checked if you want enabled right away. You may also enter a comment if desired. When everything is the way you 
+want it, click <b>Add</b>. The newly added rule will appear in the display table.</p>
 
-<p>For example: <strong>To limit a machine on the Orange interface to sending and receiving email only:</strong></p>
-
-<p>
-<ol>
-<li>Select <strong>ORANGE</strong> under <strong>Interface defaults</strong> and select <strong>Closed</strong> and click on <strong>Save</strong></li>
-<li>Select <strong>ORANGE</strong> for <i>Interface</i>, Select Email and news in the <i>Service selection menu</i> enter the IP address and TCP and click on the <strong>Add</strong> button.</li>
-</ol>
-</p>
-
-<p>If you change to the closed state on <strong>GREEN</strong> you will need to be logged into the admin gui with 
-https port 441 or you will lose connectivity to the admin gui when GREEN is closed.</p>
-
-<p>When an interface is Closed or Blocked with exceptions, you will see the options <i>Log rejected packets on 
-[interface]:</i> and <i>Alow related packets on [interface]</i> appear below the interface selection box.</p>
-
-<p><strong>Log rejected packets:</strong> this option will enable logging of all packets that are rejected on
-that interface in the "Blocked with exceptions" and "Closed" state.</p>
-
-<p><strong>Allow related packets:</strong> This option allows RELATED and ESTABLISHED packets for active connections
-and solicited data from an external source to pass through the closed or blocked state without being blocked.</p>
-
-<p>You may also enter a user defined port or port range in the port entry field instead of selecting a 
-service in the Service selection drop down to choose what you want to allow or block.</p>
-
-<p>If you select TCP, UDP, or TCP|UDP from the select box, you cannot enter any other protocol for that rule.</p>
-
-<p>For <strong>Timed Access</strong> you would check the box next to the rule that you want to set time frames for,
-enter the start time and end time and what days to schedule the time frames for and click the <i>Schedule</i> button.
+<p>For <strong>Timed Access</strong> you would check the box next to the rule that you wish to set time frames,
+enter the start time and end times and what days to schedule the time frames for and click the <b>Schedule</b> button.
 If you wish to enter another time frame for that same rule, click the box for that rule in the display table,
-enter another time frame and click Schedule again. You may enter up to four different time frames for the same IP
-or MAC address. You may also enter a comment for the timed rule that goes into crontab in the comment field.</p>
+enter another time frame and click <b>Schedule</b> again. You may enter up to four different time frames for the same IP
+or MAC address. You may also enter a comment for the timed rule that goes in the comment field of the display table.</p>
 
 <p><strong>Important!:</strong> Make sure your time frames do not overlap for a specific rule. Otherwise the timing
-will be incorrect.</p>
-
-<p>The <strong>Timed Access</strong> service for this mod uses crontab jobs to time the rules.These crontab entries may
-be found in the /var/smoothwall/mods/outgoing/etc/cron.d/outgoing file. Time frames are also displayed in the exceptions
-display table.</p>
-
-<p>If you wish to turn off the timing for a rule, you would need <i>Edit</i> the rule which will then remove the rule
-and its time frames.</p>
+will be incorrect. The UI already does a decent job to prevent this situation but unanticipated mistakes may still happen.
+So still try to make sure your time frames are sane. The UI does allow users to enter a single time frame that spans MN.
+Two rules are still created for a time frame that spans MN, but this is transparent to the user. After time frames are
+created, if the user decides he doesn't like them the way they are, he may select the rule that the time frames need to
+be changed and click <b>Remove Times</b> and all time frames will be removed and timing stopped but the original rule 
+will remain. Then the user may enter new time frames.</p>
 
 <p>You may visit the <a href="http://community.smoothwall.org/forum/viewtopic.php?t=25262">SmoothWall Community forums</a> for help as well.</p>
