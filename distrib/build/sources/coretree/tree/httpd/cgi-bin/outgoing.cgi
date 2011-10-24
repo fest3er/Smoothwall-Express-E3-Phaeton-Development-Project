@@ -134,7 +134,9 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 
 	&writehash("$hashfile", \%cgiparams);
 
-	&readhash("$settingsfile", \%settings);
+	if ($port =~ /[a-zA-Z]/) {
+		$service = $port;
+	}
 
 	if ( $service eq "user" )
 	{
@@ -555,20 +557,21 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
 			unless ($cgiparams{$id} eq "on") {
 				chomp $line;
 				@temp = split /,/, $line;
-				if ($temp[10]) {
-					@times = split /\+/, $line;
-					$temp[10] = $times[1];
+				@times = split /\+/, $line;
+				if ($times[1]) {
+					$temp[10] = "+$times[1]";
 				}
        			$temp[7] = $count;
         			print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],";
-        			print FILE "$temp[5],$temp[6],$temp[7],$temp[8],$temp[9],+$temp[10]\n";
+        			print FILE "$temp[5],$temp[6],$temp[7],$temp[8],$temp[9],$temp[10]\n";
 				$count++; 
 			} elsif ($cgiparams{'ACTION'} eq $tr{'edit'}) {
 				chomp $line;
 				@temp = split /,/, $line;
 				@times = split /\+/, $line;
 				$cgiparams{'INTERFACE'} = $temp[0];
-				if ( &validportrange( $temp[2] ) ) {
+				if ($temp[2] =~ /-/) {
+					$temp[2] =~ s/-/,/g;
 					$service = $temp[2];
 				}
 				if ($temp[4] eq "TCP") {
