@@ -45,15 +45,20 @@ DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu gcc \
 
 cdrom:
 	mkdir cdrom
+	echo "      runtimeroot" > /dev/tty
 	make -C runtimeroot
+	echo "      installroot" > /dev/tty
 	make -C installroot
+	echo "      cdromboot" > /dev/tty
 	make -C cdromboot
 
 cdrom/smoothwall.tgz:
+	echo "      prepare dir tree" > /dev/tty
 	@mkdir -p distrib distrib/sys distrib-dev distrib-doc/usr/share/
 
 	@install -D runtimerootimage.gz distrib/boot/initrd-$(K_SWE_VERSION).gz
 
+	echo "        unpack dev packages" > /dev/tty
 	@echo "Unpacking dev packages:"
 	@(for I in $(DEV_PKGS); do \
 	        if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
@@ -69,11 +74,13 @@ cdrom/smoothwall.tgz:
 	  done; \
 	);
 
+	echo "        copy dev shared libs to distrib" > /dev/tty
 	@echo "Copying dev shared libs to distrib:"
 	@(cd distrib-dev; \
 	        find . -name \*.so\* -print | cpio -pd ../distrib \
 	)
 
+	echo "        unpack main packages" > /dev/tty
 	echo "Unpacking main packages:"
 	@(for I in $(INST_PKGS); do \
 	        if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
@@ -88,6 +95,7 @@ cdrom/smoothwall.tgz:
 	        echo; \
 	done; \
 	);
+	echo "        move includes to distrib-dev" > /dev/tty
 	@echo "Moving includes to distrib-dev:"
 	@if [ -d distrib/usr/include ]; then \
 	  mkdir -p distrib-dev/usr/include; \
@@ -98,12 +106,14 @@ cdrom/smoothwall.tgz:
 	  cp -a distrib/usr/ssl/include distrib-dev/usr/ssl/; \
 	  rm -rf distrib/usr/ssl/include/*; fi
 
+	echo "        move static libs to distrib-dev" > /dev/tty
 	@echo "Moving static libs to distrib-dev:"
 	@cd distrib; find . -name \*.a -o -name \*.la | while read a; do \
 	  mkdir -p ../distrib-dev/`dirname $$a`; \
 	  mv $$a ../distrib-dev/$$a; \
 	done
 
+	echo "        move docs to distrib-doc" > /dev/tty
 	@echo "Moving docs to distrib-doc:"
 	@for I in man info share/man share/info share/doc examples; do \
 	  if [ -d distrib/usr/$$I ]; then \
@@ -114,6 +124,7 @@ cdrom/smoothwall.tgz:
 	    mv distrib/usr/ssl/$$I/* distrib-doc/usr/ssl/$$I/; fi; \
 	done
 
+	echo "        strip symbols" > /dev/tty
 	/build/striptree distrib
 	/build/striptree distrib-dev
 	/build/striptree distrib-doc
@@ -142,6 +153,7 @@ cdrom/smoothwall.tgz:
 
 	@chown nobody:nobody distrib/var/smoothwall/main/productdata
 
+	@echo "        Secure tree ..." >/dev/tty
 	@echo -e "\nSecuring tree ..."
 	@( \
 	  /build/securetree distrib; \
@@ -155,28 +167,33 @@ cdrom/smoothwall.tgz:
 	  mkdir -p /distrib/tmp; chmod 1777 distrib/tmp; \
 	) | sed -u -e 's/^/  /'
 	
+	@echo "        convert to shadow passwords ..." >/dev/tty
 	@echo -e "\nConverting to shadow passwords ..."
 	@( \
 	/usr/bin/chroot distrib /usr/sbin/pwconv; \
 	/usr/bin/chroot distrib /usr/sbin/grpconv; \
 	) | sed -u -e 's/^/  /'
 	
+	@echo "        update library cache ..." >/dev/tty
 	@echo -e "\nUpdating library cache ..."
 	@( \
 	/sbin/ldconfig -r distrib; \
 	) | sed -u -e 's/^/  /'
 
+	@echo "        tidy ..." >/dev/tty
 	@echo -e "\nTidying ..."
 	#@rm -f distrib/etc/resolv.conf
 	@find distrib -name .gitignore -exec rm -f {} \;
 	@ln -s /var/smoothwall/vpn/ipsec.conf distrib/etc/ipsec.conf
 
+	@echo "        copy to OffRoad ..." >/dev/tty
 	@echo -e "\nCopying to OffRoad ..."
 	@mkdir -p offroad
 	@cd cdrom; cp -av . ../offroad
-	@cd offroad/isolinux; sed -ie 's/r0 scroll/r0 scroll explore/' isolinux.cfg
-	@cd offroad/isolinux; sed -ie 's/115200/115200 explore/' isolinux.cfg
+	@sed -i -e '/Install Roadster/,+3d' -e '/Convert ISO/,+3d' \
+	  offroad/boot/grub/menu.lst
 
+	@echo "        build final tarballs ..." >/dev/tty
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
 	@tar -zcf cdrom/smoothwall.tgz -C distrib .
 
@@ -211,7 +228,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  set $${RELEASE/-/ }; \
 	  ISONAME=$(TARGET_DIR)/isos/smoothwall$(PRODUCT_EXTRA)-$${2}.iso; \
 	  /sbin/mkisofs -o $${ISONAME} \
-	    -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
+	    -b boot/grub/stage2_eltorito -J -R \
 	    -no-emul-boot -boot-load-size 4 -boot-info-table \
 	    -V $(BASENAME) --publisher "Smoothwall Roadster Test" cdrom; \
 	  echo "$${ISONAME} build complete"; \
@@ -221,19 +238,19 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  set $${RELEASE/-/ }; \
 	  ISONAME=$(TARGET_DIR)/isos/smoothwall$(PRODUCT_EXTRA)-$${2}-offroad.iso; \
 	  /sbin/mkisofs -o $${ISONAME} \
-	    -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
+	    -b boot/grub/stage2_eltorito -J -R \
 	    -no-emul-boot -boot-load-size 4 -boot-info-table \
 	    -V $(BASENAME) --publisher "Smoothwall Roadster Test (OffRoad)" offroad; \
 	  echo "$${ISONAME} build complete"; \
 	)
 
 clean:
-	@echo -n " $(PACKAGE)"
-	@rm -f Media.roadsterdevISO.built
-	@rm -rf cdrom offroad distrib distrib-dev distrib-doc klibc temp
-	@make --no-print-directory -C cdromboot clean >/dev/null 2>&1
-	@make --no-print-directory -C installroot clean >/dev/null 2>&1
-	@make --no-print-directory -C runtimeroot clean >/dev/null 2>&1
+	echo -n " $(PACKAGE)"
+	rm -f Media.roadsterdevISO.built
+	rm -rf cdrom offroad distrib distrib-dev distrib-doc klibc temp
+	make --no-print-directory -C cdromboot clean >/dev/null 2>&1
+	make --no-print-directory -C installroot clean >/dev/null 2>&1
+	make --no-print-directory -C runtimeroot clean >/dev/null 2>&1
 	
 download:
 	@true
