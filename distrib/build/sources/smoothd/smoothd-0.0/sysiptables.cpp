@@ -316,20 +316,32 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                            
                             /* =========Protocol========== */
           
-         if ( protocol == "TCP" || protocol == "Both" )
+         if ( protocol == "TCP" || protocol == "TCP&UDP" )
          {
             protos.push_back(" -p 6" + tmpports);
          }
                     
-         if ( protocol == "UDP" || protocol == "Both" )
+         if ( protocol == "UDP" || protocol == "TCP&UDP" )
          {
             protos.push_back(" -p 17" + tmpports);
          }
                     
-         if ( protocol == "IPSEC" )
+         if ( protocol == "All VPNs" )
          {
             protos.push_back(" -p 50");
             protos.push_back(" -p 51");
+            protos.push_back(" -p 17 -m multiport --ports 500,4500");
+
+            protos.push_back(" -p 47");
+
+            protos.push_back(" -p 6 -m multiport --ports 1194,1195");
+         }
+
+         if ( protocol == "IPSec" )
+         {
+            protos.push_back(" -p 50");
+            protos.push_back(" -p 51");
+            protos.push_back(" -p 17 -m multiport --ports 500,4500");
          }
           
          if ( protocol == "PPTP" )
@@ -337,6 +349,11 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
             protos.push_back(" -p 47");
          }
           
+         if ( protocol == "OpenVPN" )
+         {
+            protos.push_back(" -p 6 -m multiport --ports 1194,1195");
+         }
+
          if ( ! (protos.size()) )
          {
             response = "Bad entry for protocol: " + protocol;
@@ -407,6 +424,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
    }
    rmdupes(ipb, chainfwd + " -j tofcblock");
    rmdupes(ipb, "iptables -A tofcblock -j REJECT --reject-with icmp-admin-prohibited");
+   rmdupes(ipb, "iptables -A tofcproxy -j RETURN");
 
    error = ipbitch(ipb);
     
