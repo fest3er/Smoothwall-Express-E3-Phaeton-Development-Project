@@ -326,7 +326,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
             protos.push_back(" -p 17" + tmpports);
          }
                     
-         if ( protocol == "All VPNs" )
+         if ( protocol == "VPNs" )
          {
             protos.push_back(" -p 50");
             protos.push_back(" -p 51");

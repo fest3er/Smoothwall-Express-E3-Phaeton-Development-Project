@@ -152,8 +152,8 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 		}
 	}
 
-	if ( $cgiparams{'SERVICE'} eq "All VPNs" ) {
-		$protocol = "All VPNs";
+	if ( $cgiparams{'SERVICE'} eq "VPNs" ) {
+		$protocol = "VPNs";
 	}
 	if ( $cgiparams{'SERVICE'} eq "500:4500" ) {
 		$protocol = "IPSec";
