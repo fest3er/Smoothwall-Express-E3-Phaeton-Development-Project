@@ -1,0 +1,47 @@
+# Begin /boot/grub/menu.lst
+
+# Pre-select VESA install
+default 0
+
+
+# VESA console entries
+title VESA Console: Install Roadster
+root (cd)
+kernel /boot/vmlinuz ro quiet install
+initrd /boot/iniramfs.igz
+
+title VESA Console: Explore Hardware/System
+root (cd)
+kernel /boot/vmlinuz ro quiet explore
+initrd /boot/iniramfs.igz
+
+title VESA Console: Convert ISO to Bootable Flash
+root (cd)
+kernel /boot/vmlinuz ro quiet flash
+initrd /boot/iniramfs.igz
+
+title VESA Console: Single-user
+root (cd)
+kernel /boot/vmlinuz ro quiet single
+initrd /boot/iniramfs.igz
+
+# Serial console entries
+title Serial Console: Install Roadster
+root (cd)
+kernel /boot/vmlinuz ro quiet install console=ttyS0,115200
+initrd /boot/iniramfs.igz
+
+title Serial Console: Explore Hardware/System
+root (cd)
+kernel /boot/vmlinuz ro quiet explore console=ttyS0,115200
+initrd /boot/iniramfs.igz
+
+title Serial Console: Convert ISO to Bootable Flash
+root (cd)
+kernel /boot/vmlinuz ro quiet flash console=ttyS0,115200
+initrd /boot/iniramfs.igz
+
+title Serial Console: Single-user
+root (cd)
+kernel /boot/vmlinuz ro quiet single console=ttyS0,115200
+initrd /boot/iniramfs.igz

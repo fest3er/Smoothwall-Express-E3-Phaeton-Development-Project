@@ -1,11 +1,11 @@
 include ../Makefile.conf
 
 PACKAGE = clamav
-VERSION = 0.97
+VERSION = 0.97.3
 
 BASE_URL = http://heanet.dl.sourceforge.net/sourceforge/clamav/
 
-CONFIG_OPTS = --sysconfdir=/usr/lib/smoothwall --with-dbdir=/var/clamav --disable-clamav
+CONFIG_OPTS = --sysconfdir=/usr/lib/smoothwall --with-dbdir=/var/clamav --disable-clamav --enable-ltdl-install
 
 PATCH_FILE1 = clamav-pidperms.patch
 

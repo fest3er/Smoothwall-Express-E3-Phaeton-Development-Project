@@ -125,9 +125,18 @@ FL="flmnt${RANDOM}"
 case `basename $0` in
   make_flash)
     trap "cleanup $CD $FL; exit" EXIT SIGINT SIGQUIT
+    if [ `basename ${PWD}` == 'build' ]; then
+      # Assume 'make media' and use the buildroot grub
+      GRUB="${ORIG_DIR}/.."
+    else
+      # Assume on booted Roadster, use the natural grub
+      GRUB=""
+    fi
     ;;
   auto_flash)
     trap "cleanup $CD $FL; echo \"(Changing to runlevel 1)\"; init 1; exit" EXIT SIGINT SIGQUIT
+    # Assume on booted Roadster, use the natural grub
+    GRUB=""
     ;;
 esac
 
@@ -136,10 +145,6 @@ echo "Preparing..."
 
 # Set partition 1's 'bootable' flag
 parted /dev/${fldev} set 1 boot on >/dev/null 2>&1
-
-# Make it bootable
-syslinux /dev/${fldev}1 || \
-    { echo "Couldn't make /dev/${fldev}1 bootable!"; exit 1; }
 
 # Make the mount points
 mkdir -p $CD || \
@@ -166,12 +171,13 @@ cp -avr $CD/* $FL
 echo
 echo "Wrenching..."
 
-# Fix it so it'll boot
-cd $FL
-mv isolinux/* .
-rmdir isolinux
-sed -e 's=/isolinux==' isolinux.cfg > syslinux.cfg
-cd ..
+# Stuff needed for grub
+set -x
+PRT=`echo "find /smoothwall.tgz" | ${ORIG_DIR}/../usr/sbin/grub --batch 2>&- | egrep "\([^ ]*\)"`
+DRV=`echo $PRT | sed -e 's/,[0-9]*//'`
+sed -i -e "s/(cd)/(hd0,0)/" ${FL}/boot/grub/menu.lst
+echo -e "root ${PRT}\nsetup ${DRV}" | ${ORIG_DIR}/../usr/sbin/grub --batch
+set +x
 
 echo
 echo "Finishing..."
