@@ -17,7 +17,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    vim less sed flex gettext net-tools inetutils iputils whois perl \
 	    bash bzip2 kbd e2fsprogs grep gzip module-init-tools procinfo procps \
 	    psmisc shadow sysklogd logrotate sysvinit tar util-linux-ng joe wget \
-	    iptables ipset ipbatch pciutils kernel-roadster openssl openssh \
+	    iptables ipset ipbatch pciutils linux-dom0 openssl openssh \
 	    httpd smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace \
 	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
 	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
@@ -52,7 +52,7 @@ cdrom:
 cdrom/smoothwall.tgz:
 	@mkdir -p distrib distrib/sys distrib-dev distrib-doc/usr/share/
 
-	@install -D runtimerootimage.gz distrib/boot/initrd-$(K_SWE_VERSION).gz
+	@install -D runtimerootimage.gz distrib/boot/initrd-$(K_SWE_VERSION)-dom0.gz
 
 	@echo "Unpacking dev packages:"
 	@(for I in $(DEV_PKGS); do \
@@ -121,7 +121,7 @@ cdrom/smoothwall.tgz:
 	@echo -e "\nProduct info:"
 	@( \
 	echo "  PRODUCT='$(PRODUCT_NAME)'"; \
-	echo "  VERSION='$(PRODUCT_VERSION)$(SWETYPE)'"; \
+	echo "  VERSION='$(PRODUCT_VERSION)'"; \
 	echo "  RELEASE='$(RELEASE)'" ; \
 	echo "  REVISION='$(REVISION)'"; \
 	echo "  UI_VERSION='$(UI_VERSION)'"; \
@@ -132,7 +132,7 @@ cdrom/smoothwall.tgz:
 	mkdir -p distrib/var/smoothwall/main
 	( \
 	  echo "PRODUCT='$(PRODUCT_NAME)'" ; \
-	  echo "VERSION='$(PRODUCT_VERSION)$(SWETYPE)'" ; \
+	  echo "VERSION='$(PRODUCT_VERSION)'" ; \
 	  echo "RELEASE='$(RELEASE)'" ; \
 	  echo "REVISION='$(REVISION)'" ; \
 	  echo "UI_VERSION='$(UI_VERSION)'" ; \
@@ -213,7 +213,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  /sbin/mkisofs -o $${ISONAME} \
 	    -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
 	    -no-emul-boot -boot-load-size 4 -boot-info-table \
-	    -V $(BASENAME) --publisher "Smoothwall Roadster Test" cdrom; \
+	    -V $(BASENAME) --publisher "Silver Cloud Test" cdrom; \
 	  echo "$${ISONAME} build complete"; \
 	)
 	@( \
@@ -223,13 +223,13 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  /sbin/mkisofs -o $${ISONAME} \
 	    -b isolinux/isolinux.bin -J -c isolinux/boot.cat \
 	    -no-emul-boot -boot-load-size 4 -boot-info-table \
-	    -V $(BASENAME) --publisher "Smoothwall Roadster Test (OffRoad)" offroad; \
+	    -V $(BASENAME) --publisher "Silver Cloud Test (OffRoad)" offroad; \
 	  echo "$${ISONAME} build complete"; \
 	)
 
 clean:
 	@echo -n " $(PACKAGE)"
-	@rm -f Media.roadsterdevISO.built
+	@rm -f Media.*.built
 	@rm -rf cdrom offroad distrib distrib-dev distrib-doc klibc temp
 	@make --no-print-directory -C cdromboot clean >/dev/null 2>&1
 	@make --no-print-directory -C installroot clean >/dev/null 2>&1

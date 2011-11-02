@@ -17,7 +17,7 @@ CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
-PKG_DIR = usr/ssl
+PKG_DIR = usr
 
 configure: $(DIR)/
 	@(cd $(DIR); \

@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = glibc
-VERSION = 2.11.2
+VERSION = 2.14.1
 
 EXTENSION = .tar.bz2
 
@@ -15,15 +15,17 @@ BASE_URL =  ftp://ftp.gnu.org/gnu/glibc
 
 COMPILE_DIR = $(DIR)-compile
 
-
 # Phase 1 compile
 #
 ifeq ($(BUILD_PHASE), Stage_1)
 
+PATCH_FILE1 = glibc-2.14.1-gcc_fix-1.patch
+PATCH_FILE2 = glibc-2.14.1-cpuid-1.patch
+
 CONFIG_OPTS = --prefix=$(TOOLS_DIR) \
     --host=$(SWE_TGT) --build=$$(../glibc-$(VERSION)/scripts/config.guess) \
     --disable-profile --enable-add-ons \
-    --enable-kernel=2.6.18  --with-headers=$(TOOLS_DIR)/include \
+    --enable-kernel=2.6.25  --with-headers=$(TOOLS_DIR)/include \
     libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes
 
 PREPARE = yes
@@ -64,9 +66,14 @@ ifeq ($(ARCH), i686)
 BUILD = --build=i686-pc-linux-gnu
 endif
 
+PATCH_FILE1 = glibc-2.14.1-fixes-1.patch
+PATCH_FILE2 = glibc-2.14.1-gcc_fix-1.patch
+PATCH_FILE3 = glibc-2.14-reexport-rpc-interface.patch
+PATCH_FILE4 = glibc-2.14-reinstall-nis-rpc-headers.patch
+
 
 CONFIG_OPTS = --prefix=/usr --disable-profile --enable-add-ons \
-    --enable-kernel-2.6.18 --libexecdir=/usr/lib/glibc
+    --enable-kernel-2.6.25 --libexecdir=/usr/lib/glibc
 
 DOWNLOAD = yes
 download:
@@ -85,8 +92,13 @@ $(DIR)/: download
 	  sed -i "s|libs -o|libs -L/usr/lib -Wl,-dynamic-linker=$$DL -o|" \
 	  scripts/test-installation.pl; \
 	  unset DL
-	cd $(DIR); echo "CFLAGS += -march=i686 -mtune=native" > configparms; \
-	  sed -i 's|@BASH@|/bin/bash|' elf/ldd.bash.in
+	cd $(DIR); \
+	  echo "CFLAGS += -march=i686 -mtune=native -O3 -pipe" > configparms; \
+	  sed -i 's|@BASH@|/bin/bash|' elf/ldd.bash.in; \
+	  sed -i -e 's/"db1"/& \&\& $name ne "nss_test1"/' \
+	    scripts/test-installation.pl; \
+	  sed -i '195,213 s/PRIVATE_FUTEX/FUTEX_CLOCK_REALTIME/' \
+	    nptl/sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_timed{rd,wr}lock.S
 
 COMPILE = yes
 INSTALL = yes

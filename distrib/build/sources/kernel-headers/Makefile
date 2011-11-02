@@ -12,10 +12,10 @@ PACKAGE = kernel-headers
 VERSION = 0.0
 
 download:
-	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/longterm/v$(KERNEL_MMR)/linux-$(KERNEL_VER).tar.bz2
+	@$(DL_CMD) $(KERNEL_URL)
 
 install: download
-	@tar -xvf $(DOWNLOADS_DIR)/linux-$(KERNEL_VER).tar.bz2
+	@tar -xvf $(DOWNLOADS_DIR)/linux-$(KERNEL_VER).tar.xz
 ifeq ($(BUILD_PHASE), Stage_1)
 	cd linux-$(KERNEL_VER); \
 	  make mrproper; \

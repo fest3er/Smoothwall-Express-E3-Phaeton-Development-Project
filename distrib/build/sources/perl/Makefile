@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = perl
-VERSION = 5.10.1
+VERSION = 5.14.2
 
 BASE_URL = ftp://ftp.cpan.org/pub/CPAN/src/5.0/
 
@@ -17,12 +17,14 @@ BASE_URL = ftp://ftp.cpan.org/pub/CPAN/src/5.0/
 # Toolchain, Stage 3 build
 #
 ifeq ($(BUILD_PHASE), Stage_3)
-PATCH_FILE1 = ../perl-5.10.1-libc-1.patch
+PATCH_FILE1 = perl-5.14.2-libc-1.patch
 
-CONFIG_OPTS = -des -Dprefix=/tools -Dstatic_ext="Data/Dumper Fcntl IO POSIX" \
-	      -Donlyextensions="Data/Dumper Fcntl IO POSIX" \
-	      -Dglincpth="/tools/include" -Dglibpth="/tools/lib" \
-	      -Dinc_version_list=none
+#CONFIG_OPTS = -des -Dprefix=/tools -Dstatic_ext="Data/Dumper Fcntl IO POSIX" \
+#	      -Donlyextensions="Data/Dumper Fcntl IO POSIX" \
+#	      -Dglincpth="/tools/include" -Dglibpth="/tools/lib" \
+#	      -Dinc_version_list=none
+
+CONFIG_OPTS = -des -Dprefix=/tools
 
 CONFIGURE = yes
 configure: patch
@@ -30,14 +32,14 @@ configure: patch
 
 COMPILE = yes
 compile: configure
-	make $(JOBS) -C $(COMPILE_DIR) perl utilities ext/Errno/pm_to_blib
+	make $(JOBS) -C $(COMPILE_DIR) # perl utilities ext/Errno/pm_to_blib
 
 INSTALL = yes
 install: compile
 	cd $(COMPILE_DIR); \
 	  cp -v perl pod/pod2man $(TOOLS_DIR)/bin; \
-	  mkdir -pv $(TOOLS_DIR)/lib/perl5/5.10.1; \
-	  cp -Rv lib/* $(TOOLS_DIR)/lib/perl5/5.10.1
+	  mkdir -pv $(TOOLS_DIR)/lib/perl5/$(VERSION); \
+	  cp -Rv lib/* $(TOOLS_DIR)/lib/perl5/$(VERSION)
 endif
 
 

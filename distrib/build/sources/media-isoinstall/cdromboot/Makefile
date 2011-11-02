@@ -12,7 +12,7 @@ default:
 	cp /usr/share/syslinux/isolinux.bin ../cdrom/isolinux/
 	cp isolinux.cfg ../cdrom/isolinux/isolinux.cfg
 	cp dosfiles/roadster.txt dosfiles/prhelpf2.txt dosfiles/roadster.lss ../cdrom/isolinux/
-	cp -R /build/buildroot/kernel$(SWETYPE)/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/isolinux/vmlinuz
+	cp -R /build/buildroot/linux-dom0/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/isolinux/vmlinuz
 	cp ../installroot/installrootimage.gz ../cdrom/isolinux/iniramfs.igz
 	echo -e "ISOLinux boot prep complete\n\n\n\n\n"
 

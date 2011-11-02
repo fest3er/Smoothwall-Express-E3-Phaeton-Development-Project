@@ -5,8 +5,8 @@
 # This code is distributed under the terms of the GPL v2.
 
 # The system's kernel.
-KERNEL_MMR = 2.6.35
-KERNEL_VER = $(KERNEL_MMR).12
+KERNEL_MMR = 3.0
+KERNEL_VER = $(KERNEL_MMR).8
 
 # The kernel version headers needed to build klibc-2.6.18
 # Unrelated to the system's kernel
@@ -16,15 +16,18 @@ SWETYPE = $(PRODUCT_EXTRA)
 K_RAW_VERSION = $(KERNEL_VER)
 K_SWE_VERSION = $(KERNEL_VER)$(SWETYPE)
 
+KERNEL_URL = http://www.kernel.org/pub/linux/kernel/v$(KERNEL_MMR)/linux-$(K_RAW_VERSION).tar.xz
+
 FREESWAN_TYPE = openswan
-FREESWAN_VER = 2.6.33
+FREESWAN_VER = 2.6.36
 
 #IPP2P_VER = 0.8.2
 
-IPTABLES_VER = 1.4.10
-XTABLES_ADDONS_VER = 1.32
+IPTABLES_VER = 1.4.12.1
+XTABLES_ADDONS_VER = 1.39
 
 GMP_VER = 5.0.0
-MPFR_VER = 2.4.2
+MPFR_VER = 3.0.1
+MPC_VER = 0.9
 
 TCL_VER = 8.5.8

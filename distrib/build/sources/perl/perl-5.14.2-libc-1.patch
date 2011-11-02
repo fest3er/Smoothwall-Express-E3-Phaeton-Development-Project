@@ -5,9 +5,9 @@ Origin: Not Submitted - LFS Specific
 Description: This patch adapts some hard-wired paths to the C library.
              It uses the $prefix variable to locate the correct libc.
 
-diff -Naur perl-5.10.1.orig/hints/linux.sh perl-5.10.1/hints/linux.sh
---- perl-5.10.1.orig/hints/linux.sh	2009-02-12 22:58:12.000000000 +0000
-+++ perl-5.10.1/hints/linux.sh	2009-08-25 18:31:06.000000000 +0000
+diff -Naur perl-5.14.1.orig/hints/linux.sh perl-5.14.1/hints/linux.sh
+--- perl-5.14.1.orig/hints/linux.sh	2011-06-09 15:04:29.000000000 -0500
++++ perl-5.14.1/hints/linux.sh	2011-06-25 16:42:12.000000000 -0500
 @@ -63,9 +63,9 @@
  # We don't use __GLIBC__ and  __GLIBC_MINOR__ because they
  # are insufficiently precise to distinguish things like
@@ -20,7 +20,7 @@ diff -Naur perl-5.10.1.orig/hints/linux.sh perl-5.10.1/hints/linux.sh
  fi
  
  # Configure may fail to find lstat() since it's a static/inline
-@@ -436,3 +436,8 @@
+@@ -461,3 +461,8 @@
      libswanted="$libswanted pthread"
      ;;
  esac

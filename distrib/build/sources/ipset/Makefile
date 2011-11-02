@@ -25,15 +25,15 @@ include ../Makefile.conf
 include ../Makefile.versions
 include ../Makefile
 
-export KNL_DIR:="$(SOURCES_DIR)/kernel$(PRODUCT_EXTRA)/linux"
+export KNL_DIR:="$(SOURCES_DIR)/linux-domU/linux"
 
 PACKAGE = ipset
-VERSION = 4.4
+VERSION = 4.5
 
 EXTENSION = .tar.bz2
 BASE_URL = http://ipset.netfilter.org
 
-#CONFIG_OPTS = --prefix=/usr --mandir=/usr/man --docdir=/usr/doc \
+CONFIG_OPTS = --prefix=/usr --mandir=/usr/man --docdir=/usr/doc \
 	        --enable-devel --enable-libipq
 
 CONFIGURE = yes
@@ -45,7 +45,8 @@ configure: $(DIR)/ patch
 	true
 
 compile: configure
-	KERNEL_DIR=$(KNL_DIR) make $(JOBS) -C $(COMPILE_DIR)
+	KERNEL_DIR=$(KNL_DIR) make $(JOBS) -C $(COMPILE_DIR) NO_EXTRA_WARN_FLAGS=yes
+
 
 
 install: compile
