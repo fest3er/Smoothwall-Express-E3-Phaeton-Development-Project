@@ -17,7 +17,7 @@ BASE_URL = http://www.kernel.org/pub/linux/libs/klibc/$(VER_MM)/
 DOWNLOAD = yes
 download:
 	@$(DL_CMD) $(BASE_URL)/$(TARBALL)$(EXTENSION) $(MD5)
-	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v2.6/linux-$(KLIBKERNVER).tar.bz2
+	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v3.0/linux-$(KLIBKERNVER).tar.xz
 
 CONFIGURE = YES
 configure: patch
@@ -26,8 +26,8 @@ configure: patch
 COMPILE = yes
 
 compile: configure
-	tar -xvf /build/downloads/linux-$(KLIBKERNVER).tar.bz2
-	sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../kernel.config$(SWETYPE)-i686 > linux-$(KLIBKERNVER)/.config
+	tar -xvf /build/downloads/linux-$(KLIBKERNVER).tar.xz
+	sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../linux.config-domU-i686 > linux-$(KLIBKERNVER)/.config
 	cd linux-$(KLIBKERNVER); make prepare headers_install
 	cd linux-$(KLIBKERNVER); ln -s ../arch/x86/include/asm include/asm
 	cd $(DIR); \

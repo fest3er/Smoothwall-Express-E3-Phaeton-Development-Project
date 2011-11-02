@@ -4,15 +4,15 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
-BASENAME = express-3.0
+BASENAME = agcl
 
-PRODUCT_NAME = Express
-PRODUCT_VERSION = 3.0
+PRODUCT_NAME = Silver Cloud
+PRODUCT_VERSION = 0.1
 
-PRODUCT_EXTRA = -roadster
+PRODUCT_EXTRA =
 
-UI_VERSION = 3.0
+UI_VERSION = 0.1
 FIXES_NUMBER = 0
-REVISION = polar
+REVISION = 
 
-RELEASE = Roadster-2.0.2
+RELEASE = agcl-0.0.1

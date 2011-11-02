@@ -8,5 +8,7 @@ include ../Makefile
 include ../Makefile.conf
 include ../Makefile.versions
 
+KERNEL_TYPE = dom0
+
 include ../Makefile.kernel
 

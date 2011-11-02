@@ -47,7 +47,7 @@ lib:
 	cp -aR /lib/* tmp/lib
 	cp -aR /lib/lib* tmp/lib
 	cp -aR /usr/lib/libncurses* tmp/lib/
-	tar xfz /build/target/smoothwall-kernel$(SWETYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1
+	tar xfz /build/target/smoothwall-linux-dom0.tar.gz -C tmp ./lib/modules > /dev/null 2>&1
 	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
 	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
 	#  rm -rf $(EXCLUDE_DRIVERS)

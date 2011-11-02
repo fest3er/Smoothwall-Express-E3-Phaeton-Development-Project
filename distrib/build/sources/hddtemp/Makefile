@@ -19,6 +19,14 @@ HDTEMPDB = hddtemp.db
 #PATCH_FILE1 = hddtemp_0.3-beta12-6.diff.gz
 #PATCH_FILE2 = smoothwall-locale-fix.patch
 
+export CFLAGS = $(OPT_FLAGS) -march=i686 -Wall -D_GNU_SOURCE
+
+COMPILE = yes
+
+compile: configure
+	@make ${JOBS} -C $(COMPILE_DIR)
+
+
 INSTALL = yes
 
 install: compile

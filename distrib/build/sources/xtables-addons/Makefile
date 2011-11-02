@@ -16,7 +16,7 @@ EXTENSION = .tar.xz
 BASE_URL = http://downloads.sourceforge.net/project/xtables-addons/Xtables-addons/$(VERSION)
 
 CONFIG_OPTS = --with-gnu-ld \
-	      --with-kbuild=/build/sources/kernel$(SWETYPE)/linux/ \
+	      --with-kbuild=/build/sources/linux-domU/linux/ \
 	      --with-ksource=/lib/modules/$(K_SWE_VERSION)/source
 
 

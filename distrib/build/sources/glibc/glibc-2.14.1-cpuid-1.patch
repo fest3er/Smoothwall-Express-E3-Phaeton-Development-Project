@@ -1,0 +1,21 @@
+Submitted By:            Bruce Dubbs <bdubbs_at_linuxfromscratch_dot_org>
+Date:                    2011-06-28
+Initial Package Version: 2.14
+Upstream Status:         Not Submitted
+Origin:                  Bryan Kadzban
+Description:             Fixes the following build problem with GCC-4.5.0:
+
+diff -Naur glibc-2.14/sysdeps/i386/configure glibc-2.14-patched/sysdeps/i386/configure
+--- glibc-2.14/sysdeps/i386/configure  2011-05-30 21:12:33.000000000 -0700
++++ glibc-2.14-patched/sysdeps/i386/configure   2011-06-04 18:35:09.000000000 -0700
+@@ -632,7 +632,9 @@
+ done
+ 
+ 
+-ac_fn_c_check_header_mongrel "$LINENO" "cpuid.h" "ac_cv_header_cpuid_h" "$ac_includes_default"
++ac_fn_c_check_header_compile "$LINENO" "cpuid.h" "ac_cv_header_cpuid_h" "
++
++"
+ if test "x$ac_cv_header_cpuid_h" = x""yes; then :
+ 
+ else

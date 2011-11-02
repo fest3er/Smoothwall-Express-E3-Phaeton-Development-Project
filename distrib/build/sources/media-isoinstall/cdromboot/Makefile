@@ -11,7 +11,7 @@ default:
 	mkdir -p ../cdrom/boot/grub
 	cp -a /usr/lib/grub/i386-pc/* ../cdrom/boot/grub
 	cp -a menu.lst ../cdrom/boot/grub/menu.lst
-	cp -R /build/buildroot/kernel$(SWETYPE)/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/boot/vmlinuz
+	cp -R /build/buildroot/linux-dom0/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/boot/vmlinuz
 	cp ../installroot/installrootimage.gz ../cdrom/boot/iniramfs.igz
 	echo -e "ISO boot prep complete\n\n\n\n\n"
 

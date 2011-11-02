@@ -25,6 +25,6 @@ clean :
 ipbatch.o: ipbatch.c $(IPTABLES_SRC_DIR)/include/iptables.h
 	$(CC) -c $(CFLAGS) -DIPT_LIB_DIR=\"$(IPT_LIB_DIR)\" ipbatch.c 
 
-ipbatch: ipbatch.o $(IPTABLES_SRC_DIR)/iptables.o $(IPTABLES_SRC_DIR)/xshared.o
+ipbatch: ipbatch.o $(IPTABLES_SRC_DIR)/iptables/xtables_multi-iptables.o $(IPTABLES_SRC_DIR)/iptables/xshared.o
 	$(CC) $(CFLAGS) -DIPT_LIB_DIR=\"$(IPT_LIB_DIR)\" $(LDFLAGS) -o $@ $^ $(LDLIBS)
 

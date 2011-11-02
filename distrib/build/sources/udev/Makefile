@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = udev
-VERSION = 165
+VERSION = 171
 TARBALL = $(PACKAGE)-$(VERSION)
 
 BASE_URL = http://www.us.kernel.org/pub/linux/utils/kernel/hotplug/
@@ -19,7 +19,8 @@ PKG_DIR =
 CONFIG_OPTS = --prefix=/usr --with-rootlibdir=/lib --libexecdir=/lib/udev \
 	      --sysconfdir=/etc --sbindir=/sbin --libdir=/usr/lib \
 	      --docdir=/usr/share/doc/$(PACKAGE)-$(VERSION) --disable-extras \
-	      --disable-introspection
+	      --disable-introspection --disable-udev_acl --disable-gudev \
+              --without-gperf --disable-hwdb --disable-keymap
 
 COMPILE = yes
 INSTALL = yes

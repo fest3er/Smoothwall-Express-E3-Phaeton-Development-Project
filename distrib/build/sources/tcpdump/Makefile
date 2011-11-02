@@ -7,9 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = tcpdump
-VERSION = 4.0.0
+VERSION = 4.1.1
 
 BASE_URL = http://www.tcpdump.org/release/
+
+#PATCH_FILE1  = tcpdump-sunrpc.patch
 
 INSTALL = yes
 

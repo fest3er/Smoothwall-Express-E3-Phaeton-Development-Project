@@ -62,7 +62,7 @@ int execute( char * commands )
 	arguments[counter] = 0; // mate it pleasant for the debugger
 
 
-	return do_command( counter, arguments, &table, &handle );
+	return do_command4( counter, arguments, &table, &handle );
 
 }
 

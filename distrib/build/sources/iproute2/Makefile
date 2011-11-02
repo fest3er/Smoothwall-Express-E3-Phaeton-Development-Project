@@ -14,6 +14,8 @@ VERSION = 2.6.39
 BASE_URL = http://devresources.linuxfoundation.org/dev/iproute2/download
 EXTENSION=.tar.gz
 
+PATCH_FILE1 = m_xt.c.patch
+
 CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
@@ -23,7 +25,8 @@ configure: patch
 	@sed -i '/^TARGETS/s@ arpd@@g' $(COMPILE_DIR)/misc/Makefile
 
 compile: configure
-	@make $(JOBS) -C $(COMPILE_DIR) KERNEL_INCLUDE=/usr/include
+	@make $(JOBS) -C $(COMPILE_DIR) DESTDIR=
+	#@make $(JOBS) -C $(COMPILE_DIR) KERNEL_INCLUDE=/usr/include
 	@ln -s $(DIR) $(PACKAGE)
 
 install: compile

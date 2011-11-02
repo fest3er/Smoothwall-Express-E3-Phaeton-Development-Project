@@ -75,7 +75,7 @@ int execute( char * commands )
 	arguments[counter] = 0; // mate it pleasant for the debugger
 	
 	// call down to iptables
-	rval = do_command( counter, arguments, &table, &handle );
+	rval = do_command4( counter, arguments, &table, &handle );
 	// syslog(LOG_WARNING, "execute: %s rval = %d\n", commands, rval);
 	return rval;
 	

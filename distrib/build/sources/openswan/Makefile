@@ -38,8 +38,8 @@ compile: configure
 	@make $(JOBS) -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin KERNELSRC=$(KNL_SRC) module
 
 
-KNL_SRC = $(SOURCES_DIR)/kernel$(SWETYPE)/linux
-MOD_DEST = /lib/modules/$(K_RAW_VERSION)$(SWETYPE)/kernel/net/ipsec
+KNL_SRC = $(SOURCES_DIR)/linux-domU/linux
+MOD_DEST = /lib/modules/$(K_RAW_VERSION)-domU/kernel/net/ipsec
 
 install: compile
 ifeq ($(BUILD_PHASE), Final)
