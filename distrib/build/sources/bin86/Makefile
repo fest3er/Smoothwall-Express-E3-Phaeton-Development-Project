@@ -24,6 +24,6 @@ install: compile
 	mkdir -p $(PKG_ROOT)$(PKG_DIR)
 	#@make -C $(COMPILE_DIR)/as PREFIX=$(PKG_ROOT)$(PKG_DIR) install
 	#@make -C $(COMPILE_DIR)/ld PREFIX=$(PKG_ROOT)$(PKG_DIR) install
-	make -C $(COMPILE_DIR) DIST=$(PKG_ROOT)$(PKG_DIR) PREFIX=$(PKG_ROOT)$(PKG_DIR) install
+	make -C $(COMPILE_DIR) DIST=$(PKG_ROOT) PREFIX=$(PKG_ROOT) install
 
 include ../Makefile.rules

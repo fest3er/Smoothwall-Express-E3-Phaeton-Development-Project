@@ -13,4 +13,11 @@ EXTENSION = .tar.xz
 
 BASE_URL = http://www.python.org/ftp/python/$(VERSION)
 
+COMPILE = yes
+compile: configure
+	@find $(COMPILE_DIR) -type d -exec chmod o=rx {} \;
+	@find $(COMPILE_DIR) -type f -exec chmod o=r {} \;
+	@chmod -R o+rw $(COMPILE_DIR)
+	@make ${JOBS} -C $(COMPILE_DIR)
+
 include ../Makefile.rules
