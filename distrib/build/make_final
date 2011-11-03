@@ -236,8 +236,8 @@ fi
       build at
       JOBS=$JOBS_MP
       build cgilib
-      build fontconfig
       build freetype
+      build fontconfig
       build libart_lgpl
       build libpng
       build libdnet
