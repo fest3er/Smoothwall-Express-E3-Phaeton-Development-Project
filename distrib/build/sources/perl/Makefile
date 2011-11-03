@@ -19,11 +19,6 @@ BASE_URL = ftp://ftp.cpan.org/pub/CPAN/src/5.0/
 ifeq ($(BUILD_PHASE), Stage_3)
 PATCH_FILE1 = perl-5.14.2-libc-1.patch
 
-#CONFIG_OPTS = -des -Dprefix=/tools -Dstatic_ext="Data/Dumper Fcntl IO POSIX" \
-#	      -Donlyextensions="Data/Dumper Fcntl IO POSIX" \
-#	      -Dglincpth="/tools/include" -Dglibpth="/tools/lib" \
-#	      -Dinc_version_list=none
-
 CONFIG_OPTS = -des -Dprefix=/tools
 
 CONFIGURE = yes

@@ -15,18 +15,7 @@ XEN_EXT_FILES = http://xenbits.xensource.com/xen-extfiles
 IPXE_PKG = ipxe-git-v1.0.0.tar.gz
 
 download_ipxe:
-	@( cd ../../downloads; \
-	  if [ ! -e ipxe.tar.gz.done ]; then \
-	    wget $(XEN_EXT_FILES)/$(IPXE_PKG); \
-	    if [ $$? -eq 0 ]; then \
-	      mv $(IPXE_PKG) ipxe.tar.gz; \
-	      touch ipxe.tar.gz.done; \
-	    else \
-	      rm -f $(IPXE_PKG); \
-	      exit 1; \
-	    fi \
-	  fi \
-	)
+	$(DL_CMD) $(XEN_EXT_FILES)/$(IPXE_PKG)
 
 CONFIGURE = yes
 configure: $(DIR)/
@@ -34,7 +23,7 @@ configure: $(DIR)/
 
 COMPILE = yes
 compile: configure
-	cp ../../downloads/ipxe.tar.gz $(PACKAGE)-$(VERSION)/tools/firmware/etherboot/
+	cp ../../downloads/$(IPXE_PKG) $(PACKAGE)-$(VERSION)/tools/firmware/etherboot/ipxe.tar.gz
 	ldconfig
 	chmod 644 $(PACKAGE)-$(VERSION)/tools/check/check_x11_devel
 	make $(JOBS) -C $(COMPILE_DIR) tools
