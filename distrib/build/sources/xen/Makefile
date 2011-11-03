@@ -15,7 +15,7 @@ XEN_EXT_FILES = http://xenbits.xensource.com/xen-extfiles
 IPXE_PKG = ipxe-git-v1.0.0.tar.gz
 
 download_ipxe:
-	$(DL_CMD) $(XEN_EXT_FILES)/$(IPXE_PKG)
+	@$(DL_CMD) $(XEN_EXT_FILES)/$(IPXE_PKG)
 
 CONFIGURE = yes
 configure: $(DIR)/
