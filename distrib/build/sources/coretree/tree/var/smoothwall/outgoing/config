@@ -1,0 +1,14 @@
+GREEN,on,Infrastructure,,Both,N/A,ACCEPT,1,off,off
+GREEN,on,Web,,TCP,N/A,ACCEPT,2,off,off
+GREEN,on,Remote access,,TCP,N/A,ACCEPT,3,off,off
+GREEN,on,File transfer,,TCP,N/A,ACCEPT,4,off,off
+GREEN,on,VPN,,TCP,N/A,ACCEPT,5,off,off
+GREEN,on,N/A,,IPSEC,N/A,ACCEPT,6,off,off
+GREEN,on,N/A,,PPTP,N/A,ACCEPT,7,off,off
+PURPLE,on,Infrastructure,,Both,N/A,ACCEPT,8,off,off
+PURPLE,on,Web,,TCP,N/A,ACCEPT,9,off,off
+PURPLE,on,Remote access,,TCP,N/A,ACCEPT,10,off,off
+PURPLE,on,File transfer,,TCP,N/A,ACCEPT,11,off,off
+PURPLE,on,VPN,,TCP,N/A,ACCEPT,12,off,off
+PURPLE,on,N/A,,IPSEC,N/A,ACCEPT,13,off,off
+PURPLE,on,N/A,,PPTP,N/A,ACCEPT,14,off,off

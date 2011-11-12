@@ -1,37 +1,65 @@
-<p><font size='3'><strong><u>Outgoing Filtering</u></strong></font></p>
+<p><font size='3'><strong><u>Outgoing Filtering and Timed Access</u></strong></font></p>
 
-<p><strong>Outgoing Filtering</strong> allows disabling or limiting access
-to the Internet based on each internal interface. In addition, a list
-of IP address can be supplied which are not subject to any blocking.</p>
+<p><strong>Outgoing Filtering and Timed Access</strong> allows disabling or limiting access
+to the Internet based on each internal interface and IP or MAC addresses for the "forwardable" 
+protocols i.e. TCP, UDP, IPSec and PPTP passthrough. In addition, any of these rules may have 
+up to four time frames scheduled to block or allow a rule during the specified time frames.</p>
 
-<p>Each interface can be set to filter or not using the checkboxes on the
-<strong>Outgoing filtering</strong> page. The default filtering level is
-determined when SmoothWall is installed and is either Open (all traffic is
-allowed onto the Internet), Half-open (some traffic is allowed, with the
-rest being blocked) or Closed (all traffic being blocked unless you
-explicitly add a rule to allow it).  If the filtering of an interface is on,
-connections can only be made based on the rules added.</p>
+<p>The default policy for all outgoing traffic is "REJECT". When Roadster is first installed there
+is a set of default rules that are created for the most commonly used ports and protocols for GREEN
+and PURPLE (if it exists). These are created "above" the default REJECT rule in the iptables chain to 
+allow them out.The order of any created rules may also be customized and changed as needed.</p>
 
-<p>Each rule specifies which port (or range of ports, using the syntax
-<i>low</i>:<i>high</i>) connections can be made on through each
-interface.</p>
+<p>Each rule may be created for a single source IP address or MAC or a range of IP addresses within
+the subnet the user defined for the source (LAN) interface in the format e.g. <b>10.0.0.100-10.0.0.200</b>. 
+Outgoing ports may also be selected either as a service (or application) from the <b>Sevice(s)</b> drop down menu 
+or a single port or a list of ports and/or ranges as comma separated values e.g. <b>80,443,6112:6119</b> in the 
+port entry field. When creating an outgoing rule the user may also select what order he wants the rule 
+to appear as in the display table or she may accept the default order number that is automatically determined 
+for the next rule to be created. A protocol should also be selected for the rule to be created. Remember that 
+ports can only be selected for TCP and UDP. The UI will prevent you from trying to enter any ports with a "portless" 
+protocol. A comment for the rule to be created may also be entered. Not all entry fields on the UI need to have an 
+entry. These are clearly labeled on the UI. When the user is done entering all desired options for a rule she 
+should then click on the <b>Add</b> button.</p>
 
-<p>For example: <strong>To limit users on the GREEN interface to web access
-and sending email only:</strong></p>
+<p>When adding rules you may either enable them immediately with the <b>Enable</b> checkbox, or not enabled by
+unchecking tne <b>Enable</b> checkbox. If the rule is added as "disabled" the user may enable it at a later time 
+by clicking on the <b>Mark</b> box in the table display of rules and clicking the <b>Enable</b> button. Checking a rule 
+that is already enabled and then clicking the <b>Enable</b> button beneath the display table will disable the rule. 
+You may also completely remove a rule or edit a rule. Editing a rule preserves the order number of the rule 
+and any time frames associated with that rule. Select the rule to be edited then click the <b>Edit</b> button. The 
+currently existing options for a rule to be edited are filled in for the user in the entry fields and the <b>Add</b>
+button changes to an <b>Update</b> button. No changes are made to the existing rule until changes are made by the user 
+and the <b>Update</b> button is clicked. Any of the existing fields for the rule to be edited may be changed. After adding
+or updating a rule, the user may also change the action of a rule from ACCEPT to REJECT and vice versa by selecting 
+the rule in the display table and clicking on <b>Change Action</b>. If the user does not like how the rule has been created, 
+she can select the rule in the display table and click on the <b>Remove Rule</b> button. The rule will then be removed from
+the iptables chain and from the display table of the UI and the remaining rules will be reordered.</p>
 
-<p>
-<ol>
-<li>Select <strong>GREEEN</strong> under <strong>Interface defaults</strong> and select <strong>Allowed with exceptions</strong> and click on <strong>Save</strong></li>
-<li>Select <strong>GREEN</strong> for <i>Interface</i>, enter '80' for the <i>destination port</i> and click on the <strong>Add</strong> button.</li>
-<li>Select <strong>GREEN</strong> for <i>Interface</i>, enter '25' for the <i>destination port</i> and click on the <strong>Add</strong> button.</li>
-</ol>
-</p>
 
-<p>You can also use the predifened <strong>Application or service(s)</strong>
-drop down to choose what you want to allow or block.</p>
+<p>For example:</p>
 
-<p>The <strong>Current always allowed machine</strong> list is used to configure
-certain machines not have any filtering done on their Internet access.</p>
+<p>On the <strong>Outgoing Filtering and Timed Access</strong> UI page you would select the desired interface. Then
+enter the source IP address or range or the source MAC address OR leave this field blank for all addresses on that
+interface, select the destination port, ports and/or ranges (comma separated for multiple values) OR select the desired 
+port/service/application from the service(s) drop down menu OR leave blank for all ports and services/applications,
+select the desired protocol, select whether the rule will be an ACCEPT or a REJECT rule, select the desired order number 
+OR leave the default order number in place, uncheck the Enable checkbox if you do not want the rule enabled right away 
+OR leave checked if you want enabled right away. You may also enter a comment if desired. When everything is the way you 
+want it, click <b>Add</b>. The newly added rule will appear in the display table.</p>
 
-<p>Enter the <strong>IP address</strong> an <strong>Add</strong> it to the list
-of <strong>Current always allowed machines</strong> in the usual way.</p>
+<p>For <strong>Timed Access</strong> you would check the box next to the rule that you wish to set time frames,
+enter the start time and end times and what days to schedule the time frames for and click the <b>Schedule</b> button.
+If you wish to enter another time frame for that same rule, click the box for that rule in the display table,
+enter another time frame and click <b>Schedule</b> again. You may enter up to four different time frames for the same IP
+or MAC address. You may also enter a comment for the timed rule that goes in the comment field of the display table.</p>
+
+<p><strong>Important!:</strong> Make sure your time frames do not overlap for a specific rule. Otherwise the timing
+will be incorrect. The UI already does a decent job to prevent this situation but unanticipated mistakes may still happen.
+So still try to make sure your time frames are sane. The UI does allow users to enter a single time frame that spans MN.
+Two rules are still created for a time frame that spans MN, but this is transparent to the user. After time frames are
+created, if the user decides he doesn't like them the way they are, he may select the rule that the time frames need to
+be changed and click <b>Remove Times</b> and all time frames will be removed and timing stopped but the original rule 
+will remain. Then the user may enter new time frames.</p>
+
+<p>You may visit the <a href="http://community.smoothwall.org/forum/viewtopic.php?t=25262">SmoothWall Community forums</a> for help as well.</p>

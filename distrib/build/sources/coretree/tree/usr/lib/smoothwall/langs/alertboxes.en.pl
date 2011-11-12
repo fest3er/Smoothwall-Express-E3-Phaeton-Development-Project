@@ -46,7 +46,7 @@ firewall.  Further information on your SmoothWall Express is available from <a h
 'ipblock.cgi' 		=> 'Add blocking rules to prevent access from specified IP addresses or networks.',
 'backup.img' 		=> 'Use this page to create a backup floppy disk or floppy disk image file.',
 'im.cgi'		=> 'Configure the IM logging proxy.',
-'outgoing.cgi' 		=> 'Add rules to control local machine\'s access to external services.',
+'outgoing.cgi' 		=> 'Add rules to control local machine\'s access to external services and set time frames for them.',
 'traffic.cgi'		=> 'Set the best speed which your network is capable of achieving. The headroom should be increased if traffic shaping is having no effect.',
 'sipproxy.cgi'		=> 'Configure the SIP proxy service. It can be used to transparently or non-transparently proxy SIP calls to and from the GREEN network.',
 'interfaces.cgi'	=> 'Configure the network interface IP addresses, as well as DNS and gateway settings.',

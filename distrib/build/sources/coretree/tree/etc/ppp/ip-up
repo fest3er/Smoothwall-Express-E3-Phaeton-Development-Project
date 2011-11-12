@@ -54,7 +54,7 @@ message('ifaliasup');
 message('setportfw');
 message('setxtaccess');
 
-message('setincoming');
+message('setoutgoing');
 message('snortrestart');
 message('upnpdrestart');
 message('trafficrestart');

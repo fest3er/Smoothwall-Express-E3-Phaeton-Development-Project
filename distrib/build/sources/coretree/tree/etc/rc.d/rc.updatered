@@ -31,9 +31,11 @@ echo "Bringing up interface aliases (if they exist)"
 /usr/bin/smoothcom ifaliasup
 echo "Setting up full firewall rules"
 /usr/bin/smoothcom setportfw
+echo "Setting up outgoing filtering and timed access"
+/usr/bin/smoothcom setoutgoing
 echo "Setting up external access rules"
 /usr/bin/smoothcom setxtaccess
-/usr/bin/smoothcom setincoming
+echo "Starting snort if enabled"
 /usr/bin/smoothcom snortrestart
 /usr/bin/smoothcom upnpdrestart
 /usr/bin/smoothcom trafficrestart
@@ -43,6 +45,6 @@ echo "Setting up external access rules"
 /etc/rc.d/rc.vpn.up
 
 echo "Looking for system updates and registering your system."
-/usr/bin/smoothwall/updatelists.pl
+#/usr/bin/smoothwall/updatelists.pl
 /etc/rc.d/rc.machineregister
 

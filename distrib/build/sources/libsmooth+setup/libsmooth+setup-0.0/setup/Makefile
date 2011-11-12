@@ -25,8 +25,8 @@ clean :
 
 ######
 
-OBJS=main.o hostname.o passwords.o networking.o misc.o webproxy.o \
-	keymap.o isdn.o adsl.o dhcp.o defaults.o timezone.o
+OBJS=main.o hostname.o passwords.o networking.o misc.o \
+	webproxy.o keymap.o isdn.o adsl.o dhcp.o timezone.o
 
 setup: $(OBJS)
 	$(LINK) $(OBJS) -o $@ $(LIBS)
@@ -37,7 +37,6 @@ setup: $(OBJS)
 main.o : main.c
 adsl.o : adsl.c
 console.o : console.c
-defaults.o : defaults.c
 dhcp.o : dhcp.c
 hardware.o : hardware.c
 hostname.o : hostname.c

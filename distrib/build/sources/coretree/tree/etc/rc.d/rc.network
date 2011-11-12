@@ -51,6 +51,8 @@ echo "Loading SPI modules"
 /sbin/modprobe xt_tcpudp
 /sbin/modprobe xt_length
 /sbin/modprobe xt_mac
+/sbin/modprobe xt_iprange
+/sbin/modprobe xt_time
 
 echo "Loading MASQ helper modules"
 /sbin/modprobe ip_conntrack_irc

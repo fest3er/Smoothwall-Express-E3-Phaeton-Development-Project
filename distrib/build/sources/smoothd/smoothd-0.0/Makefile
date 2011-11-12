@@ -19,8 +19,8 @@ BIN = smoothd
 
 MODULES = sysshutdown sysinstall sysim sysp3scan sysalcatel sysdhcpd \
 	sysdnsproxy sysntpd syssnort syssquid syssshd sysupnpd sysadvnet \
-	sysipblock sysfullfirewall sysupdown sysipsec systimeset sysiptables \
-	systraffic syssip sysclamav systimedaccess syssmoothinfo
+	sysipblock sysfullfirewall sysupdown sysipsec systimeset \
+	sysiptables systraffic syssip sysclamav syssmoothinfo
 
 MODULEFLAGS = $(CXXFLAGS) -shared -Wl,-soname,$@.so -o $@.so $@.cpp $(LIBS)
 
@@ -91,8 +91,6 @@ systraffic : libsmoothd.so $(OBJS)
 syssip : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
 sysclamav : libsmoothd.so $(OBJS)
-	$(CXX) $(MODULEFLAGS)
-systimedaccess : libsmoothd.so $(OBJS)
 	$(CXX) $(MODULEFLAGS)
 
 ipbatchc.o: ipbatch.h 
