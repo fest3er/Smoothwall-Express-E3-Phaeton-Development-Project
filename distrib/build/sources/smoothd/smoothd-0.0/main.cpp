@@ -481,10 +481,15 @@ int main( int argc, char ** argv )
 	master_pid  = getpid();
 
 	int old_pid = 0;
+	int num_try = 0;
 	
-	if ( old_pid = amrunning( PID, BINARY ) ){
+	while ( old_pid = amrunning( PID, BINARY ) && num_try++ < 5 ){
 		std::cerr << "Process already exists with process ID " << old_pid << "\n";
-		exit( 0 );
+		sleep ( 2 );
+	}
+	if ( old_pid != 0 ){
+		std::cerr << "Process already exists with process ID " << old_pid << " and we have tried for ten seconds, exiting\n";
+		exit ( 0 );
 	}
 	
 	volatile pid_t pid;
