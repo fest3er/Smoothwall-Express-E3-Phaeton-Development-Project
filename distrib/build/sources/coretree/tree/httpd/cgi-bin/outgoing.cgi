@@ -131,6 +131,7 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 	my $setproxy 	 = 'off';
 	my $timeon	 = 'off';
 	my $timechk	 = '';
+	my $both	 = "TCP\&UDP";
 
 	&writehash("$hashfile", \%cgiparams);
 
@@ -149,6 +150,19 @@ if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $c
 		} else {
 			$service = 'N/A';
 		}
+	}
+
+	if ( $cgiparams{'SERVICE'} eq "VPNs" ) {
+		$protocol = "VPNs";
+	}
+	if ( $cgiparams{'SERVICE'} eq "500:4500" ) {
+		$protocol = "IPSec";
+	}
+	if ( $cgiparams{'SERVICE'} eq "1723" ) {
+		$protocol = "PPTP";
+	}
+	if ( $cgiparams{'SERVICE'} eq "1194:1195" ) {
+		$protocol = "OpenVPN";
 	}
 
 	if ($protocol eq "PPTP" or $protocol eq "IPSEC") {
@@ -295,13 +309,7 @@ EXIT:
         if ($cgiparams{'PROTOCOL'} eq "Both") {
           print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
           print FILE "$service,$cgiparams{'COMMENT'},";
-          print FILE "TCP,$ipmac,";
-          print FILE "$cgiparams{'TARGET'},$cnt,$setproxy,";
-          print FILE "$timeon,$timechk\n";
-          $cnt++;
-          print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
-          print FILE "$service,$cgiparams{'COMMENT'},";
-          print FILE "UDP,$ipmac,";
+          print FILE "$both,$ipmac,";
           print FILE "$cgiparams{'TARGET'},$cnt,$setproxy,";
           print FILE "$timeon,$timechk\n";
           $notadded = 0;
@@ -309,7 +317,7 @@ EXIT:
         } else {
           print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
           print FILE "$service,$cgiparams{'COMMENT'},";
-          print FILE "$cgiparams{'PROTOCOL'},$ipmac,";
+          print FILE "$protocol,$ipmac,";
           print FILE "$cgiparams{'TARGET'},$cnt,$setproxy,";
           print FILE "$timeon,$timechk\n";
           $notadded = 0;
@@ -334,19 +342,14 @@ EXIT:
 	 $timeon = 'on';
 	 $timechk = "+$cgiparams{'TIMES'}";
       }
-      if ($cgiparams{'PROTOCOL'} eq "Both") {
+      if ($protocol eq "Both") {
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
-        print FILE "$service,$cgiparams{'COMMENT'},TCP,$ipmac,";
-        print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,";
-        print FILE "$timeon,$timechk\n";
-        $cgiparams{'ORDER_NUMBER'}++;
-        print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
-        print FILE "$service,$cgiparams{'COMMENT'},UDP,$ipmac,";
+        print FILE "$service,$cgiparams{'COMMENT'},$both,$ipmac,";
         print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,";
         print FILE "$timeon,$timechk\n";
       } else {
         print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
-        print FILE "$service,$cgiparams{'COMMENT'},$cgiparams{'PROTOCOL'},$ipmac,";
+        print FILE "$service,$cgiparams{'COMMENT'},$protocol,$ipmac,";
         print FILE "$cgiparams{'TARGET'},$cgiparams{'ORDER_NUMBER'},$setproxy,";
         print FILE "$timeon,$timechk\n";
       }
@@ -572,8 +575,8 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'edit'} or
 				$cgiparams{'INTERFACE'} = $temp[0];
 				if ($temp[2] =~ /-/) {
 					$temp[2] =~ s/-/,/g;
-					$service = $temp[2];
 				}
+				$service = $temp[2];
 				if ($temp[4] eq "TCP") {
 					$cgiparams{'PROTOCOL'} = "6";
 				} elsif ($temp[4] eq "UDP") {
@@ -859,7 +862,7 @@ print qq{
 <form method='post'>
 <table style='width: 100%;' style='margin:6pt 0'>
 <tr>
-	<td class='base' style='width: 30%;'>$tr{'interface'}:</td>
+	<td class='base' style='width: 30%;'>$tr{'tofc-interface'}:</td>
 	<td style='width: 20%;'>
 	<select style='color: green' onchange="ffoxSelectUpdate(this);" name='INTERFACE'>
 };
