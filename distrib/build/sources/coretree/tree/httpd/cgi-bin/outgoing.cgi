@@ -1001,7 +1001,10 @@ my %render_settings =
 		{ 
 			column => '1',
 			title  => $tr{'interfacenc'},
-			tr     => { 'GREEN' => '<b><font color=#00ff00>GREEN</font></b>', 'ORANGE' => '<b><font color=#ff8c00>ORANGE</font></b>', 'PURPLE' => '<b><font color=#9400d3>PURPLE</font></b>' },
+			tr     => { 'GREEN' => '<span style="color:green"><b>GREEN</b></span>',
+				    'ORANGE' => '<span style="color:orange"><b>ORANGE</b></span>',
+				    'PURPLE' => '<span style="color:purple"><b>PURPLE</b></span>'
+			    	  },
 			size   => 15,
 			sort   => 'cmp',
 		},
