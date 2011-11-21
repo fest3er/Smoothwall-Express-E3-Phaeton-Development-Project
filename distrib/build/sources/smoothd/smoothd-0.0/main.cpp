@@ -73,6 +73,13 @@ extern "C" {
 		    	dshutdown = 1;
 		} else if ( sig == SIGCHLD ) {
 			client_signal_handler( sig );
+		} else if ( sig == SIGHUP ) {
+			// close & reopen the log file (after logrotate)
+			fprintf (stderr, "HUP received; reopening log file.\n");
+			fflush (stderr);
+    			freopen("/var/log/smoothderror", "a+", stderr);
+			fprintf (stderr, "Log file reopened.\n");
+			fflush (stderr);
 		}
 	}	
 
@@ -88,13 +95,13 @@ extern "C" {
 		/* dont want child signals, want any interrupted syscalls to restart */
 //	    	act.sa_flags = SA_NOCLDSTOP|SA_RESTART;
 
+	    	sigaction(SIGHUP,  &act, 0);		/* Log File Rotate (close/open) */
 	    	sigaction(SIGINT,  &act, 0);		/* Interrupt Signal */
-	    	sigaction(SIGTERM, &act, 0);	        /* Termination Signal */
-	    	sigaction(SIGHUP,  &act, 0);	        /* Hangup Signal */
 	    	sigaction(SIGQUIT, &act, 0); 	        /* Quit Signal */
-    		sigaction(SIGUSR1, &act, 0);	        /* Child Down Nothing */
-    		sigaction(SIGUSR2, &act, 0);	        /* Restart Signal */
-	    	sigaction(SIGCHLD, &act, 0);	        /* Child Down Nothing */
+	    	sigaction(SIGTERM, &act, 0);	        /* Termination Signal */
+		sigaction(SIGUSR1, &act, 0);	        /* Initial Backgrounding Failed */
+		sigaction(SIGUSR2, &act, 0);	        /* Restart Signal */
+	    	sigaction(SIGCHLD, &act, 0);	        /* Child Perished */
 
 		return;
 	}
@@ -295,8 +302,8 @@ reset_signal_handlers();
 
 		std::vector<std::string> arguments;
 
-		/* split the command on the seperating character into the  */
-		/* "command" proper, and it's arguments                    */
+		/* split the command on the separating character into the  */
+		/* "command" proper, and its arguments                    */
 
 		std::string command;
 
@@ -321,8 +328,8 @@ reset_signal_handlers();
 					syslog( LOG_ERR, "Unable to transmit reply to client" );
 				}
 				connection.close();
-				/* signal the parent thread to SIGHUP, which should force a reload */
-				kill( getppid(), SIGHUP );
+				/* signal the parent thread to SIGUSR2, which should force a reload */
+				kill( getppid(), SIGUSR2 );
 				exit( 0 );
 			}
 				
@@ -474,8 +481,6 @@ int main( int argc, char ** argv )
 	/* Start logging as soon as possible */
 	openlog( IDENT, LOG_NDELAY | LOG_CONS, LOG_DAEMON );
 
-	syslog( LOG_INFO, IDENT" Starting Up..." );
-
 	/* are we already running ? */
 
 	master_pid  = getpid();
@@ -483,15 +488,17 @@ int main( int argc, char ** argv )
 	int old_pid = 0;
 	int num_try = 0;
 	
-	while ( old_pid = amrunning( PID, BINARY ) && num_try++ < 5 ){
-		std::cerr << "Process already exists with process ID " << old_pid << "\n";
-		sleep ( 2 );
+	while ( old_pid = amrunning( PID, BINARY ) && num_try++ < 100 ){
+		//std::cerr << "Process already exists with process ID " << old_pid << "\n";
+		usleep ( 10000 );
 	}
 	if ( old_pid != 0 ){
 		std::cerr << "Process already exists with process ID " << old_pid << " and we have tried for ten seconds, exiting\n";
 		exit ( 0 );
 	}
 	
+	syslog( LOG_INFO, IDENT" Starting Up..." );
+
 	volatile pid_t pid;
 
 	/* register the child signal handler, we will probably register a different one later */
@@ -723,7 +730,6 @@ int main( int argc, char ** argv )
 		}	
 
 		syslog( LOG_INFO, "Initiating smoothd shutdown" );
-		syslog( LOG_INFO, "    Shutting down Timed function(s)" );
 
 		struct sigaction oldsa;
 		memset(&sa, 0, sizeof(sa)); sa.sa_handler = SIG_IGN;
@@ -737,15 +743,18 @@ int main( int argc, char ** argv )
 		/* Reap all children as they perish; we don't want zombies */
 		pid_t child = wait3( &status, 0, NULL );
 
-		for ( std::vector<ModuleReg>::iterator rmod = modules.begin(); rmod != modules.end(); rmod++ ){
-			syslog( LOG_INFO, "    Unregistering module %s", (*rmod).name.c_str() );
-			/* there is no point closing all the handles, as we */
-			/* will run into problems if we replace a module and */
-			/* attempt a reload */
-		}
+//		for ( std::vector<ModuleReg>::iterator rmod = modules.begin(); rmod != modules.end(); rmod++ ){
+//			syslog( LOG_INFO, "    Unregistering module %s", (*rmod).name.c_str() );
+//			/* there is no point closing all the handles, as we */
+//			/* will run into problems if we replace a module and */
+//			/* attempt a reload */
+//		}
 
+		syslog( LOG_INFO, "    Shutting down modules(s)" );
 		modules.clear();
+		syslog( LOG_INFO, "    Shutting down function(s)" );
 		functions.clear();
+		syslog( LOG_INFO, "    Shutting down timed function(s)" );
 		timedfunctions.clear();
       		sigaction(SIGTERM, &oldsa, NULL); // restore prev state
 		syslog( LOG_INFO, "Smoothd shutdown complete." );
