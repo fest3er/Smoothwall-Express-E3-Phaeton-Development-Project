@@ -100,7 +100,5 @@ endif
 	@echo -e "runtimeroot build for $(MEDIA) complete\n\n"
 	
 clean:
-	rm -rf $(RUNTIME_ROOT) tmp/
+	rm -rf tmp/
 	rm -f ../$(RUNTIME_ROOT)image.gz
-	rm -f $(RUNTIME_ROOT)image.gz
-	rm -rf runtimeroot/

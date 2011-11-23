@@ -12,24 +12,24 @@ PACKAGE = media-isoinstall
 
 # Two lines above coretree are Phaeton
 TARGET_DIR = /build/target/
-INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
-	    coreutils iana-etc mktemp file findutils gawk ncurses \
-	    vim less sed flex gettext net-tools inetutils iputils whois perl \
+INST_PKGS = glibc newt libsmooth+setup libgcc binutils bridge-utils acpica \
+	    coreutils iana-etc mktemp file findutils gawk ncurses cairo fontconfig \
+	    glib vim less sed flex gettext net-tools inetutils iputils whois perl \
 	    bash bzip2 kbd e2fsprogs grep gzip module-init-tools procinfo procps \
 	    psmisc shadow sysklogd logrotate sysvinit tar util-linux-ng joe wget \
-	    iptables ipset ipbatch pciutils linux-dom0 openssl openssh \
+	    iptables ipset ipbatch pciutils linux-dom0 openssl openssh libffi \
 	    httpd smoothd squid HTML-Parser HTML-Tagset URI libwww-perl strace \
 	    libart_lgpl freetype rrdtool cron tcpdump dnsmasq libcap ntp openntpd \
 	    hdparm hddtemp iproute2 libpng gd gmp expat ethtool popt listtables  \
 	    libdnet daq libnet libnetfilter_queue libnfnetlink inotify-tools \
 	    readline beep2 pcre trafficstats iftop setuids ppp isdn4k-utils \
-	    rp-pppoe ibod dhcpcd eciadsl-synch_bin eciadsl-usermode \
+	    rp-pppoe ibod dhcpcd eciadsl-synch_bin eciadsl-usermode libmnl libpcap \
 	    cnxadsl dhcp snort oinkmaster openswan wireless_tools imspector  \
 	    diffutils traceroute clamav p3scan libosip2 siproxd which miniupnpd \
-	    ez-ipupdate noip cdrtools suricata yaml smartmontools\
-	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
-	    reiserfsprogs parted xtables-addons zlib slang cpio \
-	    udev udev-config lm_sensors xz pcmciautils \
+	    ez-ipupdate noip cdrtools suricata yaml smartmontools libusb \
+	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano pango \
+	    reiserfsprogs parted xtables-addons zlib slang cpio pixman Python \
+	    udev udev-config lm_sensors xz pcmciautils xen libxml2 \
 	    Net-Netmask NetAddr-IP sysfsutils \
 	    coretree
 
@@ -40,17 +40,17 @@ OTHER_PKGS = updates jam sqlite
 # Last line is Phaeton
 DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu gcc \
 	   gdb tcl m4 neon git screen lynx groff man man-pages \
-	   klibc pkg-config sudo syslinux texinfo bin86 busybox \
+	   klibc pkg-config sudo texinfo dev86 busybox \
 	   libtool nasm
 
 cdrom:
-	mkdir cdrom
+	set -x; mkdir cdrom
 	echo "      runtimeroot" > /dev/tty
-	make -C runtimeroot
+	set -x; make -C runtimeroot
 	echo "      installroot" > /dev/tty
-	make -C installroot
+	set -x; make -C installroot
 	echo "      cdromboot" > /dev/tty
-	make -C cdromboot
+	set -x; make -C cdromboot
 
 cdrom/smoothwall.tgz:
 	echo "      prepare dir tree" > /dev/tty
@@ -190,8 +190,8 @@ cdrom/smoothwall.tgz:
 	@echo -e "\nCopying to OffRoad ..."
 	@mkdir -p offroad
 	@cd cdrom; cp -av . ../offroad
-	@sed -i -e '/Install Roadster/,+3d' -e '/Convert ISO/,+3d' \
-	  offroad/boot/grub/menu.lst
+	@sed -i -e '/Install Silver Cloud/,+7d' -e '/Convert ISO/,+7d' \
+	  offroad/boot/grub/grub.cfg
 
 	@echo "        build final tarballs ..." >/dev/tty
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
@@ -228,7 +228,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  set $${RELEASE/-/ }; \
 	  ISONAME=$(TARGET_DIR)/isos/smoothwall$(PRODUCT_EXTRA)-$${2}.iso; \
 	  /sbin/mkisofs -o $${ISONAME} \
-	    -b boot/grub/stage2_eltorito -J -R \
+	    -b boot/grub/eltorito.img -J -R \
 	    -no-emul-boot -boot-load-size 4 -boot-info-table \
 	    -V $(BASENAME) --publisher "Silver Cloud Test" cdrom; \
 	  echo "$${ISONAME} build complete"; \
@@ -238,7 +238,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  set $${RELEASE/-/ }; \
 	  ISONAME=$(TARGET_DIR)/isos/smoothwall$(PRODUCT_EXTRA)-$${2}-offroad.iso; \
 	  /sbin/mkisofs -o $${ISONAME} \
-	    -b boot/grub/stage2_eltorito -J -R \
+	    -b boot/grub/eltorito.img -J -R \
 	    -no-emul-boot -boot-load-size 4 -boot-info-table \
 	    -V $(BASENAME) --publisher "Silver Cloud Test (OffRoad)" offroad; \
 	  echo "$${ISONAME} build complete"; \
@@ -246,7 +246,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 
 clean:
 	echo -n " $(PACKAGE)"
-	rm -f Media.*.built
+	rm -f Media.*.built *root.gz
 	rm -rf cdrom offroad distrib distrib-dev distrib-doc klibc temp
 	make --no-print-directory -C cdromboot clean >/dev/null 2>&1
 	make --no-print-directory -C installroot clean >/dev/null 2>&1

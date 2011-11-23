@@ -15,4 +15,6 @@ EXTENSION = .tar.gz
 
 BASE_URL = http://downloads.sourceforge.net/project/bridge/bridge
 
+PRE_CONFIGURE = autoconf;
+
 include ../Makefile.rules

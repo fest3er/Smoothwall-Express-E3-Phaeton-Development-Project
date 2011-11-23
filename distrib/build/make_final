@@ -166,7 +166,7 @@ fi
       build procinfo
       build procps
       build which
-      build python
+      build Python
       touch crumbs/Final.grp2.compiled
     fi
 
@@ -201,10 +201,11 @@ fi
       build udev
       build udev-config
       JOBS=$JOBS_UP
-      build bin86
+      build dev86
       build acpica
       JOBS=$JOBS_MP
       build nasm
+      build bridge-utils
       build xen
       build strace
       build linux-atm
@@ -226,7 +227,7 @@ fi
       build tcpdump
 
       build dosfstools
-      build syslinux
+      #build syslinux
       build openssh
       build expat
       build httpd
@@ -242,7 +243,7 @@ fi
       build libpng
       build libdnet
       build daq
-      build xml
+      build libxml2
       build pixman
       build libffi
       build glib

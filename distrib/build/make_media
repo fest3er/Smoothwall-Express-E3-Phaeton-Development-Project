@@ -74,9 +74,9 @@ else
   # Build all of it
   # The ISOs must be created in non-parallel mode
   JOBS=$JOBS_UP
-  other_cmd "sources/media-isoinstall/$BUILD_PHASE.roadsterISO.built" \
-            "roadster ISO" \
+  other_cmd "sources/media-isoinstall/$BUILD_PHASE.agclISO.built" \
+            "Silver Cloud ISO" \
             "make -C sources/media-isoinstall TYPE=-devel" \
-            "sources/media-isoinstall/$BUILD_PHASE.roadsterISO.out" \
+            "sources/media-isoinstall/$BUILD_PHASE.agclISO.out" \
             ""
 fi

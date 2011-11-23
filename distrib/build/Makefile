@@ -129,7 +129,7 @@ rebuild: clean predownload build
 #
 media:
 	@echo -e "\nMaking ISO image..."; sleep 1
-	env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'cd build;bash make_media'"
+	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'cd build;bash make_media'"
 	@echo -e "\nMaking FLASH content..."; sleep 1
 	@sudo su -c "./make_flash"
 

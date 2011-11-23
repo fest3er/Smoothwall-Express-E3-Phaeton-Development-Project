@@ -21,7 +21,7 @@ COMPILE = yes
 INSTALL = yes
 
 configure: patch
-	@true
+	@make $(JOBS) -C $(DIR) -f Makefile.linux config.h
 
 compile: configure
 	@make $(JOBS) -C $(DIR) -f Makefile.linux \

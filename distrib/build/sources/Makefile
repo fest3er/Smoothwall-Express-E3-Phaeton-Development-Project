@@ -16,3 +16,6 @@ FIXES_NUMBER = 0
 REVISION = 
 
 RELEASE = agcl-0.0.1
+
+# The default kernel type (mostly for kernel_headers)
+KERNEL_TYPE = domU

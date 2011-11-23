@@ -132,18 +132,12 @@ endif
 
 	@/build/striptree tmp
 
-	# Copy runtimeroot initramfs to the installroot initramfs tree
-	#@mkdir -p tmp/boot; cp ../runtimerootimage.gz tmp/boot
-
 	# Build the installer initramfs CPIO archive
-	cd tmp; find . | cpio -o -H newc | gzip > ../$(INSTALL_ROOT)image.gz
+	cd tmp; find . | cpio -o -H newc | gzip > ../../$(INSTALL_ROOT)image.gz
 
-	#@rm -rf installroot/
 	echo -e "installroot build for $(MEDIA) complete\n\n"
 	
 clean:
 	make -C $(PROGS) clean
-	rm -rf $(INSTALL_ROOT) tmp/
+	rm -rf tmp/
 	rm -f ../$(INSTALL_ROOT)image.gz
-	rm -f $(INSTALL_ROOT)image.gz
-	rm -rf installroot/
