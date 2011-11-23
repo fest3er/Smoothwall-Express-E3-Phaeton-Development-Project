@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = sudo
-VERSION = 1.6.9p20
+VERSION = 1.8.2
 
 BASE_URL = http://www.gratisoft.us/sudo/dist
 

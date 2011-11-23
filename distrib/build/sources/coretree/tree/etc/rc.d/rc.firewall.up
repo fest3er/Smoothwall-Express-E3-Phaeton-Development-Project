@@ -27,6 +27,18 @@ echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_last_ack
 echo 630 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close_wait
 echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close
 
+# IPV6: Set default policy to ACCEPT local stuff, but reject forwarding
+/usr/sbin/ip6tables -F
+/usr/sbin/ip6tables -X
+
+/usr/sbin/ip6tables -P INPUT ACCEPT
+/usr/sbin/ip6tables -P FORWARD DROP
+/usr/sbin/ip6tables -P OUTPUT ACCEPT
+
+# And reject DNS
+/usr/sbin/ip6tables -A FORWARD -p udp --destination-port 53 -j REJECT
+/usr/sbin/ip6tables -A INPUT -p udp --destination-port 53 -j REJECT
+
 /sbin/iptables -F
 /sbin/iptables -X
 
