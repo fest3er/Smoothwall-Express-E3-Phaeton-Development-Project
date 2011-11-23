@@ -8,9 +8,10 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = binutils
-VERSION = 2.21.1a
+VERSION = 2.21.1
 
 BASE_URL = http://ftp.gnu.org/gnu/binutils
+TARBALL = $(PACKAGE)-$(VERSION)a
 EXTENSION = .tar.bz2
 
 BASE_GMP = ftp://ftp.gnu.org/gnu/gmp
