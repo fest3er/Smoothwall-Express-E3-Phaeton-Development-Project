@@ -166,7 +166,7 @@ unit MiB
 select /dev/$hdd
 mklabel gpt
 mkpart boot reiserfs $bootstart $bootend
-set 1 bios_grub on
+set 1 boot on
 name 1 "/boot"
 mkpart swap linux-swap $swapstart $swapend
 name 2 swap
@@ -363,47 +363,70 @@ END
   rm -rf ${HDTMP}
 
   echo "  configuring boot loader"
-  cat > /harddisk/boot/grub/menu.lst <<END
-# Begin /boot/grub/menu.lst
+  cat > /harddisk/boot/grub/grub.cfg <<END
+# Begin /boot/grub/grub.cfg
 
 END
 
   if [ $serialport -eq 1 -o $serialport -eq 3 ]; then
-    cat >> /harddisk/boot/grub/menu.lst <<END
+    cat >> /harddisk/boot/grub/grub.cfg <<END
 # Boot using serial console by default
-default 1
+set default 1
 END
   else
-    cat >> /harddisk/boot/grub/menu.lst <<END
+    cat >> /harddisk/boot/grub/grub.cfg <<END
 # Boot using VESA console
-default 0
+set default 0
 END
   fi
 
-  cat >> /harddisk/boot/grub/menu.lst <<END
+  cat >> /harddisk/boot/grub/grub.cfg <<END
 
 # Allow 10 seconds before booting the default.
-timeout 10
+set timeout 10
 
 # Use prettier colors.
 color green/white light-green/black
 
-# The first entry is for Smoothwall.
-title Smoothwall Express 3.0 (Roadster Test Vehicle)
-root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet
-initrd /initrd-${KERNEL_VER}-roadster.gz
+# Boot using video card
+menuentry "Roadster: VESA Console" {
+        set root="/dev/harddisk4"
+        echo "Loading linux..."
+        kernel /vmlinuz-${KERNEL_VER}-roadster
+        echo "Loading initial RAMFS..."
+        initrd /initrd-${KERNEL_VER}-roadster.gz
+        echo "Booting..."
+}
 
-title Smoothwall Express 3.0 (Roadster Test Vehicle) ttyS0 SERIAL CONSOLE!
-root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,115200
-initrd /initrd-${KERNEL_VER}-roadster.gz
+# Boot using serial console
+menuentry "Roadster: Serial Console" {
+        set root="/dev/harddisk4"
+        echo "Loading linux..."
+        kernel /vmlinuz-${KERNEL_VER}-roadster console=ttyS0,115200
+        echo "Loading initial RAMFS..."
+        initrd /initrd-${KERNEL_VER}-roadster.gz
+        echo "Booting..."
+}
 
-# The second entry is for booting Smoothwall into single-user mode.
-title Smoothwall Express 3.0 (Roadster Test Vehicle) Single-User
-root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro single
-initrd /initrd-${KERNEL_VER}-roadster.gz
+# Boot using video card, single-user
+menuentry "Roadster: VESA Single-User" {
+        set root="/dev/harddisk4"
+        echo "Loading linux..."
+        kernel /vmlinuz-${KERNEL_VER}-roadster single
+        echo "Loading initial RAMFS..."
+        initrd /initrd-${KERNEL_VER}-roadster.gz
+        echo "Booting..."
+}
+
+# Boot using serial console
+menuentry "Roadster: Serial Single-User" {
+        set root="/dev/harddisk4"
+        echo "Loading linux..."
+        kernel /vmlinuz-${KERNEL_VER}-roadster console=ttyS0,115200 single
+        echo "Loading initial RAMFS..."
+        initrd /initrd-${KERNEL_VER}-roadster.gz
+        echo "Booting..."
+}
 END
 
   # Restore variable data if selected. AND upgrade files as needed!
@@ -456,13 +479,7 @@ echo "  installing boot loader"
 do_or_die "mount --bind /proc /harddisk/proc"
 do_or_die "mount --bind /sys /harddisk/sys"
 do_or_die "mount --bind /dev /harddisk/dev"
-cat<<END >/harddisk/tmp/grub.cmds
-device (hd0) /dev/harddisk
-root (hd0,0) 
-setup (hd0) 
-quit
-END
-do_or_die "/sbin/chroot /harddisk /usr/sbin/grub --batch </harddisk/tmp/grub.cmds"
+do_or_die "chroot /harddisk grub-install /dev/${hd_dev[$hd]}"
 
 
 sleep 2
