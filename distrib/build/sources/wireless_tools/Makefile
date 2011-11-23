@@ -12,6 +12,7 @@ VERSION = 28
 BASE_URL = http://pcmcia-cs.sourceforge.net/ftp/contrib/
 
 TARBALL = $(PACKAGE).$(VERSION)
+DIR = $(TARBALL)
 
 CONFIGURE = yes
 COMPILE = yes
