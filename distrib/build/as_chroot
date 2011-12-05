@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -x
 
   if [ "$1" == "" ]; then
     CMD="/tools/bin/bash -l +h"
@@ -11,4 +11,4 @@
     HOME=/root TERM=\"$TERM\" PS1='\u:\w\$ ' \
     PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin:/build \
     ROOT=\"\" \
-    ${CMD}"
+    ${CMD};"

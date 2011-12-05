@@ -191,7 +191,7 @@ cdrom/smoothwall.tgz:
 	@mkdir -p offroad
 	@cd cdrom; cp -av . ../offroad
 	@sed -i -e '/Install Roadster/,+3d' -e '/Convert ISO/,+3d' \
-	  offroad/boot/grub/menu.lst
+	  offroad/boot/grub/grub.conf
 
 	@echo "        build final tarballs ..." >/dev/tty
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
@@ -230,7 +230,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  /sbin/mkisofs -o $${ISONAME} \
 	    -b boot/grub/stage2_eltorito -J -R \
 	    -no-emul-boot -boot-load-size 4 -boot-info-table \
-	    -V $(BASENAME) --publisher "Smoothwall Roadster Test" cdrom; \
+	    -V $(BASENAME) --publisher "AGCL/Roadster" cdrom; \
 	  echo "$${ISONAME} build complete"; \
 	)
 	@( \
@@ -240,7 +240,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  /sbin/mkisofs -o $${ISONAME} \
 	    -b boot/grub/stage2_eltorito -J -R \
 	    -no-emul-boot -boot-load-size 4 -boot-info-table \
-	    -V $(BASENAME) --publisher "Smoothwall Roadster Test (OffRoad)" offroad; \
+	    -V $(BASENAME) --publisher "AGCL/Roadster (OffRoad)" offroad; \
 	  echo "$${ISONAME} build complete"; \
 	)
 

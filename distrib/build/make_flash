@@ -112,7 +112,7 @@ case `basename $0` in
     ;;
 esac
 
-CNTDWN=5
+#CNTDWN=5
 #echo "Will continue in $CNTDWN seconds..."
 #countdown $CNTDWN
 
@@ -167,23 +167,20 @@ echo "Copying..."
 
 # Copy the ISO contents to flash
 cp -avr $CD/* $FL
-cat $FL/boot/grub/grub.cfg
-sed -i -e "s/(cd)/(hd0,1)/" ${FL}/boot/grub/grub.cfg
-cat $FL/boot/grub/grub.cfg
 
 echo
 echo "Wrenching..."
 
 # Stuff needed for grub
 set -x
-${ORIG_DIR}/../usr/sbin/grub-install --root-directory=${FL} /dev/${fldev}
-#PRT=`echo "find /smoothwall.tgz" | ${ORIG_DIR}/../usr/sbin/grub --batch 2>&- | egrep "\([^ ]*\)"`
-#DRV=`echo $PRT | sed -e 's/,[0-9]*//'`
-#echo -e "root ${PRT}\nsetup ${DRV}" | ${ORIG_DIR}/../usr/sbin/grub --batch
+PRT=`echo "find /smoothwall.tgz" | ${ORIG_DIR}/../usr/sbin/grub --batch 2>&- | egrep "\([^ ]*\)"`
+DRV=`echo $PRT | sed -e 's/,[0-9]*//'`
+sed -i -e "s/(cd)/(hd0,0)/" ${FL}/boot/grub/grub.conf
+echo -e "root ${PRT}\nsetup ${DRV}" | ${ORIG_DIR}/../usr/sbin/grub --batch
 set +x
 
 echo
-echo "Unmounting..."
+echo "Finishing..."
 
 # Unmount them
 cleanup $CD $FL

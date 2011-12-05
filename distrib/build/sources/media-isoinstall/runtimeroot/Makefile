@@ -36,7 +36,7 @@ lib:
 	(set -x; mkdir -p tmp/lib tmp/usr/lib/klibc/lib; \
 	cp -aR /lib/* tmp/lib; \
 	cp -aR /lib/lib* tmp/lib; \
-	cp -aR /usr/lib/libncurses* tmp/lib/; \
+	cp -aR /build/buildroot/ncurses/usr/lib/* tmp/lib/; \
 	tar xfz /build/target/smoothwall-kernel$(SWETYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1)
 
 klibc:
