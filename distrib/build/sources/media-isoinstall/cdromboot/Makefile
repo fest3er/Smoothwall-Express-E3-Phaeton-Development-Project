@@ -10,6 +10,7 @@ include ../../Makefile
 default:
 	mkdir -p ../cdrom/boot/grub
 	cp -a /usr/share/grub/i386-pc/* ../cdrom/boot/grub
+	chown root:root grub.conf
 	cp -a grub.conf ../cdrom/boot/grub/grub.conf
 	cp -R /build/buildroot/kernel$(SWETYPE)/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/boot/vmlinuz
 	cp ../installroot/installrootimage.gz ../cdrom/boot/iniramfs.igz

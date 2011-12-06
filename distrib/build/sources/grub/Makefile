@@ -36,7 +36,7 @@ PATCH_FILE1 = grub-fedora-16.patch
 CONFIG_OPTS = --prefix=$(PKG_DIR)
 
 reconf: patch
-	cd $(DIR); autoreconf
+	cd $(DIR); autoreconf --force
 
 CONFIGURE = yes
 configure: reconf

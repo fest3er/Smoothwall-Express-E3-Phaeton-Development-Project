@@ -42,9 +42,11 @@ echo "Finding modules ..."
   done >/dev/null 2>&1 &
 
 wait
+
 echo "Stripping programs ..."
-strip @/tmp/strip-progs
+test -s /tmp/strip-progs && strip @/tmp/strip-progs
+
 echo "Stripping libs and modules ..."
-strip --strip-unneeded @/tmp/strip-libs+mods
+test -s /tmp/strip-libs+mods && strip --strip-unneeded @/tmp/strip-libs+mods
 
 exit 0;

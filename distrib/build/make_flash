@@ -166,18 +166,16 @@ echo
 echo "Copying..."
 
 # Copy the ISO contents to flash
-cp -avr $CD/* $FL
+cp -ar $CD/* $FL
 
 echo
 echo "Wrenching..."
 
 # Stuff needed for grub
-set -x
 PRT=`echo "find /smoothwall.tgz" | ${ORIG_DIR}/../usr/sbin/grub --batch 2>&- | egrep "\([^ ]*\)"`
 DRV=`echo $PRT | sed -e 's/,[0-9]*//'`
 sed -i -e "s/(cd)/(hd0,0)/" ${FL}/boot/grub/grub.conf
 echo -e "root ${PRT}\nsetup ${DRV}" | ${ORIG_DIR}/../usr/sbin/grub --batch
-set +x
 
 echo
 echo "Finishing..."

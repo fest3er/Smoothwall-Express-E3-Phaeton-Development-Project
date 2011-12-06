@@ -377,20 +377,23 @@ END
 
 # Set up to output to both VGA console and serial port; grub'll
 #   use the first one to see a keypress. Or it'll time out and
-#   use the default from installation.
+#   use the default from installation (the first one in the command).
+#   Change the order of them if you manually change between serial
+#   and vesa.
+
 serial --unit=0 --speed=115200
 END
 
   if [ $serialport -eq 1 -o $serialport -eq 3 ]; then
     cat >> /harddisk/boot/grub/grub.conf <<END
-terminal serial console timeout=5
+terminal --timeout=5 serial console
 
 # Boot using serial console by default
 default 1
 END
   else
     cat >> /harddisk/boot/grub/grub.conf <<END
-terminal console serial timeout=5
+terminal --timeout=5 console serial
 
 # Boot using VESA console
 default 0
@@ -402,8 +405,8 @@ END
 # Allow 10 seconds before booting the default.
 timeout 10
 
-# Use prettier colors.
-color green/white light-green/black
+# Use prettier colors (OR/BK, YL/BK).
+color 0x06 0x0e
 
 # Boot using VESA console
 title AGCL/Roadster (VESA Console)

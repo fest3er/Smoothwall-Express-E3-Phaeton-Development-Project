@@ -158,7 +158,7 @@ cdrom/smoothwall.tgz:
 	@( \
 	  /build/securetree distrib; \
 	  /build/securetree distrib-dev; \
-	  /build/securetree distrib-doc; \
+	  bash -x /build/securetree distrib-doc; \
 	  chmod u+s distrib/bin/traceroute; \
 	  chmod u+s distrib/usr/bin/ping; \
 	  chmod u+s distrib/usr/sbin/listtables; \
@@ -190,8 +190,8 @@ cdrom/smoothwall.tgz:
 	@echo -e "\nCopying to OffRoad ..."
 	@mkdir -p offroad
 	@cd cdrom; cp -av . ../offroad
-	@sed -i -e '/Install Roadster/,+3d' -e '/Convert ISO/,+3d' \
-	  offroad/boot/grub/grub.conf
+	@sed -i -e '/Install Roadster/,+4d' -e '/Convert ISO/,+9d' \
+	  offroad/boot/grub/grub.conf | sed  -e '$d'
 
 	@echo "        build final tarballs ..." >/dev/tty
 	@echo -e "\nBuilding smoothwall.tgz, stand by ..."
