@@ -25,7 +25,7 @@ INST_PKGS = glibc newt libsmooth+setup libgcc binutils  \
 	    readline beep2 pcre trafficstats iftop setuids ppp isdn4k-utils \
 	    rp-pppoe ibod dhcpcd eciadsl-synch_bin eciadsl-usermode \
 	    cnxadsl dhcp snort oinkmaster openswan wireless_tools imspector  \
-	    diffutils traceroute clamav p3scan libosip2 siproxd which miniupnpd \
+	    diffutils clamav p3scan libosip2 siproxd which miniupnpd \
 	    ez-ipupdate noip cdrtools suricata yaml smartmontools\
 	    at dosfstools e2fsprogs grub libpcap linux-atm mtools nano \
 	    reiserfsprogs parted xtables-addons zlib slang cpio \
@@ -159,7 +159,6 @@ cdrom/smoothwall.tgz:
 	  /build/securetree distrib; \
 	  /build/securetree distrib-dev; \
 	  bash -x /build/securetree distrib-doc; \
-	  chmod u+s distrib/bin/traceroute; \
 	  chmod u+s distrib/usr/bin/ping; \
 	  chmod u+s distrib/usr/sbin/listtables; \
 	  chown root:nobody distrib/usr/bin/setuids/*; \
