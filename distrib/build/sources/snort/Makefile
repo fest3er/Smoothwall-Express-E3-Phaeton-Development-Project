@@ -10,8 +10,8 @@ PACKAGE = snort
 
 # Deal with snort: get the latest version number dynamically. :)
 #
-VERSION := $(shell ./get-snort-ver.sh -v)
-URL := $(shell ./get-snort-ver.sh -u)
+VERSION := $(shell ../../get-snort-ver.sh -v $(PACKAGE))
+URL := $(shell ../../get-snort-ver.sh -u $(PACKAGE))
 
 BASE_URL = http://dl.snort.org
 
@@ -26,8 +26,11 @@ PATCH_FILE1 = snort-pidfix.patch
 DOWNLOAD = yes
 download:
 	@if [ ! -e ../../downloads/$(TARBALL)$(EXTENSION).done ]; then \
-	  wget -O ../../downloads/$(TARBALL)$(EXTENSION) $(BASE_URL)$(URL); \
-	  touch ../../downloads/$(TARBALL)$(EXTENSION).done; \
+	  wget --no-check-certificate \
+	       -O ../../downloads/$(TARBALL)$(EXTENSION) $(BASE_URL)$(URL); \
+	  if [ $$? -eq 0 ]; then \
+	    touch ../../downloads/$(TARBALL)$(EXTENSION).done; \
+	  fi; \
 	fi
 
 PREPARE = yes
