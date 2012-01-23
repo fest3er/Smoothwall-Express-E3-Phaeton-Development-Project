@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Get connmark bits and flags
+. /etc/rc.d/inc.bits-flags
+
 # Disable ICMP Redirect Acceptance
 for FILE in /proc/sys/net/ipv4/conf/*/accept_redirects; do
 	echo 0 > $FILE
@@ -87,39 +90,38 @@ fi
 # localhost
 /sbin/iptables -A INPUT -i lo -j ACCEPT
 
-# Setup chains for controlling outgoing traffic. Place them
+# Setup chains for controlling outgoing conns. Place them
 # here so that setting timed access on outgoing rules can immediately
 # shut down all outgoing traffic from a source device or machine if desired
-/sbin/iptables -N tofc
-/sbin/iptables -N tofcfwd	# For outgoing traffic in FORWARD
-/sbin/iptables -N tofcproxy	# For outgoing taffic in INPUT e.g. proxies.
-/sbin/iptables -N tofcblock
+/sbin/iptables -N tofcScreen    # FORWARD prescreen; some traffic is always allowed
+/sbin/iptables -N tofcPrxScreen # INPUT prescreen; some traffic is always allowed
+/sbin/iptables -N tofcfwd2Int   # Filter inbound packets
+/sbin/iptables -N tofcfwd2Ext   # Filter outbound packets
+/sbin/iptables -N tofcproxy     # Filter proxied outbound conns in INPUT
+/sbin/iptables -N tofcblock     # The final arbiter
 
-# Send preferred outgoing traffic on its merry way
-/sbin/iptables -A tofc -p icmp -j ACCEPT
+# Put a default blocker in tofcblock; setoutgoing will replace it soon enough.
+/sbin/iptables -A tofcblock -j DROP
 
-# Send everything else in FORWARD to tofcfwd to be processed.
-/sbin/iptables -A tofc -i $GREEN_DEV -j tofcfwd
-if [ "$ORANGE_DEV" != "" ]; then
-	/sbin/iptables -A tofc -i $ORANGE_DEV -j tofcfwd
-fi
-if [ "$PURPLE_DEV" != "" ]; then
-	/sbin/iptables -A tofc -i $PURPLE_DEV -j tofcfwd
-fi
-
-# We must let NEW traffic in INPUT received by the local machine that is 
-#  then sent through OUTPUT out
-/sbin/iptables -A tofc -m state --state NEW -j RETURN
-
-# Send all outbound traffic to the tofc chains
-/sbin/iptables -A INPUT -j tofcproxy
-/sbin/iptables -A FORWARD -o ppp0 -j tofc
-/sbin/iptables -A FORWARD -o ippp0 -j tofc
+# Never touch certain traffic; filter the rest
+#   Methinks I need to handle IPSEC/ESP here, too.
+/sbin/iptables -A tofcScreen -p icmp -j ACCEPT
+#   send packets from RED to tofcfwd2Int
 if [ "$RED_DEV" != "" ]; then
-	# This rule excludes red as a source device for outgoing traffic
-	/sbin/iptables -A FORWARD -i $RED_DEV -o $RED_DEV -j DROP
-	/sbin/iptables -A FORWARD -o $RED_DEV -j tofc
+  /sbin/iptables -A tofcScreen -i $RED_DEV -j tofcfwd2Int
 fi
+/sbin/iptables -A tofcScreen -i ppp0 -j tofcfwd2Int
+/sbin/iptables -A tofcScreen -i ippp0 -j tofcfwd2Int
+#   send the rest to tofcfwd2Ext
+/sbin/iptables -A tofcScreen -j tofcfwd2Ext
+
+# Never touch certain traffic; filter the rest
+/sbin/iptables -A tofcPrxScreen -p icmp -j ACCEPT
+/sbin/iptables -A tofcPrxScreen -j tofcproxy
+
+# Send all outbound and proxied outbound conns to the tofc chains
+/sbin/iptables -A FORWARD -m connmark --mark ${typeOutbound}/${connTypeMask} -j tofcScreen
+/sbin/iptables -A INPUT -m connmark --mark ${typeInt2FW}/${connTypeMask} -j tofcPrxScreen
 
 # For IGMP and multicast
 /sbin/iptables -N advnet
@@ -426,3 +428,4 @@ done
 
 /sbin/iptables -t mangle -A POSTROUTING -j trafficpostrouting
 
+. /etc/rc.d/rc.zoneConnMarks
