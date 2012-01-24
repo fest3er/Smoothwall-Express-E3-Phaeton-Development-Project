@@ -682,9 +682,11 @@ if ( defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq $tr{'tofc-change a
 			print FILE "$line\n";
 		} elsif ($temp[6] eq "ACCEPT" ) {
 			$action = "REJECT";
+			$temp[10] =~ s/ACCEPT/REJECT/g;
 			print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$action,$temp[7],$temp[8],$temp[9],$temp[10]\n";
 		} elsif ($temp[6] eq "REJECT") {
 			$action = "ACCEPT";
+			$temp[10] =~ s/REJECT/ACCEPT/g;
 			print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$action,$temp[7],$temp[8],$temp[9],$temp[10]\n";
 		} 
 	}

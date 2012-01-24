@@ -252,6 +252,10 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                const std::string & daysofweek = config[myx++];
                const std::string & timestart = config[myx++];
                const std::string & timestop = config[myx++];
+
+               /* Anon: somewhere in here, handle the time frame's ACTION, which
+                  will override the entry's ACTION. The action is the first word
+                  of the description. */
                 
                if (daysofweek != "")
                {
