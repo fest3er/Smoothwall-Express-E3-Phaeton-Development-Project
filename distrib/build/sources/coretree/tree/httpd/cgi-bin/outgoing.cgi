@@ -116,6 +116,23 @@ my ( $interface, $enabled, $timed, $port, $ipmac, $protocol, $comment );
 
 $errormessage = "";
 
+# If it exists, pull the error log into $errormessage and delete the file.
+if (-f "$moddir/configErrors.log") {
+  open (ceHdl, "<$moddir/configErrors.log");
+  while (<ceHdl>) {
+    if (! /^  /) {
+      if ($errormessage ne "") {
+        $errormessage .= "</p>\n";
+      }
+      $errormessage .= "<p style='margin-left:18pt;text-indent:-18pt;font-size:9pt'>$_";
+    } else {
+      s/^  //;
+      $errormessage .= "<br>$_";
+    }
+  }
+#  unlink "$moddir/configErrors.log";
+}
+
 if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $cgiparams{'ACTION'} eq $tr{'tofc-update'}))
 {
 	my $interface	 = $cgiparams{'INTERFACE'};

@@ -55,7 +55,7 @@ std::map<std::string, std::vector<std::string>, eqstr> portlist;
 //#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
 int load_portlist()
 {
-	/* open the portlist file for reading */
+	/* open the knownports files for reading */
 
 	glob_t globbuf;
 
@@ -122,7 +122,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
    ConfigVAR settings("/var/smoothwall/outgoing/settings");
    ConfigVAR netsettings("/var/smoothwall/ethernet/settings");
    ConfigVAR squidsettings("/var/smoothwall/proxy/settings");
-   ConfigVAR upnpsettings("/var/smoothwall/advnet/settings");
+   //ConfigVAR upnpsettings("/var/smoothwall/advnet/settings");
    ConfigCSV config("/var/smoothwall/outgoing/config");
    ConfigSTR red_iface("/var/smoothwall/red/iface");
 
@@ -137,12 +137,25 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
    std::string chainfwd2Ext = "iptables -A tofcfwd2Ext";
    std::string chainproxy = "iptables -A tofcproxy";
 
+   int configErrorsFound = 0;
+
    load_portlist();
 
    rmdupes(ipb, "iptables -F tofcfwd2Ext");
    rmdupes(ipb, "iptables -F tofcfwd2Int");
    rmdupes(ipb, "iptables -F tofcproxy");
    rmdupes(ipb, "iptables -F tofcblock");
+
+   // open special log file
+   std::string specialLogFile = "/var/smoothwall/outgoing/configErrors.log";
+   FILE *logFile = NULL;
+
+   if (!(logFile = fopen(specialLogFile.c_str(), "w")))
+   {
+      errrpt("Couldn't open "+ specialLogFile +"; Can't report errors!");
+   } else {
+      simplesecuresysteml("/bin/chown", "nobody:nobody", specialLogFile.c_str(), NULL);
+   }
 
    for (int line = config.first(); line == 0; line = config.next())
    {
@@ -157,7 +170,18 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 
       std::string input_dev  = "";
       std::string output_dev  = "";
+      std::string cfg_line = "";
 
+      std::vector<std::string> configErrors;
+
+      // First push the config line onto the errors stack
+      for (int i=0; i<9; i++) {
+        cfg_line += config[i]+",";
+      }
+      cfg_line += config[9];
+      configErrors.push_back(cfg_line);
+
+      // Verify zone colors
       if (color == "" || port == "" || enabled == "")
          continue;   
             /* Skip lines with these values empty */
@@ -182,8 +206,8 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
       }
       if ( input_dev == "" )
       {
-         response = "Bad color: " + color;
-         return errrpt(response);
+         configErrors.push_back("Bad color: " + color);
+         configErrorsFound = 1;
       }
                            
                             /* ===========Action============= */
@@ -200,7 +224,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
          std::string proxyports = "";
          std::vector<std::string> full_time_str;
          std::vector<std::string> protos;
-           
+
          if ( action == "ACCEPT" ) 
 		action2 = " -j ACCEPT";
 	  else
@@ -235,8 +259,8 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                   }
                   else
                   {
-                     response = "Bad IP or MAC: " + srcipmac;
-                     return errrpt(response);
+                     configErrors.push_back("Bad IP or MAC: " + srcipmac);
+                     configErrorsFound = 1;
                   }
                }
             }
@@ -314,7 +338,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                      if (strlen ( nport.c_str() ) > 0) nport += ",";
                      nport += vect[i++].c_str();
                   }
-		    if (port == "Web")
+		    if (port == "Web" || port == "80")
 		    {
 			proxyports = " -p 6 -m multiport --dports 800 ";
 		    }
@@ -360,13 +384,39 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
           
          if ( ! (protos.size()) )
          {
-            response = "Bad entry for protocol: " + protocol;
-            return errrpt(response);
+            configErrors.push_back("Bad entry for protocol: " + protocol);
+            configErrorsFound = 1;
          }
-                           
+
+         /*
+             Communicate errors so RC and UI can report them.
+             If any errors were found in the config entry, report them, dump them
+             into a log file for RC and UI, and skip it.
+             If none were found, proceed to build the netfilter rules.
+          */
+
+         unsigned int x = 0;
+
+         // The config entry is always the first on the stack.
+         if (configErrorsFound == 1) {
+            while ( x<configErrors.size()) {
+               // Record in syslog
+               errrpt(configErrors[x]);
+               // Record in special log file
+               if (logFile) {
+                  std::string errorLine = "";
+                  if (x>0) errorLine = "  ";
+                  errorLine += configErrors[x] + "\n";
+                  fwrite (errorLine.c_str(), 1, errorLine.length(), logFile);
+               }
+               x++;
+            }
+            continue;
+         }
+
                             /* =========Output========= */
                              
-         unsigned int x = 0;
+         x = 0;
          while ( x < protos.size() )
          {
             unsigned int z = 0;
@@ -381,8 +431,8 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                {
                    localProtos.replace(portsFound, 2, "--s");
                }
-               errrpt("IB " + chainfwd2Int + localProtos + output_dev + dstipmac + full_time_str[z] 
-			+ " -m state --state RELATED,ESTABLISHED " + action2);
+//               errrpt("IB " + chainfwd2Int + localProtos + output_dev + dstipmac + full_time_str[z] 
+//			+ " -m state --state RELATED,ESTABLISHED " + action2);
                rmdupes(ipb, chainfwd2Int + localProtos + output_dev + dstipmac + full_time_str[z] 
 			+ " -m state --state RELATED,ESTABLISHED " + action2);
 
@@ -391,8 +441,8 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                {
                    localProtos.replace(portsFound, 3, "--d");
                }
-               errrpt("OB " + chainfwd2Int + localProtos + input_dev + ipormac + full_time_str[z]
-			+ " -m state --state NEW,RELATED,ESTABLISHED " + action2);
+//               errrpt("OB " + chainfwd2Int + localProtos + input_dev + ipormac + full_time_str[z]
+//			+ " -m state --state NEW,RELATED,ESTABLISHED " + action2);
                rmdupes(ipb, chainfwd2Ext + localProtos + input_dev + ipormac + full_time_str[z]
 			+ " -m state --state NEW,RELATED,ESTABLISHED " + action2);
 
@@ -401,7 +451,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 		 /* But only if the proxy is enabled 						  */
             	 if ( proxyports != "" )
 	  	 {
-		    errrpt("PXY " + chainproxy + proxyports + input_dev + ipormac + full_time_str[z] + action2);
+//		    errrpt("PXY " + chainproxy + proxyports + input_dev + ipormac + full_time_str[z] + action2);
 		    rmdupes(ipb, chainproxy + proxyports + input_dev + ipormac + full_time_str[z] + action2);
 	  	 }
                z++;
@@ -411,6 +461,14 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
 
       } //      <<= End of enabled
    } //   <<= End reading config
+
+   // close special log file; delete it if no errors were found
+   if (logFile) {
+      fclose(logFile);
+      if (configErrorsFound == 0) {
+         simplesecuresysteml("/bin/rm", specialLogFile.c_str(), NULL);
+      }
+   }
 
    // <<= Begin setting up tofcblock drop table
    // Log then drop packets and allowing ESTABLISHED,RELATED through drop table tofcblock
@@ -443,20 +501,23 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
          rmdupes(ipb, rulehead  + pdev + log_prefix);
    }
     
+   // These two mess up the control
    //rmdupes(ipb, chainfwd2Ext + relestab + " -j ACCEPT");
    //rmdupes(ipb, chainfwd2Int + relestab + " -j ACCEPT");
-   if (upnpsettings["ENABLE_UPNP"] == "on")
-   {
-   	rmdupes(ipb, chainfwd2Ext + " -j MINIUPNPD");
-   	rmdupes(ipb, chainfwd2Int + " -j MINIUPNPD");
-   }
+
+   //if (upnpsettings["ENABLE_UPNP"] == "on")
+   //{
+   //	rmdupes(ipb, chainfwd2Ext + " -j MINIUPNPD");
+   //   rmdupes(ipb, chainfwd2Int + " -j MINIUPNPD");
+   //}
    rmdupes(ipb, chainfwd2Ext + " -j tofcblock");
    rmdupes(ipb, chainfwd2Int + " -j tofcblock");
+   rmdupes(ipb, "iptables -A tofcblock" + log_prefix);
    rmdupes(ipb, "iptables -A tofcblock -p tcp" + relestab + " -j REJECT --reject-with tcp-reset");
    rmdupes(ipb, "iptables -A tofcblock -j REJECT --reject-with icmp-admin-prohibited");
-   /* REJECT ends processing for a packet. This is never reached.
-   rmdupes(ipb, "iptables -A tofcproxy -j RETURN");
-   */
+
+   // tofcproxy has an implicit RETURN at its end; this isn't needed.
+   //rmdupes(ipb, "iptables -A tofcproxy -j RETURN");
 
    error = ipbitch(ipb);
     

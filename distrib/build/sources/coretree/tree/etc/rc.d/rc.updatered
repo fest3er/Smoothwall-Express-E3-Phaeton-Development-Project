@@ -31,7 +31,12 @@ echo "Bringing up interface aliases (if they exist)"
 /usr/bin/smoothcom ifaliasup
 echo "Setting up full firewall rules"
 /usr/bin/smoothcom setportfw
-echo "Setting up outgoing filtering and timed access"
+echo "Setting up time outgoing filtering"
+if [ -f /var/smoothwall/outgoing/configErrors.log ]; then
+  tput smso;
+  sed -e 's/^/  /' /var/smoothwall/outgoing/configErrors.log
+  tput rmso
+fi
 /usr/bin/smoothcom setoutgoing
 echo "Setting up external access rules"
 /usr/bin/smoothcom setxtaccess
