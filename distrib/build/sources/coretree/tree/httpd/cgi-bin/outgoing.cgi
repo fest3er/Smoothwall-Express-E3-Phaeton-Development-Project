@@ -130,7 +130,7 @@ if (-f "$moddir/configErrors.log") {
       $errormessage .= "<br>$_";
     }
   }
-#  unlink "$moddir/configErrors.log";
+  unlink "$moddir/configErrors.log";
 }
 
 if ((defined $cgiparams{'ACTION'}) and ($cgiparams{'ACTION'} eq $tr{'add'} or $cgiparams{'ACTION'} eq $tr{'tofc-update'}))
