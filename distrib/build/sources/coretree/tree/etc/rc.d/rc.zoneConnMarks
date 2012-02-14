@@ -154,56 +154,56 @@ $ICMD -A INPUT -m state --state NEW -j newINPUT
 $ICMD -A OUTPUT -m state --state NEW -j newOUTPUT
 
 # Log the connmarks
-$ICMD -A newFORWARD -j LOGMARK
-$ICMD -A newINPUT -j LOGMARK
-$ICMD -A newOUTPUT -j LOGMARK
-$ICMD -A newFORWARD -m connmark --mark ${zoneREDin}/${zoneInMask} \
-  -j LOG --log-prefix "sourceZone: RED          "
-$ICMD -A newFORWARD -m connmark --mark ${zoneGREENin}/${zoneInMask} \
-  -j LOG --log-prefix "sourceZone: GREEN        "
-$ICMD -A newFORWARD -m connmark --mark ${zoneORANGEin}/${zoneInMask} \
-  -j LOG --log-prefix "sourceZone: ORANGE       "
-$ICMD -A newFORWARD -m connmark --mark ${zonePURPLEin}/${zoneInMask} \
-  -j LOG --log-prefix "sourceZone: PURPLE       "
-
-$ICMD -A newINPUT -m connmark --mark ${zoneREDin}/${zoneInMask} \
-  -j LOG --log-prefix "sourceZone: RED          "
-$ICMD -A newINPUT -m connmark --mark ${zoneGREENin}/${zoneInMask} \
-  -j LOG --log-prefix "sourceZone: GREEN        "
-$ICMD -A newINPUT -m connmark --mark ${zoneORANGEin}/${zoneInMask} \
-  -j LOG --log-prefix "sourceZone: ORANGE       "
-$ICMD -A newINPUT -m connmark --mark ${zonePURPLEin}/${zoneInMask} \
-  -j LOG --log-prefix "sourceZone: PURPLE       "
-
-$ICMD -A newFORWARD -m connmark --mark ${zoneREDout}/${zoneOutMask} \
-  -j LOG --log-prefix "  destZone: RED          "
-$ICMD -A newFORWARD -m connmark --mark ${zoneGREENout}/${zoneOutMask} \
-  -j LOG --log-prefix "  destZone: GREEN        "
-$ICMD -A newFORWARD -m connmark --mark ${zoneORANGEout}/${zoneOutMask} \
-  -j LOG --log-prefix "  destZone: ORANGE       "
-$ICMD -A newFORWARD -m connmark --mark ${zonePURPLEout}/${zoneOutMask} \
-  -j LOG --log-prefix "  destZone: PURPLE       "
-
-$ICMD -A newOUTPUT -m connmark --mark ${zoneREDout}/${zoneOutMask} \
-  -j LOG --log-prefix "  destZone: RED          "
-$ICMD -A newOUTPUT -m connmark --mark ${zoneGREENout}/${zoneOutMask} \
-  -j LOG --log-prefix "  destZone: GREEN        "
-$ICMD -A newOUTPUT -m connmark --mark ${zoneORANGEout}/${zoneOutMask} \
-  -j LOG --log-prefix "  destZone: ORANGE       "
-$ICMD -A newOUTPUT -m connmark --mark ${zonePURPLEout}/${zoneOutMask} \
-  -j LOG --log-prefix "  destZone: PURPLE       "
-
-$ICMD -A newFORWARD -m connmark --mark ${typeInternal}/${connTypeMask} \
-  -j LOG --log-prefix "      type: INTERNAL     "
-$ICMD -A newFORWARD -m connmark --mark ${typeInbound}/${connTypeMask} \
-  -j LOG --log-prefix "      type: INBOUND      "
-$ICMD -A newFORWARD -m connmark --mark ${typeOutbound}/${connTypeMask} \
-  -j LOG --log-prefix "      type: OUTBOUND     "
-$ICMD -A newINPUT -m connmark --mark ${typeInt2FW}/${connTypeMask} \
-  -j LOG --log-prefix "      type: INTERNAL->FW "
-$ICMD -A newINPUT -m connmark --mark ${typeExt2FW}/${connTypeMask} \
-  -j LOG --log-prefix "      type: EXTERNAL->FW "
-$ICMD -A newOUTPUT -m connmark --mark ${typeFW2Int}/${connTypeMask} \
-  -j LOG --log-prefix "      type: FW->INTERNAL "
-$ICMD -A newOUTPUT -m connmark --mark ${typeFW2Ext}/${connTypeMask} \
-  -j LOG --log-prefix "      type: FW->EXTERNAL "
+#$ICMD -A newFORWARD -j LOGMARK
+#$ICMD -A newINPUT -j LOGMARK
+#$ICMD -A newOUTPUT -j LOGMARK
+#$ICMD -A newFORWARD -m connmark --mark ${zoneREDin}/${zoneInMask} \
+#  -j LOG --log-prefix "sourceZone: RED          "
+#$ICMD -A newFORWARD -m connmark --mark ${zoneGREENin}/${zoneInMask} \
+#  -j LOG --log-prefix "sourceZone: GREEN        "
+#$ICMD -A newFORWARD -m connmark --mark ${zoneORANGEin}/${zoneInMask} \
+#  -j LOG --log-prefix "sourceZone: ORANGE       "
+#$ICMD -A newFORWARD -m connmark --mark ${zonePURPLEin}/${zoneInMask} \
+#  -j LOG --log-prefix "sourceZone: PURPLE       "
+#
+#$ICMD -A newINPUT -m connmark --mark ${zoneREDin}/${zoneInMask} \
+#  -j LOG --log-prefix "sourceZone: RED          "
+#$ICMD -A newINPUT -m connmark --mark ${zoneGREENin}/${zoneInMask} \
+#  -j LOG --log-prefix "sourceZone: GREEN        "
+#$ICMD -A newINPUT -m connmark --mark ${zoneORANGEin}/${zoneInMask} \
+#  -j LOG --log-prefix "sourceZone: ORANGE       "
+#$ICMD -A newINPUT -m connmark --mark ${zonePURPLEin}/${zoneInMask} \
+#  -j LOG --log-prefix "sourceZone: PURPLE       "
+#
+#$ICMD -A newFORWARD -m connmark --mark ${zoneREDout}/${zoneOutMask} \
+#  -j LOG --log-prefix "  destZone: RED          "
+#$ICMD -A newFORWARD -m connmark --mark ${zoneGREENout}/${zoneOutMask} \
+#  -j LOG --log-prefix "  destZone: GREEN        "
+#$ICMD -A newFORWARD -m connmark --mark ${zoneORANGEout}/${zoneOutMask} \
+#  -j LOG --log-prefix "  destZone: ORANGE       "
+#$ICMD -A newFORWARD -m connmark --mark ${zonePURPLEout}/${zoneOutMask} \
+#  -j LOG --log-prefix "  destZone: PURPLE       "
+#
+#$ICMD -A newOUTPUT -m connmark --mark ${zoneREDout}/${zoneOutMask} \
+#  -j LOG --log-prefix "  destZone: RED          "
+#$ICMD -A newOUTPUT -m connmark --mark ${zoneGREENout}/${zoneOutMask} \
+#  -j LOG --log-prefix "  destZone: GREEN        "
+#$ICMD -A newOUTPUT -m connmark --mark ${zoneORANGEout}/${zoneOutMask} \
+#  -j LOG --log-prefix "  destZone: ORANGE       "
+#$ICMD -A newOUTPUT -m connmark --mark ${zonePURPLEout}/${zoneOutMask} \
+#  -j LOG --log-prefix "  destZone: PURPLE       "
+#
+#$ICMD -A newFORWARD -m connmark --mark ${typeInternal}/${connTypeMask} \
+#  -j LOG --log-prefix "      type: INTERNAL     "
+#$ICMD -A newFORWARD -m connmark --mark ${typeInbound}/${connTypeMask} \
+#  -j LOG --log-prefix "      type: INBOUND      "
+#$ICMD -A newFORWARD -m connmark --mark ${typeOutbound}/${connTypeMask} \
+#  -j LOG --log-prefix "      type: OUTBOUND     "
+#$ICMD -A newINPUT -m connmark --mark ${typeInt2FW}/${connTypeMask} \
+#  -j LOG --log-prefix "      type: INTERNAL->FW "
+#$ICMD -A newINPUT -m connmark --mark ${typeExt2FW}/${connTypeMask} \
+#  -j LOG --log-prefix "      type: EXTERNAL->FW "
+#$ICMD -A newOUTPUT -m connmark --mark ${typeFW2Int}/${connTypeMask} \
+#  -j LOG --log-prefix "      type: FW->INTERNAL "
+#$ICMD -A newOUTPUT -m connmark --mark ${typeFW2Ext}/${connTypeMask} \
+#  -j LOG --log-prefix "      type: FW->EXTERNAL "
