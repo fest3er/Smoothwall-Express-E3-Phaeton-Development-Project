@@ -13,7 +13,7 @@ PACKAGE = daq
 VERSION := $(shell ../../get-snort-ver.sh -v $(PACKAGE))
 URL := $(shell ../../get-snort-ver.sh -u $(PACKAGE))
 
-BASE_URL = http://dl.snort.org
+BASE_URL = http://www.snort.org
 
 DIR = $(PACKAGE)-$(VERSION)
 

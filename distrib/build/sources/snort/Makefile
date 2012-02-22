@@ -13,7 +13,7 @@ PACKAGE = snort
 VERSION := $(shell ../../get-snort-ver.sh -v $(PACKAGE))
 URL := $(shell ../../get-snort-ver.sh -u $(PACKAGE))
 
-BASE_URL = http://dl.snort.org
+BASE_URL = http://www.snort.org
 
 PATCH_FILE1 = snort-pidfix.patch
 
