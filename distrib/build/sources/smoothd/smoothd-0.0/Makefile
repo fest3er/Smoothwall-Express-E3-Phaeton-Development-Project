@@ -1,5 +1,5 @@
 ifdef GLOBALDEBUG
-CXXFLAGS = -g -O0
+CXXFLAGS = -gstabs -O0
 else
 CXXFLAGS = $(CFLAGS)
 endif

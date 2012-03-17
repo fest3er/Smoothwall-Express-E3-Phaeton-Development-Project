@@ -230,7 +230,7 @@ Client::Client( fd_set & master, int & maxfd, ModuleMap & nfunctions, const char
 	
 	dshutdown = 0;
 	
-	syslog( LOG_INFO, "Starting normal operations for client %d", listenfd );
+	syslog( LOG_INFO, "Starting normal operations for client fd=%d", listenfd );
 
 }
 
@@ -271,7 +271,7 @@ int Client::process( ) {
 
 	ppid = fork();
 
-reset_signal_handlers();
+	reset_signal_handlers();
 //syslog( LOG_ERR, "Result of fork was %d", ppid );
 
 	if (ppid == -1)
@@ -743,24 +743,57 @@ int main( int argc, char ** argv )
 		/* Reap all children as they perish; we don't want zombies */
 		pid_t child = wait3( &status, 0, NULL );
 
-//		for ( std::vector<ModuleReg>::iterator rmod = modules.begin(); rmod != modules.end(); rmod++ ){
-//			syslog( LOG_INFO, "    Unregistering module %s", (*rmod).name.c_str() );
-//			/* there is no point closing all the handles, as we */
-//			/* will run into problems if we replace a module and */
-//			/* attempt a reload */
-//		}
+/* Neal Murphy, 3/2012
+ * This code was an attempt to eliminate the memory leak upon receipt
+ * of SIGUSR2 (reload). But memory use continued to increase slowly
+ * anyway (by about 100kiB after 50 reloads and 175kiB after 100
+ * reloads). It's minimal, but still a leak and not acceptable.
+ * Besides, there are bigger fish to saute.
 
-		syslog( LOG_INFO, "    Shutting down modules(s)" );
-		modules.clear();
-		syslog( LOG_INFO, "    Shutting down function(s)" );
-		functions.clear();
-		syslog( LOG_INFO, "    Shutting down timed function(s)" );
-		timedfunctions.clear();
+ * Instead, smoothd will exec itself, ensuring a clean start.
+ */
+
+/*
+ * // Start of memory leak code
+ *		syslog( LOG_INFO, "    Clearing module socket descriptors" );
+ *		module_socket_descriptors.clear();
+ *		syslog( LOG_INFO, "    Shutting down CLIENT(s)" );
+ *                {
+ *		  for ( std::vector<Client *>::iterator client = client_sockets.begin(); client != client_sockets.end(); client++ ){
+ *                    (*client)->~Client();
+ *                  }
+ *                }
+ *		client_sockets.clear();
+ *
+ *		syslog( LOG_INFO, "    Clearing function(s)" );
+ *		functions.clear();
+ *
+ *		syslog( LOG_INFO, "    Clearing timed function(s)" );
+ *		timedfunctions.clear();
+ *
+ *		syslog( LOG_INFO, "    Releasing modules(s)" );
+ *                {
+ *		  for ( std::vector<ModuleReg>::iterator rmod = modules.begin(); rmod != modules.end(); rmod++ ){
+ *                    rmod->closedl();
+ *                  }
+ *                }
+ *		modules.clear();
+ * // End of memory leak code
+ */
+
       		sigaction(SIGTERM, &oldsa, NULL); // restore prev state
-		syslog( LOG_INFO, "Smoothd shutdown complete." );
+
+		if (dshutdown) {
+		  remove_pid_file( PID );
+	          syslog( LOG_INFO, "Smoothd restarting." );
+		  execve ("/usr/sbin/smoothd", NULL, NULL);
+		  // Should go without saying that this s/b impossible.
+		  syslog( LOG_INFO, "Incontinent after exec!");
+		}
 	}
 
 	remove_pid_file( PID );
+	syslog( LOG_INFO, "Smoothd shutdown complete." );
 
 	return 0;
 

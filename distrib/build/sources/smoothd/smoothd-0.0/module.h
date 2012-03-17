@@ -60,6 +60,7 @@ public:
 	ModuleReg() { name = ""; handle = NULL; }
 	ModuleReg( const char * nname, void * nhandle ){ name = nname; handle = nhandle; }
 	ModuleReg( const ModuleReg & a ){ name = a.name; handle = a.handle; }
+	void closedl () { if (handle != NULL) { dlclose (handle); } }
 	std::string name;
 	void * handle;
 };
