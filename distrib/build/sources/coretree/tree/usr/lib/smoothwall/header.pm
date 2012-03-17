@@ -286,14 +286,11 @@ END
 
 sub openpage
 {
-	$title = $_[0];
-	$menu = $_[1];
-	$extrahead = $_[2];
-	$thissection = $_[3];
+	($title,$menu,$extrahead,$thissection,$overrideStyle,$unused) = @_;
 
 	if ($menu == 1) { $colspan = 2; } else { $colspan = 1; }
 
-	print <<END
+	print <<END;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
@@ -301,9 +298,18 @@ sub openpage
 	<title>($hostname) $title - SmoothWall Express</title>
 	<script language='javascript' SRC='/ui/js/script.js'></script>
 	<link href='/ui/css/style.css' rel='stylesheet' type='text/css'>
+END
+
+	# Override the default style, if specified
+	if (defined($overrideStyle)) {
+	  print <<END;
+	<link href='/ui/css/$overrideStyle.css' rel='stylesheet' type='text/css'>
+END
+	}
+
+	print <<END;
 </head>
 END
-	;
 
 	if ( $thissection ne "help" ) {
 		$cellwidth = $pagewidth / 2;
