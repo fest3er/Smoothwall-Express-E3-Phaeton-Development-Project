@@ -71,6 +71,17 @@ int stop_dhcpd(std::vector<std::string> & parameters, std::string & response)
 
 int start_dhcpd(std::vector<std::string> & parameters, std::string & response)
 {
+	struct stat sb;
+
+	// If DHCP is not enabled, don't start it! Check before doing any other work.
+	if (stat("/var/smoothwall/dhcp/enable", &sb) == -1)
+	{
+	  response = "DHCPD disabled: won't start!";
+	  return -1;
+	}
+
+	// It is enabled, so proceed
+
 	int error = 0;
 	ConfigSTR green("/var/smoothwall/dhcp/green");
 	ConfigSTR purple("/var/smoothwall/dhcp/purple");

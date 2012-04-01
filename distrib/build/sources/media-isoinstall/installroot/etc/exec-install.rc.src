@@ -328,9 +328,13 @@ END
 
   cat <<END >/harddisk/$CONFIG_ROOT/main/settings
 LANGUAGE=en
-HOSTNAME=smoothwall
-KEYMAP=/usr/share/kbd/keymaps/i386/qwerty/us.map.gz
+HOSTNAME=roadster
+KEYMAP=/usr/share/keymaps/i386/qwerty/us.map.gz
 OPENNESS=halfopen
+END
+
+  cat <<END >/harddisk/$CONFIG_ROOT/time/settings
+TIMEZONE=US/Eastern
 END
 
   echo "  prepping module dependencies"
