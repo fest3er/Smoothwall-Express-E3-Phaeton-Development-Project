@@ -342,7 +342,7 @@ END
 
   if [ $serialport -eq 2 -o $serialport -eq 3 ]; then
     echo "  enabling getty on ttyS0"
-    sed -i -e '/^S0/ s/off/respawn/' -e '/^S0/ s/115200/$serialbaud/' /harddisk/etc/inittab
+    sed -i -e '/^S0/ s/off/respawn/' -e '/^S0/ s/115200/'$BAUD'/' /harddisk/etc/inittab
   fi
 
   echo "  adjusting runtime initramfs"
@@ -385,7 +385,7 @@ END
 #   Change the order of them if you manually change between serial
 #   and vesa.
 
-serial --unit=0 --speed=$serialbaud
+serial --unit=0 --speed=$BAUD
 END
 
   if [ $serialport -eq 1 -o $serialport -eq 3 ]; then
