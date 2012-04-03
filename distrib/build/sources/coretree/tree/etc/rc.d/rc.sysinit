@@ -26,7 +26,7 @@ export PATH
 
 if [ -e /forcefsck ]; then FORCE=-f; fi
 
-echo -n "Checking root filesystem : "
+echo -n "Checking root filesystem: "
 
 /sbin/fsck $FORCE -R -T -a -C /
 RC=$?  
@@ -39,10 +39,10 @@ fi
 
 # A return of 2 or higher means there were serious problems.
 if [ $RC -gt 1 ]; then
-	echo "$STRING: Failed"
-	echo "*** An error occurred during the file system check."
-	echo "*** Dropping you to a shell; the system will reboot"
-	echo "*** when you leave the shell."
+	echo "  $STRING: Failed"
+	echo "  *** An error occurred during the file system check."
+	echo "  *** Dropping you to a shell; the system will reboot"
+	echo "  *** when you leave the shell."
 	export PS1="(Repair filesystem) \# # "
 	sulogin
 	echo "Unmounting filesystems"
@@ -54,9 +54,8 @@ fi
 
 echo "Mounting root read/write"
 mount -n -o remount,rw /
-echo "Clearing mtab"
+echo "Clearing and refilling mtab"
 >/etc/mtab
-echo "Marking branches as mounted"
 mount -f /
 mount -f /proc
 mount -f /sys
@@ -64,7 +63,7 @@ mount -f /dev
 mount -f /dev/pts
 
 
-echo -n "Checking other filesystems : "
+echo -n "Checking other filesystems: "
 /sbin/fsck $FORCE -R -T -a -C -A
 RC=$?  
 
@@ -76,10 +75,10 @@ fi
   
 # A return of 2 or higher means there were serious problems.
 if [ $RC -gt 1 ]; then
-        echo "$STRING: Failed"
-        echo "*** An error occurred during the file system check."
-  	echo "*** Dropping you to a shell; the system will reboot"
-  	echo "*** when you leave the shell."
+        echo "  $STRING: Failed"
+        echo "  *** An error occurred during the file system check."
+  	echo "  *** Dropping you to a shell; the system will reboot"
+  	echo "  *** when you leave the shell."
   	export PS1="(Repair filesystem) \# # "
   	sulogin
   	echo "Unmounting filesystems"
@@ -91,7 +90,11 @@ fi
 
 echo "Mounting other filesystems"
 mount -a
-echo "Direct core dumps to /var/log"
+
+echo "Starting klogd"
+/usr/sbin/klogd
+
+echo "Directing core dumps to /var/log"
 mkdir -p /var/log/coredumps
 chmod 700 /var/log/coredumps
 echo "/var/log/coredumps/%e-%t-%s.%p" >/proc/sys/kernel/core_pattern
@@ -116,32 +119,33 @@ fi
 echo "Setting the clock"
 /sbin/hwclock --hctosys
 
-if [ ! -e /usr/etc/ssh_host_key ]; then
-	echo "Generating SSH RAS1 key.  This may take several minutes."
-	/usr/bin/ssh-keygen -t rsa1 -f /usr/etc/ssh_host_key -N ""
-fi
+#if [ ! -e /usr/etc/ssh_host_key ]; then
+#	echo "Generating SSH RSA1 key.  This may take several minutes."
+#	/usr/bin/ssh-keygen -t rsa1 -f /usr/etc/ssh_host_key -N ""
+#fi
+echo "Generating keys/certs..."
 if [ ! -e /usr/etc/ssh_host_rsa_key ]; then
-	echo "Generating SSH RSA key.  This may take several minutes."
+	echo "  SSH RSA key.  This may take several minutes."
 	/usr/bin/ssh-keygen -t rsa -f /usr/etc/ssh_host_rsa_key -N ""
 fi
 if [ ! -e /usr/etc/ssh_host_dsa_key ]; then
-	echo "Generating SSH DSA key.  This may take several minutes."
+	echo "  SSH DSA key.  This may take several minutes."
 	/usr/bin/ssh-keygen -t dsa -f /usr/etc/ssh_host_dsa_key -N "" 
 fi
 if [ ! -e /usr/etc/ssh_host_ecdsa_key ]; then
-	echo "Generating SSH ECDSA key.  This may take several minutes."
+	echo "  SSH ECDSA key.  This may take several minutes."
 	/usr/bin/ssh-keygen -t ecdsa -f /usr/etc/ssh_host_ecdsa_key -N "" 
 fi
 
 if [ ! -e /etc/httpd/server.key ]; then
-	echo "Generating https server key."
+	echo "  https server key."
 	/usr/ssl/bin/openssl genrsa -rand \
 		/boot/vmlinuz-`uname -r`:/var/smoothwall/ethernet/settings:/var/log/dmesg -out \
 		/etc/httpd/server.key 1024
-	echo "Generating CSR"
+	echo "  CSR"
 	cat /etc/certparams | /usr/ssl/bin/openssl \
 		req -new -key /etc/httpd/server.key -out /etc/httpd/server.csr
-	echo "Signing certificate"
+	echo "  Signing certificate"
 	/usr/ssl/bin/openssl x509 -req -days 999999 -in \
 		/etc/httpd/server.csr -signkey /etc/httpd/server.key -out \
 		/etc/httpd/server.crt
@@ -158,8 +162,6 @@ echo "Rotating logs"
 
 echo "Starting syslogd"
 /usr/sbin/syslogd -m 0
-echo "Starting klogd"
-/usr/sbin/klogd
 
 echo "Loading filesystems"
 /sbin/modprobe msdos
@@ -172,42 +174,49 @@ echo "Loading IPSEC"
 echo "Starting smoothd"
 /usr/sbin/smoothd
 
-echo "Running /etc/rc.d/rc.network"
+echo
+echo "Initializing  networking"
 . /etc/rc.d/rc.network
 
-echo "Starting cron"
+echo
+echo "Starting services and daemons"
+echo "  cron"
 rm -f /var/run/crond.reboot
 /usr/sbin/cron
-echo "Starting httpd"
+echo "  httpd"
 #/usr/apache2/sbin/httpd -DSSL -DDEFLATE
 /usr/apache2/sbin/httpd -DSSL
-echo "Starting dhcpd (if enabled)"
+echo "  dhcpd (if enabled)"
 /usr/bin/smoothcom dhcpdrestart
-echo "Starting sshd (if enabled)"
+echo "  sshd (if enabled)"
 /usr/bin/smoothcom sshdrestart
-echo "Starting time service (if enabled)"
+echo "  time service (if enabled)"
 /usr/bin/smoothcom ntpdrestart
-echo "Starting squid (if enabled)"
+echo "  squid (if enabled)"
 /usr/bin/smoothcom squidrestart
-echo "Starting IMSpector (if enabled)"
+echo "  IMSpector (if enabled)"
 /usr/bin/smoothcom imrestart
-echo "Starting SIP proxy (if enabled)"
+echo "  SIP proxy (if enabled)"
 /usr/bin/smoothcom siprestart
-echo "Starting Clam Anti-Virus (if enabled)"
+echo "  Clam Anti-Virus (if enabled)"
 /usr/bin/smoothcom clamavrestart
-echo "Starting POP3 scanner (if enabled)"
+echo "  POP3 scanner (if enabled)"
 /usr/bin/smoothcom p3scanrestart
 
-echo "Silencing kernel, syslog output on tty12"
-echo "View the log files in /var/log to trace errors."
+echo
+echo "Finishing startup"
+echo "  Silencing kernel, syslog output on tty12"
+echo "    View the log files in /var/log to trace errors."
 echo "1 4 1 7" >/proc/sys/kernel/printk
 
 # Remove the policing barricades (delete the ingress qdiscs)
 . /etc/rc.d/rc.open-ingress
-# QoS implementations that use ingress policers MUST be started
-#   after this point!!!!!
+# Restart TC in case it uses ingress policers
+/usr/bin/smoothcom trafficrestart
+# Up the links!
+. /etc/rc.d/inc.links-up
 
-echo "Saving dmesg buffer to /var/log/dmesg"
+echo "  Saving dmesg buffer to /var/log/dmesg"
 dmesg >/var/log/dmesg
 
 logger -t smoothwall "SmoothWall started."
@@ -225,4 +234,3 @@ unset STARTSTOP
     fi
   done </proc/acpi/event
 )&
-

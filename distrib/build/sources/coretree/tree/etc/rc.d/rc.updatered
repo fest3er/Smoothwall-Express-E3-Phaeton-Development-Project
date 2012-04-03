@@ -25,22 +25,25 @@ touch /var/smoothwall/red/active
 echo "$DNSMASQ_DNS1" >/var/smoothwall/red/dns1
 echo "$DNSMASQ_DNS2" >/var/smoothwall/red/dns2
 
+echo "Updating RED"
+
+echo "..DNSMasq"
 /usr/bin/smoothcom dnsproxyrestart $DNSMASQ_DNS1 $DNSMASQ_DNS2
 
-echo "Bringing up interface aliases (if they exist)"
+echo "..interface aliases (if they exist)"
 /usr/bin/smoothcom ifaliasup
-echo "Setting up full firewall rules"
+echo "..incoming filtering"
 /usr/bin/smoothcom setportfw
-echo "Setting up time outgoing filtering"
+echo "..outgoing filtering"
+/usr/bin/smoothcom setoutgoing
 if [ -f /var/smoothwall/outgoing/configErrors.log ]; then
   tput smso;
-  sed -e 's/^/  /' /var/smoothwall/outgoing/configErrors.log
+  sed -e 's/^/..  /' /var/smoothwall/outgoing/configErrors.log
   tput rmso
 fi
-/usr/bin/smoothcom setoutgoing
-echo "Setting up external access rules"
+echo "..external access rules"
 /usr/bin/smoothcom setxtaccess
-echo "Starting snort if enabled"
+echo "..snort, upnpd, TC, DDNS, VPN (as enabled)"
 /usr/bin/smoothcom snortrestart
 /usr/bin/smoothcom upnpdrestart
 /usr/bin/smoothcom trafficrestart
@@ -49,7 +52,8 @@ echo "Starting snort if enabled"
 
 /etc/rc.d/rc.vpn.up
 
-echo "Looking for system updates and registering your system."
+#echo "Looking for system updates and registering your system."
+echo "Registering your system."
 #/usr/bin/smoothwall/updatelists.pl
 /etc/rc.d/rc.machineregister
 

@@ -2,72 +2,88 @@
 
 . /var/smoothwall/ethernet/settings
 
-# Block all inbound packets on all NICs
+# Block all inbound packets on all NICs. This mostly solves the DoS problem.
 . /etc/rc.d/rc.block-ingress
 
-echo "Setting up firewall"
+echo "  firewall"
 . /etc/rc.d/rc.firewall.up
-echo "Starting traffic stats collector"
+echo "  traffic stats collector"
 /usr/sbin/trafficlogger
-echo "Setting DMZ pinholes"
+echo "  DMZ pinholes"
 /usr/bin/smoothcom setinternal
-echo "Setting up advanced networking features"
+echo "  advanced networking features"
 /usr/bin/smoothcom setadvnet
-echo "Setting up IP block"
+echo "  IP block"
 /usr/bin/smoothcom setipblock
 echo "Poking udev"
 /sbin/udevadm trigger
 /sbin/udevadm settle
 
-echo "Restarting DNS proxy"
-/usr/bin/smoothcom dnsproxyrestart
+# Place to store delayed IF uppage
+nicsToUp=""
 
+# GREEN
 if [ "$1" != "NOTGREEN" ]; then
-	if [ "$GREEN_DEV" != "" ]; then
-		/sbin/ifconfig $GREEN_DEV $GREEN_ADDRESS netmask $GREEN_NETMASK broadcast $GREEN_BROADCAST up
-	else
-		echo "WARNING: No driver set for GREEN"
-	fi
+  if [ "$GREEN_DEV" != "" ]; then
+    /sbin/ip addr add $GREEN_ADDRESS/$GREEN_NETMASK dev $GREEN_DEV
+    nicsToUp="$nicsToUp $GREEN_DEV"
+  else
+    echo "WARNING: No driver set for GREEN"
+  fi
 fi
 
-if [ "$CONFIG_TYPE" = "1" -o "$CONFIG_TYPE" = "3" -o "$CONFIG_TYPE" = "5" -o "$CONFIG_TYPE" = "7" ]; then
-	if [ "$ORANGE_DEV" != "" ]; then
-		/sbin/ifconfig $ORANGE_DEV $ORANGE_ADDRESS netmask $ORANGE_NETMASK broadcast $ORANGE_BROADCAST up
-	else
-		echo "WARNING: No driver set for ORANGE"
-	fi
+# ORANGE
+if [ "$CONFIG_TYPE" == "1" -o "$CONFIG_TYPE" == "3" -o "$CONFIG_TYPE" == "5" -o "$CONFIG_TYPE" == "7" ]; then
+  if [ "$ORANGE_DEV" != "" ]; then
+    /sbin/ip addr add $ORANGE_ADDRESS/$ORANGE_NETMASK dev $ORANGE_DEV
+    nicsToUp="$nicsToUp $ORANGE_DEV"
+  else
+    echo "WARNING: No driver set for ORANGE"
+  fi
 fi
 
-if [ "$CONFIG_TYPE" = "4" -o "$CONFIG_TYPE" = "5" -o "$CONFIG_TYPE" = "6" -o "$CONFIG_TYPE" = "7" ]; then
-	if [ "$PURPLE_DEV" != "" ]; then
-		/sbin/ifconfig $PURPLE_DEV $PURPLE_ADDRESS netmask $PURPLE_NETMASK broadcast $PURPLE_BROADCAST up
-	else
-		echo "WARNING: No driver set for PURPLE"
-	fi
+# PURPLE
+if [ "$CONFIG_TYPE" == "4" -o "$CONFIG_TYPE" == "5" -o "$CONFIG_TYPE" == "6" -o "$CONFIG_TYPE" == "7" ]; then
+  if [ "$PURPLE_DEV" != "" ]; then
+    /sbin/ip addr add $PURPLE_ADDRESS/$PURPLE_NETMASK dev $PURPLE_DEV
+    nicsToUp="$nicsToUp $PURPLE_DEV"
+  else
+    echo "WARNING: No driver set for PURPLE"
+  fi
 fi
-	
-if [ "$CONFIG_TYPE" = "2" -o "$CONFIG_TYPE" = "3" -o "$CONFIG_TYPE" = "6" -o "$CONFIG_TYPE" = "7" ]; then
-	if [ "$RED_DEV" != "" ]; then
-		if [ "$RED_TYPE" = "DHCP" ]; then
-			if [ "$RED_IGNOREMTU" == "on" ]; then
-                          IGNOREMTU=" -M"
-                        else
-                          IGNOREMTU=""
-                        fi
-			rm /var/lib/dhcpcd/*.info -f
-			/usr/sbin/dhcpcd -h $RED_DHCP_HOSTNAME -R $RED_DEV -c /etc/rc.d/rc.updatered${IGNOREMTU}
-		elif [ "$RED_TYPE" = "STATIC" ]; then
-			/sbin/ifconfig $RED_DEV $RED_ADDRESS netmask $RED_NETMASK broadcast $RED_BROADCAST up
-			if [ "$DEFAULT_GATEWAY" != "" ]; then
-				/sbin/route add default gw $DEFAULT_GATEWAY
-			fi
-			/etc/rc.d/rc.updatered
-		else
-			/sbin/ifconfig $RED_DEV 1.1.1.1 netmask 255.255.255.0 broadcast 1.1.1.255 up
-		fi
-	else
-		echo "WARNING: No driver set for RED"
-	fi
+  
+# RED
+if [ "$CONFIG_TYPE" == "2" -o "$CONFIG_TYPE" == "3" -o "$CONFIG_TYPE" == "6" -o "$CONFIG_TYPE" == "7" ]; then
+  if [ "$RED_DEV" != "" ]; then
+    rm /var/lib/dhcpcd/*.info -f
+
+    if [ "$RED_TYPE" == "DHCP" ]; then
+      # DHCPCD handles everything
+      if [ "$RED_IGNOREMTU" == "on" ]; then
+        IGNOREMTU=" -M"
+      else
+        IGNOREMTU=""
+      fi
+      /usr/sbin/dhcpcd -h $RED_DHCP_HOSTNAME -R $RED_DEV -c /etc/rc.d/rc.updatered${IGNOREMTU}
+
+    elif [ "$RED_TYPE" == "STATIC" ]; then
+      # We do it when static
+      /sbin/ip addr add $RED_ADDRESS/$RED_NETMASK dev $RED_DEV
+      nicsToUp="$nicsToUp $RED_DEV"
+      if [ "$DEFAULT_GATEWAY" != "" ]; then
+	nicsToUp="$nicsToUp $DEFAULT_GATEWAY"
+      fi
+
+    else
+      # Must be PPPoX; link must be up, but needs no addressing
+      nicsToUp="$nicsToUp $RED_DEV"
+    fi
+  else
+    echo "WARNING: No driver set for RED"
+  fi
 fi
 
-
+# Bring the links up now if during operation. Otherwise, rc.sysinit handles it
+if [ "x$STARTSTOP" == "x" ]; then
+  . /etc/rc.d/inc.links-up
+fi
