@@ -439,7 +439,7 @@ END
 
   # Restore variable data if selected. AND upgrade files as needed!
   if [ $restore -eq 2 ]; then
-    (cd /harddisk/etc; for file in passwd group shadow; do cp $file $file-FRESH; done)
+    (cd /harddisk/etc; for file in passwd group shadow snort.conf; do cp $file $file-FRESH; done)
     (cd /harddisk/var/smoothwall/main; mv productdata productdata-FRESH)
     echo "  Restoring variable data from backup"
     do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
@@ -447,7 +447,7 @@ END
     (cd /harddisk/var/smoothwall/main; mv productdata-FRESH productdata)
     (
       cd /harddisk/etc
-      for file in passwd group shadow; do cp $file $file-RESTORED; done
+      for file in passwd group shadow snort.conf; do cp $file $file-RESTORED; done
       (
         egrep "fuse|plugdev|scanner|kvm|usbmux" group-FRESH
         egrep -v "fuse|plugdev|scanner|kvm|usbmux" group-RESTORED
@@ -463,7 +463,7 @@ END
       ) >shadow
     )
     # Sweep the detritus under the rug
-    (cd /harddisk/etc; rm -f {passwd,group,shadow}-{RESTORED,FRESH})
+    (cd /harddisk/etc; rm -f {passwd,group,shadow,snort.conf}-{RESTORED,FRESH})
     GRUB_CMD="$GRUB_CMD --recheck"
   fi
 
