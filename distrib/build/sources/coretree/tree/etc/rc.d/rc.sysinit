@@ -186,8 +186,6 @@ rm -f /var/run/crond.reboot
 echo "  httpd"
 #/usr/apache2/sbin/httpd -DSSL -DDEFLATE
 /usr/apache2/sbin/httpd -DSSL
-echo "  dhcpd (if enabled)"
-/usr/bin/smoothcom dhcpdrestart
 echo "  sshd (if enabled)"
 /usr/bin/smoothcom sshdrestart
 echo "  time service (if enabled)"
@@ -216,6 +214,11 @@ echo "1 4 1 7" >/proc/sys/kernel/printk
 # Up the links!
 . /etc/rc.d/inc.links-up
 
+# Services here depend on the IFs being up.
+echo "  dhcpd (if enabled)"
+/usr/bin/smoothcom dhcpdrestart
+
+# Final startup steps.
 echo "  Saving dmesg buffer to /var/log/dmesg"
 dmesg >/var/log/dmesg
 
