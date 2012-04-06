@@ -3,7 +3,7 @@
 . /var/smoothwall/ethernet/settings
 
 # Block all inbound packets on all NICs. This mostly solves the DoS problem.
-. /etc/rc.d/rc.block-ingress
+. /etc/rc.d/inc.block-ingress
 
 echo "  firewall"
 . /etc/rc.d/rc.firewall.up

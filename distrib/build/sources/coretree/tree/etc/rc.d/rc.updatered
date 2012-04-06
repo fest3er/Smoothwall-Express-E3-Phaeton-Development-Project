@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+# crEcho: print stuff with <CR><NL> at EOL
+function crEcho {
+  echo -e "$*\r"
+}
 
 . /var/smoothwall/ethernet/settings
 
@@ -6,8 +11,8 @@ if [ "$RED_TYPE" = "DHCP" ]; then
 	DNSMASQ_DNS1=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 1`
 	DNSMASQ_DNS2=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 2`
 	. /var/lib/dhcpcd/dhcpcd-${RED_DEV}.info
-	echo "$IPADDR" >/var/smoothwall/red/local-ipaddress
-	echo "$GATEWAY" >/var/smoothwall/red/remote-ipaddress
+	crEcho "$IPADDR" >/var/smoothwall/red/local-ipaddress
+	crEcho "$GATEWAY" >/var/smoothwall/red/remote-ipaddress
 elif [ "$RED_TYPE" = "STATIC" ]; then
 	if [ "$DNS1_OVERRIDE" != "" -o "$DNS2_OVERRIDE" != "" ]; then
 	  DNSMASQ_DNS1=$DNS1_OVERRIDE
@@ -16,34 +21,34 @@ elif [ "$RED_TYPE" = "STATIC" ]; then
 	  DNSMASQ_DNS1=$DNS1
 	  DNSMASQ_DNS2=$DNS2
         fi
-	echo "$RED_ADDRESS" >/var/smoothwall/red/local-ipaddress
-	echo "$DEFAULT_GATEWAY" >/var/smoothwall/red/remote-ipaddress
+	crEcho "$RED_ADDRESS" >/var/smoothwall/red/local-ipaddress
+	crEcho "$DEFAULT_GATEWAY" >/var/smoothwall/red/remote-ipaddress
 fi
 
-echo -n "$RED_DEV" >/var/smoothwall/red/iface
+crEcho -n "$RED_DEV" >/var/smoothwall/red/iface
 touch /var/smoothwall/red/active
-echo "$DNSMASQ_DNS1" >/var/smoothwall/red/dns1
-echo "$DNSMASQ_DNS2" >/var/smoothwall/red/dns2
+crEcho "$DNSMASQ_DNS1" >/var/smoothwall/red/dns1
+crEcho "$DNSMASQ_DNS2" >/var/smoothwall/red/dns2
 
-echo "Updating RED"
+crEcho "Updating RED"
 
-echo "..DNSMasq"
+crEcho "..DNSMasq"
 /usr/bin/smoothcom dnsproxyrestart $DNSMASQ_DNS1 $DNSMASQ_DNS2
 
-echo "..interface aliases (if they exist)"
+crEcho "..interface aliases (if they exist)"
 /usr/bin/smoothcom ifaliasup
-echo "..incoming filtering"
+crEcho "..incoming filtering"
 /usr/bin/smoothcom setportfw
-echo "..outgoing filtering"
+crEcho "..outgoing filtering"
 /usr/bin/smoothcom setoutgoing
 if [ -f /var/smoothwall/outgoing/configErrors.log ]; then
   tput smso;
   sed -e 's/^/..  /' /var/smoothwall/outgoing/configErrors.log
   tput rmso
 fi
-echo "..external access rules"
+crEcho "..external access rules"
 /usr/bin/smoothcom setxtaccess
-echo "..snort, upnpd, TC, DDNS, VPN (as enabled)"
+crEcho "..snort, upnpd, TC, DDNS, VPN (as enabled)"
 /usr/bin/smoothcom snortrestart
 /usr/bin/smoothcom upnpdrestart
 /usr/bin/smoothcom trafficrestart
@@ -52,8 +57,8 @@ echo "..snort, upnpd, TC, DDNS, VPN (as enabled)"
 
 /etc/rc.d/rc.vpn.up
 
-#echo "Looking for system updates and registering your system."
-echo "Registering your system."
+#crEcho "Looking for system updates and registering your system."
+crEcho "Registering your system."
 #/usr/bin/smoothwall/updatelists.pl
 /etc/rc.d/rc.machineregister
 

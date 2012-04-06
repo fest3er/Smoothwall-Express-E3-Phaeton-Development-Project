@@ -157,9 +157,6 @@ echo "Hashing CA certs"
 echo "Generating UPNP UUID"
 /usr/bin/uuidgen >/etc/miniupnpd.uuid
 
-echo "Rotating logs"
-/usr/sbin/logrotate /etc/logrotate.conf
-
 echo "Starting syslogd"
 /usr/sbin/syslogd -m 0
 
@@ -173,6 +170,9 @@ echo "Loading IPSEC"
 
 echo "Starting smoothd"
 /usr/sbin/smoothd
+
+echo "Rotating logs"
+/usr/sbin/logrotate /etc/logrotate.conf
 
 echo
 echo "Initializing  networking"
@@ -208,7 +208,7 @@ echo "    View the log files in /var/log to trace errors."
 echo "1 4 1 7" >/proc/sys/kernel/printk
 
 # Remove the policing barricades (delete the ingress qdiscs)
-. /etc/rc.d/rc.open-ingress
+. /etc/rc.d/inc.open-ingress
 # Restart TC in case it uses ingress policers
 /usr/bin/smoothcom trafficrestart
 # Up the links!
