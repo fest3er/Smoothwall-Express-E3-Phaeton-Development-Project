@@ -461,9 +461,13 @@ END
         egrep -v "usbmux" shadow-RESTORED
         egrep "usbmux" shadow-FRESH
       ) >shadow
+      mv snort.conf-FRESH snort.conf
+      echo "    /etc/snort.conf upgraded; the original has been saved to snortconf-RESTORED."
+      echo "    Check it to verify your local changes.
+      sleep 3
     )
     # Sweep the detritus under the rug
-    (cd /harddisk/etc; rm -f {passwd,group,shadow,snort.conf}-{RESTORED,FRESH})
+    (cd /harddisk/etc; rm -f {passwd,group,shadow}-{RESTORED,FRESH})
     GRUB_CMD="$GRUB_CMD --recheck"
   fi
 
