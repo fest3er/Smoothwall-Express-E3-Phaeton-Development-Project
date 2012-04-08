@@ -52,7 +52,9 @@ echo "Loading, please wait..."
 read cmdline </proc/cmdline;
 
 # Doing serial? Activate bash and install on the serial port (ttyS0)
-if [ "$(getarg console)" == "ttyS0,115200" ]; then
+echo $(getarg console) | awk '{if ($1 ~ /ttyS0,[0-9]+$/) { return 0 } else { return 1 }}'
+
+if [ $? -eq 0 ]; then
   cp /etc/inittab /a.a
   sed -e 's/^SI:2:off/SI:2:respawn/' \
       -e 's/^SB:S1:off/SB:S1:respawn/' \
