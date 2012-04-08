@@ -463,7 +463,7 @@ END
       ) >shadow
       mv snort.conf-FRESH snort.conf
       echo "    /etc/snort.conf upgraded; the original has been saved to snortconf-RESTORED."
-      echo "    Check it to verify your local changes.
+      echo "    Check it to verify your local changes."
       sleep 3
     )
     # Sweep the detritus under the rug
