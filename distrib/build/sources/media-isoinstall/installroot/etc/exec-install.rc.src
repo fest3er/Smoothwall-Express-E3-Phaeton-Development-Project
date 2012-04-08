@@ -421,7 +421,7 @@ initrd /initrd-${KERNEL_VER}-roadster.gz
 # Boot using serial console
 title AGCL/Roadster (Serial Console)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,115200
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD
 initrd /initrd-${KERNEL_VER}-roadster.gz
 
 # Single-user using VESA console
@@ -433,7 +433,7 @@ initrd /initrd-${KERNEL_VER}-roadster.gz
 # Single-user using serial console
 title AGCL/Roadster (Serial Console, Single-User)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,115200 single
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD single
 initrd /initrd-${KERNEL_VER}-roadster.gz
 END
 
