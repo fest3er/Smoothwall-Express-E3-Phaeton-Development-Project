@@ -7,11 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = git
-VERSION = 1.7.2
+VERSION = 1.7.9.6
 
-EXTENSION = .tar.bz2
+EXTENSION = .tar.gz
 
-BASE_URL = http://www.kernel.org/pub/software/scm/git
+BASE_URL = http://git-core.googlecode.com/files/
 
 CONFIG_OPTS = --with-openssl=/usr/ssl --without-curl --without-tcltk --without-python
 

@@ -7,14 +7,14 @@
 include ../Makefile.conf
 
 PACKAGE = logrotate
-VERSION = 3.7.1
+VERSION = 3.8.1
 
 BASE_URL = http://ftp.debian.org/debian/pool/main/l/logrotate
 
 DIR = $(PACKAGE)-$(VERSION)
 TARBALL = $(PACKAGE)_$(VERSION).orig
 
-PATCH_FILE1 = logrotate_3.7-2.diff.gz
+#PATCH_FILE1 = logrotate_3.7-2.diff.gz
 
 CONFIGURE = yes
 INSTALL = yes

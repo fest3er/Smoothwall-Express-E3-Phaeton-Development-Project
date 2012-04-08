@@ -10,7 +10,7 @@ PACKAGE = util-linux-ng
 VERSION = 2.14.2
 VERDIR = 2.14
 
-BASE_URL = http://www.kernel.org/pub/linux/utils/util-linux-ng/v$(VERDIR)/
+BASE_URL = http://www.kernel.org/pub/linux/utils/util-linux/v$(VERDIR)/
 
 ifeq ($(BUILD_PHASE), Stage_3)
 

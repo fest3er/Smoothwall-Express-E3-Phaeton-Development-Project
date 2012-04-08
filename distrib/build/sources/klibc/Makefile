@@ -12,7 +12,7 @@ PACKAGE = klibc
 VER_MM = 1.5
 VERSION = $(VER_MM).24
 
-BASE_URL = http://www.kernel.org/pub/linux/libs/klibc/$(VER_MM)/
+BASE_URL = http://mirror.linux.org.au/linux/libs/klibc/$(VER_MM)/
 
 DOWNLOAD = yes
 download:

@@ -3,7 +3,7 @@ include ../Makefile.conf
 PACKAGE = siproxd
 VERSION = 0.7.2
 
-BASE_URL = http://kent.dl.sourceforge.net/sourceforge/siproxd/
+BASE_URL = http://hivelocity.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/$(VERSION)/
 
 PATCH_FILE1 = siproxd_pidfilechange.patch
 

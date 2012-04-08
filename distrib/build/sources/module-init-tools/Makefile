@@ -7,9 +7,10 @@
 include ../Makefile.conf
 
 PACKAGE = module-init-tools
-VERSION = 3.11.1
+VERSION = 3.15
+EXTENSION = .tar.xz
 
-BASE_URL = http://ftp.kernel.org/pub/linux/kernel/people/rusty/modules
+BASE_URL = http://www.kernel.org/pub/linux/utils/kernel/module-init-tools
 
 PKG_DIR = 
 
