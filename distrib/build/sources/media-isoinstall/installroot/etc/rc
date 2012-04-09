@@ -52,7 +52,7 @@ echo "Loading, please wait..."
 read cmdline </proc/cmdline;
 
 # Doing serial? Activate bash and install on the serial port (ttyS0)
-echo $(getarg console) | awk '{if ($1 ~ /ttyS0,[0-9]+$/) { return 0 } else { return 1 }}'
+echo $(getarg console) | awk '{if ($1 ~ /ttyS0,[0-9]+$/) { exit 0 } else { exit 1 }}'
 
 if [ $? -eq 0 ]; then
   cp /etc/inittab /a.a
