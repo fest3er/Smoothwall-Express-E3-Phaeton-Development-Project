@@ -9,6 +9,8 @@ include ../Makefile.conf
 PACKAGE = man-pages
 VERSION = 3.38
 
+EXTENSION = .tar.xz
+
 BASE_URL = http://www.kernel.org/pub/linux/docs/man-pages/
 
 INSTALL = yes
