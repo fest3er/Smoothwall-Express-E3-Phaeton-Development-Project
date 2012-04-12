@@ -473,7 +473,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
    // <<= Begin setting up tofcblock drop table
    // Log then drop packets and allowing ESTABLISHED,RELATED through drop table tofcblock
    
-   std::string log_prefix = " -j LOG --log-prefix Denied-by-outgoing-rules";
+   std::string log_prefix = " -j LOG --log-prefix Denied-by-filter:tofcblock ";
    std::string rulehead = "iptables -A tofcblock -i ";
    std::string relestab = " -m state --state ESTABLISHED,RELATED";
      
