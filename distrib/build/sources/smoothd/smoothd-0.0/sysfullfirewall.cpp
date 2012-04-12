@@ -405,7 +405,7 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
   const std::string & f_mask2add  = aliases[9];
   std::string scprefixf = "iptables -t filter -A";
   std::string sclogpre = " -j LOG --log-prefix ..FFC..not.";
-  std::string sclogpost = ".subnet..";
+  std::string sclogpost = ".subnet.. ";
   std::string sclogrej = " -j REJECT";
 
   //  Allow DHCP to bypass subnet checking
@@ -741,7 +741,7 @@ int set_portfw(std::vector<std::string> & parameters, std::string & response)
     if (negated_source) srcipmac_out = " ! " + srcipmac_out;
 
    tgt_out = " -j " + f_action;
-   if (f_action == "LOG") tgt_out = " -j LOG --log-prefix ..FFC..";
+   if (f_action == "LOG") tgt_out = " -j LOG --log-prefix ..FFC.. ";
 
    // if we aren't going to DNAT we still need some information in portfwf
 
