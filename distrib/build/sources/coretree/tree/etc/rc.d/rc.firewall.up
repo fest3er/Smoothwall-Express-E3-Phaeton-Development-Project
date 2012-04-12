@@ -57,7 +57,7 @@ echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close
 
 # Link Local routing blocker
 /sbin/iptables -N lldrop
-/sbin/iptables -A lldrop -j LOG
+/sbin/iptables -A lldrop -j LOG --log-prefix "Denied-by-filter:lldrop "
 /sbin/iptables -A lldrop -j DROP
 /sbin/iptables -A FORWARD -s 169.254.0.0/16 -j lldrop
 /sbin/iptables -A FORWARD -d 169.254.0.0/16 -j lldrop
@@ -228,7 +228,7 @@ fi
 /sbin/iptables -A INPUT -j block
 
 # last rule in INPUT chain is for logging.
-/sbin/iptables -A INPUT -j LOG
+/sbin/iptables -A INPUT -j LOG --log-prefix "Denied-by-filter:INPUT "
 /sbin/iptables -A INPUT -j REJECT
 
 # Any 'connection' that exists is allowed
@@ -240,18 +240,24 @@ fi
 # Setup dmzholes chains for internal pinholes
 /sbin/iptables -N dmzholes
 
-# ORANGE to GREEN
+# ORANGE / GREEN
 if [ "$ORANGE_DEV" != "" ]; then
+        /sbin/iptables -A FORWARD -i $GREEN_DEV -o $ORANGE_DEV -m state \
+                --state NEW -j ACCEPT
 	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $GREEN_DEV -j dmzholes
 fi
 
-# PURPLE to GREEN.
+# PURPLE / GREEN.
 if [ "$PURPLE_DEV" != "" ]; then
+        /sbin/iptables -A FORWARD -i $GREEN_DEV -o $PURPLE_DEV -m state \
+                --state NEW -j ACCEPT
 	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $GREEN_DEV -j dmzholes
 fi
 
-# ORANGE to PURPLE
+# ORANGE / PURPLE
 if [ "$PURPLE_DEV" != "" -a "$ORANGE_DEV" != "" ]; then
+        /sbin/iptables -A FORWARD -i $PURPLE_DEV -o $ORANGE_DEV -m state \
+                --state NEW -j ACCEPT
 	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $PURPLE_DEV -j dmzholes
 fi
 
@@ -267,7 +273,7 @@ if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A FORWARD -i $RED_DEV ! -o $RED_DEV -j MINIUPNPD
 fi
 
-/sbin/iptables -A FORWARD -j LOG
+/sbin/iptables -A FORWARD -j LOG --log-prefix "Denied-by-filter:FORWARD "
 /sbin/iptables -A FORWARD -j REJECT
 
 # NAT table
