@@ -1,0 +1,13 @@
+#! /bin/sh
+
+if [ "x$STARTSTOP" != "x" ]; then
+  echo -n "Removing ingress policing barricade for"
+  for i in "$GREEN_DEV" "$RED_DEV" "$ORANGE_DEV" "$PURPLE_DEV"; do
+    if [ "$i" != "" ]; then
+      echo -n " $i"
+      /usr/sbin/tc qdisc del dev $i handle ffff: ingress >/dev/null 2>&1
+    fi
+  done
+
+  echo
+fi
