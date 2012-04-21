@@ -47,7 +47,6 @@ extern "C" {
 	int set_internal(std::vector<std::string> & parameters, std::string & response);
    	int rmdupes(std::vector<std::string>              & parameters, const std::string & newparm);
    	int errrpt(const std::string                      & parameter);
-   	int ipbitch(std::vector<std::string>              & parameters);
 }
 
 std::map<std::string, std::vector<std::string>, eqstr> portlist;
@@ -473,7 +472,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
    // <<= Begin setting up tofcblock drop table
    // Log then drop packets and allowing ESTABLISHED,RELATED through drop table tofcblock
    
-   std::string log_prefix = " -j LOG --log-prefix Denied-by-filter:tofcblock ";
+   std::string log_prefix = " -j LOG --log-prefix \"Denied-by-filter:tofcblock \"";
    std::string rulehead = "iptables -A tofcblock -i ";
    std::string relestab = " -m state --state ESTABLISHED,RELATED";
      
@@ -519,7 +518,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
    // tofcproxy has an implicit RETURN at its end; this isn't needed.
    //rmdupes(ipb, "iptables -A tofcproxy -j RETURN");
 
-   error = ipbitch(ipb);
+   error = ipbatch(ipb);
     
    if (error)
       response = "IPTables failure";
@@ -635,28 +634,4 @@ int errrpt(const std::string & logdata)
    syslog(LOG_INFO, "-- TOFC Log:  %s", logdata.c_str());
 
    return err;
-}
-
-//#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
-int ipbitch(std::vector<std::string> &arg)
-{
- std::string tracker = "";
- unsigned int i = 0;
- int err = 0;
- FILE * output = popen( "/usr/sbin/ipbatch", "w" );
-
- while (i < arg.size())
- {
-  tracker = arg[i++] + " \0";
-  errrpt("-> " + tracker);
-  fprintf(output, "%s\n", tracker.c_str());
-  fflush(output);
- }
- fprintf(output, "commit\n");
- fflush(output);
- fprintf(output, "end\n");
- fflush(output);
- 
- err = pclose(output);
- return err;
 }
