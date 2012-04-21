@@ -2,7 +2,13 @@
 
 # crEcho: print stuff with <CR><NL> at EOL
 function crEcho {
-  echo -e "$*\r"
+  if [ "$1" == "-n" ]; then
+    crOpts="-e -n"
+    shift
+  else
+    crOpts="-e"
+  fi
+  echo $crOpts "$*\r"
 }
 
 . /var/smoothwall/ethernet/settings
