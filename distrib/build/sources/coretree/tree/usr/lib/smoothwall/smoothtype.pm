@@ -404,6 +404,7 @@ sub dispaliastab
     <table class='list' style='margin:6pt 0'>
       <tr>
   };
+
   # display the header information, that is the list of columns etc.
   # whilst we're doing this, we can generate a mapping of which column to 
   # display where.
@@ -422,14 +423,26 @@ sub dispaliastab
 
   foreach my $column ( @{$settings->{'columns'}} ){
     my $span = "";
-    my $style = "";
+    my $style = "background-color: $table2colour;";
     my $class = "list";
+
+    if ( defined $column->{'valign'} ) {
+      $style .= "vertical-align:top;";
+    }
+
+    if ( defined $column->{'maxrowspan'} ) {
+      $rowspan = " rowspan='$column->{'maxrowspan'}'";
+    } else {
+      $rowspan = "";
+    }
 
     if ( defined $column->{'break'} ){
       print "</tr><tr>";
-      $colcount = scalar(@columns);
+      $colcount = scalar(@columns) + $column->{'spanadj'};
       $span = " colspan='$colcount'";
-      $class = "listcomment";
+      $class = "list";
+    } else {
+      $style .= "border-bottom:1px solid #b0b0b0;";
     }
 
     if ( defined $column->{'size'} ){
@@ -460,11 +473,11 @@ sub dispaliastab
     }
 
     if ( not defined $column->{'colour'} ){
-      print qq {
-        <th$span class='$class' style='$style'>
+      print qq !
+        <th$span$rowspan class='$class' style='$style'>
           <a href="$url">$column->{'title'}$arrow</a>
         </th>
-      };
+!;
     }
 
     $style = "";
@@ -560,6 +573,14 @@ sub dispaliastab
     my @cols = @{$line};
     print "<tr class='list'>\n";
     my $entry = 0;
+    # Each comment increments $rowSpanCount
+    $rowSpanCount = 1;
+    foreach my $reference ( @breaks ){
+      if ( defined $cols[$reference] and $cols[$reference] ne "" ){
+        $rowSpanCount++;
+      }
+    }
+    my $rowspan = " rowspan='$rowSpanCount'";
     foreach my $reference ( @columns ){
       unless ( $reference =~ /,/ ){
       # are we supposed to tranlate this at all ?
@@ -587,7 +608,10 @@ sub dispaliastab
         if ( $colourcolumn != 0 ){
           $text = "<span class='$colourtranslations->{$cols[$colourcolumn]}'>$text</span>";
         }
-        print "<td class='list' style='$colour$styles[$entry]' onclick=\"toggle_row('${id}_$cols[0]');\" >$text</td>\n";
+        print "<td$rowspan class='list' style='$colour$styles[$entry]' onclick=\"toggle_row('${id}_$cols[0]');\" >$text</td>\n";
+        # Single use!
+        $rowspan = "";
+
       } else {
         # this is a "mark" field, i.e. a checkbox
         my $text;

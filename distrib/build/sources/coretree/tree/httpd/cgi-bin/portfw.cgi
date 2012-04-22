@@ -1656,6 +1656,9 @@ my %render_settings =
       title  => $tr{'order'},
       size   => 10,
       sort   => '<=>',
+      valign => 'top',
+      maxrowspan => 2,
+
     },
     { 
       column => '2',
@@ -1728,6 +1731,7 @@ my %render_settings =
       column => '11',
       title => "$tr{'comment'}",
       break => 'line',
+      spanadj => '-1',
     }
   ]
 );
@@ -1853,6 +1857,8 @@ my %render_settings =
       size   => 15,
       sort   => 'cmp',
       tr	=> \%{$ifcolorsmap},
+      valign => 'top',
+      maxrowspan => 2,
     },
     {
       column => '4',
@@ -1890,6 +1896,7 @@ my %render_settings =
       column => '9',
       title  => $tr{'comment'},
       break  => 'line',
+      spanadj => '-1',
     }
   ]
 );

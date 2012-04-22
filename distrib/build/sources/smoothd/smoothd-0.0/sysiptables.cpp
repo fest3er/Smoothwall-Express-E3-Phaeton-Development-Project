@@ -381,7 +381,14 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
             protos.push_back(" -p 47");
          }
           
-         if ( ! (protos.size()) )
+         // Any (actually all protocols)
+         if ( protocol == "Any" )
+         {
+            protos.push_back("");
+         }
+
+         // Protocol entry not recognized
+         if ( protos.size() == 0)
          {
             configErrors.push_back("Bad entry for protocol: " + protocol);
             configErrorsFound = 1;
@@ -500,15 +507,6 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
          rmdupes(ipb, rulehead  + pdev + log_prefix);
    }
     
-   // These two mess up the control
-   //rmdupes(ipb, chainfwd2Ext + relestab + " -j ACCEPT");
-   //rmdupes(ipb, chainfwd2Int + relestab + " -j ACCEPT");
-
-   //if (upnpsettings["ENABLE_UPNP"] == "on")
-   //{
-   //	rmdupes(ipb, chainfwd2Ext + " -j MINIUPNPD");
-   //   rmdupes(ipb, chainfwd2Int + " -j MINIUPNPD");
-   //}
    rmdupes(ipb, chainfwd2Ext + " -j tofcblock");
    rmdupes(ipb, chainfwd2Int + " -j tofcblock");
    rmdupes(ipb, "iptables -A tofcblock" + log_prefix);

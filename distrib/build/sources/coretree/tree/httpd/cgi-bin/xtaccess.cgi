@@ -487,6 +487,8 @@ my %render_settings =
 			title  => 'Red interface',
 			size   => 15,
 			sort   => 'cmp',
+			valign => 'top',
+			maxrowspan => 2,
 			tr	=> \%{$ifcolorsmap},
 		},
 		{
@@ -525,6 +527,7 @@ my %render_settings =
 			title  => "$tr{'comment'}",
 			break  => 'line',
 			column => '6',
+			spanadj => '-1',
 		},
 	]
 );
