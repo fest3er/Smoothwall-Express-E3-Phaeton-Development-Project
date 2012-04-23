@@ -32,6 +32,9 @@ use NetAddr::IP;
 # Subroutine for sorting things numerically instead of as strings
 sub numerically { $a <=> $b; }
 
+# 0 - turn debuggerer off
+# 1 - show informational debuggerer stuff
+my $debuggerer = 0;
 
 my $moddir = '/var/smoothwall/outgoing';
 my $config = "$moddir/config";
@@ -43,6 +46,7 @@ my @hour = ( 0 .. 23 );
 my @minute = ( '00', '01', '02', '03', '04', '05', '06', '07', '08', '09', 10 .. 59 );
 
 my $errormessage = '';
+my $infomessage = '';
 my $updatebutton = 0;
 
 my ( %interfaces, %settings, %netsettings, %cgiparams, %selected, %checked );
@@ -62,15 +66,17 @@ $cgiparams{'RULEENABLED'} = 'on';
 
 &readhash("${swroot}/ethernet/settings", \%netsettings);
 
-#$infomessage .= "<pre>\nENV\n";
+$infomessage .= "<pre>\n";
+#$infomessage .= "ENV\n";
 #foreach $i (sort keys %ENV) {
 #  $infomessage .= "  $i->$ENV{$i}\n";
 #  }
-#$infomessage .= "\ncgiparams\n";
-#foreach $i (sort keys %cgiparams) {
-#  $infomessage .= "  $i->$cgiparams{$i}\n";
-#  }
-#$infomessage .= "</pre>\n";
+#$infomessage .= "\n";
+$infomessage .= "cgiparams\n";
+foreach $i (sort keys %cgiparams) {
+  $infomessage .= "  $i->$cgiparams{$i}\n";
+  }
+$infomessage .= "</pre>\n";
 
 if ($ENV{'QUERY_STRING'} && ( not defined $cgiparams{'ACTION'} or $cgiparams{'ACTION'} eq "" ))
 {
@@ -128,14 +134,16 @@ my ( $interface, $enabled, $timed, $port, $ipmac, $protocol, $comment );
 
 
 # Only check actions if it has (a) value.
-if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
+if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} ne "")
 {
+  $infomessage .= "action found<br />\n";
   # Start action handling
   #
 
   # Action: add/update
   if ($cgiparams{'ACTION'} eq $tr{'add'} or $cgiparams{'ACTION'} eq $tr{'tofc-update'})
   {
+    $infomessage .= "add/update clicked<br />\n";
                                                      # config field #
     my $interface  = $cgiparams{'INTERFACE'};        #    1
     my $enabled    = $cgiparams{'RULEENABLED'};      #    2
@@ -202,10 +210,13 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
     # Validate IP addr(s)
     if ($ipmac eq "") {
       $ipmac = 'N/A';
-    } elsif ( (&validipormask ($ipmac)) or (&validmac ($ipmac) or $ipmac =~ /\-/) ) {
-      $ipmac = $cgiparams{'IPMAC'};
-    } else {
-      $errormessage .= "$tr{'tofc-ipmac bad'}<BR />\n";
+    }
+    if ($ipmac ne "N/A" ) {
+      if ( (&validipormask ($ipmac)) or (&validmac ($ipmac) or $ipmac =~ /\-/) ) {
+        $ipmac = $cgiparams{'IPMAC'};
+      } else {
+        $errormessage .= "$tr{'tofc-ipmac bad'}<BR />\n";
+      }
     }
 
     # Active or not
@@ -239,9 +250,9 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
         $singleip[0] = $ipmac;
         $singleip[1] = $ipmac;
       }
-      my $greenipobj = new NetAddr::IP "$netsettings{'GREEN_ADDRESS'}/$netsettings{'GREEN_NETMASK'}";
-      my $orangeipobj = new NetAddr::IP "$netsettings{'ORANGE_ADDRESS'}/$netsettings{'ORANGE_NETMASK'}";;
-      my $purpleipobj = new NetAddr::IP "$netsettings{'PURPLE_ADDRESS'}/$netsettings{'PURPLE_NETMASK'}";;
+      my $greenipobj;
+      my $orangeipobj;
+      my $purpleipobj;
       my $srcipaddrobj1 = "";
       my $srcipaddrobj2 = "";
 
@@ -287,12 +298,13 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
 
       if (($cgiparams{'ACTION'} eq $tr{'tofc-update'}) or
           ($cgiparams{'ACTION'} eq $tr{'add'})) {
-        open(FILE, "$config") or die 'Unable to read config file.';
         my $cnt = 0;
         my $notadded = 1;
+        my $newIdx;
         my (%current, $line, $newIdx, $oldIdx, @temp, @time, $timeon, $timechk);
 
         # Read the file into assoc. array 'current', indexed by 10x the file's order numbers.
+        open(FILE, "$config") or die 'Unable to read config file.';
         while (<FILE>) {
           my @splt;
           chomp;
@@ -314,7 +326,11 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
             my $oldIdx = (10 * $cgiparams{'OLDID'});
             undef $current{$oldIdx};
           }
+        } else {
+          # Same order, but we need $newIdx anyway.
+          $newIdx = 10 * $cgiparams{'ORDER_NUMBER'};
         }
+
         # Now sort the keys and re-write the file in the correct order.
 
         if (! open(FILE, ">$config")) {
@@ -326,8 +342,10 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
           foreach $idx (sort numerically keys %current) { 
             next if (!defined $current{$idx});
             $cnt++;
+
             # Print the entry with its new order #
             if ($idx == $newIdx) {
+              #$infomessage .= "New/Chg'd entry: $idx==$newIdx<br />\n";
               # Use cgiparms for new/updated/moved entry
 
               # Time frame to handle?
@@ -339,16 +357,23 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
                 $timechk = "";
               }
               # Shovel it out
-              print FILE "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
-              print FILE "$service,$cgiparams{'COMMENT'},";
-              if ($cgiparams{'PROTOCOL'} eq "Both") {
-                print FILE "$both,$ipmac,";
-              } else {
-                print FILE "$protocol,$ipmac,";
+              {
+                my $outLine = "";
+                $outLine .= "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
+                $outLine .= "$service,$cgiparams{'COMMENT'},";
+                if ($cgiparams{'PROTOCOL'} eq "Both") {
+                  $outLine .= "$both,$ipmac,";
+                } else {
+                  $outLine .= "$protocol,$ipmac,";
+                }
+                $outLine .= "$cgiparams{'TARGET'},$cnt,$setproxy,";
+                $outLine .= "$timeon,$timechk";
+                $infomessage .= "Add/Update: $outLine<br />\n";
+                print FILE $outLine ."\n";
               }
-              print FILE "$cgiparams{'TARGET'},$cnt,$setproxy,";
-              print FILE "$timeon,$timechk\n";
+
             } else {
+
               # Get the untouched entry and fission it
               my @temp = split /,/, $current{$idx};
               my @times = split /\+/, $current{$idx};
@@ -362,8 +387,13 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
                 $timechk = "";
               }
               # Shovel it out
-              print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],";
-              print FILE "$temp[6],$cnt,$temp[8],$timeon,$timechk\n";
+              {
+                my $outLine = "";
+                $outLine = "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],";
+                $outLine .= "$temp[6],$cnt,$temp[8],$timeon,$timechk";
+                #$infomessage .= "NoChange: $outLine<br />\n";
+                print FILE "$outLine\n";
+              }
             }
           }
           close(FILE);
@@ -375,8 +405,10 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
 
       if ($cgiparams{'ACTION'} eq $tr{'add'}) {
         &log($tr{'Outgoing rule added'});
+        $infomessage .= "$tr{'Outgoing rule added'}<br />\n";
       } else {
         &log($tr{'Outgoing rule updated'});
+        $infomessage .= "$tr{'Outgoing rule updated'}<br />\n";
       }
 
       my $success = &message('setoutgoing');
@@ -406,6 +438,7 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
   # Action: add timeframe
   if ( $cgiparams{'ACTION'} eq $tr{'tofc-schedule'} )
   {
+    $infomessage .= "add timeframe clicked<br />\n";
 
     my $sminute = $cgiparams{'START_MINUTE'};
     my $shour   = $cgiparams{'START_HOUR'};
@@ -545,7 +578,7 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
        $cgiparams{'ACTION'} eq $tr{'tofc-remove-exc'} or
        $cgiparams{'ACTION'} eq $tr{'tofc-remove-tf'})
   {
-    #$infomessage .= "edit/remove clicked<br />\n";
+    $infomessage .= "edit/remove clicked<br />\n";
     open(FILE, "$config") or die 'Unable to open config file.';
     my @current = <FILE>;
     close(FILE);
@@ -554,6 +587,7 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
     my $id = 0;
     my $line;
 
+    # Count the # of entries checked for changing
     foreach $line (@current)
     {
       $id++;
@@ -577,7 +611,9 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
       foreach $line (@current)
       {
         $id++;
-        unless ($cgiparams{$id} eq "on") {
+
+        if ($cgiparams{$id} ne "on") {
+          # This is not the 'droid we are looking for.
           chomp $line;
           @temp = split /,/, $line;
           @times = split /\+/, $line;
@@ -589,6 +625,7 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
           print FILE "$temp[5],$temp[6],$temp[7],$temp[8],$temp[9],$temp[10]\n";
           $count++; 
         } elsif ($cgiparams{'ACTION'} eq $tr{'edit'}) {
+          # Only if changing the 'droid
           chomp $line;
           @temp = split /,/, $line;
           @times = split /\+/, $line;
@@ -605,6 +642,8 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
             $cgiparams{'PROTOCOL'} = "PPTP";
           } elsif ($temp[4] eq "IPSEC") {
             $cgiparams{'PROTOCOL'} = "IPSEC";
+          } elsif ($temp[4] eq "Any") {
+            $cgiparams{'PROTOCOL'} = "Any";
           } else {
             $cgiparams{'PROTOCOL'} = $temp[4];
           }
@@ -624,12 +663,14 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
           print FILE "$line\n";
           $count++;
         } elsif ($cgiparams{'ACTION'} eq $tr{'tofc-remove-tf'}) {
+          # Only if stripping the 'droid's day timer
           chomp $line;
           @temp = split /,/, $line;
           $temp[7] = $count;
           print FILE "$temp[0],$temp[1],$temp[2],$temp[3],$temp[4],$temp[5],$temp[6],$temp[7],$temp[8],off\n";
           $count++;
         }
+        # The unspoken else: don't save the 'droid.
       }
       close(FILE);
 
@@ -656,6 +697,7 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
   # Action: toggle enabled/disabled
   if ( $cgiparams{'ACTION'} eq $tr{'tofc-enabledc'} ) 
   {
+    $infomessage .= "toggle enabled clicked<br />\n";
     unless ( $errormessage ) {
       open(FILE, "$config") or die 'Unable to open config file.';
       @current = <FILE>;
@@ -688,6 +730,7 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
   # Action: toggle accept/reject
   if ( $cgiparams{'ACTION'} eq $tr{'tofc-change action'} ) 
   {
+    $infomessage .= "toggle allow/deny clicked<br />\n";
     open(FILE, "$config") or die 'Unable to open config file.';
     @current = <FILE>;
     close FILE;
@@ -726,6 +769,7 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} eq "")
 
 # Start HTML generation
 #
+$infomessage .= "generating HTML<br />\n";
 
 &showhttpheaders();
 
@@ -898,7 +942,18 @@ END
 
 &openbigbox('100%', 'LEFT');
 
-&alertbox("$infomessage$errormessage");
+if ($debuggerer == 1 and $infomessage ne "") {
+  print qq!
+<div style="margin:4pt; color:black; background-color:#f0fff0; border:1px solid black">
+  <p style="margin:4pt"><b>Informational messages</b></p>
+  <div style="margin:0pt 12pt 12pt 12pt">
+    $infomessage
+  </div>
+</div>
+!;
+}
+
+&alertbox("$errormessage");
 
 my $unused = 6;
 my $ifcolor;
