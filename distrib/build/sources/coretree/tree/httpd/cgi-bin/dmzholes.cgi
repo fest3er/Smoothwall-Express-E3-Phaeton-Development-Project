@@ -188,6 +188,8 @@ my %render_settings =
 			title  => "$tr{'protocol'}",
 			size   => 15,
 			tr     => { 'udp' => 'UDP', 'tcp' => 'TCP' },
+			valign => 'top',
+			maxrowspan => 2,
 			sort   => 'cmp',
 		},
 		{
@@ -225,11 +227,12 @@ my %render_settings =
 			column => '6',
 			title => "$tr{'comment'}",
 			break => 'line',
+			spanadj => '-1',
 		}
 	]
 );
 
-&displaytable( $filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
+&dispaliastab( $filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
 
 print <<END
 <table class='blank'>

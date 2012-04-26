@@ -568,6 +568,8 @@ my %render_settings =
 			column => '1',
 			title  => "$tr{'hostname'}",
 			size   => 25,
+			valign => 'top',
+			maxrowspan => 2,
 			sort   => 'cmp',
 		},
 		{
@@ -598,11 +600,12 @@ my %render_settings =
 			column => '4',
 			title => "$tr{'description'}",
 			break => 'line',
+			spanadj => -1,
 		}
 	]
 );
 
-&displaytable( "${swroot}/dhcp/staticconfig-$dhcpsettings{'SUBNET'}", \%render_settings, $dhcpsettings{'ORDER'}, $dhcpsettings{'COLUMN'} );
+&dispaliastab( "${swroot}/dhcp/staticconfig-$dhcpsettings{'SUBNET'}", \%render_settings, $dhcpsettings{'ORDER'}, $dhcpsettings{'COLUMN'} );
 
 print <<END
 <table class='blank'>

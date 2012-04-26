@@ -162,6 +162,8 @@ my %render_settings =
 			column => '1',
 			title  => "$tr{'ip address'}",
 			size   => 15,
+			valign => 'top',
+			maxrowspan => 2,
 			sort   => 'cmp',
 		},
 		{
@@ -186,12 +188,13 @@ my %render_settings =
 			column => '4',
 			title => "$tr{'comment'}",
 			break => 'line',
+			spanadj => -1,
 		},
 
 	]
 );
 
-&displaytable($filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
+&dispaliastab($filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
 
 print <<END
 <table class='blank'>

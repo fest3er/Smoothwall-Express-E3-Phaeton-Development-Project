@@ -11,23 +11,20 @@
 
 #include <vector>
 #include <string>
-#include <cstring>
-#include "ipbatch.h"
 #include <errno.h>
 #include <syslog.h>
 
-// local storage
+#include "ipbatch.h"
 
-static int batchstoreidx = 0;
-static char batchstore[BATCHSTORE_SIZE];
+// local storage
 
 static std::vector<std::string> mybatch;
 
-// work form char *
+// work from char *
 int ipbatch(const char *arg) 
 {
    int rval = 0;
-   if(!strcmp(arg,"commit")) {
+   if (strcmp(arg,"commit") == 0) {
       rval = ipbatch(mybatch);
       mybatch.clear();
    }
@@ -39,7 +36,7 @@ int ipbatch(const char *arg)
 int ipbatch(const std::string &arg) 
 {
    int rval = 0;
-   if(arg == "commit") 
+   if (arg == "commit") 
    {
       rval = ipbatch(mybatch);
       mybatch.clear();
@@ -51,55 +48,19 @@ int ipbatch(const std::string &arg)
 
 // but best way is as whole vector as this implies that we want to
 // execute now too - no need for commit.
-int ipbatch(std::vector<std::string> &arg) 
+int ipbatch(std::vector<std::string> &arg)
 {
-   unsigned int i;
-   std::string::size_type pos;
-   int rval = 0;
-   size_t len;
-   
-   for(i = 0; i < arg.size(); i++) 
+   FILE * output = popen( "/usr/sbin/ipbatch", "w" );
+
+   for (std::vector<std::string>::iterator i = arg.begin(); i != arg.end(); i++)
    {
-      // first is it empty
-      const std::string & s = arg[i];
-      // ignore any leading space
-      pos = s.find_first_not_of(" \t\n");
-
-      if(pos == std::string::npos)
-         continue; // only whitespace
-      if(s[pos] == '#')
-         continue; // a comment
-
-      if(s.find("commit", pos) == pos)
-      {
-         syslog(LOG_WARNING, "commit\n");
-         rval = dobatch(batchstore);
-         batchstoreidx = 0;
-         batchstore[batchstoreidx] = 0;
-      }
-      else
-      {
-         // maybe some sanity checking here?
-         // ==================================================
-         // check if we will exceed the buffer with this line
-         // if it will exceed the buffer, flush and reset the
-         // pointers then add this line and continue.    --slp
-         // ==================================================
-         len =  strlen(s.c_str());
-         if(batchstoreidx + len + 2 >= BATCHSTORE_SIZE)
-         {
-            rval = (dobatch(batchstore) || rval);
-            syslog(LOG_WARNING, "ipbatch buffer flushed, more to follow");
-            batchstoreidx = 0;
-            batchstore[batchstoreidx] = 0;
-         }
-         syslog(LOG_WARNING, "batchline %s\n", s.c_str());
-         strncpy(&(batchstore[batchstoreidx]), s.c_str(), len);
-         batchstoreidx += len;
-         if(batchstore[batchstoreidx-1] != '\n') batchstore[batchstoreidx++] = '\n';
-         batchstore[batchstoreidx] = 0; // next string overwrites, but last must be null
-      }
+      fprintf(output, "%s\n", (*i).c_str());
+      fflush(output);
    }
-   if(batchstoreidx > 0) rval = (dobatch(batchstore) || rval);
-   return rval;
+   fprintf(output, "commit\n");
+   fflush(output);
+   fprintf(output, "end\n");
+   fflush(output);
+   
+   return pclose(output);
 }
