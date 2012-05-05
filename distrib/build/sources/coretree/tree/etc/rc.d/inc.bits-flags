@@ -28,3 +28,7 @@ typeInt2FW="320"     # Internal zone to F/W
 typeFW2Int="384"     # F/W to internal zone
 typeExt2FW="448"     # Internet (RED) to F/W
 typeFW2Ext="512"     # F/W to internet
+
+# Special bit indicating a RELATED conn
+connRelMask="0x400"
+related=1024
