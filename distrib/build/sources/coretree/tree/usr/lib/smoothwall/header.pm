@@ -27,11 +27,17 @@ $|=1; # line buffering
 my %productdata;
 &readhash( "/var/smoothwall/main/productdata", \%productdata );
 
-$version = "$productdata{'VERSION'}-$productdata{'REVISION'}-$productdata{'ARCH'}";
-($relname, $relnum) = split(/-/, $productdata{'RELEASE'});
+($vername, $vernum) = split(/-/, $productdata{'VERSION'});
+($relname, $relnum, $candidate) = split(/-/, $productdata{'RELEASE'});
 ($major, $minor, $point) = split(/\./, $relnum);
 $longversion = $point + $minor * 1000 + $major * 1000000;
 #print "LV=$longversion, MA=$major, MI=$minor, PT=$point, RNA=$relname, RNU=$relnum\n";
+$version = "$vername ($relname v$relnum-$productdata{'ARCH'})";
+if ($candidate ne "")
+{
+  $candidate =~ s/rc//;
+  $version = "$version Release Candidate $candidate";
+}
 
 $webuirevision = $productdata{'UI_VERSION'};
 $viewsize = 200;
@@ -366,7 +372,7 @@ sub closepage
 			SmoothWall&trade; is a trademark of <a href='http://www.smoothwall.net/'>SmoothWall Limited</a>.
 		</td>
 		<td style='text-align: right;'>
-		    	&copy; 2000 - 2007 <a href='http://smoothwall.org/about/team/'>The SmoothWall Team</a><br/>
+		    	&copy; 2000 - 2012 <a href='http://smoothwall.org/about/team/'>The SmoothWall Team</a><br/>
 			<a href='/cgi-bin/register.cgi'>$tr{'credits'}</a> - Portions &copy; <a href='http://smoothwall.org/get/sources/'>original authors</a>
 		</td>
 	</tr>
