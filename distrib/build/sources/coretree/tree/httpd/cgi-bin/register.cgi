@@ -193,7 +193,7 @@ print <<END
       A full team listing can be found
       <a href="http://smoothwall.org/team/" target="_breakoutWindow">
         on our website</a>.
-      The copyrights to ortions of this software are held by the original
+      The copyrights to portions of this software are held by the original
       authors. The source code of such portions are 
       <a href="http://smoothwall.org/sources.html" target="_breakoutWindow">
         available under the terms of the appropriate licenses</a>.
