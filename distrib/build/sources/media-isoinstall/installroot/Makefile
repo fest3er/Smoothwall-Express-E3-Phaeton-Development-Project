@@ -84,6 +84,8 @@ all: clean bin lib klibc
 	  cp -aR ../etc/install.rc etc; chmod 755 etc/install.rc; \
 	  cp -aR ../etc/flash.rc etc; chmod 755 etc/flash.rc; \
 	  cp -aR ../etc/config-install.rc etc; chmod 755 etc/config-install.rc; \
+	  cp -aR ../etc/upgrade-outgoing.pl etc; chmod 755 etc/upgrade-outgoing.pl; \
+	  cp -aR ../etc/upgrade-outgoing.sh etc; chmod 755 etc/upgrade-outgoing.sh; \
 	  sed -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' <../etc/exec-install.rc.src \
 	    >etc/exec-install.rc; \
 	  chmod 755 etc/exec-install.rc; \

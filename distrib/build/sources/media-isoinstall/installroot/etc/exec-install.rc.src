@@ -439,15 +439,46 @@ END
 
   # Restore variable data if selected. AND upgrade files as needed!
   if [ $restore -eq 2 ]; then
-    (cd /harddisk/etc; for file in passwd group shadow snort.conf; do cp $file $file-FRESH; done)
-    (cd /harddisk/var/smoothwall/main; mv productdata productdata-FRESH)
-    echo "  Restoring variable data from backup"
-    do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
-    echo "  Upgrading variable data files"
-    (cd /harddisk/var/smoothwall/main; mv productdata-FRESH productdata)
+    # Save the fresh files
     (
       cd /harddisk/etc
-      for file in passwd group shadow snort.conf; do cp $file $file-RESTORED; done
+      for file in passwd group shadow snort.conf; do
+        cp $file $file-FRESH
+      done
+    )
+    (
+      cd /harddisk/var/smoothwall/main;
+      mv productdata productdata-FRESH
+      mv settings settings-FRESH
+    )
+    (
+      cd /harddisk/var/smoothwall/outgoing
+      mv config config-FRESH
+    )
+
+    # Restore var data
+    echo "  Restoring variable data from backup"
+    do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
+
+    echo "  Upgrading variable data files"
+    # upgrade main
+    (
+      cd /harddisk/var/smoothwall/main;
+      cp productdata productdata-RESTORED
+      cp productdata-FRESH productdata
+      cp settings settings-RESTORED
+      cp settings-FRESH settings
+    )
+
+    # Upgrade /etc files (retain user modifications)
+    (
+      cd /harddisk/etc
+      # Save the new files
+      for file in passwd group shadow snort.conf; do
+        cp $file $file-RESTORED
+      done
+
+      # Upgrade them
       (
         egrep "fuse|plugdev|scanner|kvm|usbmux" group-FRESH
         egrep -v "fuse|plugdev|scanner|kvm|usbmux" group-RESTORED
@@ -461,13 +492,41 @@ END
         egrep -v "usbmux" shadow-RESTORED
         egrep "usbmux" shadow-FRESH
       ) >shadow
-      mv snort.conf-FRESH snort.conf
-      echo "    /etc/snort.conf upgraded; the original has been saved to snortconf-RESTORED."
-      echo "    Check it to verify your local changes."
+      cp snort.conf-FRESH snort.conf
+      echo "    /etc/snort.conf upgraded; the original has been saved to snort.conf-RESTORED."
+      echo "    If you made any local changes, you must copy them to the new file."
       sleep 3
     )
+
+    # Upgrade .../outgoing/config
+    (
+      cd /harddisk/var/smoothwall/outgoing
+      cp config config-RESTORED
+      cp /etc/upgrade-outgoing.{pl,sh} /harddisk/tmp/
+
+      # Run the update script; chroot to get perl
+      chroot /harddisk bash /tmp/upgrade-outgoing.sh
+    )
+
+    # Update .../main/settings
+    (
+      cd /harddisk/var/smoothwall/main
+      . settings-RESTORED
+      HOSTNAMErestored=$HOSTNAME
+      . settings-FRESH
+      cat<<END > settings
+LANGUAGE=$LANGUAGE
+HOSTNAME=$HOSTNAMErestored
+KEYMAP=$KEYMAP
+OPENNESS=
+END
+    )
+
     # Sweep the detritus under the rug
     (cd /harddisk/etc; rm -f {passwd,group,shadow}-{RESTORED,FRESH})
+    (cd /harddisk/var/smoothwall/main; rm -f *-{RESTORED,FRESH})
+    (cd /harddisk/var/smoothwall/outgoing; rm -f *-{RESTORED,FRESH})
+    (cd /tmp/; rm -f upgrade-outgoing*)
     GRUB_CMD="$GRUB_CMD --recheck"
   fi
 
