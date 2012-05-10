@@ -236,18 +236,25 @@ fi
 
 # Mount the restore drive if restoring anything
 if [ $restore -eq 2 -o $restore -eq 3 ]; then
-  echo "Mounting restore drive"
-  mkdir -p /restore
-  RDMNTLOG="/tmp/rdmount.log"
-  > $RDMNTLOG
-  mount /dev/${rd_dev[$rd]}1  /restore -o ro >> $RDMNTLOG 2>&1
-  if [ $? -ne 0 ]; then
-    echo "Couldn't mount restore drive:"
-    sed -e 's/^/  /' $RDMNTLOG
-    echo
-    echo "Press <ENTER> to reboot the system and try again."
-    read a
-    reboot -f
+  rm -rf /restore
+  if grep "${rd_dev[$rd]}" /proc/mounts; then
+    echo "Linking cdrom to restore"
+    # backups are on the source medium
+    ln -s /cdrom /restore
+  else
+    echo "Mounting restore drive"
+    mkdir -p /restore
+    RDMNTLOG="/tmp/rdmount.log"
+    > $RDMNTLOG
+    mount /dev/${rd_dev[$rd]}1  /restore -o ro >> $RDMNTLOG 2>&1
+    if [ $? -ne 0 ]; then
+      echo "Couldn't mount restore drive:"
+      sed -e 's/^/  /' $RDMNTLOG
+      echo
+      echo "Press <ENTER> to reboot the system and try again."
+      read a
+      reboot -f
+    fi
   fi
 fi
 
@@ -443,7 +450,14 @@ END
     (
       cd /harddisk/etc
       for file in passwd group shadow snort.conf; do
+        # Copy these; UNIX don't like not having them
         cp $file $file-FRESH
+      done
+    )
+    (
+      cd /harddisk/etc/udev/rules.d
+      for file in 70-Smoothwall*.rules; do
+        mv $file $file-FRESH
       done
     )
     (
@@ -470,10 +484,29 @@ END
       cp settings-FRESH settings
     )
 
+    # Upgrade udev rules
+    (
+      # We don't need to deal with initramfs, since it's all new. Just check if
+      #   the NICs have changed.
+      cd /harddisk/etc/udev/rules.d
+      # If the MAC addrs changed, force setup to run
+      grep SUBSYSTEM /etc/udev/rules.d/*Smoothwall*NIC* | \
+          sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+          sort > /tmp/newNICs
+      grep SUBSYSTEM /harddisk/etc/udev/rules.d/*Smoothwall*NIC*.rules | \
+          sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+          sort > /tmp/oldNICs
+      if ! diff /tmp/newNICs /tmp/oldNICs >/dev/null 2>&1; then mustRunSetup=1; fi
+      # And restore the new rules
+      for file in 70-Smoothwall*.rules; do
+        mv $file-FRESH $file
+      done
+    )
+
     # Upgrade /etc files (retain user modifications)
     (
       cd /harddisk/etc
-      # Save the new files
+      # Save the restored files
       for file in passwd group shadow snort.conf; do
         cp $file $file-RESTORED
       done
@@ -535,6 +568,52 @@ else
   # Performing a total restore
   echo "  Restoring complete system from backup"
   do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
+
+  # Adjust the initramfs as needed (different disk, NICs or FS, etc.)
+  KERNEL_VER=`ls -C1 /harddisk/boot/initrd* | tail -1 | sed -e 's/.*initrd-//' -e 's/-roadster.*//'`
+  echo "  adjusting runtime initramfs"
+  set -- $FS
+  FSTYPE=$2
+  if [ "$FSTYPE" == "reiserfs" ]; then
+    OPTION="notail$ATIME        "
+  else
+    OPTION="defaults$ATIME"
+  fi
+
+  OPWD=`pwd`
+  HDTMP="/harddisk/runtimeroot"
+  mkdir -p $HDTMP; cd $HDTMP
+  echo "    unpack"
+  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz | cpio -id"
+  echo "    update"
+  do_or_die "mkdir -p -m 755 ${HDTMP}/etc/udev/rules.d"
+  do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* ${HDTMP}/etc/udev/rules.d/"
+
+  echo "/dev/harddisk4	/harddisk	$FSTYPE	$OPTION		0	1" >${HDTMP}/etc/fstab
+  echo "$FSTYPE" >${HDTMP}/etc/modules
+  do_or_die "/bin/chroot ${HDTMP} /sbin/depmod -a"
+
+  echo "    re-pack"
+  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
+  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
+  cd ${OPWD}
+  rm -rf ${HDTMP}
+
+  # Also update udev rules, fstab and modules on harddisk
+  # And ensure setup is run if the NICs have changed
+  grep SUBSYSTEM /etc/udev/rules.d/*Smoothwall*NIC* | \
+      sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+      sort > /tmp/newNICs
+  grep SUBSYSTEM /harddisk/etc/udev/rules.d/*Smoothwall*NIC* | \
+      sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+      sort > /tmp/oldNICs
+  if ! diff /tmp/newNICs /tmp/oldNICs >/dev/null 2>&1; then mustRunSetup=1; fi
+  do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /harddisk/etc/udev/rules.d/"
+  sed -i -e 's=/ .*=/               '$FSTYPE' '$OPTION'         0       1=' \
+         -e 's=/boot.*=/boot           '$FSTYPE' defaults'$ATIME'         0       2=' \
+         -e 's=/var/log.*=/var/log        '$FSTYPE' defaults'$ATIME'         0       2=' \
+      /harddisk/etc/fstab
+  sed -i -e 's/reiserfs\|ext./'$FSTYPE'/' /harddisk/etc/modules
 
   # Sweep some backup crumbs under the rug
   rm -f /harddisk/boot/grub/device.map  # map might've changed

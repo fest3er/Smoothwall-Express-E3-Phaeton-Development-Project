@@ -126,8 +126,23 @@ trap EXITTRAP EXIT
 echo "Configuring installer"
 . /etc/config-install.rc
 
+# Prepare in case of restore: if the NICs have changed, setup must be run
+#   at least to re-assign the NICs. In the case of dev testing, much may
+#   need changing to avoid conflicting with another active system.
+mustRunSetup=0
+autoSetup=" INSTALL"
+
 echo "Executing installer"
 . /etc/exec-install.rc
+
+if [ $mustRunSetup -eq 1 ]; then
+  # NICs changed, so force setup, but not auto mode
+  restore=1
+  autoSetup=""
+  echo "    network devices have changed"
+  echo "      press <ENTER> to run setup and update NIC assignments"
+  read ans
+fi
 
 case $restore in
   1)
@@ -148,7 +163,7 @@ case $restore in
         [ -d /proc/bus/usb ] && mount -n -o move /proc/bus/usb /harddisk/proc/bus/usb
 
         cd /harddisk
-        chroot . /usr/sbin/setup /dev/tty2 INSTALL
+        chroot . /usr/sbin/setup /dev/tty2${autoSetup}
 
       echo -ne $CLS
       echo; echo;
