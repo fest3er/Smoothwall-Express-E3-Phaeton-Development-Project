@@ -9,7 +9,7 @@ oldVersion=$2
 if [ "$oldVersion" == "2.1.0" ]; then
   # just use the restored entries
   cp config-RESTORED config
-elif [ "$oldVersion" == "2.0.2" -o "$oldVersion" == "2.0.1" ]; then
+elif [ "$oldVersion" == "2.0.2" -o "$oldVersion" == "2.0.1" -o "$oldVersion" == "2.0.0" ]; then
   echo "    Roadster's outgoing policy is now 'closed with exceptions'."
   echo "    Upgrading your outgoing rules to the new TOFC format."
   if grep -i "openness=open" ../main/settings-RESTORED; then

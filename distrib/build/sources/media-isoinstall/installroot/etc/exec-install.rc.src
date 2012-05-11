@@ -456,9 +456,8 @@ END
     )
     (
       cd /harddisk/etc/udev/rules.d
-      for file in 70-Smoothwall*.rules; do
-        mv $file $file-FRESH
-      done
+      mv 70-Smoothwall-custom-disk.rules 70-Smoothwall-custom-disk.rules-FRESH
+      mv 70-Smoothwall-custom-NIC.rules 70-Smoothwall-custom-NIC.rules-FRESH
     )
     (
       cd /harddisk/var/smoothwall/main;
@@ -485,23 +484,22 @@ END
     )
 
     # Upgrade udev rules
-    (
-      # We don't need to deal with initramfs, since it's all new. Just check if
-      #   the NICs have changed.
-      cd /harddisk/etc/udev/rules.d
-      # If the MAC addrs changed, force setup to run
-      grep SUBSYSTEM /etc/udev/rules.d/*Smoothwall*NIC* | \
-          sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
-          sort > /tmp/newNICs
-      grep SUBSYSTEM /harddisk/etc/udev/rules.d/*Smoothwall*NIC*.rules | \
-          sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
-          sort > /tmp/oldNICs
-      if ! diff /tmp/newNICs /tmp/oldNICs >/dev/null 2>&1; then mustRunSetup=1; fi
-      # And restore the new rules
-      for file in 70-Smoothwall*.rules; do
-        mv $file-FRESH $file
-      done
-    )
+    # We don't need to deal with initramfs, since it's all new. Just check if
+    #   the NICs have changed.
+    OPWD=${PWD}
+    cd /harddisk/etc/udev/rules.d
+    # If the MAC addrs changed, force setup to run
+    grep SUBSYSTEM /etc/udev/rules.d/70-Smoothwall-custom-NIC.rules | \
+        sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+        sort > /tmp/newNICs
+    grep SUBSYSTEM /harddisk/etc/udev/rules.d/70-Smoothwall-custom-NIC.rules | \
+        sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+        sort > /tmp/oldNICs
+    if ! diff /tmp/newNICs /tmp/oldNICs >/dev/null 2>&1; then mustRunSetup=1; fi
+    # And restore the new rules
+    mv 70-Smoothwall-custom-disk.rules-FRESH 70-Smoothwall-custom-disk.rules
+    mv 70-Smoothwall-custom-NIC.rules-FRESH 70-Smoothwall-custom-NIC.rules
+    cd ${OPWD}
 
     # Upgrade /etc files (retain user modifications)
     (
