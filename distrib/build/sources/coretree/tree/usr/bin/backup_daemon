@@ -94,8 +94,10 @@ TIME=`date +"%H:%M:%S"`
 
 KERNEL=`uname -r`
 
-EXCLUDES="--exclude=proc/* --exclude=dev/* --exclude=sys/*"
-EXCLUDES="$EXCLUDES --exclude=backup/* --exclude=/var/smoothwall/backup/*"
+EXCLUDES="--exclude=proc/* --exclude=dev/* --exclude=sys/* --exclude=backup/*"
+EXCLUDES="$EXCLUDES --exclude=var/smoothwall/backup/*list"
+EXCLUDES="$EXCLUDES --exclude=var/smoothwall/backup/*head"
+EXCLUDES="$EXCLUDES --exclude=var/smoothwall/backup/*heel"
 
 TO_BITBKT=">/dev/null 2>&1"
 
