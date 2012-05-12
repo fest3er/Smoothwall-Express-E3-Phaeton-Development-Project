@@ -1,0 +1,27 @@
+#! /bin/bash
+
+trap "tput rmcup" EXIT
+
+tput smcup
+echo -e "\033[1;1H\033[JBackup Progress:"
+STATE="start"
+while :; do
+  CURRENT=`cat backup.flag`
+  if [ "$CURRENT" == "" ]; then
+    sleep .1
+    continue
+  else
+    set $CURRENT
+    echo -e "\033[2;0H\033[J$*"
+    if [ "$STATE" == "start" -a "$1" != "Last" ]; then
+      STATE="run"
+    elif [ "$STATE" == "run" -a "$1" == "Last" ]; then
+      break
+    fi
+    sleep .1
+  fi
+done
+
+echo -e "\033[4;1H\033[JBackup Complete. (<ENTER> or <CTRL/C> to exit...)"
+read a
+tput rmcup

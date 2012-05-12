@@ -344,6 +344,13 @@ END
 TIMEZONE=US/Eastern
 END
 
+  if grep ${cd_dev[$CD]} /tmp/hd.list >/dev/null 2>&1; then
+    # Installing from USB flash or other 'hard drive' (*not* a CD)?
+    #   Assume this same device will be used for backups.
+    eval `/sbin/udevadm info --path=/sys/block/${cd_dev[$CD]} --query=all | egrep "ID_BUS=|ID_SERIAL=" | sed -e 's/^E: //'`
+    echo BACKUP_ID="$ID_BUS-$ID_SERIAL" >/harddisk/$CONFIG_ROOT/backup/settings
+  fi
+
   echo "  prepping module dependencies"
   do_or_die "/bin/chroot /harddisk /sbin/depmod -a"
 
