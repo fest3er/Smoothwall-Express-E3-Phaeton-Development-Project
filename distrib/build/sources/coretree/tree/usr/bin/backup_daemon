@@ -33,9 +33,9 @@ setFiles () {
   case ${BACKUP_TYPE} in
     var)
       FILES_TO_SAVE="${EXCLUDES} ${HNAME}.tarhead"
-      FILES_TO_SAVE="${FILES_TO_SAVE} var usr/etc etc/shadow etc/passwd etc/group"
-      FILES_TO_SAVE="${FILES_TO_SAVE} etc/httpd/server.* etc/udev/rules.d/*"
-      FILES_TO_SAVE="${FILES_TO_SAVE} root/.ssh/*"
+      FILES_TO_SAVE="${FILES_TO_SAVE} ./var ./usr/etc ./etc/shadow ./etc/passwd ./etc/group"
+      FILES_TO_SAVE="${FILES_TO_SAVE} ./etc/httpd/server.* ./etc/udev/rules.d/*"
+      FILES_TO_SAVE="${FILES_TO_SAVE} ./root"
       FILES_TO_SAVE="${FILES_TO_SAVE} ${HNAME}.tarheel"
       ;;
 
@@ -94,10 +94,9 @@ TIME=`date +"%H:%M:%S"`
 
 KERNEL=`uname -r`
 
-EXCLUDES="--exclude=proc/* --exclude=dev/* --exclude=sys/* --exclude=backup/*"
-EXCLUDES="$EXCLUDES --exclude=var/smoothwall/backup/*list"
-EXCLUDES="$EXCLUDES --exclude=var/smoothwall/backup/*head"
-EXCLUDES="$EXCLUDES --exclude=var/smoothwall/backup/*heel"
+EXCLUDES="--exclude=./proc --exclude=./dev --exclude=./sys"
+EXCLUDES="$EXCLUDES --exclude=./var/smoothwall/backup/tmp"
+EXCLUDES="$EXCLUDES --exclude=./backup"
 
 TO_BITBKT=">/dev/null 2>&1"
 
@@ -171,11 +170,13 @@ feedback $AUTOBACK "Couldn't mount the flash drive. Please verify that it is par
 else
   /usr/bin/sounds/mount_succeeded.bps
 
+  rm -rf ${BACK_DIR}/tmp
+  mkdir ${BACK_DIR}/tmp
   # Do both var and total backups every time
   for BACKUP_TYPE in var total; do
     # Set the flag file names
     FNAME="${HOST}_${DATE}_${RELTYPE}_${RELVER}_${BACKUP_TYPE}"
-    HNAME="${REL_BACK_DIR}/${FNAME}"
+    HNAME="${REL_BACK_DIR}/tmp/${FNAME}"
     touch /${HNAME}.tarhead
     touch /${HNAME}.tarheel
     # And set the files to back up
@@ -184,7 +185,7 @@ else
     # Get the file count first (for progress feedback)
     (cd /; tar cvf /dev/null ${FILES_TO_SAVE}) > /${HNAME}.list 2>/dev/null
     typeset -i i FILECOUNT
-    FILECOUNT=`cat ${FNAME}.list | wc -l`
+    FILECOUNT=`cat /${HNAME}.list | wc -l`
     FILECOUNT=FILECOUNT+2
     i=0
     if [ $AUTOBACK == "MANUAL" ]; then echo; fi
@@ -194,13 +195,14 @@ else
       cd /
       tar cvfz ${MOUNT_PT}/${FNAME}.tar.gz \
           --no-recursion \
-          ${HNAME}.tarhead -T ${HNAME}.list ${HNAME}.tarheel \
+          -T ${HNAME}.list \
           2>/dev/null
     ) | while read a; do
       i=i+1
       feedback $AUTOBACK "$i/$FILECOUNT: $a" "same"
     done
   done
+  rm -rf ${BACK_DIR}/tmp
 
   feedback $AUTOBACK "Flushing data to backup device"
 
