@@ -104,8 +104,12 @@ fi
 /sbin/iptables -A tofcblock -j DROP
 
 # Never touch certain traffic; filter the rest
-#   Methinks I need to handle IPSEC/ESP here, too.
+#   Always accept outbound ICMP
 /sbin/iptables -A tofcScreen -p icmp -j ACCEPT
+#   Always accept related conns
+#     There is no way to determine which TOFC entry would apply, so we have to
+#     blindly accept them
+/sbin/iptables -A tofcScreen -m connmark --mark ${related}/${connRelMask} -j ACCEPT
 #   send packets from RED to tofcfwd2Int
 if [ "$RED_DEV" != "" ]; then
   /sbin/iptables -A tofcScreen -i $RED_DEV -j tofcfwd2Int
@@ -117,6 +121,10 @@ fi
 
 # Never touch certain traffic; filter the rest
 /sbin/iptables -A tofcPrxScreen -p icmp -j ACCEPT
+#   Always accept related conns
+#     There is no way to determine which TOFC entry would apply, so we have to
+#     blindly accept them
+/sbin/iptables -A tofcPrxScreen -m connmark --mark ${related}/${connRelMask} -j ACCEPT
 /sbin/iptables -A tofcPrxScreen -j tofcproxy
 
 # Send all outbound and proxied outbound conns to the tofc chains

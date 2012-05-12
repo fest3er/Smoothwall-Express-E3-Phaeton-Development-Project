@@ -203,7 +203,13 @@ else
 
 print "<form method='post'>\n";
 
-&openbox($tr{'intrusion detection system2'}.' <i>('.$ids_status.')</i>');
+my $snortTitle = $tr{'intrusion detection system2'};
+my $snortVersion = `snort --version 2>&1 | grep Version`;
+chomp $snortVersion;
+$snortVersion =~ s/^.*Version //;
+$snortVersion =~ s/ .*$//;
+$snortTitle =~ s/Snort/Snort v$snortVersion/;
+&openbox($snortTitle.' <i>('.$ids_status.')</i>');
 
 print "
 <div style='margin:12pt 0 0 0'>

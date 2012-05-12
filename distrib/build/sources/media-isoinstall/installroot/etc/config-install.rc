@@ -292,24 +292,38 @@ if [ $restore -gt 1 ]; then
     if [ $rd -lt $RD_CNT ]; then break; fi
     echo -e "${RC}${CE}"
   done
-  # Get the tarball
-  mkdir -p /restore
-  mount /dev/${rd_dev[$rd]}1 /restore
-  (cd /restore; ls -C1 *.tar.* >/tmp/archive.list)
-  umount /restore
+  # Get the list of tarballs
+  if [ "${rd_dev[$rd]}" == "$cd_dev[$CD]}" ]; then
+    # Using source medium
+    mount /dev/${rd_dev[$rd]}1 /cdrom
+    (cd /cdrom; ls -C1 *.tar.* >/tmp/archive.list)
+    umount /cdrom
+  else
+    # Using separate medium
+    mkdir -p /restore
+    mount /dev/${rd_dev[$rd]}1 /restore
+    (cd /restore; ls -C1 *.tar.* >/tmp/archive.list)
+    umount /restore
+  fi
   while [ 1 -eq 1 ]; do
     # Select the disk to restore from
     echo
-    echo -e "${SC}${BO}Archive Selection${NO}"
+    echo -e "${SC}${BO}Archive Selection (5 latest)${NO}"
 
+    if [ $restore -eq 2 ]; then
+      backupType="var"
+    else
+      backupType="total"
+    fi
     unset b
     typeset -i i b h
     i=1
+    grep "_${backupType}.tar.gz" /tmp/archive.list | tail -5 >/tmp/temp.list
     while read a; do
         archive_id[$i]=$a
         echo "  $i. $a"
         i=i+1
-    done < /tmp/archive.list
+    done < /tmp/temp.list
     ARCHIVE_CNT=$i
     echo
 
@@ -573,7 +587,7 @@ while [ 1 == 1 ]; do
   echo -en "\033[23;0fOK? "
   read a #</dev/tty
   if [ x$a == "xyes" ]; then
-    export hd CD dev maxMiB filesys loader noatime restore
+    export hd CD dev maxMiB filesys loader noatime restore archive_id archive
     break;
   elif [ x$a == "xno" ]; then
     echo "Restarting installation configuration..."

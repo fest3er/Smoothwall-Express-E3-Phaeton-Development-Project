@@ -109,6 +109,9 @@ test ${PURPLE_DEV} && $ICMD -A outboundTYPE -i ${PURPLE_DEV} \
 #   Activate the new rules
 $ICMD -A FORWARD -m state --state NEW -j newFORWARD
 
+#   Also tag RELATED conns
+$ICMD -A FORWARD -m state --state RELATED \
+  -j CONNMARK --set-mark ${related}/${connRelMask}
 
 # Chains for INPUT and OUTPUT
 #   Mark the INPUT type
@@ -152,6 +155,12 @@ $ICMD -A fwEXT -o ippp0 \
 #   Activate the new rules
 $ICMD -A INPUT -m state --state NEW -j newINPUT
 $ICMD -A OUTPUT -m state --state NEW -j newOUTPUT
+
+#   Also tag RELATED conns
+$ICMD -A INPUT -m state --state RELATED \
+  -j CONNMARK --set-mark ${related}/${connRelMask}
+$ICMD -A OUTPUT -m state --state RELATED \
+  -j CONNMARK --set-mark ${related}/${connRelMask}
 
 # Log the connmarks
 #$ICMD -A newFORWARD -j LOGMARK
