@@ -170,7 +170,7 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} ne "")
     # Prepare the port number, or show 'not applicable'
     if ( $service eq "user" )
     {
-      if ( $protocol eq "TCP" or $protocol eq "UDP" or $protocol eq "Both" ) {
+      if ( $protocol eq "TCP" or $protocol eq "UDP" or $protocol eq "TCP&UDP" ) {
         if ($port eq "") {
           $service = 'N/A';
         } else {
@@ -204,7 +204,7 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} ne "")
 
     # Currently only DNS
     if ($service eq 'Infrastructure') {
-      $protocol = 'Both';
+      $protocol = 'TCP&UDP';
     }
 
     # Validate IP addr(s)
@@ -361,7 +361,7 @@ if (defined $cgiparams{'ACTION'} and $cgiparams{'ACTION'} ne "")
                 my $outLine = "";
                 $outLine .= "$cgiparams{'INTERFACE'},$cgiparams{'RULEENABLED'},";
                 $outLine .= "$service,$cgiparams{'COMMENT'},";
-                if ($cgiparams{'PROTOCOL'} eq "Both") {
+                if ($cgiparams{'PROTOCOL'} eq "TCP&UDP") {
                   $outLine .= "$both,$ipmac,";
                 } else {
                   $outLine .= "$protocol,$ipmac,";
@@ -1013,8 +1013,8 @@ print qq"
   $optSel = ($cgiparams{'PROTOCOL'} eq 'UDP') ? " selected" : "";
   print "               <option value='UDP'$optSel>$availableprotocols{17}</option>";
 
-  $optSel = ($cgiparams{'PROTOCOL'} eq 'TCP|UDP') ? " selected" : "";
-  print "               <option value='Both'$optSel>TCP|UDP</option>";
+  $optSel = ($cgiparams{'PROTOCOL'} eq 'TCP&UDP') ? " selected" : "";
+  print "               <option value='TCP&UDP'$optSel>TCP&amp;UDP</option>";
 
   $optSel = ($cgiparams{'PROTOCOL'} eq 'PPTP') ? " selected" : "";
   print "               <option value='PPTP'$optSel>PPTP-Passthru</option>";
