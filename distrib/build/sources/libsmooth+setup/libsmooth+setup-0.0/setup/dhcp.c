@@ -219,7 +219,7 @@ int handledhcp(void)
 				findkey(ethernetkv, "GREEN_NETMASK", greennetmask);
 			
 				file = fopen(CONFIG_ROOT "dhcp/dhcpd.conf", "w");
-				fprintf(file, "ddns-update-style ad-hoc;\n\n");
+				fprintf(file, "ddns-update-style interim;\n\n");
 				fprintf(file, "subnet %s netmask %s\n", greennetaddress, greennetmask);
 				fprintf(file, "{\n");
 				fprintf(file, "\toption subnet-mask %s;\n", greennetmask);
