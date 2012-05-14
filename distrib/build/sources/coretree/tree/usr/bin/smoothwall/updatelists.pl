@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 
-print "  Updates disabled for Phaeton/Roadster.\n";
-exit;
-
 use IO::Socket;
 
 use lib "/usr/lib/smoothwall";

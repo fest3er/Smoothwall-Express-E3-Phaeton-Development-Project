@@ -52,7 +52,7 @@ sub downloadlist
 		$errormessage = $tr{'could not connect to Roadster updates'};
 		return 0;
 	}
-	print $sock "GET http://$host/updates/$major/info HTTP/1.1\r\nHost: $host\r\nConnection: close\r\n\r\n";
+	print $sock "GET http://$host/updates/$major.$minor/info HTTP/1.1\r\nHost: $host\r\nConnection: close\r\n\r\n";
 	my $ret = '';
 	while (<$sock>) {
 		$ret .= $_; }
