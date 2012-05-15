@@ -118,9 +118,9 @@ if [ $AUTOBACK == "AUTO" ]; then
   WATCH="CREATE"
 
   # Watch for CREATEs in /dev of $BACKUP_ID
-  trap "" SIGTERM
+  trap "" SIGHUP
   (
-    trap SIGTERM
+    trap SIGHUP
     $INOTIFY_CMD -m /dev/disk/by-id 2>&- | while read a b c; do
       if [ "$b" != "$WATCH" ]; then continue; fi
       C="${c/-part[0-9]*/}"
@@ -128,11 +128,11 @@ if [ $AUTOBACK == "AUTO" ]; then
       if [ "$C" == "$c" ]; then continue; fi
       if [ -e "$a$C" -a -e "$a${C}-part1" ]; then
         echo "${C}-part1" > ${DEV_FILE}
-        kill 0;
+        kill -HUP 0;
       fi
     done
   )
-  trap SIGTERM
+  trap SIGHUP
   read NODE < ${DEV_FILE}
   NODE="disk/by-id/$NODE"
 
