@@ -6,7 +6,7 @@ tput smcup
 echo -e "\033[1;1H\033[JBackup Progress:"
 STATE="start"
 while :; do
-  CURRENT=`cat backup.flag`
+  CURRENT=`cat /var/smoothwall/backup/backup.flag`
   if [ "$CURRENT" == "" ]; then
     sleep .1
     continue
