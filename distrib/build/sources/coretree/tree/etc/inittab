@@ -19,4 +19,4 @@ S0:2345:off:/sbin/agetty 115200 ttyS0
 ~:S:wait:/bin/bash
 
 # Backup daemon
-B:2345:respawn:/usr/bin/backup_daemon
+B:2345:respawn:/usr/bin/backup_daemon >/dev/null 2>&1
