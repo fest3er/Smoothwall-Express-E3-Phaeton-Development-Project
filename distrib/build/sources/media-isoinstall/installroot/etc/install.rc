@@ -1,5 +1,16 @@
 #!/bin/bash 
 
+# Taken from Kay Seiver's example
+getarg() {
+  local o line
+  for o in $cmdline; do
+    if test "$o" = "$1"; then echo $1; break; fi
+    if test "${o%%=*}" = "${1%=}"; then echo ${o#*=}; break; fi
+  done
+}
+# Fetch the kernel's command line
+read cmdline < /proc/cmdline
+
 CLS="\033[0;0f\033[2J"
 BO="\033[1m"
 UL="\033[4m"
