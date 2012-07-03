@@ -306,8 +306,9 @@ else
   fi
 
   # check /usr/bin/awk
-  if [ `readlink -ef /usr/bin/awk` == "/usr/bin/gawk" ]; then
-    echo "    OK: /usr/bin/awk -> /usr/bin/gawk"
+  if [ `readlink -ef /usr/bin/awk` == "/usr/bin/gawk" -o \
+       `readlink -ef /usr/bin/awk` == "/bin/gawk" ]; then
+    echo "    OK: /usr/bin/awk -> [/usr]/bin/gawk"
   else
     echo "  FAIL: /usr/bin/awk -> `readlink -f /bin/sh`"
     OK=1

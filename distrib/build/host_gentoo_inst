@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Adapted from host_debian_inst by Charlie (dataking).
+
+echo -n "Running emerge --sync for sanity..."
+emerge --sync -q >/dev/null 2>&1
+echo "done."
+
+echo -n "Checking for gentoolkit..."
+equery -V >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+    echo "found!"
+else 
+    echo "not found.  Emerging."
+    emerge -q gentoolkit
+fi
+
+echo "Checking needed packages".
+for package in glibc gcc make diffutils e2fsprogs findutils gzip ncurses dev-lang/perl dev-lang/python sys-apps/sed app-arch/tar util-linux bison flex gawk inotify-tools app-misc/screen; do
+    tput smso; echo "$package:"; tput rmso
+    MUST_INST=0
+    if [ $MUST_INST -eq 0 ]; then
+        INST=`equery --no-pipe l "$package" | sed -s 's!\[\(.\)..\].*!\1!' | grep -v -i "searching for"`
+        if [ "$INST" == "-" -o "${INST}x" == "x" ]; then
+            MUST_INST=1
+        fi
+    fi
+
+    if [ $MUST_INST -eq 1 ]; then
+        ACTION=`emerge -Dpq $package | awk 'print $2}' | sed -e 's/ //g'`
+        case $ACTION in
+            "R")
+                echo "$package needs to be rebuilt."
+                echo -n "Rebuilding..."
+                emerge -Dq $package >/dev/null 2>&1
+                echo "done."
+                ;;
+            "N")
+                echo "$package is missing."
+                echo -n "Emerging..."
+                emerge -Dq $package >/dev/null 2>&1
+                echo "done."
+                ;;
+            *)
+                # just in case a new action is encountered
+                echo "ACTION=$ACTION"
+                ;;
+        esac
+        echo
+    else
+        echo "    Installed."
+    fi
+done
