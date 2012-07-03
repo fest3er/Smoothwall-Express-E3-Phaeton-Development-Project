@@ -82,9 +82,9 @@ CGCCM=040601
 VGCC=3.0.1
 
 CGLIBC=020205
-CGLIBCM=021300
+#CGLIBCM=021300
 VGLIBC=2.2.5
-VGLIBCM=2.13.0
+#VGLIBCM=2.13.0
 
 CGREP=0205
 VGREP=2.5
@@ -343,14 +343,16 @@ else
     OIFS=$IFS; IFS="."; set $WORK
     TGLIBC=`echo $*|awk '{printf("%2.2d%2.2d%2.2d\n", $1, $2, $3)}'`
     IFS=$OIFS
-    if [[ $TGLIBC < $CGLIBC || $TGLIBC > $CGLIBCM ]]; then
+    #if [[ $TGLIBC < $CGLIBC || $TGLIBC > $CGLIBCM ]]; then
+    if [[ $TGLIBC < $CGLIBC ]]; then
       echo "  FAIL: glibc v$WORK FAILED ($VGLIBC-$VGLIBCM)"
       OK=1
     else
-      echo "    OK: glibc v$WORK seems OK (>=$VGLIBC, <=$VGLIBCM)"
+      #echo "    OK: glibc v$WORK seems OK (>=$VGLIBC, <=$VGLIBCM)"
+      echo "    OK: glibc v$WORK seems OK (>=$VGLIBC)"
     fi
   else
-    echo "  FAIL: /lib/libc.so.6 not found. Need glibc $VGLIBC<=version<=$VGLIBCM."
+    echo "  FAIL: libc.so.6 not found. Need glibc $VGLIBC<=version<=$VGLIBCM."
     OK=1
   fi
 fi
