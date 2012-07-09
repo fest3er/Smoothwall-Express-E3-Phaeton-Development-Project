@@ -91,17 +91,16 @@ fi
 echo "Mounting other filesystems"
 mount -a
 
-echo "Starting klogd"
-/usr/sbin/klogd
-
 echo "Directing core dumps to /var/log"
 mkdir -p /var/log/coredumps
 chmod 700 /var/log/coredumps
 echo "/var/log/coredumps/%e-%t-%s.%p" >/proc/sys/kernel/core_pattern
 echo "Turning on swap"
 /sbin/swapon -a
+
 echo "Module dependencies"
 /sbin/depmod -a
+
 echo "Clearing old files"
 chmod 660 /dev/ttyS*
 chmod 660 /dev/ttyI* >/dev/null 2>&1
@@ -110,6 +109,9 @@ find /var/run -name '*.pid' -type f -exec rm -f '{}' \;
 rm -f /var/smoothwall/red/*
 rm -f /var/lock/LCK..ttyS*
 rm -f /var/run/pppd*.tdb
+
+echo "Starting klogd"
+/usr/sbin/klogd
 
 if readlink /dev/harddisk | egrep "hd."; then
   echo "Setting IDE drive params"
