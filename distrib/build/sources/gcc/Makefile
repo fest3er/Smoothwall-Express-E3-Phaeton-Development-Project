@@ -8,7 +8,7 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = gcc
-VERSION = 4.6.1
+VERSION = 4.4.3
 
 BASE_URL = ftp://ftp.gnu.org/gnu/gcc/gcc-$(VERSION)
 
@@ -18,21 +18,13 @@ TAR_GMP = gmp-$(GMP_VER).tar.bz2
 BASE_MPFR = http://www.mpfr.org/mpfr-$(MPFR_VER)
 TAR_MPFR = mpfr-$(MPFR_VER).tar.bz2
 
-BASE_MPC = http://www.multiprecision.org/mpc/download
-TAR_MPC = mpc-$(MPC_VER).tar.gz
-
 COMPILE_DIR = $(DIR)-compile
-
-PATCH_FILE1 = gcc-4.6.1-cross_compile-1.patch
-PATCH_FILE2 = gcc-4.6.1-startfiles_fix-1.patch
-MPFRPATCH_FILE1 = mpfr-3.0.1-fixes-1.patch
 
 DOWNLOAD = yes
 
 download:
 	@$(DL_CMD) $(BASE_GMP)/$(TAR_GMP)
 	@$(DL_CMD) $(BASE_MPFR)/$(TAR_MPFR)
-	@$(DL_CMD) $(BASE_MPC)/$(TAR_MPC)
 	@$(DL_CMD) $(BASE_URL)/$(TARBALL)$(EXTENSION) $(MD5)
 
 
@@ -44,17 +36,14 @@ CONFIG_OPTS = --target=$(SWE_TGT) --prefix=$(TOOLS_DIR) \
 	      --disable-nls --disable-shared --disable-multilib \
 	      --disable-decimal-float --disable-threads \
 	      --disable-libmudflap --disable-libssp \
-	      --disable-libgomp --disable-libquadmath \
-	      --disable-target-libiberty --disable-target-zlib \
-	      --enable-languages=c --without-ppl --without-cloog
+	      --disable-libgomp --enable-languages=c
+
+
 
 PATCH = yes
 patch: $(DIR)/
 	cd $(DIR); tar -xvf ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
 	cd $(DIR); tar -xvf ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
-	cd $(DIR)/mpfr; patch -p1 < ../../$(MPFRPATCH_FILE1)
-	cd $(DIR); tar -xvf ../../../downloads/$(TAR_MPC); mv mpc-$(MPC_VER) mpc
-	cd $(DIR); patch -p1 < ../$(PATCH_FILE1)
 
 COMPILE = yes
 compile: configure
@@ -76,20 +65,19 @@ PRE_CONFIGURE = CC="$(SWE_TGT)-gcc -B$(TOOLS_DIR)/lib" \
 	        AR=$(SWE_TGT)-ar RANLIB=$(SWE_TGT)-ranlib
 
 CONFIG_OPTS = --prefix=$(TOOLS_DIR) --with-local-prefix=$(TOOLS_DIR) \
-	      --enable-clocale=gnu --enable-shared --enable-threads=posix  \
-	      --enable-__cxa_atexit --enable-languages=c,c++ \
-	      --disable-libstdcxx-pch --disable-multilib \
-	      --disable-bootstrap --disable-libgomp \
-	      --without-ppl --without-cloog
+	--enable-clocale=gnu --enable-shared --enable-threads=posix  \
+	--enable-__cxa_atexit --enable-languages=c,c++ \
+	--disable-libstdcxx-pch --disable-multilib \
+	--disable-bootstrap
+
+PATCH_FILE1 = gcc-4.4.3-startfiles_fix-1.patch
 
 PATCH = yes
-
-	  #sed 's@\./fixinc\.sh@-c true@' gcc/Makefile.in.orig > gcc/Makefile.in.tmp;
-
 patch: $(DIR)/
 	cd $(DIR); \
-	  patch -Np1 -i ../$(PATCH_FILE2); \
-	  cp -v gcc/Makefile.in{,.tmp}; \
+	  patch -Np1 -i ../$(PATCH_FILE1); \
+	  cp -v gcc/Makefile.in{,.orig}; \
+	  sed 's@\./fixinc\.sh@-c true@' gcc/Makefile.in.orig > gcc/Makefile.in.tmp; \
 	  sed 's/^T_CFLAGS =$$/& -fomit-frame-pointer/' gcc/Makefile.in.tmp > gcc/Makefile.in;
 	cd $(DIR); \
 	for file in `find gcc/config -name linux64.h \
@@ -104,7 +92,6 @@ patch: $(DIR)/
 	done
 	cd $(DIR); tar -xvf ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
 	cd $(DIR); tar -xvf ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
-	cd $(DIR); tar -xvf ../../../downloads/$(TAR_MPC); mv mpc-$(MPC_VER) mpc
 
 COMPILE = yes
 compile: configure
@@ -125,14 +112,13 @@ ifeq ($(BUILD_PHASE), Final)
 CONFIG_OPTS =  --prefix=$(PKG_DIR) \
 	--libexecdir=/usr/lib --enable-shared \
 	--enable-threads=posix --enable-__cxa_atexit \
-	--enable-clocale=gnu --enable-languages=c,c++ --disable-libquadmath \
+	--enable-clocale=gnu --enable-languages=c,c++ \
 	--disable-bootstrap
 
 PATCH = yes
 patch: $(DIR)/
 	cd $(DIR); tar -xvf ../../../downloads/$(TAR_GMP); mv gmp-$(GMP_VER) gmp
 	cd $(DIR); tar -xvf ../../../downloads/$(TAR_MPFR); mv mpfr-$(MPFR_VER) mpfr
-	cd $(DIR); tar -xvf ../../../downloads/$(TAR_MPC); mv mpc-$(MPC_VER) mpc
 	sed -i 's/install_to_$$(INSTALL_DEST) //' $(DIR)/libiberty/Makefile.in
 	sed -i 's/^XCFLAGS =$$/& -fomit-frame-pointer/' $(DIR)/gcc/Makefile.in
 	sed -i 's@\./fixinc\.sh@-c true@' $(DIR)/gcc/Makefile.in

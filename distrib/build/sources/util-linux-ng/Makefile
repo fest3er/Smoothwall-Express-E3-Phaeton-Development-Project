@@ -7,10 +7,10 @@
 include ../Makefile.conf
 
 PACKAGE = util-linux-ng
-VERSION = 2.14.2
-VERDIR = 2.14
+VER_MM = 2.14
+VERSION = $(VER_MM).2
 
-BASE_URL = http://www.kernel.org/pub/linux/utils/util-linux-ng/v$(VERDIR)/
+BASE_URL = http://www.kernel.org/pub/linux/utils/util-linux-ng/v$(VER_MM)/
 
 ifeq ($(BUILD_PHASE), Stage_3)
 

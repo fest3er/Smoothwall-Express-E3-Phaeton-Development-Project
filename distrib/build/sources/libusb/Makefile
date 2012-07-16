@@ -7,12 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = libusb
-VERMAJ = 1.0
-VERMIN = .8
-VERSION = $(VERMAJ)$(VERMIN)
+VER_MM = 1.0
+VERSION = $(VER_MM).8
 EXTENSION = .tar.bz2
 
-BASE_URL = http://heanet.dl.sourceforge.net/sourceforge/libusb/libusb-$(VERMAJ)/libusb-$(VERSION)
+BASE_URL = http://heanet.dl.sourceforge.net/sourceforge/libusb/libusb-$(VER_MM)/libusb-$(VERSION)
 
 #CONFIGURE = yes
 #COMPILE = yes

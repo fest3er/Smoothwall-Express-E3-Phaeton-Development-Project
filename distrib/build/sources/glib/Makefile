@@ -7,11 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = glib
-MAJMIN = 2.29
-VERSION = $(MAJMIN).12
+VER_MM = 2.29
+VERSION = $(VER_MM).12
 EXTENSION = .tar.xz
 
-BASE_URL =  http://ftp.gtk.org/pub/glib/$(MAJMIN)
+BASE_URL =  http://ftp.gtk.org/pub/glib/$(VER_MM)
 
 CONFIG_OPTS = --without-ffi
 include ../Makefile.rules

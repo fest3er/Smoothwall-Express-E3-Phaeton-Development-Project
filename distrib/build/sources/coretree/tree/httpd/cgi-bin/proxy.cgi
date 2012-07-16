@@ -41,34 +41,34 @@ if ($proxysettings{'ACTION'} eq $tr{'save'} ||
 	if (!($proxysettings{'CACHE_SIZE'} =~ /^\d+/) ||
 		($proxysettings{'CACHE_SIZE'} < 10))
 	{
-		$errormessage = $tr{'invalid cache size'};
+		$errormessage .= $tr{'invalid cache size'}."<br />;
 		goto ERROR;
 	}		
 	if (!($proxysettings{'MAX_SIZE'} =~ /^\d+/))
 	{
-		$errormessage = $tr{'invalid maximum object size'};
+		$errormessage .= $tr{'invalid maximum object size'}."<br />;
 		goto ERROR;
 	}
 	if (!($proxysettings{'MIN_SIZE'} =~ /^\d+/))
 	{
-		$errormessage = $tr{'invalid minimum object size'};
+		$errormessage .= $tr{'invalid minimum object size'}."<br />;
 		goto ERROR;
 	}
 	if (!($proxysettings{'MAX_OUTGOING_SIZE'} =~ /^\d+/))
 	{
-		$errormessage = $tr{'invalid maximum outgoing size'};
+		$errormessage .= $tr{'invalid maximum outgoing size'}."<br />;
 		goto ERROR;
 	}
 	if (!($proxysettings{'MAX_INCOMING_SIZE'} =~ /^\d+/))
 	{
-		$errormessage = $tr{'invalid maximum incoming size'};
+		$errormessage .= $tr{'invalid maximum incoming size'}."<br />;
 		goto ERROR;
 	}
 	if ($proxysettings{'PEER_USERNAME'})
 	{
 		unless ($proxysettings{'PEER_PASSWORD'})
 		{
-			$errormessage = $tr{'password cant be blank'};
+			$errormessage .= $tr{'password cant be blank'}."<br />;
 			goto ERROR;
 		}
 	}
@@ -89,10 +89,12 @@ ERROR:
 			push(@args, '--clearcache'); }
         	
 		my $success = message(@args);
-		
-		if (not defined $success) {
-			$errormessage = $tr{'smoothd failure'}; }
-	}
+                
+                if (not defined $success) {
+                        $errormessage = $tr{'smoothd failure'}; }
+
+                message('setoutgoing');
+        }
 }
 
 &readhash("${swroot}/proxy/settings", \%proxysettings);

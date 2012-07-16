@@ -54,7 +54,9 @@ message('ifaliasup');
 message('setportfw');
 message('setxtaccess');
 
-message('setincoming');
+# I think incoming ought to be run here. Don't recall why I changed it.
+#message('setincoming');
+message('setoutgoing');
 message('snortrestart');
 message('upnpdrestart');
 message('trafficrestart');

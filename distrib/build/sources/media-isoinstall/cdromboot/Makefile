@@ -9,15 +9,11 @@ include ../../Makefile
 
 default:
 	mkdir -p ../cdrom/boot/grub
-	cp -a /usr/lib/grub/i386-pc/* ../cdrom/boot/grub
-	grub-mkimage -O i386-pc -o /tmp/grubcore-img \
-	    --prefix=/boot/grub iso9660 biosdisk
-	cat ../cdrom/boot/grub/cdboot.img /tmp/grubcore-img \
-	    > ../cdrom/boot/grub/eltorito.img
-
-	cp grub.cfg ../cdrom/boot/grub/grub.cfg
-	cp -R /build/buildroot/linux-dom0/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/boot/linux-$(K_SWE_VERSION)-dom0
-	cp ../installrootimage.gz ../cdrom/boot/iniramfs-$(K_SWE_VERSION)-dom0.igz
+	cp -a /build/buildroot/grub/usr/share/grub/i386-pc/* ../cdrom/boot/grub
+	chown root:root grub.conf
+	cp -a grub.conf ../cdrom/boot/grub/grub.conf
+	cp -R /build/buildroot/linux-dom0/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/boot/vmlinuz
+	cp ../installrootimage.gz ../cdrom/boot/iniramfs.igz
 	echo -e "ISO boot prep complete\n\n\n\n\n"
 
 clean:

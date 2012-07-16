@@ -21,7 +21,7 @@ CONFIGURE = yes
 INSTALL = yes
 
 configure: patch
-	@(cd $(DIR); ./configure $(CONFIG_OPTS) --prefix=/usr/apache2)
+	@(cd $(DIR); ./configure $(CONFIG_OPTS) --prefix=$(PKG_DIR))
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

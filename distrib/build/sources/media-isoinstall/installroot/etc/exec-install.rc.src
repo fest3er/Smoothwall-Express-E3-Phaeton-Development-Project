@@ -100,9 +100,9 @@ echo "Partitioning hard drive"
 echo "Partitioning hard drive" >/dev/tty2
 echo
   typeset -i remainder bootsize swapsize rootsize logsize memsize
-  typeset -i bootMiB swapMiB rootMiB logMiB
-  typeset -i bootstart swapstart rootstart logstart
-  typeset -i bootend swapend rootend logend
+  typeset -i grubMiB bootMiB swapMiB rootMiB logMiB
+  typeset -i grubstart bootstart swapstart rootstart logstart
+  typeset -i grubend bootend swapend rootend logend
   typeset -i sTotal hw_sector_size unused unusedMiB
 
   # Get disk parameters
@@ -126,12 +126,12 @@ echo
   # boot partition fixed size
   bootMiB=200
   bootsize=bootMiB                   # 200MiB
-  bootstart=1                        # 1 MiB
+  bootstart=3                        # 3 MiB
   bootend=bootstart+bootsize-1
   echo "  ${hdd}1  ${bootMiB}MiB -> /boot"
 
   # swap partition fixed size
-  remainder=remainder-2            # less one MiB at each end
+  remainder=remainder-4            # less one MiB at each end, less 2MiB bios_grub
   compute_swap                     # swapsize is based on memory vs. disk size
   swapstart=bootend+1
   swapend=swapstart+swapsize-1
@@ -154,6 +154,13 @@ echo
   rootend=rootstart+rootsize-1
   echo "  ${hdd}4  ${rootMiB}MiB -> / (root)"
 
+  # grub_bios partition: before /boot
+  grubMiB=2
+  grubsize=grubMiB
+  grubstart=1
+  grubend=grubstart+grubsize-1
+  echo "  ${hdd}5  ${grubMiB}MiB -> grub_bios"
+
   # all that's left
   remainder=remainder-rootsize
   unused=unused+remainder
@@ -166,7 +173,6 @@ unit MiB
 select /dev/$hdd
 mklabel gpt
 mkpart boot reiserfs $bootstart $bootend
-set 1 boot on
 name 1 "/boot"
 mkpart swap linux-swap $swapstart $swapend
 name 2 swap
@@ -174,6 +180,9 @@ mkpart log reiserfs $logstart $logend
 name 3 "/var/log"
 mkpart root reiserfs $rootstart $rootend
 name 4 "/"
+mkpart bios_grub $grubstart $grubend
+set 5 bios_grub on
+name 5 "bios_grub"
 print
 quit
 END
@@ -363,67 +372,65 @@ END
   rm -rf ${HDTMP}
 
   echo "  configuring boot loader"
-  cat > /harddisk/boot/grub/grub.cfg <<END
-# Begin /boot/grub/grub.cfg
+  cat > /harddisk/boot/grub/grub.conf <<END
+# Begin /boot/grub/grub.conf
 
+# Set up to output to both VGA console and serial port; grub'll
+#   use the first one to see a keypress. Or it'll time out and
+#   use the default from installation (the first one in the command).
+#   Change the order of them if you manually change between serial
+#   and vesa.
+
+serial --unit=0 --speed=115200
 END
 
   if [ $serialport -eq 1 -o $serialport -eq 3 ]; then
-    cat >> /harddisk/boot/grub/grub.cfg <<END
+    cat >> /harddisk/boot/grub/grub.conf <<END
+terminal --timeout=5 serial console
+
 # Boot using serial console by default
-set default 1
+default 1
 END
   else
-    cat >> /harddisk/boot/grub/grub.cfg <<END
+    cat >> /harddisk/boot/grub/grub.conf <<END
+terminal --timeout=5 console serial
+
 # Boot using VESA console
-set default 0
+default 0
 END
   fi
 
-  cat >> /harddisk/boot/grub/grub.cfg <<END
+  cat >> /harddisk/boot/grub/grub.conf <<END
 
 # Allow 10 seconds before booting the default.
-set timeout 10
+timeout 10
 
-# Use prettier colors.
-color green/white light-green/black
+# Use prettier colors (OR/BK, YL/BK).
+color 0x06 0x0e
 
-# Boot using video card
-menuentry "Silver Cloud/Firewall: VESA Console" {
-	set root="/dev/harddisk4"
-	echo "Loading linux..."
-	kernel /vmlinuz-${KERNEL_VER}
-	echo "Loading initial RAMFS..."
-	initrd /initrd-${KERNEL_VER}-dom0.gz
-	echo "Booting..."
-}
+# Boot using VESA console
+title AGCL/Roadster (VESA Console)
+root (hd0,0)
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet
+initrd /initrd-${KERNEL_VER}-roadster.gz
 
 # Boot using serial console
-menuentry "Silver Cloud/Firewall: Serial Console" {
-	set root="/dev/harddisk4"
-	echo "Loading linux..."
-	kernel /vmlinuz-${KERNEL_VER} console=ttyS0,115200
-	echo "Loading initial RAMFS..."
-	initrd /initrd-${KERNEL_VER}-dom0.gz
-	echo "Booting..."
-}
+title AGCL/Roadster (Serial Console)
+root (hd0,0)
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,115200
+initrd /initrd-${KERNEL_VER}-roadster.gz
 
-# Boot using video card, single-user
-menuentry "Silver Cloud/Firewall: VESA Single-User" {
-	set root="/dev/harddisk4"
-	echo "Loading linux..."
-	kernel /vmlinuz-${KERNEL_VER} single
-	echo "Loading initial RAMFS..."
-	initrd /initrd-${KERNEL_VER}-dom0.gz
-	echo "Booting..."
-}
+# Single-user using VESA console
+title AGCL/Roadster (VESA Console, Single-User)
+root (hd0,0)
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet single
+initrd /initrd-${KERNEL_VER}-roadster.gz
 
-# Boot using serial console
-menuentry "Silver Cloud/Firewall: Serial Single-User" {
-	set root="/dev/harddisk4"
-	kernel /vmlinuz-${KERNEL_VER} console=ttyS0,115200 single
-	initrd /initrd-${KERNEL_VER}-dom0.gz
-}
+# Single-user using serial console
+title AGCL/Roadster (Serial Console, Single-User)
+root (hd0,0)
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,115200 single
+initrd /initrd-${KERNEL_VER}-roadster.gz
 END
 
   # Restore variable data if selected. AND upgrade files as needed!
@@ -476,7 +483,13 @@ echo "  installing boot loader"
 do_or_die "mount --bind /proc /harddisk/proc"
 do_or_die "mount --bind /sys /harddisk/sys"
 do_or_die "mount --bind /dev /harddisk/dev"
-do_or_die "chroot /harddisk grub-install /dev/${hd_dev[$hd]}"
+cat<<END >/harddisk/tmp/grub.cmds
+device (hd0) /dev/harddisk
+root (hd0,0) 
+setup (hd0) 
+quit
+END
+do_or_die "/sbin/chroot /harddisk /usr/sbin/grub --batch </harddisk/tmp/grub.cmds"
 
 
 sleep 2

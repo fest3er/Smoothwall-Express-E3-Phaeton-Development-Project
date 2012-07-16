@@ -6,7 +6,7 @@
 
 include ../Makefile.conf
 
-OPENSSL_VER = 0.9.8q
+OPENSSL_VER = 1.0.0h
 
 PACKAGE = openssl
 VERSION = $(OPENSSL_VER)
@@ -21,13 +21,14 @@ PKG_DIR = usr
 
 configure: $(DIR)/
 	@(cd $(DIR); \
-	./config 386 shared --prefix=/$(PKG_DIR) --openssldir=/$(PKG_DIR));
+	./config shared --install_prefix=/build/buildroot/$(PACKAGE) --prefix=/$(PKG_DIR) --openssldir=/$(PKG_DIR)/lib/ssl; \
+	patch < ../Makefile-MANDIR.patch);
 
 compile: configure
-	@make -C openssl-$(OPENSSL_VER)
+	@make -C $(PACKAGE)-$(VERSION)
 
 install: compile
 	@mkdir -p $(PKG_ROOT)
-	@make -C openssl-$(OPENSSL_VER) INSTALL_PREFIX=$(PKG_ROOT) install
+	@make -C $(PACKAGE)-$(OPENSSL_VER) INSTALL_PREFIX=$(PKG_ROOT) install
 
 include ../Makefile.rules

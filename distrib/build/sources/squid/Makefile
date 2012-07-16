@@ -8,13 +8,13 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = squid
-VERSION = 2.7.STABLE9
+VERSION = 3.1.18
 
-BASE_URL = http://www.squid-cache.org/Versions/v2/2.7/
+BASE_URL = http://www.squid-cache.org/Versions/v3/3.1/
 
-PATCH_FILE1 = ERR_ACCESS_DENIED.patch
-PATCH_FILE2 = ERR_CACHE_ACCESS_DENIED.patch 
-PATCH_FILE3 = ERR_TOO_BIG.patch
+#PATCH_FILE1 = ERR_ACCESS_DENIED.patch
+#PATCH_FILE2 = ERR_CACHE_ACCESS_DENIED.patch 
+#PATCH_FILE3 = ERR_TOO_BIG.patch
 
 CONFIG_OPTS = --enable-storeio="diskd,ufs" --enable-linux-netfilter --enable-removal-policies="heap,lru" --enable-delay-pools  --enable-err-languages="English"  --enable-default-err-language=English --localstatedir=/var
 

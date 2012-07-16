@@ -1,8 +1,11 @@
 #!/bin/sh
 
+# Get connmark bits and flags
+. /etc/rc.d/inc.bits-flags
+
 # Disable ICMP Redirect Acceptance
 for FILE in /proc/sys/net/ipv4/conf/*/accept_redirects; do
-	echo 0 > $FILE
+        echo 0 > $FILE
 done
 
 # Disable Source Routed Packets
@@ -26,6 +29,18 @@ echo 630 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_fin_wait
 echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_last_ack
 echo 630 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close_wait
 echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close
+
+# IPV6: Set default policy to ACCEPT local stuff, but reject forwarding
+/usr/sbin/ip6tables -F
+/usr/sbin/ip6tables -X
+
+/usr/sbin/ip6tables -P INPUT ACCEPT
+/usr/sbin/ip6tables -P FORWARD DROP
+/usr/sbin/ip6tables -P OUTPUT ACCEPT
+
+# And reject DNS
+/usr/sbin/ip6tables -A FORWARD -p udp --destination-port 53 -j REJECT
+/usr/sbin/ip6tables -A INPUT -p udp --destination-port 53 -j REJECT
 
 /sbin/iptables -F
 /sbin/iptables -X
@@ -72,16 +87,41 @@ if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A FORWARD -i $RED_DEV -j ipblock
 fi
 
-# Setup timed access chains.
-/sbin/iptables -N timedaccess
-/sbin/iptables -N timedaction
-/sbin/iptables -A timedaction -j LOG --log-prefix Denied-by-Timed-Access:-
-/sbin/iptables -A timedaction -j REJECT
+# localhost
+/sbin/iptables -A INPUT -i lo -j ACCEPT
 
+# Setup chains for controlling outgoing conns. Place them
+# here so that setting timed access on outgoing rules can immediately
+# shut down all outgoing traffic from a source device or machine if desired
+/sbin/iptables -N tofcScreen    # FORWARD prescreen; some traffic is always allowed
+/sbin/iptables -N tofcPrxScreen # INPUT prescreen; some traffic is always allowed
+/sbin/iptables -N tofcfwd2Int   # Filter inbound packets
+/sbin/iptables -N tofcfwd2Ext   # Filter outbound packets
+/sbin/iptables -N tofcproxy     # Filter proxied outbound conns in INPUT
+/sbin/iptables -N tofcblock     # The final arbiter
 
-# Apply the time rules to deny the traffic.
-/sbin/iptables -A INPUT -j timedaccess
-/sbin/iptables -A FORWARD -j timedaccess
+# Put a default blocker in tofcblock; setoutgoing will replace it soon enough.
+/sbin/iptables -A tofcblock -j DROP
+
+# Never touch certain traffic; filter the rest
+#   Methinks I need to handle IPSEC/ESP here, too.
+/sbin/iptables -A tofcScreen -p icmp -j ACCEPT
+#   send packets from RED to tofcfwd2Int
+if [ "$RED_DEV" != "" ]; then
+  /sbin/iptables -A tofcScreen -i $RED_DEV -j tofcfwd2Int
+fi
+/sbin/iptables -A tofcScreen -i ppp0 -j tofcfwd2Int
+/sbin/iptables -A tofcScreen -i ippp0 -j tofcfwd2Int
+#   send the rest to tofcfwd2Ext
+/sbin/iptables -A tofcScreen -j tofcfwd2Ext
+
+# Never touch certain traffic; filter the rest
+/sbin/iptables -A tofcPrxScreen -p icmp -j ACCEPT
+/sbin/iptables -A tofcPrxScreen -j tofcproxy
+
+# Send all outbound and proxied outbound conns to the tofc chains
+/sbin/iptables -A FORWARD -m connmark --mark ${typeOutbound}/${connTypeMask} -j tofcScreen
+/sbin/iptables -A INPUT -m connmark --mark ${typeInt2FW}/${connTypeMask} -j tofcPrxScreen
 
 # For IGMP and multicast
 /sbin/iptables -N advnet
@@ -111,14 +151,14 @@ fi
 /sbin/iptables -A INPUT -i ppp0 -j spoof
 /sbin/iptables -A INPUT -i ippp0 -j spoof
 if [ "$RED_DEV" != "" ]; then
-	/sbin/iptables -A INPUT -i $RED_DEV -j spoof
+        /sbin/iptables -A INPUT -i $RED_DEV -j spoof
 fi
 
 # localhost and ethernet.
 /sbin/iptables -A INPUT -i lo -j ACCEPT
 /sbin/iptables -A INPUT -i $GREEN_DEV -j ACCEPT
 if [ "$PURPLE_DEV" != "" ]; then
-	/sbin/iptables -A INPUT -i $PURPLE_DEV -j ACCEPT
+        /sbin/iptables -A INPUT -i $PURPLE_DEV -j ACCEPT
 fi
 
 # IPSEC
@@ -192,37 +232,13 @@ fi
 /sbin/iptables -A INPUT -j LOG
 /sbin/iptables -A INPUT -j REJECT
 
-# Green, Orange and Purple chains for outbound, and allows for always allowed.
-/sbin/iptables -N outgreen
-/sbin/iptables -N outorange
-/sbin/iptables -N outpurple
-/sbin/iptables -N allows
-
-# Setup our outgoing filter stub chains.
-/sbin/iptables -N outbound
-/sbin/iptables -A outbound -p icmp -j ACCEPT
-/sbin/iptables -A outbound -j allows
-/sbin/iptables -A outbound -i $GREEN_DEV -j outgreen
-if [ "$ORANGE_DEV" != "" ]; then
-	/sbin/iptables -A outbound -i $ORANGE_DEV -j outorange
-fi
-if [ "$PURPLE_DEV" != "" ]; then
-	/sbin/iptables -A outbound -i $PURPLE_DEV -j outpurple
-fi
-
 # Any 'connection' that exists is allowed
 /sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-# Run new outbound 'connections' through the outbound filter.
-/sbin/iptables -A FORWARD -m state --state NEW -o ppp0 -j outbound
-/sbin/iptables -A FORWARD -m state --state NEW -o ippp0 -j outbound
-if [ "$RED_DEV" != "" ]; then
-	/sbin/iptables -A FORWARD -m state --state NEW -o $RED_DEV -j outbound
-fi
 
 # New PURPLE-to-GREEN, ORANGE-to-GREEN, and ORANGE-to-PURPLE 'connections'
 #   must pass the pinhole gauntlet.
 
+# Setup dmzholes chains for internal pinholes
 /sbin/iptables -N dmzholes
 
 # ORANGE to GREEN
@@ -413,3 +429,4 @@ done
 
 /sbin/iptables -t mangle -A POSTROUTING -j trafficpostrouting
 
+. /etc/rc.d/rc.zoneConnMarks

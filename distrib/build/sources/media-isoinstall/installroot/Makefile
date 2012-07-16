@@ -46,7 +46,8 @@ lib:
 	mkdir -p tmp/lib tmp/usr/lib tmp/usr/lib/klibc/lib
 	cp -aR /lib/* tmp/lib
 	cp -aR /lib/lib* tmp/lib
-	cp -aR /usr/lib/libncurses* tmp/lib/
+	cp -aR /usr/lib/libncurses.so* tmp/lib/
+	cp -aR /usr/lib/libtinfo.so* tmp/lib/
 	tar xfz /build/target/smoothwall-linux-dom0.tar.gz -C tmp ./lib/modules > /dev/null 2>&1
 	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
 	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
@@ -136,8 +137,10 @@ endif
 	cd tmp; find . | cpio -o -H newc | gzip > ../../$(INSTALL_ROOT)image.gz
 
 	echo -e "installroot build for $(MEDIA) complete\n\n"
-	
+
 clean:
 	make -C $(PROGS) clean
-	rm -rf tmp/
+	rm -rf $(INSTALL_ROOT) tmp/
 	rm -f ../$(INSTALL_ROOT)image.gz
+	rm -f $(INSTALL_ROOT)image.gz
+	rm -rf installroot/

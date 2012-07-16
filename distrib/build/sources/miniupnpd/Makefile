@@ -8,8 +8,7 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = miniupnpd
-#VERSION = 1.4.20100511
-VERSION = 1.6.20110730
+VERSION = 1.6
 
 BASE_URL = http://miniupnp.free.fr/files/
 
@@ -21,7 +20,7 @@ COMPILE = yes
 INSTALL = yes
 
 configure: patch
-	@make $(JOBS) -C $(DIR) -f Makefile.linux config.h
+	@true
 
 compile: configure
 	@make $(JOBS) -C $(DIR) -f Makefile.linux \

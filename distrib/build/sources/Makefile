@@ -7,7 +7,7 @@
 BASENAME = agcl
 
 PRODUCT_NAME = Silver Cloud
-PRODUCT_VERSION = 0.1
+PRODUCT_VERSION = 0.0
 
 PRODUCT_EXTRA =
 
@@ -15,7 +15,7 @@ UI_VERSION = 0.1
 FIXES_NUMBER = 0
 REVISION = 
 
-RELEASE = agcl-0.0.1
+RELEASE = $(BASENAME)-$(PRODUCT_VERSION).$(FIXES_NUMBER)
 
 # The default kernel type (mostly for kernel_headers)
 KERNEL_TYPE = domU

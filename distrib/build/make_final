@@ -97,6 +97,10 @@ fi
                 "bash final_tc_adjustment" \
                 "crumbs/$BUILD_PHASE.adjusting.out"
       build binutils
+      build gmp
+      #build mpfr
+      #build mpc
+      build zlib
       build gcc
       other_cmd "crumbs/$BUILD_PHASE.toolchain.verified" \
                 "final toolchain verification" \
@@ -104,7 +108,6 @@ fi
                 "crumbs/$BUILD_PHASE.verification.out"
       build gcc libgcc
       build coreutils
-      build zlib
       build mktemp
       build iana-etc
       build findutils
@@ -137,7 +140,6 @@ fi
       echo
       build sysfsutils
       build iputils
-      build traceroute
       build perl
       build Net-Netmask
       build NetAddr-IP
@@ -181,9 +183,7 @@ fi
       build tar
       build util-linux-ng
       build joe
-      JOBS=$JOBS_UP
       build openssl
-      JOBS=$JOBS_MP
       build wget
       build sudo
       build linux-dom0
@@ -209,9 +209,11 @@ fi
       build xen
       build strace
       build linux-atm
+      build attr
       build libcap
+      build libcap-ng
       build hdparm
-      build hddtemp   # build fails on 3.0.3; may be fatal
+      build hddtemp
       build iproute2
       touch crumbs/Final.grp3.compiled
     fi
@@ -220,7 +222,6 @@ fi
       echo -e "    Final group 4 packages already built"
     else
       echo
-      build gmp
       build pcre
       build beep2
       build libpcap
@@ -268,7 +269,9 @@ fi
       build ntp
       build openntpd
 
+      JOBS=$JOBS_UP
       build slang
+      JOBS=$JOBS_MP
       build newt
 
       build squid
@@ -340,7 +343,6 @@ fi
       build libnet
       build libnfnetlink
       build libnetfilter_queue
-      build libcap-ng  # needs Python; it can wait
       build suricata
       build smartmontools
 

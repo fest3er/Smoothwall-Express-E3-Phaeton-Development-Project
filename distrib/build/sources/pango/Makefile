@@ -7,11 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = pango
-MAJMIN = 1.29
-VERSION = $(MAJMIN).4
+VER_MM = 1.29
+VERSION = $(VER_MM).4
 EXTENSION = .tar.xz
 
-BASE_URL = http://ftp.gnome.org/pub/GNOME/sources/$(PACKAGE)/$(MAJMIN)
+BASE_URL = http://ftp.gnome.org/pub/GNOME/sources/$(PACKAGE)/$(VER_MM)
 
 INSTALL = yes
 install: compile

@@ -20,7 +20,7 @@ CONFIG_OPTS = --prefix=/usr --with-rootlibdir=/lib --libexecdir=/lib/udev \
 	      --sysconfdir=/etc --sbindir=/sbin --libdir=/usr/lib \
 	      --docdir=/usr/share/doc/$(PACKAGE)-$(VERSION) --disable-extras \
 	      --disable-introspection --disable-udev_acl --disable-gudev \
-              --without-gperf --disable-hwdb --disable-keymap
+	      --without-gperf --disable-hwdb --disable-keymap
 
 COMPILE = yes
 INSTALL = yes

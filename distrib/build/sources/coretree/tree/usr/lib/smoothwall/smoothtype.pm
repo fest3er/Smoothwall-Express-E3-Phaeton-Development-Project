@@ -136,11 +136,11 @@ sub portlist
 		}
 	}
 
-	$response .= qq{
-	</select></td>
-	<td class='base'>$blobgif$inputfieldname</td>
-	<td><input type='text' id='$inputfield' name='$inputfield' @{[script("validport('$inputfield', $allowblank);")]} value='$found'/></td>
-	};
+        $response .= qq{
+        </select></td>
+        <td class='base'><img src=\'/ui/img/blob.gif\'>&nbsp;$inputfieldname</td>
+        <td><input type='text' id='$inputfield' name='$inputfield' @{[script("validport('$inputfield', $allowblank);")]} value='$found'/></td>
+        };
 
 	
 	push @_validation_items, "validport('$inputfield', $allowblank)" ;
@@ -510,6 +510,9 @@ sub dispaliastab
     while( my $line = <$input> ){
       chomp $line;
       my @cols = ( $position++, (split /,/, $line) );
+      if ($cols[3] =~ /-/) {
+        $cols[3] =~ s/-/,/g;
+      }
       push @lines, \@cols;
     }
     close $input;
@@ -606,6 +609,9 @@ sub dispaliastab
     # do we need to render any comments etc ?
     foreach my $reference ( @breaks ){
       if ( defined $cols[$reference] and $cols[$reference] ne "" ){
+        if ($cols[$reference] =~ /\+/) {
+          $cols[$reference] =~ s/\+//;
+        }
         print "</tr><tr class='list'><td style='$colour' class='listcomment' colspan='$colcount'$styles[$entry]>$cols[$reference]</td>\n";
       }
     }

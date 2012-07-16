@@ -12,6 +12,7 @@ VERSION = 2.6-1.5
 BASE_URL = http://patrick.spacesurfer.com/adsl/
 
 TARBALL = CnxADSL-6.1.2.007-PIM-$(VERSION)
+DIR = $(TARBALL)
 
 EXTENSION = .tar.bz2
 

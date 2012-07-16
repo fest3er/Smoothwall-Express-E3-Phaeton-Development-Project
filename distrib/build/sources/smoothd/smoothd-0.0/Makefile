@@ -1,5 +1,5 @@
 ifdef GLOBALDEBUG
-CXXFLAGS = -g -O0
+CXXFLAGS = -gstabs -O0
 else
 CXXFLAGS = $(CFLAGS)
 endif
@@ -11,8 +11,8 @@ export IPT_LIB_DIR = $(IPT_LIBEXEC)
 
 OBJS=
 LIB_OBJS = module.o UDSocket.o pid.o setuid.o config.o ipbatch.o ipbatchc.o \
-	$(IPTABLES_SRC_DIR)/iptables/xtables_multi-iptables.o \
-	$(IPTABLES_SRC_DIR)/iptables/xshared.o
+        $(IPTABLES_SRC_DIR)/iptables/xtables_multi-iptables.o \
+        $(IPTABLES_SRC_DIR)/iptables/xshared.o
 
 
 MAIN = main.cpp
@@ -20,9 +20,9 @@ LIBS = -L. -ldl -lsmoothd -lxtables -liptc
 BIN = smoothd
 
 MODULES = sysshutdown sysinstall sysim sysp3scan sysalcatel sysdhcpd \
-	sysdnsproxy sysntpd syssnort syssquid syssshd sysupnpd sysadvnet \
-	sysipblock sysfullfirewall sysupdown sysipsec systimeset sysiptables \
-	systraffic syssip sysclamav systimedaccess syssmoothinfo
+        sysdnsproxy sysntpd syssnort syssquid syssshd sysupnpd sysadvnet \
+        sysipblock sysfullfirewall sysupdown sysipsec systimeset sysiptables \
+        systraffic syssip sysclamav syssmoothinfo
 
 MODULEFLAGS = $(CXXFLAGS) -shared -Wl,-soname,$@.so -o $@.so $@.cpp $(LIBS)
 
@@ -93,8 +93,6 @@ systraffic : libsmoothd.so $(OBJS)
 syssip : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
 sysclamav : libsmoothd.so $(OBJS)
-	$(CXX) $(MODULEFLAGS)
-systimedaccess : libsmoothd.so $(OBJS)
 	$(CXX) $(MODULEFLAGS)
 
 ipbatchc.o: ipbatch.h 

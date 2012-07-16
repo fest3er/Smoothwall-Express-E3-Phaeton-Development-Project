@@ -98,7 +98,9 @@ endif
 	@cd tmp; find . | cpio -o -H newc | gzip > ../../$(RUNTIME_ROOT)image.gz
 
 	@echo -e "runtimeroot build for $(MEDIA) complete\n\n"
-	
+
 clean:
-	rm -rf tmp/
+	rm -rf $(RUNTIME_ROOT) tmp/
 	rm -f ../$(RUNTIME_ROOT)image.gz
+	rm -f $(RUNTIME_ROOT)image.gz
+	rm -rf runtimeroot/

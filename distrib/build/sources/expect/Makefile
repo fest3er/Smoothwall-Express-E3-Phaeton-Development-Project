@@ -8,14 +8,14 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = expect
-VERSION = 5.43.0
-VER_UNPACK = 5.43
+VER_MM = 5.43
+VERSION = $(VER_MM).0
 
 BASE_URL = http://anduin.linuxfromscratch.org/sources/LFS/lfs-packages/6.6/
 
 TARBALL = $(PACKAGE)-$(VERSION)
 
-DIR = $(PACKAGE)-$(VER_UNPACK)
+DIR = $(PACKAGE)-$(VER_MM)
 
 ifeq ($(BUILD_PHASE), Stage_3)
 

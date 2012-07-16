@@ -93,6 +93,8 @@ foreach (@files) {
   foreach (readdir IRQS) {
     next if /\./;
     next if /\.\./;
+    next if /affinity_hint/;
+    next if /node/;
     next if /smp_affinity/;
     next if /spurious/;
     print "$_\n";
@@ -144,24 +146,24 @@ my @netconf;
 my @netconf_red = &pipeopen( "/sbin/ifconfig", "$netsettings{'RED_DEV'}" )
   if ($netsettings{'RED_DEV'});
 foreach (@netconf_red) {
-  $_ =~ s/(\d+)\.(\d+)\.(\d+)\.(\d+)/\[\/b]\[\/color][color=#000000][b]$1\.$2\.$3\.$4\[\/b][\/color\][color=#FF0000\][b\]/g;
+  $_ =~ s/(\d+)\.(\d+)\.(\d+)\.(\d+)/\[\/b]\[\/color][color=#000000][b]$1\.$2\.$3\.$4\[\/b][\/color\][color=red\][b\]/g;
 }
-@netconf_red = ("[b][color=#FF0000]", @netconf_red, "[/color][/b]");
+@netconf_red = ("[b][color=red]", @netconf_red, "[/color][/b]");
 my @netconf_green = &pipeopen( "/sbin/ifconfig", "$netsettings{'GREEN_DEV'}" ) if ($netsettings{'GREEN_DEV'});
 foreach (@netconf_green) {
-  $_ =~ s/(\d+)\.(\d+)\.(\d+)\.(\d+)/\[\/b]\[\/color][color=#000000][b]$1\.$2\.$3\.$4\[\/b][\/color\][color=#00BF00\][b\]/g;
+  $_ =~ s/(\d+)\.(\d+)\.(\d+)\.(\d+)/\[\/b]\[\/color][color=#000000][b]$1\.$2\.$3\.$4\[\/b][\/color\][color=green\][b\]/g;
 }
-@netconf_green = ("[b][color=#00BF00]", @netconf_green, "[/color][/b]");
+@netconf_green = ("[b][color=green]", @netconf_green, "[/color][/b]");
 my @netconf_purple = &pipeopen( "/sbin/ifconfig", "$netsettings{'PURPLE_DEV'}" ) if ($netsettings{'PURPLE_DEV'});
 foreach (@netconf_purple) {
-  $_ =~ s/(\d+)\.(\d+)\.(\d+)\.(\d+)/\[\/b]\[\/color][color=#000000][b]$1\.$2\.$3\.$4\[\/b][\/color\][color=#BF00FF\][b\]/g;
+  $_ =~ s/(\d+)\.(\d+)\.(\d+)\.(\d+)/\[\/b]\[\/color][color=#000000][b]$1\.$2\.$3\.$4\[\/b][\/color\][color=purple\][b\]/g;
 }
-@netconf_purple = ("[b][color=#BF00FF]", @netconf_purple, "[/color][/b]");
+@netconf_purple = ("[b][color=purple]", @netconf_purple, "[/color][/b]");
 my @netconf_orange = &pipeopen( "/sbin/ifconfig", "$netsettings{'ORANGE_DEV'}" ) if ($netsettings{'ORANGE_DEV'});
 foreach (@netconf_orange) {
-  $_ =~ s/(\d+)\.(\d+)\.(\d+)\.(\d+)/\[\/b]\[\/color][color=#000000][b]$1\.$2\.$3\.$4\[\/b][\/color\][color=#FFBF00\][b\]/g;
+  $_ =~ s/(\d+)\.(\d+)\.(\d+)\.(\d+)/\[\/b]\[\/color][color=#000000][b]$1\.$2\.$3\.$4\[\/b][\/color\][color=orange\][b\]/g;
 }
-@netconf_orange = ("[b][color=#FFBF00]", @netconf_orange, "[/color][/b]");
+@netconf_orange = ("[b][color=orange]", @netconf_orange, "[/color][/b]");
 
 # Get the active ipsec connections
 open (DEV, "/proc/net/dev");
@@ -241,7 +243,7 @@ if (($netsettings{'RED_TYPE'} eq 'DHCP' ||
     if (/RED|DNS|GATEWAY/) { push (@livered, $_); }
   }
   @live_red = sort @livered;
-  @live_red = ("[color=#FF0000][b]", @live_red, "[/b][/color]\n");
+  @live_red = ("[color=red][b]", @live_red, "[/b][/color]\n");
   close (LIVESETTINGS);
 }
 
@@ -267,13 +269,13 @@ while (<NETSETTINGS>) {
 }
 close (NETSETTINGS);
 @green = sort @green;
-@green = ("[color=#00BF00][b]", @green, "[/b][/color]\n");
+@green = ("[color=green][b]", @green, "[/b][/color]\n");
 @red = sort @red;
-@red = ("[color=#FF0000][b]", @red, "[/b][/color]\n");
+@red = ("[color=red][b]", @red, "[/b][/color]\n");
 @purple = sort @purple;
-@purple = ("[color=#BF00FF][b]", @purple, "[/b][/color]\n");
+@purple = ("[color=purple][b]", @purple, "[/b][/color]\n");
 @orange = sort @orange;
-@orange = ("[color=#FFBF00][b]", @orange, "[/b][/color]");
+@orange = ("[color=orange][b]", @orange, "[/b][/color]");
 @other = sort @other;
 my $note = '';
 if ($netsettings{'RED_TYPE'} eq 'DHCP' || $netsettings{'RED_TYPE'} eq 'PPPOE') { $note = "$tr{'smoothinfo-note'}\n\n"; }
@@ -733,18 +735,6 @@ unless (-z "${swroot}/outgoing/config") {
   open (CONFIG, "${swroot}/outgoing/config") || die "Unable to open config file $!";
   print FILE "[info=\"Current exceptions\"]\[code\]";
   foreach (<CONFIG>) {
-    chomp;
-    $_ =~ s/,/\t\t/g;
-    $_ =~ s/\ton\t/\tEnabled\t/g;
-    print FILE "$_\n";
-  }
-  print FILE "\[/code\]\[/info\]";
-}
-
-unless (-z "${swroot}/outgoing/machineconfig") {
-  open (MACHINECONFIG, "<${swroot}/outgoing/machineconfig") || die "Unable to open machineconfig file $!";
-  print FILE "[info=\"Current always allowed machines\"]\[code\]";
-  foreach (<MACHINECONFIG>) {
     chomp;
     $_ =~ s/,/\t\t/g;
     $_ =~ s/\ton\t/\tEnabled\t/g;

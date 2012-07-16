@@ -13,6 +13,7 @@ VERSION = 0.0
 BASE_URL = http://eciadsl.flashtux.org/download/
 
 TARBALL = $(PACKAGE)
+DIR = $(PACKAGE)
 
 EXTENSION = .tar.bz2
 

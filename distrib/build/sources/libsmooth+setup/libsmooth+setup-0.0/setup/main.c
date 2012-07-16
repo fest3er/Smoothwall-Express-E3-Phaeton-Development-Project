@@ -71,21 +71,20 @@ int main(int argc, char *argv[])
 	if (automode == 0)
 	{
 		sections[0] = ctr[TR_KEYBOARD_MAPPING];
-		sections[1] = ctr[TR_TIMEZONE];
-		sections[2] = ctr[TR_HOSTNAME];
-		sections[3] = ctr[TR_WEB_PROXY];
-		sections[4] = ctr[TR_DEFAULT_SECURITY_LEVEL];
-		sections[5] = ctr[TR_ISDN_CONFIGURATION];
-		sections[6] = ctr[TR_ADSL_CONFIGURATION];
-		sections[7] = ctr[TR_NETWORKING];	
-		sections[8] = ctr[TR_DHCP_SERVER_CONFIGURATION],
-		sections[9] = ctr[TR_ROOT_PASSWORD];
-		sections[10] = ctr[TR_SETUP_PASSWORD];
-		sections[11] = ctr[TR_ADMIN_PASSWORD];
-		sections[12] = NULL;	
-	
-		usbfail = 1;
-		if (!stat("/proc/bus/usb/devices", &statbuf))
+                sections[1] = ctr[TR_TIMEZONE];
+                sections[2] = ctr[TR_HOSTNAME];
+                sections[3] = ctr[TR_WEB_PROXY];
+                sections[4] = ctr[TR_ISDN_CONFIGURATION];
+                sections[5] = ctr[TR_ADSL_CONFIGURATION];
+                sections[6] = ctr[TR_NETWORKING];       
+                sections[7] = ctr[TR_DHCP_SERVER_CONFIGURATION],
+                sections[8] = ctr[TR_ROOT_PASSWORD];
+                sections[9] = ctr[TR_SETUP_PASSWORD];
+                sections[10] = ctr[TR_ADMIN_PASSWORD];
+                sections[11] = NULL;    
+        
+                usbfail = 1;
+                if (!stat("/proc/bus/usb/devices", &statbuf))
 			usbfail = 0;
 			
 		if (usbfail)
@@ -119,40 +118,36 @@ int main(int argc, char *argv[])
 
 				case 3:
 					handlewebproxy();
-					break;
-					
-				case 4:
-					handledefaults();
-					break;
+                                        break;
+                                        
+                                case 4:
+                                        handleisdn();
+                                        break;
 
-				case 5:
-					handleisdn();
-					break;
+                                case 5:
+                                        handleadsl();
+                                        break;
+                                
+                                case 6:
+                                        handlenetworking();
+                                        break;
+                                        
+                                case 7:
+                                        handledhcp();
+                                        break;
+                                                                        
+                                case 8:
+                                        handlerootpassword();
+                                        break;
 
-				case 6:
-					handleadsl();
-					break;
-				
-				case 7:
-					handlenetworking();
-					break;
-					
-				case 8:
-					handledhcp();
-					break;
-									
-				case 9:
-					handlerootpassword();
-					break;
-
-				case 10:
-					handlesetuppassword();
-					break;
-					
-				case 11:
-					handleadminpassword();
-					break;
-		
+                                case 9:
+                                        handlesetuppassword();
+                                        break;
+                                        
+                                case 10:
+                                        handleadminpassword();
+                                        break;
+                
 				default:
 					break;
 			}
@@ -167,13 +162,11 @@ int main(int argc, char *argv[])
 		if (!(handlekeymap()))
 			goto EXIT;
 		if (!(handletimezone()))
-			goto EXIT;
-		if (!(handlehostname()))
-			goto EXIT;
-		if (!(handledefaults()))
-			goto EXIT;
-		if (!(handlenetworking()))
-			goto EXIT;
+                        goto EXIT;
+                if (!(handlehostname()))
+                        goto EXIT;
+                if (!(handlenetworking()))
+                        goto EXIT;
 
 		if (!performedrestore)
 		{

@@ -11,7 +11,8 @@ PACKAGE = binutils
 VERSION = 2.21.1
 
 BASE_URL = http://ftp.gnu.org/gnu/binutils
-EXTENSION = a.tar.bz2
+TARBALL = $(PACKAGE)-$(VERSION)a
+EXTENSION = .tar.bz2
 
 BASE_GMP = ftp://ftp.gnu.org/gnu/gmp
 TAR_GMP = gmp-$(GMP_VER).tar.bz2

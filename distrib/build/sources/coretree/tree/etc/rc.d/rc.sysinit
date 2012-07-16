@@ -91,6 +91,10 @@ fi
 
 echo "Mounting other filesystems"
 mount -a
+echo "Direct core dumps to /var/log"
+mkdir -p /var/log/coredumps
+chmod 700 /var/log/coredumps
+echo "/var/log/coredumps/%e-%t-%s.%p" >/proc/sys/kernel/core_pattern
 echo "Turning on swap"
 /sbin/swapon -a
 echo "Module dependencies"
@@ -175,8 +179,8 @@ echo "Starting cron"
 rm -f /var/run/crond.reboot
 /usr/sbin/cron
 echo "Starting httpd"
-#/usr/apache2/sbin/httpd -DSSL -DDEFLATE
-/usr/apache2/sbin/httpd -DSSL
+/usr/sbin/httpd -DSSL -DDEFLATE
+#/usr/sbin/httpd -DSSL
 echo "Starting dhcpd (if enabled)"
 /usr/bin/smoothcom dhcpdrestart
 echo "Starting sshd (if enabled)"

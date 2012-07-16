@@ -7,8 +7,8 @@
 include ../Makefile.conf
 
 PACKAGE = libffi
-MAJMIN = 3.0
-VERSION = $(MAJMIN).10
+VER_MM = 3.0
+VERSION = $(VER_MM).10
 
 BASE_URL =  ftp://sourceware.org/pub/libffi/
 

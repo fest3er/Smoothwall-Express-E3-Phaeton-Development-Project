@@ -22,7 +22,7 @@ HDs="ide:m-disk|scsi:t-0x00"
 PCI_IDS="/etc/filled.pci.ids"
 
 # Uber title
-TITLE="$CLS            ${BOUL}Smoothwall Express 3 (Roadster Test Vehicle) Installation$NO"
+TITLE="$CLS            ${BOUL}AGCL/Roadster Installation$NO"
 
 echo -e $TITLE; echo
 #echo "Preparing lists of CDROM and hard drives and NICs"
@@ -350,10 +350,10 @@ while [ 1 -eq 1 ]; do
   minMiB=4000
   if [ $driveMiB -le $minMiB ]; then
     echo "      The selected disk is very small (${driveMiB}MiB) and is too small to build"
-    echo "      Phaeton/Roadster. Press <ENTER> to use the entire disk."
+    echo "      AGCL/Roadster. Press <ENTER> to use the entire disk."
   else
     if [ $driveMiB -lt 12000 ]; then
-      echo "      The selected disk is too small (${driveMiB}MiB) to build Phaeton/Roadster."
+      echo "      The selected disk is too small (${driveMiB}MiB) to build AGCL/Roadster."
     fi
     echo "      Press <ENTER> to use the entire disk or enter a number between"
     echo "      $minMiB and $driveMiB to limit disk usage to that many MiB."
