@@ -236,18 +236,25 @@ fi
 
 # Mount the restore drive if restoring anything
 if [ $restore -eq 2 -o $restore -eq 3 ]; then
-  echo "Mounting restore drive"
-  mkdir -p /restore
-  RDMNTLOG="/tmp/rdmount.log"
-  > $RDMNTLOG
-  mount /dev/${rd_dev[$rd]}1  /restore -o ro >> $RDMNTLOG 2>&1
-  if [ $? -ne 0 ]; then
-    echo "Couldn't mount restore drive:"
-    sed -e 's/^/  /' $RDMNTLOG
-    echo
-    echo "Press <ENTER> to reboot the system and try again."
-    read a
-    reboot -f
+  rm -rf /restore
+  if grep "${rd_dev[$rd]}" /proc/mounts; then
+    echo "Linking cdrom to restore"
+    # backups are on the source medium
+    ln -s /cdrom /restore
+  else
+    echo "Mounting restore drive"
+    mkdir -p /restore
+    RDMNTLOG="/tmp/rdmount.log"
+    > $RDMNTLOG
+    mount /dev/${rd_dev[$rd]}1  /restore -o ro >> $RDMNTLOG 2>&1
+    if [ $? -ne 0 ]; then
+      echo "Couldn't mount restore drive:"
+      sed -e 's/^/  /' $RDMNTLOG
+      echo
+      echo "Press <ENTER> to reboot the system and try again."
+      read a
+      reboot -f
+    fi
   fi
 fi
 
@@ -328,17 +335,28 @@ END
 
   cat <<END >/harddisk/$CONFIG_ROOT/main/settings
 LANGUAGE=en
-HOSTNAME=smoothwall
-KEYMAP=/usr/share/kbd/keymaps/i386/qwerty/us.map.gz
+HOSTNAME=roadster
+KEYMAP=/usr/share/keymaps/i386/qwerty/us.map.gz
 OPENNESS=halfopen
 END
+
+  cat <<END >/harddisk/$CONFIG_ROOT/time/settings
+TIMEZONE=US/Eastern
+END
+
+  if grep ${cd_dev[$CD]} /tmp/hd.list >/dev/null 2>&1; then
+    # Installing from USB flash or other 'hard drive' (*not* a CD)?
+    #   Assume this same device will be used for backups.
+    eval `/sbin/udevadm info --path=/sys/block/${cd_dev[$CD]} --query=all | egrep "ID_BUS=|ID_SERIAL=" | sed -e 's/^E: //'`
+    echo BACKUP_ID="$ID_BUS-$ID_SERIAL" >/harddisk/$CONFIG_ROOT/backup/settings
+  fi
 
   echo "  prepping module dependencies"
   do_or_die "/bin/chroot /harddisk /sbin/depmod -a"
 
   if [ $serialport -eq 2 -o $serialport -eq 3 ]; then
     echo "  enabling getty on ttyS0"
-    sed -i -e'/^S0/ s/off/respawn/' /harddisk/etc/inittab
+    sed -i -e '/^S0/ s/off/respawn/' -e '/^S0/ s/115200/'$BAUD'/' /harddisk/etc/inittab
   fi
 
   echo "  adjusting runtime initramfs"
@@ -381,7 +399,7 @@ END
 #   Change the order of them if you manually change between serial
 #   and vesa.
 
-serial --unit=0 --speed=115200
+serial --unit=0 --speed=$BAUD
 END
 
   if [ $serialport -eq 1 -o $serialport -eq 3 ]; then
@@ -417,7 +435,7 @@ initrd /initrd-${KERNEL_VER}-roadster.gz
 # Boot using serial console
 title AGCL/Roadster (Serial Console)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,115200
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD
 initrd /initrd-${KERNEL_VER}-roadster.gz
 
 # Single-user using VESA console
@@ -429,21 +447,76 @@ initrd /initrd-${KERNEL_VER}-roadster.gz
 # Single-user using serial console
 title AGCL/Roadster (Serial Console, Single-User)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,115200 single
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD single
 initrd /initrd-${KERNEL_VER}-roadster.gz
 END
 
   # Restore variable data if selected. AND upgrade files as needed!
   if [ $restore -eq 2 ]; then
-    (cd /harddisk/etc; for file in passwd group shadow; do cp $file $file-FRESH; done)
-    (cd /harddisk/var/smoothwall/main; mv productdata productdata-FRESH)
-    echo "  Restoring variable data from backup"
-    do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
-    echo "  Upgrading variable data files"
-    (cd /harddisk/var/smoothwall/main; mv productdata-FRESH productdata)
+    # Save the fresh files
     (
       cd /harddisk/etc
-      for file in passwd group shadow; do cp $file $file-RESTORED; done
+      for file in passwd group shadow snort.conf; do
+        # Copy these; UNIX don't like not having them
+        cp $file $file-FRESH
+      done
+    )
+    (
+      cd /harddisk/etc/udev/rules.d
+      mv 70-Smoothwall-custom-disk.rules 70-Smoothwall-custom-disk.rules-FRESH
+      mv 70-Smoothwall-custom-NIC.rules 70-Smoothwall-custom-NIC.rules-FRESH
+    )
+    (
+      cd /harddisk/var/smoothwall/main;
+      mv productdata productdata-FRESH
+      mv settings settings-FRESH
+    )
+    (
+      cd /harddisk/var/smoothwall/outgoing
+      mv config config-FRESH
+    )
+
+    # Restore var data
+    echo "  Restoring variable data from backup"
+    do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
+
+    echo "  Upgrading variable data files"
+    # upgrade main
+    (
+      cd /harddisk/var/smoothwall/main;
+      cp productdata productdata-RESTORED
+      cp productdata-FRESH productdata
+      cp settings settings-RESTORED
+      cp settings-FRESH settings
+    )
+
+    # Upgrade udev rules
+    # We don't need to deal with initramfs, since it's all new. Just check if
+    #   the NICs have changed.
+    OPWD=${PWD}
+    cd /harddisk/etc/udev/rules.d
+    # If the MAC addrs changed, force setup to run
+    grep SUBSYSTEM /etc/udev/rules.d/70-Smoothwall-custom-NIC.rules | \
+        sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+        sort > /tmp/newNICs
+    grep SUBSYSTEM /harddisk/etc/udev/rules.d/70-Smoothwall-custom-NIC.rules | \
+        sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+        sort > /tmp/oldNICs
+    if ! diff /tmp/newNICs /tmp/oldNICs >/dev/null 2>&1; then mustRunSetup=1; fi
+    # And restore the new rules
+    mv 70-Smoothwall-custom-disk.rules-FRESH 70-Smoothwall-custom-disk.rules
+    mv 70-Smoothwall-custom-NIC.rules-FRESH 70-Smoothwall-custom-NIC.rules
+    cd ${OPWD}
+
+    # Upgrade /etc files (retain user modifications)
+    (
+      cd /harddisk/etc
+      # Save the restored files
+      for file in passwd group shadow snort.conf; do
+        cp $file $file-RESTORED
+      done
+
+      # Upgrade them
       (
         egrep "fuse|plugdev|scanner|kvm|usbmux" group-FRESH
         egrep -v "fuse|plugdev|scanner|kvm|usbmux" group-RESTORED
@@ -457,9 +530,41 @@ END
         egrep -v "usbmux" shadow-RESTORED
         egrep "usbmux" shadow-FRESH
       ) >shadow
+      cp snort.conf-FRESH snort.conf
+      echo "    /etc/snort.conf upgraded; the original has been saved to snort.conf-RESTORED."
+      echo "    If you made any local changes, you must copy them to the new file."
+      sleep 3
     )
+
+    # Upgrade .../outgoing/config
+    (
+      cd /harddisk/var/smoothwall/outgoing
+      cp config config-RESTORED
+      cp /etc/upgrade-outgoing.{pl,sh} /harddisk/tmp/
+
+      # Run the update script; chroot to get perl
+      chroot /harddisk bash /tmp/upgrade-outgoing.sh
+    )
+
+    # Update .../main/settings
+    (
+      cd /harddisk/var/smoothwall/main
+      . settings-RESTORED
+      HOSTNAMErestored=$HOSTNAME
+      . settings-FRESH
+      cat<<END > settings
+LANGUAGE=$LANGUAGE
+HOSTNAME=$HOSTNAMErestored
+KEYMAP=$KEYMAP
+OPENNESS=
+END
+    )
+
     # Sweep the detritus under the rug
     (cd /harddisk/etc; rm -f {passwd,group,shadow}-{RESTORED,FRESH})
+    (cd /harddisk/var/smoothwall/main; rm -f *-{RESTORED,FRESH})
+    (cd /harddisk/var/smoothwall/outgoing; rm -f *-{RESTORED,FRESH})
+    (cd /tmp/; rm -f upgrade-outgoing*)
     GRUB_CMD="$GRUB_CMD --recheck"
   fi
 
@@ -468,6 +573,52 @@ else
   # Performing a total restore
   echo "  Restoring complete system from backup"
   do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
+
+  # Adjust the initramfs as needed (different disk, NICs or FS, etc.)
+  KERNEL_VER=`ls -C1 /harddisk/boot/initrd* | tail -1 | sed -e 's/.*initrd-//' -e 's/-roadster.*//'`
+  echo "  adjusting runtime initramfs"
+  set -- $FS
+  FSTYPE=$2
+  if [ "$FSTYPE" == "reiserfs" ]; then
+    OPTION="notail$ATIME        "
+  else
+    OPTION="defaults$ATIME"
+  fi
+
+  OPWD=`pwd`
+  HDTMP="/harddisk/runtimeroot"
+  mkdir -p $HDTMP; cd $HDTMP
+  echo "    unpack"
+  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz | cpio -id"
+  echo "    update"
+  do_or_die "mkdir -p -m 755 ${HDTMP}/etc/udev/rules.d"
+  do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* ${HDTMP}/etc/udev/rules.d/"
+
+  echo "/dev/harddisk4  /harddisk       $FSTYPE $OPTION         0       1" >${HDTMP}/etc/fstab
+  echo "$FSTYPE" >${HDTMP}/etc/modules
+  do_or_die "/bin/chroot ${HDTMP} /sbin/depmod -a"
+
+  echo "    re-pack"
+  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
+  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
+  cd ${OPWD}
+  rm -rf ${HDTMP}
+
+  # Also update udev rules, fstab and modules on harddisk
+  # And ensure setup is run if the NICs have changed
+  grep SUBSYSTEM /etc/udev/rules.d/*Smoothwall*NIC* | \
+      sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+      sort > /tmp/newNICs
+  grep SUBSYSTEM /harddisk/etc/udev/rules.d/*Smoothwall*NIC* | \
+      sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+      sort > /tmp/oldNICs
+  if ! diff /tmp/newNICs /tmp/oldNICs >/dev/null 2>&1; then mustRunSetup=1; fi
+  do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /harddisk/etc/udev/rules.d/"
+  sed -i -e 's=/ .*=/               '$FSTYPE' '$OPTION'         0       1=' \
+         -e 's=/boot.*=/boot           '$FSTYPE' defaults'$ATIME'         0       2=' \
+         -e 's=/var/log.*=/var/log        '$FSTYPE' defaults'$ATIME'         0       2=' \
+      /harddisk/etc/fstab
+  sed -i -e 's/reiserfs\|ext./'$FSTYPE'/' /harddisk/etc/modules
 
   # Sweep some backup crumbs under the rug
   rm -f /harddisk/boot/grub/device.map  # map might've changed

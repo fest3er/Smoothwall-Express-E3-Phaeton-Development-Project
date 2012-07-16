@@ -211,37 +211,13 @@ int handledhcp(void)
 					replacekeyvalue(dhcpkv, "ENABLE", "off");
 					unlink(CONFIG_ROOT "dhcp/enable");
 				}
-				replacekeyvalue(dhcpkv, "VALID", "yes");
-				writekeyvalues(dhcpkv, CONFIG_ROOT "dhcp/settings-green");
-				
-				findkey(ethernetkv, "GREEN_ADDRESS", greenaddress);				
-				findkey(ethernetkv, "GREEN_NETADDRESS", greennetaddress);
-				findkey(ethernetkv, "GREEN_NETMASK", greennetmask);
-			
-				file = fopen(CONFIG_ROOT "dhcp/dhcpd.conf", "w");
-				fprintf(file, "ddns-update-style ad-hoc;\n\n");
-				fprintf(file, "subnet %s netmask %s\n", greennetaddress, greennetmask);
-				fprintf(file, "{\n");
-				fprintf(file, "\toption subnet-mask %s;\n", greennetmask);
-				fprintf(file, "\toption domain-name \"%s\";\n", results[DOMAIN_NAME_SUFFIX]);		
-				fprintf(file, "\toption routers %s;\n", greenaddress);
-				if (strlen(results[PRIMARY_DNS]))
-				{
-					fprintf(file, "\toption domain-name-servers ");
-					fprintf(file, "%s", results[PRIMARY_DNS]);
-					if (strlen(results[SECONDARY_DNS]))
-						fprintf(file, ", %s", results[SECONDARY_DNS]);
-					fprintf(file, ";\n");
-				}
-				
-				fprintf(file, "\trange dynamic-bootp %s %s;\n",	results[START_ADDRESS], results[END_ADDRESS]);
-				fprintf(file, "\tdefault-lease-time %d;\n", (int) atol(results[DEFAULT_LEASE_TIME]) * 60);
-				fprintf(file, "\tmax-lease-time %d;\n",	(int) atol(results[MAX_LEASE_TIME]) * 60);
-				fprintf(file, "}\n");
-				fclose(file);
+                                replacekeyvalue(dhcpkv, "VALID", "yes");
+                                writekeyvalues(dhcpkv, CONFIG_ROOT "dhcp/settings-green");
+                                
+                                mysystem("/usr/bin/smoothwall/writedhcp.pl");
 
-				file = fopen(CONFIG_ROOT "dhcp/green", "w");
-				fprintf(file, "%s", greendev);
+                                file = fopen(CONFIG_ROOT "dhcp/green", "w");
+                                fprintf(file, "%s", greendev);
 				fclose(file);
 				
 				if (automode == 0)

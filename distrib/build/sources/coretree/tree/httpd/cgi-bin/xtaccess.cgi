@@ -51,24 +51,24 @@ close FILE;
 
 open (FILE, ">$filename") or die 'Unable to open config file';
 foreach $templine (@tempfile) {
-        chomp $templine;
-        @configs = split /,/, $templine;
-        if ($configs[0] =~ /:/) {
-                @ethtemp = split /:/, $configs[0];
-        }
-        if ($ethtemp[0]) {
-                if ($ethtemp[0] eq $netsettings{'RED_DEV'}) {
-                        print FILE "$templine\n";
-                } else {
-                        $configs[0] = "$netsettings{'RED_DEV'}:$ethtemp[1]";
-                        print FILE "$configs[0],$configs[1],$configs[2],$configs[3],$configs[4],$configs[5]\n";
-                }
-        } elsif ($configs[0] ne $netsettings{'RED_DEV'}) {
-                $configs[0] = $netsettings{'RED_DEV'};
-                print FILE "$configs[0],$configs[1],$configs[2],$configs[3],$configs[4],$configs[5]\n";
-        } else {
-                print FILE "$templine\n";
-        }
+	chomp $templine;
+	@configs = split /,/, $templine;
+	if ($configs[0] =~ /:/) {
+		@ethtemp = split /:/, $configs[0];
+	}
+	if ($ethtemp[0]) {
+		if ($ethtemp[0] eq $netsettings{'RED_DEV'}) {
+			print FILE "$templine\n";
+		} else {
+			$configs[0] = "$netsettings{'RED_DEV'}:$ethtemp[1]";
+			print FILE "$configs[0],$configs[1],$configs[2],$configs[3],$configs[4],$configs[5]\n";
+		}
+	} elsif ($configs[0] ne $netsettings{'RED_DEV'}) {
+		$configs[0] = $netsettings{'RED_DEV'};
+		print FILE "$configs[0],$configs[1],$configs[2],$configs[3],$configs[4],$configs[5]\n";
+	} else {
+		print FILE "$templine\n";
+	}
 }
 close FILE;
 
@@ -484,12 +484,14 @@ my %render_settings =
 	[
 		{ 
 			column => '1',
-			title  => 'Red interface',
-			size   => 15,
-			sort   => 'cmp',
-			tr	=> \%{$ifcolorsmap},
-		},
-		{
+                        title  => 'Red interface',
+                        size   => 15,
+                        sort   => 'cmp',
+                        valign => 'top',
+                        maxrowspan => 2,
+                        tr      => \%{$ifcolorsmap},
+                },
+                {
 			column => '3',
 			title  => "$tr{'source'}",
 			size   => 40,
@@ -522,11 +524,12 @@ my %render_settings =
 			mark   => ' ',
 		},
 		{
-			title  => "$tr{'comment'}",
-			break  => 'line',
-			column => '6',
-		},
-	]
+                        title  => "$tr{'comment'}",
+                        break  => 'line',
+                        column => '6',
+                        spanadj => '-1',
+                },
+        ]
 );
 
 &dispaliastab($filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );

@@ -68,6 +68,7 @@ echo "Loading MASQ helper modules"
 rm -f /var/smoothwall/red/*
 
 # Forwarding.  This is set here to shutup warnings from ipchains.
+echo "Configuring IPv4 for firewall/router"
 echo 1 > /proc/sys/net/ipv4/ip_forward
 echo 1 > /proc/sys/net/ipv4/ip_dynaddr
 echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
@@ -76,8 +77,9 @@ echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 echo 0 > /proc/sys/net/ipv4/tcp_ecn
 
 # enable conntrack accounting
-sysctl net.netfilter.nf_conntrack_acct=1
+sysctl net.netfilter.nf_conntrack_acct=1 >/dev/null 2>&1
 
+echo
 echo "Bringing network up"
 . /etc/rc.d/rc.netaddress.up
 

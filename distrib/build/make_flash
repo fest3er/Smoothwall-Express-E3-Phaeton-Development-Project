@@ -51,10 +51,17 @@ case `basename $0` in
     echo "  3. You will be prompted to enter an ISO pathname. The script will"
     echo "     list those it finds in the 'usual' places; you can copy/paste"
     echo "     the desired pathname."
+    echo "  4. You will be prompted to select the baud rate for the console. The"
+    echo "     default is 115200; 19200 and 9600 are available."
     echo
     echo -n "Enter 'yes' to continue or press <ENTER> to skip this step: "
     read ans </dev/tty
     if [ "$ans" != "yes" ]; then exit 0; fi
+    ;;
+  *)
+    echo "  3. You will be prompted to select the baud rate for the console. The"
+    echo "     default is 115200; 19200 and 9600 are available."
+    echo
     ;;
 esac
 
@@ -112,9 +119,26 @@ case `basename $0` in
     ;;
 esac
 
-#CNTDWN=5
-#echo "Will continue in $CNTDWN seconds..."
-#countdown $CNTDWN
+# Serial port baud rate
+echo
+echo "Select serial port baud rate for GRUB"
+while [ 1 -eq 1 ]; do
+  # Choose baud rate
+  i=1; echo "  $i. 115200 (default)"
+  i=2; echo "  $i. 19200"
+  i=3; echo "  $i. 9600"
+  echo
+
+  echo -n "[1]        Selection: "
+  read serialbaud #</dev/tty
+  if [ x$serialbaud == x ]; then serialbaud="1"; fi
+  if [ $serialbaud -lt 4 ]; then break; fi
+done
+case $serialbaud in
+  1) BAUD=115200;;
+  2) BAUD=19200;;
+  3) BAUD=9600;;
+esac
 
 # Shorthand
 CD="isomnt${RANDOM}"
@@ -174,7 +198,7 @@ echo "Wrenching..."
 # Stuff needed for grub
 PRT=`echo "find /smoothwall.tgz" | ${ORIG_DIR}/../usr/sbin/grub --batch 2>&- | egrep "\([^ ]*\)"`
 DRV=`echo $PRT | sed -e 's/,[0-9]*//'`
-sed -i -e "s/(cd)/(hd0,0)/" ${FL}/boot/grub/grub.conf
+sed -i -e "s/(cd)/(hd0,0)/" -e 's/115200/'$BAUD'/' ${FL}/boot/grub/grub.conf
 echo -e "root ${PRT}\nsetup ${DRV}" | ${ORIG_DIR}/../usr/sbin/grub --batch
 
 echo

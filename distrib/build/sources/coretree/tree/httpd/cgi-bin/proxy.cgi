@@ -41,34 +41,34 @@ if ($proxysettings{'ACTION'} eq $tr{'save'} ||
 	if (!($proxysettings{'CACHE_SIZE'} =~ /^\d+/) ||
 		($proxysettings{'CACHE_SIZE'} < 10))
 	{
-		$errormessage .= $tr{'invalid cache size'}."<br />;
+		$errormessage .= $tr{'invalid cache size'}."<br />";
 		goto ERROR;
 	}		
 	if (!($proxysettings{'MAX_SIZE'} =~ /^\d+/))
 	{
-		$errormessage .= $tr{'invalid maximum object size'}."<br />;
+		$errormessage .= $tr{'invalid maximum object size'}."<br />";
 		goto ERROR;
 	}
 	if (!($proxysettings{'MIN_SIZE'} =~ /^\d+/))
 	{
-		$errormessage .= $tr{'invalid minimum object size'}."<br />;
+		$errormessage .= $tr{'invalid minimum object size'}."<br />";
 		goto ERROR;
 	}
 	if (!($proxysettings{'MAX_OUTGOING_SIZE'} =~ /^\d+/))
 	{
-		$errormessage .= $tr{'invalid maximum outgoing size'}."<br />;
+		$errormessage .= $tr{'invalid maximum outgoing size'}."<br />";
 		goto ERROR;
 	}
 	if (!($proxysettings{'MAX_INCOMING_SIZE'} =~ /^\d+/))
 	{
-		$errormessage .= $tr{'invalid maximum incoming size'}."<br />;
+		$errormessage .= $tr{'invalid maximum incoming size'}."<br />";
 		goto ERROR;
 	}
 	if ($proxysettings{'PEER_USERNAME'})
 	{
 		unless ($proxysettings{'PEER_PASSWORD'})
 		{
-			$errormessage .= $tr{'password cant be blank'}."<br />;
+			$errormessage .= $tr{'password cant be blank'}."<br />";
 			goto ERROR;
 		}
 	}

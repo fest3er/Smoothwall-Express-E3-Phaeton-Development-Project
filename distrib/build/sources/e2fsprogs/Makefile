@@ -7,9 +7,9 @@
 include ../Makefile.conf
 
 PACKAGE = e2fsprogs
-VERSION = 1.41.12
+VERSION = 1.42.2
 
-BASE_URL = http://heanet.dl.sourceforge.net/sourceforge/e2fsprogs/
+BASE_URL = http://hivelocity.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/v$(VERSION)/
 
 COMPILE_DIR = $(DIR)-compile
 

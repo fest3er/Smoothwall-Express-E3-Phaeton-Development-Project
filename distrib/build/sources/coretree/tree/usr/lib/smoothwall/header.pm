@@ -13,10 +13,10 @@ require Exporter;
 our @_validation_items;
 
 @EXPORT       = qw();
-@EXPORT_OK    = qw( $language $version $webuirevision $viewsize @menu $swroot $thisscript showhttpheaders showmenu showsection openpage closepage openbigbox closebigbox openbox closebox alertbox pageinfo readvalue writevalue writehash readhash getcgihash log pipeopen age validip validmask validipormask validipandmask validport validportrange validmac validhostname validcomment basename connectedstate %tr @_validation_items getsystemid outputfile $major $minor $point $relname $relnum $longversion );
+@EXPORT_OK    = qw( $language $version $webuirevision $viewsize @menu $swroot $thisscript showhttpheaders showmenu showsection openpage closepage openbigbox closebigbox openbox closebox alertbox pageinfo readvalue writevalue writehash readhash getcgihash log pipeopen age validip validmask validipormask validipandmask validport validportrange validmac validhostname validcomment basename connectedstate %tr @_validation_items getsystemid outputfile $major $minor $point $fix $relname $relnum $longversion );
 %EXPORT_TAGS  = (
-		standard   => [@EXPORT_OK],
-		);
+                standard   => [@EXPORT_OK],
+                );
 
 
 $|=1; # line buffering
@@ -27,11 +27,20 @@ $|=1; # line buffering
 my %productdata;
 &readhash( "/var/smoothwall/main/productdata", \%productdata );
 
-$version = "$productdata{'VERSION'}-$productdata{'REVISION'}-$productdata{'ARCH'}";
-($relname, $relnum) = split(/-/, $productdata{'RELEASE'});
-($major, $minor, $point) = split(/\./, $relnum);
-$longversion = $point + $minor * 1000 + $major * 1000000;
-#print "LV=$longversion, MA=$major, MI=$minor, PT=$point, RNA=$relname, RNU=$relnum\n";
+($vername, $vernum) = split(/-/, $productdata{'VERSION'});
+($relname, $relnum, $candidate) = split(/-/, $productdata{'RELEASE'});
+($major, $minor, $point, $fix) = split(/\./, $relnum, 4);
+$major = 0 if !defined $major or $major eq "";
+$minor = 0 if !defined $minor or $minor eq "";
+$point = 0 if !defined $point or $point eq "";
+$fix = 0 if !defined $fix or $fix eq "";
+$longversion = ((((($major * 100) + $minor) * 1000) + $point) * 1000) + $fix;
+$version = "$vername ($relname v$relnum-$productdata{'ARCH'})";
+if ($candidate ne "")
+{
+  $candidate =~ s/rc//;
+  $version = "$version Release Candidate $candidate";
+}
 
 $webuirevision = $productdata{'UI_VERSION'};
 $viewsize = 200;
@@ -286,33 +295,33 @@ END
 
 sub openpage
 {
-        ($title,$menu,$extrahead,$thissection,$overrideStyle,$unused) = @_;
+	($title,$menu,$extrahead,$thissection,$overrideStyle,$unused) = @_;
 
-        if ($menu == 1) { $colspan = 2; } else { $colspan = 1; }
+	if ($menu == 1) { $colspan = 2; } else { $colspan = 1; }
 
-        print <<END;
+	print <<END;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
 	$extrahead
-        <title>($hostname) $title - SmoothWall Express</title>
-        <script language='javascript' SRC='/ui/js/script.js'></script>
-        <link href='/ui/css/style.css' rel='stylesheet' type='text/css'>
+	<title>($hostname) $title - SmoothWall Express</title>
+	<script language='javascript' SRC='/ui/js/script.js'></script>
+	<link href='/ui/css/style.css' rel='stylesheet' type='text/css'>
 END
 
-        # Override the default style, if specified
-        if (defined($overrideStyle)) {
-          print <<END;
-        <link href='/ui/css/$overrideStyle.css' rel='stylesheet' type='text/css'>
+	# Override the default style, if specified
+	if (defined($overrideStyle)) {
+	  print <<END;
+	<link href='/ui/css/$overrideStyle.css' rel='stylesheet' type='text/css'>
 END
-        }
+	}
 
-        print <<END;
+	print <<END;
 </head>
 END
 
-        if ( $thissection ne "help" ) {
-                $cellwidth = $pagewidth / 2;
+	if ( $thissection ne "help" ) {
+		$cellwidth = $pagewidth / 2;
 		print <<END
 <body>
 <table class='main'>
@@ -363,13 +372,13 @@ sub closepage
 	<tr>
 		<td>
 		    	<strong>SmoothWall Express $version</strong><br/>
-			SmoothWall&trade; is a trademark of <a href='http://www.smoothwall.net/'>SmoothWall Limited</a>.
-		</td>
-		<td style='text-align: right;'>
-		    	&copy; 2000 - 2007 <a href='http://smoothwall.org/about/team/'>The SmoothWall Team</a><br/>
-			<a href='/cgi-bin/register.cgi'>$tr{'credits'}</a> - Portions &copy; <a href='http://smoothwall.org/get/sources/'>original authors</a>
-		</td>
-	</tr>
+                        SmoothWall&trade; is a trademark of <a href='http://www.smoothwall.net/'>SmoothWall Limited</a>.
+                </td>
+                <td style='text-align: right;'>
+                        &copy; 2000 - 2012 <a href='http://smoothwall.org/about/team/'>The SmoothWall Team</a><br/>
+                        <a href='/cgi-bin/register.cgi'>$tr{'credits'}</a> - Portions &copy; <a href='http://smoothwall.org/get/sources/'>original authors</a>
+                </td>
+        </tr>
 	</table>
 	</td>
 </tr> 

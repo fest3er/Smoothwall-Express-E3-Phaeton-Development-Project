@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 if [ "x$STARTSTOP" != "x" ]; then
   echo "Loading modules for temporary ingress policers"

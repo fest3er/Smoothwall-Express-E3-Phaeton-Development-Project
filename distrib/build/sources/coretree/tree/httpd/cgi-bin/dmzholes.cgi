@@ -185,12 +185,14 @@ my %render_settings =
 	[
 		{ 
 			column => '1',
-			title  => "$tr{'protocol'}",
-			size   => 15,
-			tr     => { 'udp' => 'UDP', 'tcp' => 'TCP' },
-			sort   => 'cmp',
-		},
-		{
+                        title  => "$tr{'protocol'}",
+                        size   => 15,
+                        tr     => { 'udp' => 'UDP', 'tcp' => 'TCP' },
+                        valign => 'top',
+                        maxrowspan => 2,
+                        sort   => 'cmp',
+                },
+                {
 			column => '2',
 			title  => "$tr{'source ip'}",
 			size   => 20,
@@ -222,14 +224,15 @@ my %render_settings =
 			mark   => ' ',
 		},
 		{ 
-			column => '6',
-			title => "$tr{'comment'}",
-			break => 'line',
-		}
-	]
+                        column => '6',
+                        title => "$tr{'comment'}",
+                        break => 'line',
+                        spanadj => '-1',
+                }
+        ]
 );
 
-&displaytable( $filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
+&dispaliastab( $filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
 
 print <<END
 <table class='blank'>

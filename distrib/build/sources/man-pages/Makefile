@@ -7,9 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = man-pages
-VERSION = 3.32
+VERSION = 3.38
 
-BASE_URL = http://www.kernel.org/pub/linux/docs/manpages/
+EXTENSION = .tar.xz
+
+BASE_URL = http://www.kernel.org/pub/linux/docs/man-pages/
 
 INSTALL = yes
 

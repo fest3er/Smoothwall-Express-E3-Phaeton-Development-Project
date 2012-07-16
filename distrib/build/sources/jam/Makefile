@@ -8,15 +8,14 @@ include ../Makefile.conf
 # # include ../Makefile.versions
 
 PACKAGE = jam
-VERSION = 3.1.10
+VERSION = 3.1.18
 
 # This is a hack to make the package name "jam" and not "boost-jam"
 TARBALL = boost-jam-$(VERSION)
 
 EXTENSION = .tgz
 
-#BASE_URL = http://unc.dl.sourceforge.net/sourceforge/boost/
-BASE_URL = http://downloads.sourceforge.net/project/boost/boost-jam/3.1.10/
+BASE_URL = http://hivelocity.dl.sourceforge.net/project/boost/boost-jam/$(VERSION)/
 
 CONFIGURE = yes
 COMPILE = yes

@@ -44,10 +44,9 @@
 extern "C" {
 	int load(std::vector<CommandFunctionPair> & );
 	int set_outgoing(std::vector<std::string> & parameters, std::string & response);
-	int set_internal(std::vector<std::string> & parameters, std::string & response);
-   	int rmdupes(std::vector<std::string>              & parameters, const std::string & newparm);
-   	int errrpt(const std::string                      & parameter);
-   	int ipbitch(std::vector<std::string>              & parameters);
+        int set_internal(std::vector<std::string> & parameters, std::string & response);
+        int rmdupes(std::vector<std::string>              & parameters, const std::string & newparm);
+        int errrpt(const std::string                      & parameter);
 }
 
 std::map<std::string, std::vector<std::string>, eqstr> portlist;
@@ -55,9 +54,9 @@ std::map<std::string, std::vector<std::string>, eqstr> portlist;
 //#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
 int load_portlist()
 {
-        /* open the knownports files for reading */
+	/* open the knownports files for reading */
 
-        glob_t globbuf;
+	glob_t globbuf;
 
 	memset(&globbuf, 0, sizeof(glob_t));
 
@@ -338,10 +337,10 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                      if (strlen ( nport.c_str() ) > 0) nport += ",";
                      nport += vect[i++].c_str();
                   }
-                    if (port == "Web" || port == "80")
-                    {
-                        proxyports = " -p 6 -m multiport --dports 800 ";
-                    }
+		    if (port == "Web" || port == "80")
+		    {
+			proxyports = " -p 6 -m multiport --dports 800 ";
+		    }
                   tmpports = " -m multiport --ports " + nport;
                }
             }
@@ -382,7 +381,14 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
             protos.push_back(" -p 47");
          }
           
-         if ( ! (protos.size()) )
+         // Any (actually all protocols)
+         if ( protocol == "Any" )
+         {
+            protos.push_back("");
+         }
+
+         // Protocol entry not recognized
+         if ( protos.size() == 0)
          {
             configErrors.push_back("Bad entry for protocol: " + protocol);
             configErrorsFound = 1;
@@ -432,9 +438,9 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                    localProtos.replace(portsFound, 2, "--s");
                }
 //               errrpt("IB " + chainfwd2Int + localProtos + output_dev + dstipmac + full_time_str[z] 
-//                      + " -m state --state RELATED,ESTABLISHED " + action2);
+//			+ " -m state --state RELATED,ESTABLISHED " + action2);
                rmdupes(ipb, chainfwd2Int + localProtos + output_dev + dstipmac + full_time_str[z] 
-                        + " -m state --state RELATED,ESTABLISHED " + action2);
+			+ " -m state --state RELATED,ESTABLISHED " + action2);
 
                portsFound = localProtos.find("--sports");
                if (portsFound != std::string::npos)
@@ -442,18 +448,18 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
                    localProtos.replace(portsFound, 3, "--d");
                }
 //               errrpt("OB " + chainfwd2Int + localProtos + input_dev + ipormac + full_time_str[z]
-//                      + " -m state --state NEW,RELATED,ESTABLISHED " + action2);
+//			+ " -m state --state NEW,RELATED,ESTABLISHED " + action2);
                rmdupes(ipb, chainfwd2Ext + localProtos + input_dev + ipormac + full_time_str[z]
-                        + " -m state --state NEW,RELATED,ESTABLISHED " + action2);
+			+ " -m state --state NEW,RELATED,ESTABLISHED " + action2);
 
                  /* Proxy stuff should look at --dports, so no change needed */
-                 /* If a "proxyable" port is blocked, block the proxy's port in INPUT as well. */
-                 /* But only if the proxy is enabled                                              */
-                 if ( proxyports != "" )
-                 {
-//                  errrpt("PXY " + chainproxy + proxyports + input_dev + ipormac + full_time_str[z] + action2);
-                    rmdupes(ipb, chainproxy + proxyports + input_dev + ipormac + full_time_str[z] + action2);
-                 }
+		 /* If a "proxyable" port is blocked, block the proxy's port in INPUT as well. */
+		 /* But only if the proxy is enabled 						  */
+            	 if ( proxyports != "" )
+	  	 {
+//		    errrpt("PXY " + chainproxy + proxyports + input_dev + ipormac + full_time_str[z] + action2);
+		    rmdupes(ipb, chainproxy + proxyports + input_dev + ipormac + full_time_str[z] + action2);
+	  	 }
                z++;
             }
             x++;
@@ -473,7 +479,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
    // <<= Begin setting up tofcblock drop table
    // Log then drop packets and allowing ESTABLISHED,RELATED through drop table tofcblock
    
-   std::string log_prefix = " -j LOG --log-prefix Denied-by-outgoing-rules";
+   std::string log_prefix = " -j LOG --log-prefix \"Denied-by-filter:tofcblock \"";
    std::string rulehead = "iptables -A tofcblock -i ";
    std::string relestab = " -m state --state ESTABLISHED,RELATED";
      
@@ -501,15 +507,6 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
          rmdupes(ipb, rulehead  + pdev + log_prefix);
    }
     
-   // These two mess up the control
-   //rmdupes(ipb, chainfwd2Ext + relestab + " -j ACCEPT");
-   //rmdupes(ipb, chainfwd2Int + relestab + " -j ACCEPT");
-
-   //if (upnpsettings["ENABLE_UPNP"] == "on")
-   //{
-   //   rmdupes(ipb, chainfwd2Ext + " -j MINIUPNPD");
-   //   rmdupes(ipb, chainfwd2Int + " -j MINIUPNPD");
-   //}
    rmdupes(ipb, chainfwd2Ext + " -j tofcblock");
    rmdupes(ipb, chainfwd2Int + " -j tofcblock");
    rmdupes(ipb, "iptables -A tofcblock" + log_prefix);
@@ -519,7 +516,7 @@ int set_outgoing(std::vector<std::string> & parameters, std::string & response)
    // tofcproxy has an implicit RETURN at its end; this isn't needed.
    //rmdupes(ipb, "iptables -A tofcproxy -j RETURN");
 
-   error = ipbitch(ipb);
+   error = ipbatch(ipb);
     
    if (error)
       response = "IPTables failure";
@@ -635,28 +632,4 @@ int errrpt(const std::string & logdata)
    syslog(LOG_INFO, "-- TOFC Log:  %s", logdata.c_str());
 
    return err;
-}
-
-//#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@>
-int ipbitch(std::vector<std::string> &arg)
-{
- std::string tracker = "";
- unsigned int i = 0;
- int err = 0;
- FILE * output = popen( "/usr/sbin/ipbatch", "w" );
-
- while (i < arg.size())
- {
-  tracker = arg[i++] + " \0";
-  errrpt("-> " + tracker);
-  fprintf(output, "%s\n", tracker.c_str());
-  fflush(output);
- }
- fprintf(output, "commit\n");
- fflush(output);
- fprintf(output, "end\n");
- fflush(output);
- 
- err = pclose(output);
- return err;
 }

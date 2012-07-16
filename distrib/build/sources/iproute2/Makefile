@@ -22,12 +22,11 @@ INSTALL = yes
 CLEAN = yes
 
 configure: patch
-	@sed -i '/^TARGETS/s@ arpd@@g' $(COMPILE_DIR)/misc/Makefile
+        @sed -i '/^TARGETS/s@ arpd@@g' $(COMPILE_DIR)/misc/Makefile
 
 compile: configure
-	@make $(JOBS) -C $(COMPILE_DIR) DESTDIR=
-	#@make $(JOBS) -C $(COMPILE_DIR) KERNEL_INCLUDE=/usr/include
-	@ln -s $(DIR) $(PACKAGE)
+        @make $(JOBS) -C $(COMPILE_DIR) KERNEL_INCLUDE=/usr/include
+        @ln -s $(DIR) $(PACKAGE)
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

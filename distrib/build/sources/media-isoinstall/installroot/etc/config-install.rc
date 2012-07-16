@@ -292,24 +292,38 @@ if [ $restore -gt 1 ]; then
     if [ $rd -lt $RD_CNT ]; then break; fi
     echo -e "${RC}${CE}"
   done
-  # Get the tarball
-  mkdir -p /restore
-  mount /dev/${rd_dev[$rd]}1 /restore
-  (cd /restore; ls -C1 *.tar.* >/tmp/archive.list)
-  umount /restore
+  # Get the list of tarballs
+  if [ "${rd_dev[$rd]}" == "$cd_dev[$CD]}" ]; then
+    # Using source medium
+    mount /dev/${rd_dev[$rd]}1 /cdrom
+    (cd /cdrom; ls -C1 *.tar.* >/tmp/archive.list)
+    umount /cdrom
+  else
+    # Using separate medium
+    mkdir -p /restore
+    mount /dev/${rd_dev[$rd]}1 /restore
+    (cd /restore; ls -C1 *.tar.* >/tmp/archive.list)
+    umount /restore
+  fi
   while [ 1 -eq 1 ]; do
     # Select the disk to restore from
     echo
-    echo -e "${SC}${BO}Archive Selection${NO}"
+    echo -e "${SC}${BO}Archive Selection (5 latest)${NO}"
 
+    if [ $restore -eq 2 ]; then
+      backupType="var"
+    else
+      backupType="total"
+    fi
     unset b
     typeset -i i b h
     i=1
+    grep "_${backupType}.tar.gz" /tmp/archive.list | tail -5 >/tmp/temp.list
     while read a; do
         archive_id[$i]=$a
         echo "  $i. $a"
         i=i+1
-    done < /tmp/archive.list
+    done < /tmp/temp.list
     ARCHIVE_CNT=$i
     echo
 
@@ -404,6 +418,26 @@ while [ 1 -eq 1 ]; do
   if [ x$serialport == x ]; then serialport="4"; fi
   if [ $serialport -lt 5 ]; then break; fi
 done
+
+if [ $serialport -ne 4 ]; then
+  while [ 1 -eq 1 ]; do
+    # Choose baud rate
+    echo -en "$TITLE"
+    echo
+    echo
+    echo -e "${BO}Serial Port Baud Rate${NO}"
+
+    i=1; echo "  $i. 115200 (default)"
+    i=2; echo "  $i. 19200"
+    i=3; echo "  $i. 9600"
+    echo
+
+    echo -n "[1]        Selection: "
+    read serialbaud #</dev/tty
+    if [ x$serialbaud == x ]; then serialbaud="1"; fi
+    if [ $serialbaud -lt 4 ]; then break; fi
+  done
+fi
 
 # Only use grub. LILO sucks.
 #
@@ -512,10 +546,15 @@ while [ 1 == 1 ]; do
   else
     echo -e "  Making ${BO}ReiserFS${NO} filesystems"
   fi
+  case $serialbaud in
+    1) BAUD=115200;;
+    2) BAUD=19200;;
+    3) BAUD=9600;;
+  esac
   case $serialport in
-    1) echo -e "  Using serial port for ${BO}boot console${NO} only";;
-    2) echo -e "  Using serial port for ${BO}normal login${NO} only";;
-    3) echo -e "  Using serial port for both ${BO}boot & login${NO}";;
+    1) echo -e "  Using serial port for ${BO}boot console only @$BAUD 8N1${NO}";;
+    2) echo -e "  Using serial port for ${BO}normal login only @$BAUD 8N1${NO}";;
+    3) echo -e "  Using serial port for both ${BO}boot & login @$BAUD 8N1${NO}";;
     4) echo -e "  ${BO}Not using${NO} serial port"
   esac
   echo -e "  Installing ${BO}GRUB${NO} boot loader"
@@ -548,7 +587,7 @@ while [ 1 == 1 ]; do
   echo -en "\033[23;0fOK? "
   read a #</dev/tty
   if [ x$a == "xyes" ]; then
-    export hd CD dev maxMiB filesys loader noatime restore
+    export hd CD dev maxMiB filesys loader noatime restore archive_id archive
     break;
   elif [ x$a == "xno" ]; then
     echo "Restarting installation configuration..."

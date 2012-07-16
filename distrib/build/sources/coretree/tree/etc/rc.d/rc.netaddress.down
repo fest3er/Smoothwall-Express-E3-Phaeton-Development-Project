@@ -2,25 +2,31 @@
 
 . /var/smoothwall/ethernet/settings
 
-if [ "$1" != "NOTGREEN" ]; then
-	ifconfig $GREEN_DEV down 2> /dev/null
-fi
-/sbin/ifconfig $ORANGE_DEV down 2> /dev/null
-/sbin/ifconfig $PURPLE_DEV down 2> /dev/null
-/sbin/ifconfig $RED_DEV down 2> /dev/null
-if [ -e "/var/run/dhcpcd-eth0.pid" ]; then
-	kill `cat /var/run/dhcpcd-eth0.pid`
-fi
-if [ -e "/var/run/dhcpcd-eth1.pid" ]; then
-	kill `cat /var/run/dhcpcd-eth1.pid`
-fi
-if [ -e "/var/run/dhcpcd-eth2.pid" ]; then
-	kill `cat /var/run/dhcpcd-eth2.pid`
-fi
-if [ -e "/var/run/dhcpcd-eth3.pid" ]; then
-	kill `cat /var/run/dhcpcd-eth3.pid`
-fi
-/usr/bin/killall trafficlogger
-/usr/bin/smoothcom dnsproxyrestart
-rm -f /var/smoothwall/red/*
+# Take the IPSEC VPN down first, then kill the traffiClogger
 /etc/rc.d/rc.vpn.down
+/usr/bin/killall trafficlogger
+
+# Take GREEN down, if allowed.
+if [ "$1" != "NOTGREEN" ]; then
+  (
+    # First kill DHCPD, then down the link
+    [ -e "/var/run/dhcpcd-$GREEN_DEV.pid" ] &&
+      kill `cat /var/run/dhcpcd-$GREEN_DEV.pid`
+    /sbin/ip link set dev $GREEN_DEV down
+    /sbin/ip addr flush dev $GREEN_DEV
+  ) >/dev/null 2>&1
+fi
+
+# Take the others down, if defined
+for i in $ORANGE_DEV $PURPLE_DEV $RED_DEV; do
+  (
+    # First kill DHCPD, then down the link
+    [ -e "/var/run/dhcpcd-$i.pid" ] &&
+      kill `cat /var/run/dhcpcd-$i.pid`
+    /sbin/ip link set dev $i down
+    /sbin/ip addr flush dev $i
+  ) >/dev/null 2>&1
+done
+
+rm -f /var/smoothwall/red/*
+/usr/bin/smoothcom dnsproxyrestart

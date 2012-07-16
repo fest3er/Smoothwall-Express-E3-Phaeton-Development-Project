@@ -5,7 +5,7 @@ MSG1="Installing extra packages needed to build on Debian:\n"
 for package in build-essential bison flex gawk inotify-tools screen; do
   MUST_INST=0
   # May be unknown, try this
-  dpk -s $package >/dev/null 2>&1
+  dpkg -s $package >/dev/null 2>&1
   if [ $? -ne 0 ]; then MUST_INST=1; fi
   # Otherwise known, check it.
   if [ $MUST_INST -eq 0 ]; then

@@ -216,12 +216,14 @@ my %render_settings = (
 					title  => "$tr{'source ip'}",
 					size   => 30,
 					sort   => \&ipcompare,
-					tr     => {
-						'0.0.0.0/0' => 'N/A',
-					},					
-				},
-				{
-					column => '3',
+                                        tr     => {
+                                                '0.0.0.0/0' => 'N/A',
+                                        },                                      
+                                        valign => 'top',
+                                        maxrowspan => 2,
+                                },
+                                {
+                                        column => '3',
 					title  => "$tr{'action'}", 
 					size   => 20,
 					tr     => {
@@ -250,14 +252,15 @@ my %render_settings = (
 					mark   => ' ',
 				},
 				{ 
-					column => '5',
-					title => "$tr{'comment'}",
-					break => 'line',
-				}
-			]
-			);
+                                        column => '5',
+                                        title => "$tr{'comment'}",
+                                        break => 'line',
+                                        spanadj => -1,
+                                }
+                        ]
+                        );
 
-&displaytable( $filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
+&dispaliastab( $filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
 
 print <<END
 <table class='blank'>

@@ -9,6 +9,6 @@ include ../Makefile.conf
 PACKAGE = joe
 VERSION = 3.7
 
-BASE_URL = http://heanet.dl.sourceforge.net/sourceforge/joe-editor/
+BASE_URL = http://hivelocity.dl.sourceforge.net/project/$(PACKAGE)-editor/JOE%20sources/$(PACKAGE)-$(VERSION)/
 
 include ../Makefile.rules

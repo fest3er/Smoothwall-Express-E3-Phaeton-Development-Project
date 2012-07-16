@@ -9,7 +9,7 @@ include ../Makefile.conf
 PACKAGE = reiserfsprogs
 VERSION = 3.6.21
 
-BASE_URL = ftp://ftp.kernel.org/pub/linux/utils/fs/reiserfs
+BASE_URL = http://fossies.org/linux/misc/
 
 #COMPILE_DIR = $(DIR)-compile
 

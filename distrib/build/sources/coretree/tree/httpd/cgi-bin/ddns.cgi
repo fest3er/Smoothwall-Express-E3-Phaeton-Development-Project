@@ -218,12 +218,14 @@ my %render_settings =
 	'columns' => 
 	[
 		{ 
-			column => '1',
-			title  => "$tr{'service'}",
-			size   => 15,
-			sort   => 'cmp',
-		},
-		{
+                        column => '1',
+                        title  => "$tr{'service'}",
+                        size   => 15,
+                        valign => 'top',
+                        maxrowspan => 2,
+                        sort   => 'cmp',
+                },
+                {
 			column => '2',
 			title  => "$tr{'hostname'}",
 			size   => 20,
@@ -262,15 +264,16 @@ my %render_settings =
 			mark   => ' ',
 		},
 		{ 
-			column => '9',
-			title => "$tr{'comment'}",
-			break => 'line',
-		},
+                        column => '9',
+                        title => "$tr{'comment'}",
+                        break => 'line',
+                        spanadj => -1,
+                },
 
-	]
+        ]
 );
 
-&displaytable($filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
+&dispaliastab($filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
 
 print <<END
 <table class='blank'>
