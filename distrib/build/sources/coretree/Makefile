@@ -19,7 +19,7 @@ distrib:
 	@chmod -v 1777 distrib/tmp
 
 	@chown -R nobody:nobody distrib/var/smoothwall
-	@chown -R nobody:nobody distrib/var/smoothwall-*
+	@#chown -R nobody:nobody distrib/var/smoothwall-*
 	@chown -R nobody:nobody distrib/var/patches
 	@chown -R 100:100 distrib/var/spool/squid
 	@chown -R 100:100 distrib/var/log/squid

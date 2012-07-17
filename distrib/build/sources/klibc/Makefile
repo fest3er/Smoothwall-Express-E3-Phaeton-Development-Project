@@ -9,12 +9,12 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = klibc
-VER_MM = 1.5
-VERSION = $(VER_MM).24
+VER_MM = 2.0
+VERSION = $(VER_MM).1
 
 EXTENSION = .tar.bz2
 
-BASE_URL = http://mirror.linux.org.au/linux/libs/klibc/$(VER_MM)/
+BASE_URL = http://www.kernel.org/pub/linux/libs/klibc/$(VER_MM)/
 
 DOWNLOAD = yes
 download:

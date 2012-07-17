@@ -284,7 +284,7 @@ do_iptables(int argc, char* argv[])
                 }
         }
 #else
-        ret = do_command(argc, argv, &table, &current_table->handle);
+        ret = do_command4(argc, argv, &table, &current_table->handle);
 
         if (!ret)
         {
