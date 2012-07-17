@@ -18,8 +18,8 @@ BASE_URL = http://mirror.linux.org.au/linux/libs/klibc/$(VER_MM)/
 
 DOWNLOAD = yes
 download:
-        @$(DL_CMD) $(BASE_URL)/$(TARBALL)$(EXTENSION) $(MD5)
-        @$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v3.0/linux-$(KLIBKERNVER).tar.xz
+	@$(DL_CMD) $(BASE_URL)/$(TARBALL)$(EXTENSION) $(MD5)
+	@$(DL_CMD) http://www.kernel.org/pub/linux/kernel/v3.0/linux-$(KLIBKERNVER).tar.xz
 
 CONFIGURE = YES
 configure: patch
@@ -28,11 +28,11 @@ configure: patch
 COMPILE = yes
 
 compile: configure
-        tar -xvf /build/downloads/linux-$(KLIBKERNVER).tar.xz
-        sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../linux.config-domU-i686 > linux-$(KLIBKERNVER)/.config
-        cd linux-$(KLIBKERNVER); make prepare headers_install
-        cd linux-$(KLIBKERNVER); ln -s ../arch/x86/include/asm include/asm
-        cd $(DIR); \
+	tar -xvf /build/downloads/linux-$(KLIBKERNVER).tar.xz
+	sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../linux.config-domU-i686 > linux-$(KLIBKERNVER)/.config
+	cd linux-$(KLIBKERNVER); make prepare headers_install
+	cd linux-$(KLIBKERNVER); ln -s ../arch/x86/include/asm include/asm
+	cd $(DIR); \
 	  make mrproper; \
 	  ln -sf ../linux-$(KLIBKERNVER) linux; \
 	  make $(JOBS)

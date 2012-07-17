@@ -18,12 +18,12 @@ CONFIGURE = yes
 INSTALL = yes
 
 configure: patch
-        @true
+	@true
 
 install: compile
-        mkdir -p $(PKG_ROOT)$(PKG_DIR)
-        #@make -C $(COMPILE_DIR)/as PREFIX=$(PKG_ROOT)$(PKG_DIR) install
-        #@make -C $(COMPILE_DIR)/ld PREFIX=$(PKG_ROOT)$(PKG_DIR) install
-        make -C $(COMPILE_DIR) DIST=$(PKG_ROOT) PREFIX=$(PKG_ROOT) install
+	mkdir -p $(PKG_ROOT)$(PKG_DIR)
+	#@make -C $(COMPILE_DIR)/as PREFIX=$(PKG_ROOT)$(PKG_DIR) install
+	#@make -C $(COMPILE_DIR)/ld PREFIX=$(PKG_ROOT)$(PKG_DIR) install
+	make -C $(COMPILE_DIR) DIST=$(PKG_ROOT) PREFIX=$(PKG_ROOT) install
 
 include ../Makefile.rules
