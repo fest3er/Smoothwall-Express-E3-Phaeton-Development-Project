@@ -43,15 +43,15 @@ bin:
 	#cp -aR /build/target/install tmp/bin/install
 
 lib:
-        mkdir -p tmp/lib tmp/usr/lib tmp/usr/lib/klibc/lib
-        cp -aR /lib/* tmp/lib
-        cp -aR /lib/lib* tmp/lib
-        cp -aR /usr/lib/libncurses.so* tmp/lib/
-        cp -aR /usr/lib/libtinfo.so* tmp/lib/
-        tar xfz /build/target/smoothwall-linux-dom0.tar.gz -C tmp ./lib/modules > /dev/null 2>&1
-        #cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
-        #cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
-        #  rm -rf $(EXCLUDE_DRIVERS)
+	mkdir -p tmp/lib tmp/usr/lib tmp/usr/lib/klibc/lib
+	cp -aR /lib/* tmp/lib
+	cp -aR /lib/lib* tmp/lib
+	cp -aR /usr/lib/libncurses.so* tmp/lib/
+	cp -aR /usr/lib/libtinfo.so* tmp/lib/
+	tar xfz /build/target/smoothwall-linux-dom0.tar.gz -C tmp ./lib/modules > /dev/null 2>&1
+	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
+	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
+	#  rm -rf $(EXCLUDE_DRIVERS)
 
 klibc:
 	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
@@ -82,14 +82,14 @@ all: clean bin lib klibc
 	  cp -aR ../etc/shells etc; \
 	  cp -aR ../etc/termcap etc; \
 	  cp -aR ../etc/rc etc; chmod 755 etc/rc; \
-          cp -aR ../etc/install.rc etc; chmod 755 etc/install.rc; \
-          cp -aR ../etc/flash.rc etc; chmod 755 etc/flash.rc; \
-          cp -aR ../etc/config-install.rc etc; chmod 755 etc/config-install.rc; \
-          cp -aR ../etc/upgrade-outgoing.pl etc; chmod 755 etc/upgrade-outgoing.pl; \
-          cp -aR ../etc/upgrade-outgoing.sh etc; chmod 755 etc/upgrade-outgoing.sh; \
-          sed -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' <../etc/exec-install.rc.src \
-            >etc/exec-install.rc; \
-          chmod 755 etc/exec-install.rc; \
+	  cp -aR ../etc/install.rc etc; chmod 755 etc/install.rc; \
+	  cp -aR ../etc/flash.rc etc; chmod 755 etc/flash.rc; \
+	  cp -aR ../etc/config-install.rc etc; chmod 755 etc/config-install.rc; \
+	  cp -aR ../etc/upgrade-outgoing.pl etc; chmod 755 etc/upgrade-outgoing.pl; \
+	  cp -aR ../etc/upgrade-outgoing.sh etc; chmod 755 etc/upgrade-outgoing.sh; \
+	  sed -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' <../etc/exec-install.rc.src \
+	    >etc/exec-install.rc; \
+	  chmod 755 etc/exec-install.rc; \
 	  cp -aR ../../../../make_flash etc/auto_flash; chmod 755 etc/auto_flash; \
 	  cp -aR ../etc/eth-addr-sort etc; chmod 755 etc/eth-addr-sort; \
 	  cp -aR ../etc/udev-trigger.rc etc; chmod 755 etc/udev-trigger.rc; \
@@ -133,13 +133,13 @@ endif
 
 	@touch tmp/cdrominstall
 
-        @/build/striptree tmp
+	@/build/striptree tmp
 
-        # Build the installer initramfs CPIO archive
-        cd tmp; find . | cpio -o -H newc | gzip > ../../$(INSTALL_ROOT)image.gz
+	# Build the installer initramfs CPIO archive
+	cd tmp; find . | cpio -o -H newc | gzip > ../../$(INSTALL_ROOT)image.gz
 
-        echo -e "installroot build for $(MEDIA) complete\n\n"
-        
+	echo -e "installroot build for $(MEDIA) complete\n\n"
+	
 clean:
 	make -C $(PROGS) clean
 	rm -rf $(INSTALL_ROOT) tmp/
