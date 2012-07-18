@@ -3,7 +3,7 @@
 # Must have one argument: the stage #
 echo $*
 if [ $# -ne 1 ]; then
-  echo "You must specify the build stage # (-3)"
+  echo "You must specify the build stage # (1-3)"
   exit 1
 fi
 
