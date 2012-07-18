@@ -189,12 +189,17 @@ savesources:
 	@tar cfz $(SRC_TGZ) -C .. --exclude build/downloads .
 
 packageinfos.html:
-	@echo "<ul>" >/tmp/packageinfo.html
-	-(cd sources; for I in `find -maxdepth 1 -mindepth 1 -type d`; do \
+	if [ `id -u` -ne 0 ]; then \
+	  sudo su -c "make packageinfos.html"; \
+	else \
+	  rm -rf /tmp/downloads; mkdir /tmp/downloads; \
+	  echo "<ul>" >/tmp/packageinfo.html; \
+	  (cd sources; for I in `find -maxdepth 1 -mindepth 1 -type d`; do \
 		if [ "$$I" != "CVS" ]; then \
-			make -C $$I packageinfo.html; \
+			ROOT=$$PWD/../.. make --no-print-directory -C $$I packageinfo.html; \
 		fi \
-	done);
+	  done); \
+	fi
 	-make -C sources/modules packageinfos.html
 	@echo "</ul>" >>/tmp/packageinfo.html
 

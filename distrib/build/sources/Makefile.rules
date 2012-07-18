@@ -102,8 +102,8 @@ packageinfo.html:
 	@echo "<ul>" >>/tmp/packageinfo.html
 	@(for PATCH in $(PATCH_FILE1) $(PATCH_FILE2) $(PATCH_FILE3) $(PATCH_FILE4) $(PATCH_FILE5); do \
 		echo "<li><a href='downloads/$$PATCH'>$$PATCH</a>" >>/tmp/packageinfo.html; \
-		cp -avR $$PATCH /tmp/downloads; \
-	done) 
+		cp -avR $(ROOT)/build/sources/$(PACKAGE)/$$PATCH /tmp/downloads; \
+	done); exit 0
 	@echo "</ul>" >>/tmp/packageinfo.html
 
 endif
