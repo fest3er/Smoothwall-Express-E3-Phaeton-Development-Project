@@ -181,7 +181,7 @@ fi
       build sysklogd
       build sysvinit
       build tar
-      build util-linux-ng
+      build util-linux
       build joe
       build openssl
       build wget

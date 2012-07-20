@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = udev
-VERSION = 171
+VERSION = 182
 TARBALL = $(PACKAGE)-$(VERSION)
 
 BASE_URL = http://www.us.kernel.org/pub/linux/utils/kernel/hotplug/
