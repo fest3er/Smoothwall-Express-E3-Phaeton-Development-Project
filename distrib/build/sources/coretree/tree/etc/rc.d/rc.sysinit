@@ -141,20 +141,20 @@ fi
 
 if [ ! -e /etc/httpd/server.key ]; then
         echo "  https server key."
-        /usr/ssl/bin/openssl genrsa -rand \
+        /usr/bin/openssl genrsa -rand \
                 /boot/vmlinuz-`uname -r`:/var/smoothwall/ethernet/settings:/var/log/dmesg -out \
                 /etc/httpd/server.key 1024
         echo "  CSR"
-        cat /etc/certparams | /usr/ssl/bin/openssl \
+        cat /etc/certparams | /usr/bin/openssl \
                 req -new -key /etc/httpd/server.key -out /etc/httpd/server.csr
         echo "  Signing certificate"
-	/usr/ssl/bin/openssl x509 -req -days 999999 -in \
+	/usr/bin/openssl x509 -req -days 999999 -in \
 		/etc/httpd/server.csr -signkey /etc/httpd/server.key -out \
 		/etc/httpd/server.crt
 fi	
 
 echo "Hashing CA certs"
-/usr/ssl/bin/c_rehash >/dev/null
+/usr/bin/c_rehash >/dev/null
 
 echo "Generating UPNP UUID"
 /usr/bin/uuidgen >/etc/miniupnpd.uuid
@@ -186,8 +186,8 @@ echo "  cron"
 rm -f /var/run/crond.reboot
 /usr/sbin/cron
 echo "  httpd"
-#/usr/apache2/sbin/httpd -DSSL -DDEFLATE
-/usr/apache2/sbin/httpd -DSSL
+#/usr/sbin/httpd -DSSL -DDEFLATE
+/usr/sbin/httpd -DSSL
 echo "  sshd (if enabled)"
 /usr/bin/smoothcom sshdrestart
 echo "  time service (if enabled)"

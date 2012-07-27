@@ -194,12 +194,13 @@ fi
       build xtables-addons
       build ipbatch
       build klibc
+      build kmod
       build listtables
       build libusb
       build usbutils
       build pciutils
       build udev
-      build udev-config
+      #build udev-config
       JOBS=$JOBS_UP
       build dev86
       build acpica

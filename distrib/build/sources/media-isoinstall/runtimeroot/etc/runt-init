@@ -15,6 +15,7 @@ echo "Loading, please wait..."
 [ -d /sys ] || mkdir /sys
 [ -d /proc ] || mkdir /proc
 [ -d /tmp ] || mkdir -m 0777 /tmp
+[ -d /run ] || mkdir -m 0755 /run
 [ -d /var/lock ] || mkdir -p -m 755 /var/lock
 
 # Mount proc, sys, dev
@@ -24,6 +25,9 @@ echo "Mounting /proc, /sys"
 
 echo "Mounting devtmpfs"
 /bin/mount -t devtmpfs devtmpfs /dev
+/bin/mkdir -p /dev/pts
+/bin/mount -t devpts -o gid=5,mode=620 devpts /dev/pts
+
 
 # Populating dev
 /sbin/udevd --daemon
@@ -42,10 +46,7 @@ test -e /etc/modules && egrep -v "^$|^#" /etc/modules | while read a; do modprob
 /bin/mount /harddisk -o ro
 
 # Stop udevd; missed events will be caught later
-for proc in /proc/[0-9]*; do
-    [ -x $proc/exe ] || continue
-    [ "$(/usr/lib/klibc/bin/readlink $proc/exe)" != /bin/udevd ] || kill ${proc#/proc/}
-done
+udevadm control --exit
 
 echo "1 4 1 7" >/proc/sys/kernel/printk
 

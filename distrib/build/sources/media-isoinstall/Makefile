@@ -12,21 +12,21 @@ PACKAGE = media-isoinstall
 
 # Document these pkgs, don't install
 TOOLCHAIN_PKGS = expect
-OTHER_PKGS = updates jam sqlite
+OTHER_PKGS = updates jam sqlite udev-config 
 
 TARGET_DIR = /build/target/
 INST_PKGS = glibc libsmooth+setup libgcc freetype libart_lgpl libpng libdnet \
 	    daq libnet libnetfilter_queue libnfnetlink attr libcap-ng \
 	    libcap fontconfig glib cairo libffi readline libmnl libpcap \
 	    libosip2 libpcap pango zlib slang pixman libxml2 libusb \
-	    gmp popt yaml \
+	    kmod gmp popt yaml \
 	    HTML-Parser HTML-Tagset URI libwww-perl \
 	    Net-Netmask NetAddr-IP \
 	    newt binutils coreutils iana-etc mktemp file findutils gawk \
 	    ncurses vim less sed flex gettext net-tools inetutils iputils \
 	    whois perl bash bzip2 kbd e2fsprogs grep gzip module-init-tools \
 	    procinfo procps psmisc shadow sysklogd logrotate sysvinit tar \
-	    util-linux joe wget iptables ipset ipbatch pciutils \
+	    util-linux joe wget iptables ipset ipbatch pciutils usbutils \
 	    linux-dom0 openssl openssh httpd smoothd squid \
 	    strace rrdtool cron tcpdump dnsmasq ntp openntpd hdparm hddtemp \
 	    iproute2 gd expat ethtool listtables inotify-tools bridge-utils \
@@ -36,7 +36,7 @@ INST_PKGS = glibc libsmooth+setup libgcc freetype libart_lgpl libpng libdnet \
 	    p3scan siproxd which miniupnpd ez-ipupdate noip cdrtools \
 	    suricata smartmontools at dosfstools e2fsprogs grub linux-atm \
 	    mtools nano reiserfsprogs parted xtables-addons cpio Python \
-	    udev udev-config lm_sensors xz pcmciautils xen sysfsutils \
+	    udev lm_sensors xz pcmciautils xen sysfsutils \
 	    coretree
 # 'coretree' *MUST* be last
 
@@ -158,7 +158,7 @@ cdrom/smoothwall.tgz:
 	  chmod u+s distrib/usr/sbin/listtables; \
 	  chown root:nobody distrib/usr/bin/setuids/*; \
 	  chmod 4750 distrib/usr/bin/setuids/*; \
-	  mkdir -p /distrib/tmp; chmod 1777 distrib/tmp; \
+	  mkdir -p distrib/tmp; chmod 1777 distrib/tmp; \
 	) | sed -u -e 's/^/  /'
 	
 	@echo "        convert to shadow passwords ..." >/proc/self/fd/0
@@ -174,9 +174,12 @@ cdrom/smoothwall.tgz:
 	/sbin/ldconfig -r distrib; \
 	) | sed -u -e 's/^/  /'
 	
+	@# Temporary, 7/2012
+	@cd distrib/lib/modules/$(K_SWE_VERSION)-domU; cp -av * ../$(K_SWE_VERSION)-dom0
+
 	@echo "        tidy ..." >/proc/self/fd/0
 	@echo -e "\nTidying ..."
-	#@rm -f distrib/etc/resolv.conf
+	@#rm -f distrib/etc/resolv.conf
 	@find distrib -name .gitignore -exec rm -f {} \;
 	@ln -s /var/smoothwall/vpn/ipsec.conf distrib/etc/ipsec.conf
 	
@@ -184,8 +187,11 @@ cdrom/smoothwall.tgz:
 	@echo -e "\nCopying to OffRoad ..."
 	@mkdir -p offroad
 	@cd cdrom; cp -av . ../offroad
-	@sed  -e '/Install Roadster/,+4d' -e '/Convert ISO/,+9d' \
-	  offroad/boot/grub/grub.conf #| sed  -e '$d'
+	@sed -i \
+	     -e '/Install Roadster/,+4d' \
+             -e '/Convert ISO/,+9d' \
+	     -e '$d' \
+	     offroad/boot/grub/grub.conf
 	
 	@echo "      build final tarballs ..." >/proc/self/fd/0
 	@echo "        main ..." >/proc/self/fd/0

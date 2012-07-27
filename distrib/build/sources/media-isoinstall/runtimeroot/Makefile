@@ -23,8 +23,8 @@ BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
 	  true tty umount uname uniq unzip usleep vi wc wget which yes zcat
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-SWE_PKGS = udev udev-config grub pciutils bash reiserfsprogs
-ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr
+SWE_PKGS = udev kmod grub pciutils bash reiserfsprogs
+ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 
 bin:
 	(set -x; mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin; \
@@ -36,7 +36,8 @@ lib:
 	(set -x; mkdir -p tmp/lib tmp/usr/lib/klibc/lib; \
 	cp -aR /lib/* tmp/lib; \
 	cp -aR /lib/lib* tmp/lib; \
-	cp -aR /usr/lib/libncurses* tmp/lib/; \
+	cp -aR /usr/lib/libncurses.so* tmp/lib/; \
+	cp -aR /usr/lib/libtinfo.so* tmp/lib/; \
 	tar xfz /build/target/smoothwall-linux-dom0.tar.gz -C tmp ./lib/modules > /dev/null 2>&1)
 
 klibc:
@@ -78,13 +79,15 @@ all: clean bin lib klibc
 	  touch etc/ld.so.conf; \
 	  /sbin/ldconfig -r .; \
 	  mkdir dev/ida dev/rd; \
-	  install -d lib/firmware; \
+	  install -d lib/{firmware,udev/devices/{pts,shm}}; \
+	  ln -sv /lib/firmware usr/lib/firmware; \
+	  mknod -m0666 lib/udev/devices/null c 1 3; \
+	  ln -sf proc/kcore /lib/udev/devices/core; \
+	  ln -sf proc/self/fd /lib/udev/devices/fd; \
+	  ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
+	  ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
+	  ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
 	) > /dev/null 2>&1
-	  #ln -sf proc/self/fd /lib/udev/devices/fd; \
-	  #ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
-	  #ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
-	  #ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
-	  #ln -sf proc/kcore /lib/udev/devices/core; \
 
 ifdef BITS_64
 	@(cd tmp; ln -s lib lib64)

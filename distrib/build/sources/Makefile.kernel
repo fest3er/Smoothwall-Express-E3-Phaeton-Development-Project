@@ -23,13 +23,13 @@ prepare: unpack
 
 	make -C linux mrproper
 
-	sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../linux.config-$(KERNEL_TYPE)-$(ARCH) > linux/.config
+	sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="-$(KERNEL_TYPE)"/' ../linux.config-$(KERNEL_TYPE)-$(ARCH) > linux/.config
 
 	make -C linux CC=$(COMPILER) clean prepare
 
 
 compile-kernel: prepare
-	sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="-$(KERNEL_TYPE)"/' ../linux.config-$(KERNEL_TYPE)-$(ARCH) > linux/.config
+	sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="-$(KERNEL_TYPE)"/' ../linux.config-$(KERNEL_TYPE)-$(ARCH) > linux/.config
 
 	make -C linux CC=$(COMPILER) clean
 	make $(JOBS) -C linux CC=$(COMPILER) oldconfig

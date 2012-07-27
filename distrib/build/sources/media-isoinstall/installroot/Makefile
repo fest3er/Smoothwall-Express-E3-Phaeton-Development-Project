@@ -32,14 +32,15 @@ EXCLUDE_DRIVERS = bluetooth connector gpu infiniband mfd misc mtd parport \
 	  memstick mmc
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-SWE_PKGS = udev grub pciutils bash reiserfsprogs util-linux pcmciautils \
-	   sysfsutils syslinux parted readline inotify-tools mtools
-ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr
+SWE_PKGS = udev kmod grub pciutils bash reiserfsprogs util-linux pcmciautils \
+	   sysfsutils parted readline inotify-tools mtools
+ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 GZIP_PKGS = gunzip
 
 bin:
 	mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin
 	cp -aR /sbin/* tmp/bin
+	cp -aR /build/buildroot/udev/lib/udev/udev* tmp/bin
 	#cp -aR /build/target/install tmp/bin/install
 
 lib:
@@ -103,8 +104,8 @@ all: clean bin lib klibc
 	  cp -a ../../../../buildroot/glibc/usr/lib/gconv/IBM850.so usr/lib/gconv/; \
 	)
 	(cd tmp; \
-	  mkdir -p etc/udev/rules.d; \
-	  cp -aRv lib/udev/rules.d/* etc/udev/rules.d/; \
+	  rm -rf /etc/udev/rules.d; \
+	  ln -s lib/udev/rules.d etc/udev/rules.d/; \
 	  ln -s /sbin/init init; \
 	)
 	(cd tmp/etc; \
@@ -118,11 +119,12 @@ all: clean bin lib klibc
 	  /sbin/ldconfig -r .; \
 	  mkdir dev/ida dev/rd; \
 	  install -d lib/{firmware,udev/devices/{pts,shm}}; \
+	  mknod -m0666 lib/udev/devices/null c 1 3; \
+	  ln -sf proc/kcore /lib/udev/devices/core; \
 	  ln -sf proc/self/fd /lib/udev/devices/fd; \
 	  ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
 	  ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
 	  ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
-	  ln -sf proc/kcore /lib/udev/devices/core; \
 	) > /dev/null 2>&1
 	(cd tmp; mkdir -p local; cd local; \
 	  tar xfz /build/target/smoothwall-gzip.tar.gz)
