@@ -27,18 +27,26 @@ for package in glibc gcc make diffutils e2fsprogs findutils gzip ncurses dev-lan
     fi
 
     if [ $MUST_INST -eq 1 ]; then
-        ACTION=`emerge -Dpq $package | awk 'print $2}' | sed -e 's/ //g'`
+        ACTION=`emerge -Dpq $package | awk '{print $2}' | sed -e 's/ //g'`
         case $ACTION in
             "R")
                 echo "$package needs to be rebuilt."
                 echo -n "Rebuilding..."
-                emerge -Dq $package >/dev/null 2>&1
+		if [ `id -u` -eq 0 ]; then
+			emerge -Dq $package >/dev/null 2>&1
+		else 
+                	sudo emerge -Dq $package >/dev/null 2>&1
+		fi
                 echo "done."
                 ;;
             "N")
                 echo "$package is missing."
                 echo -n "Emerging..."
-                emerge -Dq $package >/dev/null 2>&1
+		if [ `id -u` -eq 0 ]; then
+			emerge -Dq $package >/dev/null 2>&1
+		else 
+	                sudo emerge -Dq $package >/dev/null 2>&1
+		fi
                 echo "done."
                 ;;
             *)
