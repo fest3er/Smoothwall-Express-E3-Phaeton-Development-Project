@@ -140,7 +140,7 @@ function build_tc_stage_3() {
   buildenv sed 1
   buildenv tar 1
   buildenv texinfo 1
-  buildenv util-linux-ng 1
+  buildenv util-linux 1
   buildenv wget 1
 }
 

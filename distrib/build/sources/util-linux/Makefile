@@ -26,7 +26,9 @@ compile: configure
 	make $(JOBS) -C $(COMPILE_DIR)/text-utils more
 
 install: compile
-	cd $(COMPILE_DIR); cp mount/umount mount/mount text-utils/more $(TOOLS_DIR)/bin
+	cd $(COMPILE_DIR); cp mount/.libs/umount mount/.libs/mount text-utils/more $(TOOLS_DIR)/bin
+	cd $(COMPILE_DIR); cp libblkid/src/.libs/libblk*.so*  $(TOOLS_DIR)/lib
+	cd $(COMPILE_DIR); cp libuuid/src/.libs/libuuid*.so*  $(TOOLS_DIR)/lib
 endif
 
 
