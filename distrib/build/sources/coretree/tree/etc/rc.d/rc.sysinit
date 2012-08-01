@@ -121,10 +121,11 @@ fi
 echo "Setting the clock"
 /sbin/hwclock --hctosys
 
-#if [ ! -e /usr/etc/ssh_host_key ]; then
-#       echo "Generating SSH RSA1 key.  This may take several minutes."
-#       /usr/bin/ssh-keygen -t rsa1 -f /usr/etc/ssh_host_key -N ""
-#fi
+if [ ! -e /usr/etc/pango/pango.modules ]; then
+	echo "Collecting pango modules"
+        /usr/bin/pango-querymodules > /usr/etc/pango/pango.modules
+fi
+
 echo "Generating keys/certs..."
 if [ ! -e /usr/etc/ssh_host_rsa_key ]; then
         echo "  SSH RSA key.  This may take several minutes."

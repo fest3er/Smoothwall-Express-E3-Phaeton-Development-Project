@@ -249,6 +249,7 @@ fi
       build pixman
       build libffi
       build glib
+      build freefont
       build cairo
       build pango
       build rrdtool
