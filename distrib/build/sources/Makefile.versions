@@ -7,15 +7,14 @@
 # The system's kernel.
 KERNEL_MAJOR = 3
 KERNEL_MMR = $(KERNEL_MAJOR).2
-KERNEL_VER = $(KERNEL_MMR).23
+KERNEL_VER = $(KERNEL_MMR).27
 
 # The kernel version headers needed to build klibc-2.6.18
 # Unrelated to the system's kernel
 KLIBKERNVER = $(KERNEL_VER)
 
-SWETYPE = $(PRODUCT_EXTRA)
 K_RAW_VERSION = $(KERNEL_VER)
-K_SWE_VERSION = $(KERNEL_VER)$(SWETYPE)
+K_AGCL_VERSION = $(KERNEL_VER)$(KERNEL_TYPE)
 
 KERNEL_URL = http://www.kernel.org/pub/linux/kernel/v$(KERNEL_MAJOR).x/linux-$(K_RAW_VERSION).tar.xz
 

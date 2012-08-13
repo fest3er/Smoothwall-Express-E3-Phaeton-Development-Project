@@ -32,7 +32,7 @@ download:
 #
 ifeq ($(BUILD_PHASE), Stage_1)
 
-CONFIG_OPTS = --target=$(SWE_TGT) --prefix=$(TOOLS_DIR) \
+CONFIG_OPTS = --target=$(AGCL_TGT) --prefix=$(TOOLS_DIR) \
 	      --disable-nls --disable-shared --disable-multilib \
 	      --disable-decimal-float --disable-threads \
 	      --disable-libmudflap --disable-libssp \
@@ -53,7 +53,7 @@ INSTALL = yes
 install: compile
 	make -C $(COMPILE_DIR) install
 	cd $(COMPILE_DIR); \
-	  ln -vs libgcc.a `$(SWE_TGT)-gcc -print-libgcc-file-name \
+	  ln -vs libgcc.a `$(AGCL_TGT)-gcc -print-libgcc-file-name \
 	    | sed -e 's/libgcc/&_eh/'`
 endif
 
@@ -61,8 +61,8 @@ endif
 # Tool Chain Build Stage 2
 #
 ifeq ($(BUILD_PHASE), Stage_2)
-PRE_CONFIGURE = CC="$(SWE_TGT)-gcc -B$(TOOLS_DIR)/lib" \
-	        AR=$(SWE_TGT)-ar RANLIB=$(SWE_TGT)-ranlib
+PRE_CONFIGURE = CC="$(AGCL_TGT)-gcc -B$(TOOLS_DIR)/lib" \
+	        AR=$(AGCL_TGT)-ar RANLIB=$(AGCL_TGT)-ranlib
 
 CONFIG_OPTS = --prefix=$(TOOLS_DIR) --with-local-prefix=$(TOOLS_DIR) \
 	--enable-clocale=gnu --enable-shared --enable-threads=posix  \

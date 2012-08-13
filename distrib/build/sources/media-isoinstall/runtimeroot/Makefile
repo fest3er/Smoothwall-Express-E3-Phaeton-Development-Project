@@ -4,6 +4,7 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
+include ../Makefile.useKernel
 include ../../Makefile
 include ../../Makefile.conf
 include ../../Makefile.versions
@@ -23,27 +24,27 @@ BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
 	  true tty umount uname uniq unzip usleep vi wc wget which yes zcat
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-SWE_PKGS = udev kmod grub pciutils bash reiserfsprogs
+AGCL_PKGS = udev kmod grub pciutils bash reiserfsprogs
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 
 bin:
-	(set -x; mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin; \
+	@(mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin; \
 	cp -aR /sbin/* tmp/bin)
 	#cp -aRv /build/target/install tmp/bin/install
 	#strip tmp/bin/*
 
 lib:
-	(set -x; mkdir -p tmp/lib tmp/usr/lib/klibc/lib; \
+	@(mkdir -p tmp/lib tmp/usr/lib/klibc/lib; \
 	cp -aR /lib/* tmp/lib; \
 	cp -aR /lib/lib* tmp/lib; \
 	cp -aR /usr/lib/libncurses.so* tmp/lib/; \
 	cp -aR /usr/lib/libtinfo.so* tmp/lib/; \
-	tar xfz /build/target/smoothwall-linux-dom0.tar.gz -C tmp ./lib/modules > /dev/null 2>&1)
+	tar xfz /build/target/smoothwall-linux$(KERNEL_TYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1)
 
 klibc:
-	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
-	cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
-	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
+	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
+	@cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
+	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
 
 
 all: clean bin lib klibc
@@ -73,7 +74,7 @@ all: clean bin lib klibc
 	  gawk -f ../../etc/fill-pci-ids.awk < /usr/share/pci.ids > filled.pci.ids;\
 	) > /dev/null 2>&1
 	@(cd tmp; \
-	  for i in $(SWE_PKGS); do \
+	  for i in $(AGCL_PKGS); do \
 	    tar xfz /build/target/smoothwall-$$i.tar.gz; \
 	  done; \
 	  touch etc/ld.so.conf; \
@@ -103,7 +104,7 @@ endif
 	@echo -e "runtimeroot build for $(MEDIA) complete\n\n"
 
 clean:
-	rm -rf $(RUNTIME_ROOT) tmp/
-	rm -f ../$(RUNTIME_ROOT)image.gz
-	rm -f $(RUNTIME_ROOT)image.gz
-	rm -rf runtimeroot/
+	@rm -rf $(RUNTIME_ROOT) tmp/
+	@rm -f ../$(RUNTIME_ROOT)image.gz
+	@rm -f $(RUNTIME_ROOT)image.gz
+	@rm -rf runtimeroot/

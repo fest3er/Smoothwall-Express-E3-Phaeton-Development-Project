@@ -16,6 +16,3 @@ FIXES_NUMBER = 0
 REVISION = 
 
 RELEASE = $(BASENAME)-$(PRODUCT_VERSION).$(FIXES_NUMBER)
-
-# The default kernel type (mostly for kernel_headers)
-KERNEL_TYPE = domU

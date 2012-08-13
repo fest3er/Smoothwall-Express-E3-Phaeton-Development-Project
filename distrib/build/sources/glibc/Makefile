@@ -23,7 +23,7 @@ PATCH_FILE1 = glibc-2.14.1-gcc_fix-1.patch
 PATCH_FILE2 = glibc-2.14.1-cpuid-1.patch
 
 CONFIG_OPTS = --prefix=$(TOOLS_DIR) \
-    --host=$(SWE_TGT) --build=$$(../glibc-$(VERSION)/scripts/config.guess) \
+    --host=$(AGCL_TGT) --build=$$(../glibc-$(VERSION)/scripts/config.guess) \
     --disable-profile --enable-add-ons \
     --enable-kernel=2.6.25  --with-headers=$(TOOLS_DIR)/include \
     libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes
@@ -62,8 +62,9 @@ endif
 
 ifeq ($(BUILD_PHASE), Final)
 
-ifeq ($(ARCH), i686)
-BUILD = --build=i686-pc-linux-gnu
+ifeq ($(mARCH), i686)
+#BUILD = --build=i686-pc-linux-gnu
+BUILD = --build=$(AGCL_TGT)
 endif
 
 PATCH_FILE1 = glibc-2.14.1-fixes-1.patch

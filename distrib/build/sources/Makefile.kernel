@@ -4,9 +4,9 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
-KERNEL_DIR = $(SOURCES_DIR)/linux-$(KERNEL_TYPE)/linux
+KERNEL_DIR = $(SOURCES_DIR)/linux$(KERNEL_TYPE)/linux
 
-PACKAGE = linux-$(KERNEL_TYPE)
+PACKAGE = linux$(KERNEL_TYPE)
 
 COMPILER = /usr/bin/gcc
 
@@ -23,13 +23,13 @@ prepare: unpack
 
 	make -C linux mrproper
 
-	sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="-$(KERNEL_TYPE)"/' ../linux.config-$(KERNEL_TYPE)-$(ARCH) > linux/.config
+	sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="$(KERNEL_TYPE)"/' ../linux.config$(KERNEL_TYPE)-$(mARCH) > linux/.config
 
 	make -C linux CC=$(COMPILER) clean prepare
 
 
 compile-kernel: prepare
-	sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="-$(KERNEL_TYPE)"/' ../linux.config-$(KERNEL_TYPE)-$(ARCH) > linux/.config
+	sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="$(KERNEL_TYPE)"/' ../linux.config$(KERNEL_TYPE)-$(mARCH) > linux/.config
 
 	make -C linux CC=$(COMPILER) clean
 	make $(JOBS) -C linux CC=$(COMPILER) oldconfig
@@ -42,10 +42,10 @@ package-kernel: compile-kernel
 	(cd $(PKG_ROOT); \
 	make -C $(KERNEL_DIR) CC=$(COMPILER) INSTALL_MOD_PATH=$(PKG_ROOT) modules_install; \
 	mkdir -p boot; \
-	cp $(KERNEL_DIR)/arch/x86/boot/bzImage boot/vmlinuz-$(K_SWE_VERSION); \
-	cp $(KERNEL_DIR)/System.map boot/System.map-$(K_SWE_VERSION); \
-	rm -f lib/modules/$(K_SWE_VERSION)/build; \
-	cp $(KERNEL_DIR)/.config $(SOURCES_DIR)/linux.config-$(KERNEL_TYPE)-$(ARCH).new)
+	cp $(KERNEL_DIR)/arch/x86/boot/bzImage boot/vmlinuz-$(K_AGCL_VERSION); \
+	cp $(KERNEL_DIR)/System.map boot/System.map-$(K_AGCL_VERSION); \
+	rm -f lib/modules/$(K_AGCL_VERSION)/build; \
+	cp $(KERNEL_DIR)/.config $(SOURCES_DIR)/linux.config$(KERNEL_TYPE)-$(mARCH).new)
 
 
 build-tarball: package-kernel $(PACKAGES)

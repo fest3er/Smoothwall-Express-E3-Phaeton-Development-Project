@@ -183,7 +183,7 @@ function cpu_count() {
 }
 
 
-# function do_command()
+# function docommand()
 
 function docommand() {
   echo "= Running: $1 ======================================"

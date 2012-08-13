@@ -13,9 +13,8 @@ function set_build_environment() {
   umask 022
   export JOBS
   export LC_ALL=POSIX
-  export SWE_TGT=i686-swe-linux-gnu
 
-  # DISTRIB_PATH is the 'root' of the SWE tree; it is the same for building
+  # DISTRIB_PATH is the 'root' of the build tree; it is the same for building
   #   the tool chain and for the final build.
   export DISTRIB_PATH=`pwd | sed -e 's=/build.*=='`
 

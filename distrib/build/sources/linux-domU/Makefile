@@ -8,7 +8,7 @@ include ../Makefile
 include ../Makefile.conf
 include ../Makefile.versions
 
-KERNEL_TYPE = domU
+KERNEL_TYPE = -domU
 
 include ../Makefile.kernel
 

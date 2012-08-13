@@ -11,6 +11,8 @@ include ../Makefile.versions
 PACKAGE = kernel-headers
 VERSION = 0.0
 
+CFG_TYPE := $(KERNEL_TYPE)-$(mARCH)
+
 download:
 	@$(DL_CMD) $(KERNEL_URL)
 
@@ -19,9 +21,9 @@ install: download
 ifeq ($(BUILD_PHASE), Stage_1)
 	cd linux-$(KERNEL_VER); \
 	  make mrproper; \
-	  sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../../linux.config-$(KERNEL_TYPE)-$(ARCH) > .config && \
-	  make headers_check && \
-	  make INSTALL_HDR_PATH=dest headers_install && \
+	  sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="$(KERNEL_TYPE)"/' ../../linux.config$(CFG_TYPE) > .config; \
+	  make headers_check; \
+	  make INSTALL_HDR_PATH=dest headers_install; \
 	  cp -rv dest/include/* $(TOOLS_DIR)/include
 endif
 ifeq ($(BUILD_PHASE), Final)
@@ -29,7 +31,7 @@ ifeq ($(BUILD_PHASE), Final)
 	cd linux-$(KERNEL_VER); \
 	  make mrproper
 	cd linux-$(KERNEL_VER); \
-	  sed -e 's/^CONFIG_LOCALVERSION.*$$/CONFIG_LOCALVERSION="$(SWETYPE)"/' ../../linux.config-$(KERNEL_TYPE)-$(ARCH) > .config
+	  sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="$(KERNEL_TYPE)"/' ../../linux.config$(CFG_TYPE) > .config
 	cd linux-$(KERNEL_VER); \
 	  make prepare
 	cd linux-$(KERNEL_VER); \

@@ -1,7 +1,6 @@
 #! /bin/bash
 
 # Must have one argument: the stage #
-echo $*
 if [ $# -ne 1 ]; then
   echo "You must specify the build stage # (1-3)"
   exit 1
@@ -9,7 +8,7 @@ fi
 
 # Compile an empty program and see if it uses the right loader
 echo 'main(){}' > dummy.c && \
-  $SWE_TGT-gcc -B/tools/lib dummy.c && 
+  $AGCL_TGT-gcc -B/tools/lib dummy.c && 
   readelf -l a.out | grep ': /tools/lib/ld-linux.so.2' > /dev/null
 
 # If the right loader wasn't found, quit in disgust

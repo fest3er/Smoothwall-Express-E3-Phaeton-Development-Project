@@ -27,7 +27,7 @@ INST_PKGS = glibc libsmooth+setup libgcc freetype libart_lgpl libpng libdnet \
 	    whois perl bash bzip2 kbd e2fsprogs grep gzip module-init-tools \
 	    procinfo procps psmisc shadow sysklogd logrotate sysvinit tar \
 	    util-linux joe wget iptables ipset ipbatch pciutils usbutils \
-	    linux-dom0 openssl openssh httpd smoothd squid freefont \
+	    linux$(KERNEL_TYPE) openssl openssh httpd smoothd squid freefont \
 	    strace rrdtool cron tcpdump dnsmasq ntp openntpd hdparm hddtemp \
 	    iproute2 gd expat ethtool listtables inotify-tools bridge-utils \
 	    beep2 pcre trafficstats iftop setuids ppp isdn4k-utils rp-pppoe \
@@ -36,7 +36,7 @@ INST_PKGS = glibc libsmooth+setup libgcc freetype libart_lgpl libpng libdnet \
 	    p3scan siproxd which miniupnpd ez-ipupdate noip cdrtools \
 	    suricata smartmontools at dosfstools e2fsprogs grub linux-atm \
 	    mtools nano reiserfsprogs parted xtables-addons cpio Python \
-	    udev lm_sensors xz pcmciautils xen sysfsutils \
+	    udev lm_sensors xz pcmciautils qemu-kvm sysfsutils \
 	    coretree
 # 'coretree' *MUST* be last
 
@@ -48,17 +48,17 @@ DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu gcc \
 cdrom:
 	@mkdir cdrom
 	@echo "      runtimeroot" >/proc/self/fd/0
-	@make -C runtimeroot
+	@make -C runtimeroot KERNEL_TYPE=$(KERNEL_TYPE) 
 	@echo "      installroot" >/proc/self/fd/0
-	@make -C installroot
+	@make -C installroot KERNEL_TYPE=$(KERNEL_TYPE) 
 	@echo "      cdromboot" >/proc/self/fd/0
-	@make -C cdromboot
+	@make -C cdromboot KERNEL_TYPE=$(KERNEL_TYPE) 
 
 cdrom/smoothwall.tgz:
 	@echo "      prepare cdrom tree" >/proc/self/fd/0
 	@mkdir -p distrib distrib/sys distrib-dev distrib-doc/usr/share/
 	
-	@install -D runtimerootimage.gz distrib/boot/initrd-$(K_SWE_VERSION)-dom0.gz
+	@install -D runtimerootimage.gz distrib/boot/initrd-$(K_RAW_VERSION)$(KERNEL_TYPE).gz
 	
 	@echo "        unpack dev packages" >/proc/self/fd/0
 	@echo "Unpacking dev packages:"
@@ -86,10 +86,10 @@ cdrom/smoothwall.tgz:
 	@echo "Unpacking main packages:"
 	@(for I in $(INST_PKGS); do \
 	    if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
-	      make -C ../$$I clean all; \
-	      if [ $$? -ne 0 ]; then \
+	      make -C ../$$I clean all; retCode=$$?; \
+	      if [ $$retCode -ne 0 ]; then \
 	        echo "$$I FAILED"; \
-	        exit 0; \
+	        exit $$retCode; \
 	      fi; \
 	    fi; \
 	    echo -n "    $$I"; \
@@ -132,18 +132,18 @@ cdrom/smoothwall.tgz:
 	echo "  REVISION='$(REVISION)'"; \
 	echo "  UI_VERSION='$(UI_VERSION)'"; \
 	echo "  FIXES='$(FIXES_NUMBER)'"; \
-	echo "  ARCH='$(ARCH)'"; \
+	echo "  ARCH='$(mARCH)'"; \
 	) | sed -u -e 's/^/  /'
 	
-	mkdir -p distrib/var/smoothwall/main
-	( \
+	@mkdir -p distrib/var/smoothwall/main
+	@( \
 	  echo "PRODUCT='$(PRODUCT_NAME)'" ; \
 	  echo "VERSION='$(PRODUCT_VERSION)'" ; \
 	  echo "RELEASE='$(RELEASE)'" ; \
 	  echo "REVISION='$(REVISION)'" ; \
 	  echo "UI_VERSION='$(UI_VERSION)'" ; \
 	  echo "FIXES='$(FIXES_NUMBER)'" ; \
-	  echo "ARCH='$(ARCH)'" ; \
+	  echo "ARCH='$(mARCH)'" ; \
 	) > distrib/var/smoothwall/main/productdata
 	
 	@chown nobody:nobody distrib/var/smoothwall/main/productdata
@@ -175,7 +175,9 @@ cdrom/smoothwall.tgz:
 	) | sed -u -e 's/^/  /'
 	
 	@# Temporary, 7/2012
-	@cd distrib/lib/modules/$(K_SWE_VERSION)-domU; cp -av * ../$(K_SWE_VERSION)-dom0
+ifeq ($(KERNEL_TYPE), dom0)
+	@cd distrib/lib/modules/$(K_RAW_VERSION)-domU; cp -av * ../$(K_RAW_VERSION)$(KERNEL_TYPE)
+endif
 
 	@echo "        tidy ..." >/proc/self/fd/0
 	@echo -e "\nTidying ..."

@@ -32,6 +32,7 @@ function compute_swap () {
 # sed changes this to the currently used kernel version
 #
 KERNEL_VER=KeRnElVeRsIoN
+KERNEL_TYPE=KeRnElTyPe
 
 # set ATIME first thing
   case $noatime in
@@ -372,7 +373,7 @@ END
   HDTMP="/harddisk/runtimeroot"
   mkdir -p $HDTMP; cd $HDTMP
   echo "    unpack"
-  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-dom0.gz | cpio -id"
+  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz | cpio -id"
   echo "    update"
   do_or_die "mkdir -p -m 755 ${HDTMP}/etc/udev/rules.d"
   do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* ${HDTMP}/etc/udev/rules.d/"
@@ -384,8 +385,8 @@ END
   do_or_die "/bin/chroot ${HDTMP} /sbin/depmod -a"
 
   echo "    re-pack"
-  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-dom0.gz"
-  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-dom0.gz"
+  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz"
+  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz"
   cd ${OPWD}
   rm -rf ${HDTMP}
 
@@ -429,26 +430,26 @@ color 0x06 0x0e
 # Boot using VESA console
 title AGCL/Roadster (VESA Console)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER} root=/dev/harddisk4 ro quiet
-initrd /initrd-${KERNEL_VER}-dom0.gz
+kernel /vmlinuz-${KERNEL_VER}${KERNEL_TYPE} root=/dev/harddisk4 ro quiet
+initrd /initrd-${KERNEL_VER}${KERNEL_TYPE}.gz
 
 # Boot using serial console
 title AGCL/Roadster (Serial Console)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER} root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD
-initrd /initrd-${KERNEL_VER}-dom0.gz
+kernel /vmlinuz-${KERNEL_VER}${KERNEL_TYPE} root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD
+initrd /initrd-${KERNEL_VER}${KERNEL_TYPE}.gz
 
 # Single-user using VESA console
 title AGCL/Roadster (VESA Console, Single-User)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER} root=/dev/harddisk4 ro quiet single
-initrd /initrd-${KERNEL_VER}-dom0.gz
+kernel /vmlinuz-${KERNEL_VER}${KERNEL_TYPE} root=/dev/harddisk4 ro quiet single
+initrd /initrd-${KERNEL_VER}${KERNEL_TYPE}.gz
 
 # Single-user using serial console
 title AGCL/Roadster (Serial Console, Single-User)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER} root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD single
-initrd /initrd-${KERNEL_VER}-dom0.gz
+kernel /vmlinuz-${KERNEL_VER}${KERNEL_TYPE} root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD single
+initrd /initrd-${KERNEL_VER}${KERNEL_TYPE}.gz
 END
 
   # Restore variable data if selected. AND upgrade files as needed!
@@ -575,7 +576,7 @@ else
   do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
 
   # Adjust the initramfs as needed (different disk, NICs or FS, etc.)
-  KERNEL_VER=`ls -C1 /harddisk/boot/initrd* | tail -1 | sed -e 's/.*initrd-//' -e 's/-dom0.*//'`
+  KERNEL_VER=`ls -C1 /harddisk/boot/initrd* | tail -1 | sed -e 's/.*initrd-//' -e 's/'${KERNEL_TYPE}'.*//'`
   echo "  adjusting runtime initramfs"
   set -- $FS
   FSTYPE=$2
@@ -589,7 +590,7 @@ else
   HDTMP="/harddisk/runtimeroot"
   mkdir -p $HDTMP; cd $HDTMP
   echo "    unpack"
-  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-dom0.gz | cpio -id"
+  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz | cpio -id"
   echo "    update"
   do_or_die "mkdir -p -m 755 ${HDTMP}/etc/udev/rules.d"
   do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* ${HDTMP}/etc/udev/rules.d/"
@@ -599,8 +600,8 @@ else
   do_or_die "/bin/chroot ${HDTMP} /sbin/depmod -a"
 
   echo "    re-pack"
-  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-dom0.gz"
-  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-dom0.gz"
+  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz"
+  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz"
   cd ${OPWD}
   rm -rf ${HDTMP}
 

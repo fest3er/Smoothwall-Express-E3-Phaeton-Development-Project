@@ -30,9 +30,19 @@
 #     then running 'make build'.
 
 export SHELL = bash
-SWE_TGT = i686-swe-linux-gnu
-TOOLCHAIN_ENV = env -i SWE_TGT=$(SWE_TGT) HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ '
+export mARCH = $(shell uname -m)
+CUSTOM_ENV = SHELL=BASH mARCH=$(mARCH) AGCL_TGT=$(mARCH)-agcl-linux-gnu \
+	     HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ '
+
 SRC_TGZ = ../../smoothsrc.tar.gz
+
+ifndef ktype
+ktype = kvm
+CUSTOM_ENV += KERNEL_TYPE=-kvm
+else
+CUSTOM_ENV += KERNEL_TYPE=-$(ktype)
+endif
+export finalENV := $(CUSTOM_ENV)
 
 # Default target, display help
 #
@@ -75,29 +85,29 @@ crumbs/host.checked:
 # build preparation
 #
 crumbs/tc_prep.built:
-	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain PREP
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc ./make_toolchain PREP
 	@touch crumbs/tc_prep.built
 
 # build stage 1
 #
 crumbs/tc_stage_1.built: crumbs/tc_prep.built
-	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 1
-	@$(TOOLCHAIN_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 1
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc ./make_toolchain 1
+	@env -i $(CUSTOM_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 1
 	@rm -f dummy.c a.out
 	@touch crumbs/tc_stage_1.built
 
 # build stage 2
 #
 crumbs/tc_stage_2.built: crumbs/tc_stage_1.built
-	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 2
-	@$(TOOLCHAIN_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 2
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc ./make_toolchain 2
+	@env -i $(CUSTOM_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 2
 	@rm -f dummy.c a.out
 	@touch crumbs/tc_stage_2.built
 
 # build stage 3
 #
 crumbs/tc_stage_3.built: crumbs/tc_stage_2.built
-	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 3
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc ./make_toolchain 3
 	@touch crumbs/tc_stage_3.built
 
 
@@ -105,7 +115,7 @@ crumbs/tc_stage_3.built: crumbs/tc_stage_2.built
 #
 crumbs/Final.prep.built: crumbs/tc_stage_3.built
 	@tput smso; echo -e "\nPreparing Final Build tree"; tput rmso
-	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'source /build/functions; prepare_final_tree >/build/crumbs/Final-prep.out 2>&1'"
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'source /build/functions; prepare_final_tree >/build/crumbs/Final-prep.out 2>&1'"
 	@touch crumbs/Final.prep.built
 
 # must have resolv.conf in chroot jail
@@ -118,7 +128,7 @@ crumbs/resolv.conf:
 #
 crumbs/Final.built: crumbs/resolv.conf crumbs/Final.prep.built
 	@tput smso; echo -e "\nFinal Build"; tput rmso
-	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c /build/make_final"
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc as_chroot "$(CUSTOM_ENV) /tools/bin/bash -l -c /build/make_final"
 	@touch crumbs/Final.built
 
 build: crumbs/host.checked crumbs/Final.built
@@ -128,8 +138,8 @@ rebuild: clean predownload build
 # prepare the installation media
 #
 media:
-	@echo -e "\nMaking ISO image..."; sleep 1
-	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'cd build;bash make_media'"
+	@echo -e "\nMaking ISO image with linux-$(ktype)..."; sleep 1
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc as_chroot "$(CUSTOM_ENV) /bin/bash -l -c /build/make_media"
 	@echo -e "\nMaking FLASH content..."; sleep 1
 	@sudo su -c "./make_flash"
 
