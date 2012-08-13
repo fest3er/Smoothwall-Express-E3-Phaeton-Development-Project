@@ -4,7 +4,6 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
-include ../Makefile.useKernel
 include ../../Makefile.versions
 include ../../Makefile
 
@@ -18,5 +17,5 @@ default:
 	echo -e "ISO boot prep complete\n\n\n\n\n"
 
 clean:
-	rm -rf ../cdrom/boot
-	rm -rf tmp
+	@rm -rf ../cdrom/boot
+	@rm -rf tmp
