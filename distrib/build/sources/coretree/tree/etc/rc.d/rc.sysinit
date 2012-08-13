@@ -1,13 +1,5 @@
 #!/bin/sh
 
-# Re-run udevd
-/sbin/udevd --daemon
-/sbin/udevadm trigger
-/sbin/udevadm settle
-/sbin/udevadm trigger --subsystem-match=block
-/sbin/udevadm trigger --attr-match=modalias
-/sbin/udevadm settle
-
 . /var/smoothwall/main/settings
 
 export STARTSTOP="startup"
@@ -54,6 +46,15 @@ fi
 
 echo "Mounting root read/write"
 mount -n -o remount,rw /
+
+# Re-run udevd
+/sbin/udevd --daemon
+/sbin/udevadm trigger
+/sbin/udevadm settle
+/sbin/udevadm trigger --subsystem-match=block
+/sbin/udevadm trigger --attr-match=modalias
+/sbin/udevadm settle
+
 echo "Clearing and refilling mtab"
 >/etc/mtab
 mount -f /

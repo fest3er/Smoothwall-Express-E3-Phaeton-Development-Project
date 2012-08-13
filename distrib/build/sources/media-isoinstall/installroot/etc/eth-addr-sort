@@ -23,7 +23,7 @@ done | sort | while read addr eth; do
   j=j+1
 done
 
-DRIVERS=`grep ":0x" /etc/udev/rules.d/70-persistent-net.rules | sed -e 's/.*(\([^)]*\))/\1/' |sort|uniq`
+DRIVERS=`egrep "^# PCI device 0x" /etc/udev/rules.d/70-persistent-net.rules | sed -e 's/.*(\([^)]*\))/\1/' |sort|uniq`
 for i in $DRIVERS; do
   rmmod $i
 done

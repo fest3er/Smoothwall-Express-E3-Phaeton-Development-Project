@@ -40,6 +40,7 @@ install: compile
 	@mkdir -p $(PKG_ROOT)
 	@# Remove and create needed links and targets
 	-mkdir -p $(PKG_ROOT)$(PKG_DIR)/sbin
+	-mkdir -p $(PKG_ROOT)$(PKG_DIR)/run
 	-x; cd $(PKG_ROOT)$(PKG_DIR); \
 	rm -rf lib/firmware lib/udev; \
 	install -dv lib/firmware; \
