@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = Net-Netmask
-VERSION = 1.9015
+VERSION = 1.9016
 
 BASE_URL = http://search.cpan.org/CPAN/authors/id/M/MU/MUIR/modules/
 

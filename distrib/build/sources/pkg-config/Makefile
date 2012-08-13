@@ -8,7 +8,7 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = pkg-config
-VERSION =  0.23
+VERSION =  0.25
 
 EXTENSION = .tar.gz
 

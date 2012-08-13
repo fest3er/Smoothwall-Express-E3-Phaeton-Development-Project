@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = diffutils
-VERSION = 2.8.1
+VERSION = 3.0
 
 BASE_URL = ftp://ftp.gnu.org/gnu/diffutils/
 
