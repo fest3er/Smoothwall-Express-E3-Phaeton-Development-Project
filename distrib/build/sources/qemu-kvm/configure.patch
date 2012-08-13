@@ -1,0 +1,11 @@
+--- qemu-kvm-1.1.1/configure-ORIG	2012-08-12 03:41:21.000000000 -0400
++++ qemu-kvm-1.1.1/configure	2012-08-12 03:41:56.000000000 -0400
+@@ -2783,7 +2783,7 @@
+ }
+ EOF
+   if ! compile_prog "" "" ; then
+-    CFLAGS+="-march=i486"
++    CFLAGS+=" -march=i486"
+   fi
+ fi
+ 
