@@ -18,9 +18,8 @@ BASE_URL = http://www.squid-cache.org/Versions/v3/3.1/
 
 CONFIG_OPTS = --enable-storeio="diskd,ufs" --enable-linux-netfilter \
 	      --enable-removal-policies="heap,lru" --enable-delay-pools \
-	      --enable-err-languages="English" \
-	      --enable-default-err-language=English --localstatedir=/var \
-	      --with-openssl
+	      --localstatedir=/var --with-dl --with-openssl \
+	      --with-large-files --with-libcap
 
 INSTALL_LANGUAGES = English
 

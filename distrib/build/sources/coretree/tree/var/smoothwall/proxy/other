@@ -1,0 +1,10 @@
+# OTHER OPTIONS
+# ----------------------------------------------------------------------------
+forwarded_for off
+pid_filename /var/run/squid.pid
+
+shutdown_lifetime 3 seconds
+icp_port 3130
+#https_port 443
+
+half_closed_clients off
