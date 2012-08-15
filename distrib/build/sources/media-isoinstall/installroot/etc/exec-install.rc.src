@@ -63,6 +63,7 @@ echo "Tweaking udev" >/dev/tty2
     
   ) > /etc/udev/rules.d/70-Smoothwall-custom-disk.rules
 
+  if [ 1 -lt 0 ]; then
   echo "    Persistent custom NIC names"
   (
     echo "# Phaeton/Roadster persistent custom NIC names"
@@ -72,8 +73,6 @@ echo "Tweaking udev" >/dev/tty2
     echo "# Persistent NIC names"
     # not doing custom NIC names for now
     #
-    cat /etc/udev/rules.d/70-persistent-net.rules
-    if [ 1 -lt 0 ]; then
     typeset -i i
     i=1
     while [ $i -lt $nic_cnt ]; do
@@ -84,8 +83,9 @@ echo "Tweaking udev" >/dev/tty2
       fi
       i=i+1
     done
-    fi # skip NIC names
   ) > /etc/udev/rules.d/70-Smoothwall-custom-NIC.rules
+  fi # skip NIC names
+  mv /etc/udev/rules.d/70-persistent-net.rules /etc/udev/rules.d/70-Smoothwall-custom-NIC.rules
 
   echo "  Triggering udev and waiting for it to settle"
   do_or_die "/sbin/udevadm trigger --subsystem-match=net"

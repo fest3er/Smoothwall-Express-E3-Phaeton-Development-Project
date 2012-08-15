@@ -151,6 +151,7 @@ cdrom/smoothwall.tgz:
 	@echo "        secure tree ..." >/proc/self/fd/0
 	@echo -e "\nSecuring tree ..."
 	@( \
+	  mkdir -p distrib/tmp; \
 	  /build/securetree distrib; \
 	  /build/securetree distrib-dev; \
 	  bash -x /build/securetree distrib-doc; \
@@ -158,7 +159,7 @@ cdrom/smoothwall.tgz:
 	  chmod u+s distrib/usr/sbin/listtables; \
 	  chown root:nobody distrib/usr/bin/setuids/*; \
 	  chmod 4750 distrib/usr/bin/setuids/*; \
-	  mkdir -p distrib/tmp; chmod 1777 distrib/tmp; \
+	  chmod 1777 distrib/tmp; \
 	) | sed -u -e 's/^/  /'
 	
 	@echo "        convert to shadow passwords ..." >/proc/self/fd/0

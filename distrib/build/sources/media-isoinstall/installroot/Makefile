@@ -102,8 +102,7 @@ all: clean bin lib klibc
 	  cp -a ../../../../buildroot/glibc/usr/lib/gconv/IBM850.so usr/lib/gconv/; \
 	)
 	@(cd tmp; \
-	  rm -rf /etc/udev/rules.d; \
-	  ln -s lib/udev/rules.d etc/udev/rules.d/; \
+	  rm -rf /etc/udev/rules.d/*; \
 	  ln -s /sbin/init init; \
 	)
 	@(cd tmp/etc; \
