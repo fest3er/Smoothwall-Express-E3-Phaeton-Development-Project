@@ -83,9 +83,16 @@ default:
 	@echo "    PASV=           use 'passive' FTP"
 	@echo "    MIRROR_UNO=hostA and/or MIRROR_DOS=hostB"
 	@echo "                    use hostA and/or hostB as sources for source packages."
-	@echo "                    hostA defaults to \"\", and hostB defaults to "roadster.agcl.us/downloads"
-	@echo "  This helps when you have a local web site containing the source tarballs"
+	@echo "                    hostA defaults to \"\", and hostB defaults to"
+	@echo "                    \"roadster.agcl.us/downloads\". This helps when you"
+	@echo "                    have a local web site containing the source tarballs"
 	@echo "  or want to verify the URLs in the pkg makefiles."
+	@echo "  Example showing all of them:"
+	@echo "    CONTINUE_DL= NO_CHECK_CERT= PASV= MIRROR_UNO=downloads \\"
+	@echo "      MIRROR_DOS=\"\" make build"
+	@echo "    Continue a previously started DL, don't check SSL certs, use FTP's"
+	@echo "    PASSIVE facility, use the local 'downloads' web host, and do not"
+	@echo "    use the roadster.agcl.us collection (skip right to internet sources)."
 
 # Host check
 #
