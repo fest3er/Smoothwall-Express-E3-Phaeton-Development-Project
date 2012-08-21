@@ -73,7 +73,19 @@ default:
 	@echo "  clean:            Clean everything in preparation for a fresh build from scratch."
 	@echo
 	@echo "Please view Makefile for other targets."
-
+	@echo
+	@echo "Predownload/download helpers"
+	@echo "  Options to control downloads:"
+	@echo "    CONTINUE_DL=    if you have a slow conection, this will continue"
+	@echo "                    a previous, interrupted download instead of creating"
+	@echo "                    tarball.[1-n]"
+	@echo "    NO_CERT_CHECK=  do not check the veracity of SSL certs"
+	@echo "    PASV=           use 'passive' FTP"
+	@echo "    MIRROR_UNO=hostA and/or MIRROR_DOS=hostB"
+	@echo "                    use hostA and/or hostB as sources for source packages."
+	@echo "                    hostA defaults to \"\", and hostB defaults to "roadster.agcl.us/downloads"
+	@echo "  This helps when you have a local web site containing the source tarballs"
+	@echo "  or want to verify the URLs in the pkg makefiles."
 
 # Host check
 #
