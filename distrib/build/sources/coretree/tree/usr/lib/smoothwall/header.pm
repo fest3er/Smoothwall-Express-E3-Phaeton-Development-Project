@@ -13,7 +13,7 @@ require Exporter;
 our @_validation_items;
 
 @EXPORT       = qw();
-@EXPORT_OK    = qw( $language $version $webuirevision $viewsize @menu $swroot $thisscript showhttpheaders showmenu showsection openpage closepage openbigbox closebigbox openbox closebox alertbox pageinfo readvalue writevalue writehash readhash getcgihash log pipeopen age validip validmask validipormask validipandmask validport validportrange validmac validhostname validcomment basename connectedstate %tr @_validation_items getsystemid outputfile $major $minor $point $relname $relnum $longversion );
+@EXPORT_OK    = qw( $language $version $webuirevision $viewsize @menu $swroot $thisscript showhttpheaders showmenu showsection openpage closepage openbigbox closebigbox openbox closebox alertbox pageinfo readvalue writevalue writehash readhash getcgihash log pipeopen age validip validmask validipormask validipandmask validport validportrange validmac validhostname validcomment basename connectedstate %tr @_validation_items getsystemid outputfile $major $minor $point $fix $relname $relnum $longversion );
 %EXPORT_TAGS  = (
 		standard   => [@EXPORT_OK],
 		);
@@ -29,9 +29,12 @@ my %productdata;
 
 ($vername, $vernum) = split(/-/, $productdata{'VERSION'});
 ($relname, $relnum, $candidate) = split(/-/, $productdata{'RELEASE'});
-($major, $minor, $point) = split(/\./, $relnum);
-$longversion = $point + $minor * 1000 + $major * 1000000;
-#print "LV=$longversion, MA=$major, MI=$minor, PT=$point, RNA=$relname, RNU=$relnum\n";
+($major, $minor, $point, $fix) = split(/\./, $relnum, 4);
+$major = 0 if !defined $major or $major eq "";
+$minor = 0 if !defined $minor or $minor eq "";
+$point = 0 if !defined $point or $point eq "";
+$fix = 0 if !defined $fix or $fix eq "";
+$longversion = ((((($major * 100) + $minor) * 1000) + $point) * 1000) + $fix;
 $version = "$vername ($relname v$relnum-$productdata{'ARCH'})";
 if ($candidate ne "")
 {

@@ -298,6 +298,7 @@ clean-final-crumbs:
 	else \
 	  tput smso; echo "cleaning final crumbs"; tput rmso; \
 	  rm -f sources/*/Final*.{out,built} crumbs/Final* crumbs/resolv.conf; \
+	  rm -f sources/media-isoinstall/Media*.{out,built}; \
 	fi
 
 clean-media-crumbs:

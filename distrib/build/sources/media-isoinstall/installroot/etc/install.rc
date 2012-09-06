@@ -1,5 +1,16 @@
 #!/bin/bash 
 
+# Taken from Kay Seiver's example
+getarg() {
+  local o line
+  for o in $cmdline; do
+    if test "$o" = "$1"; then echo $1; break; fi
+    if test "${o%%=*}" = "${1%=}"; then echo ${o#*=}; break; fi
+  done
+}
+# Fetch the kernel's command line
+read cmdline < /proc/cmdline
+
 CLS="\033[0;0f\033[2J"
 BO="\033[1m"
 UL="\033[4m"
@@ -163,7 +174,15 @@ case $restore in
         [ -d /proc/bus/usb ] && mount -n -o move /proc/bus/usb /harddisk/proc/bus/usb
 
         cd /harddisk
-        chroot . /usr/sbin/setup /dev/tty2${autoSetup}
+        echo $(getarg console) | \
+            awk '{if ($1 ~ /ttyS0,[0-9]+$/) { exit 0 } else { exit 1 }}'
+        if [ $? -eq 0 ]; then
+          # Use VT101 on serial port
+          chroot . /bin/bash -c "TERM=vt101 /usr/sbin/setup /dev/tty2${autoSetup}"
+        else
+          # VESA console behaves better
+          chroot . /usr/sbin/setup /dev/tty2${autoSetup}
+        fi
 
       echo -ne $CLS
       echo; echo;
