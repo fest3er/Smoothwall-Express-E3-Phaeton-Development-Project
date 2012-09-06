@@ -16,6 +16,7 @@ firewall.  Further information on your SmoothWall Express is available from <a h
 'credits.cgi' 		=> 'SmoothWall Express' . $tr{'version'} . ' ' . $version . '-' . $revision . ' ' . $webuirevision,
 'status.cgi' 		=> 'Active service status of your Smoothie.',
 'advstatus.cgi' 	=> 'Pertinent information about your Smoothie, current configuration and resource usage.',
+'advanced.cgi'       => 'Enable disable checking for IP addresses in correct subnet.',
 'graphs.cgi' 		=> 'Statistical graphical and numeric data based upon traffic usage across your SmoothWall\'s network interfaces.',
 'proxy.cgi' 		=> 'Configure and enable your SmoothWall\'s integrated caching web proxy service.',
 'dhcp.cgi' 		=> 'Configure and enable your SmoothWall\'s DHCP service, to automatically allocate LAN IP addresses to your network clients.',
