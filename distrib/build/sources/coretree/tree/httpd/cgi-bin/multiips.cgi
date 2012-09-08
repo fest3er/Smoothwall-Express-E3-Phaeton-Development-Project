@@ -103,14 +103,14 @@ if (
    )
 {
     unless ( &validip( $cgiparams{'ADDRESS'} ) ) {
-        $errormessage = "$tr{'multi-ip invalid'} $tr{'ip address'}";
+        $errormessage .= "$tr{'multi-ip invalid'} $tr{'ip address'}<b />";
     }
     unless ( &validipormask( $cgiparams{'NETMASK'} ) ) {
-        $errormessage = "$tr{'multi-ip invalid'} $tr{'multi-ip netmask'}";
+        $errormessage .= "$tr{'multi-ip invalid'} $tr{'multi-ip netmask'}<b />";
     }
     unless ( $cgiparams{'INTADDRESS'} eq '' ) {
         unless ( &validip( $cgiparams{'INTADDRESS'} ) ) {
-            $errormessage = "$tr{'multi-ip invalid'} $tr{'ip address'}";
+            $errormessage .= "$tr{'multi-ip invalid'} $tr{'ip address'}<b />";
         }
     }
     unless ($errormessage) {
@@ -180,10 +180,10 @@ if (
         my $success = message('ifaliasup');
 
         unless ( defined $success ) {
-            $errormessage = $tr{'smoothd failure'};
+            $errormessage .= "$tr{'smoothd failure'}<b />";
         }
         unless ( $success eq 'Successfully brought up alias interfaces.' ) {
-            $errormessage = "Error bringing up interfaces: " . "$success";
+            $errormessage .= "Error bringing up interfaces: $success<b />";
         }
 
         &log( $tr{'multi-ip ip address added or updated'} );
@@ -191,10 +191,10 @@ if (
         my $success = message('setportfw');
 
         unless ( defined $success ) {
-            $errormessage = $tr{'smoothd failure'};
+            $errormessage .= "$tr{'smoothd failure'}<b />";
         }
         unless ( $success eq 'Port forwarding rules set' ) {
-            $errormessage = "Error setting portforwarding rules: " . "$success";
+            $errormessage .= "Error setting portforwarding rules: $success<b />";
         }
     }
   EXIT:
@@ -229,16 +229,16 @@ if (
                 or ( $split[0] eq "ORANGE" )
                 or ( $split[0] eq "PURPLE" ) )
             {
-                $errormessage = $tr{'multi-ip iface error'};
+                $errormessage .= "$tr{'multi-ip iface error'}<b />";
             }
         }
     }
 
     if ( $count == 0 ) {
-        $errormessage = $tr{'nothing selected'};
+        $errormessage .= "$tr{'nothing selected'}<b />";
     }
     if ( $count > 1 && $cgiparams{'ACTION'} eq $tr{'edit'} ) {
-        $errormessage = $tr{'you can only select one item to edit'};
+        $errormessage .= "$tr{'you can only select one item to edit'}<b />";
     }
 
     unless ($errormessage) {
@@ -247,10 +247,10 @@ if (
         my $success = message('ifaliasdown');
 
         unless ( defined $success ) {
-            $errormessage = 'Unable to bring down interface aliases!';
+            $errormessage .= "Unable to bring down interface aliases!<b />";
         }
         unless ( $success eq 'Successfully brought down alias interfaces.' ) {
-            $errormessage = "Error bringing interfaces down: " . "$success";
+            $errormessage .= "Error bringing interfaces down: $success<b />";
         }
 
         $id = 0;
@@ -413,20 +413,20 @@ if (
         my $success = message('ifaliasup');
 
         unless ( defined $success ) {
-            $errormessage = 'Unable to bring up interface alias!';
+            $errormessage .= "Unable to bring up interface alias!<b />";
         }
         unless ( $success eq 'Successfully brought up alias interfaces.' ) {
-            $errormessage = "Error bringing up interfaces: " . "$success";
+            $errormessage .= "Error bringing up interfaces: $success<b />";
         }
 
         my $success = message('setportfw');
 
         unless ( defined $success ) {
-            $errormessage = $tr{'smoothd failure'};
+            $errormessage .= "$tr{'smoothd failure'}<b />";
         }
 
         unless ( $success eq 'Port forwarding rules set' ) {
-            $errormessage = "Error setting portforwarding rules: " . "$success";
+            $errormessage .= "Error setting portforwarding rules: $success<b />";
         }
     }
 

@@ -113,7 +113,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
     }
     unless ( &validipormask($ipmac) or &validmac($ipmac) ) {
         if ( $ipmac ne '' ) {
-            $errormessage .= "$tr{'source ip bad'}<BR />";
+            $errormessage .= "$tr{'source ip bad'}<br />";
         } else {
             $cgiparams{'SRC_IPMAC'} = '0.0.0.0/0';
         }
@@ -121,7 +121,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
 
     if ( $cgiparams{'DEST_PORT'} ) {
         unless ( &validportrange( $cgiparams{'DEST_PORT'} ) ) {
-            $errormessage .= "$tr{'source port numbers'}<BR />";
+            $errormessage .= "$tr{'source port numbers'}<br />";
         }
     } else {
         $cgiparams{'DEST_PORT'} = 0;
@@ -129,7 +129,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
 
     if ( $cgiparams{'NEW_DEST_PORT'} ) {
         unless ( &validportrange( $cgiparams{'NEW_DEST_PORT'} ) ) {
-            $errormessage .= "$tr{'destination port numbers'}<BR />";
+            $errormessage .= "$tr{'destination port numbers'}<br />";
         }
     } else {
         $cgiparams{'NEW_DEST_PORT'} = 0;
@@ -137,7 +137,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
 
     unless ( &validipormask( $cgiparams{'DEST_IPMAC'} ) ) {
         if ( $cgiparams{'DEST_IPMAC'} ne '' ) {
-            $errormessage .= "$tr{'destination ip bad'}<BR />";
+            $errormessage .= "$tr{'destination ip bad'}<br />";
         } else {
             $cgiparams{'DEST_IPMAC'} = '0.0.0.0/0';
         }
@@ -153,7 +153,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
         unless (!( $cgiparams{'DEST_PORT'} )
             and !( $cgiparams{'NEW_DEST_PORT'} ) )
         {
-            $errormessage = 'You cannot specify a port with that protocol';
+            $errormessage .= "You cannot specify a port with that protocol<br />";
         }
     }
 
@@ -163,14 +163,12 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
     {
         # Check for protocol being Any
         if ( $cgiparams{'PROTOCOL'} eq 'Any' ) {
-            $errormessage .=
-              "$tr{'error source-destination port protocol any'}<BR />";
+            $errormessage .= "$tr{'error source-destination port protocol any'}<br />";
         }
 
         # Check for dest. IP/MAC being empty
         if ( $cgiparams{'DEST_IPMAC'} eq '' ) {
-            $errormessage .=
-              "$tr{'error source-destination port destination any'}<BR />";
+            $errormessage .= "$tr{'error source-destination port destination any'}<br />";
         }
     }
 
@@ -187,8 +185,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
     if (    ( $cgiparams{'DEST_PORT'} == 0 )
         and ( $cgiparams{'NEW_DEST_PORT'} != 0 ) )
     {
-        $errormessage =
-          'Source port must be defined if destination port is also defined!';
+        $errormessage .= "Source port must be defined if destination port is also defined!<br />";
     }
 
     #########################################
@@ -228,17 +225,17 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
         $srcipaddrobj = new NetAddr::IP "$ipmac";
 
         if ( $localhostipobj eq $srcipaddrobj ) {
-            $errormessage .= "$tr{'source ip bad local'}<BR />";
+            $errormessage .= "$tr{'source ip bad local'}<br />";
         }
 
         if ( $greengwobj eq $srcipaddrobj ) {
-            $errormessage .= "$tr{'source ip bad gateway'}<BR />";
+            $errormessage .= "$tr{'source ip bad gateway'}<br />";
         } elsif ( !( $srcipaddrobj eq "" ) ) {
             if (   ( $orangegwobj eq $srcipaddrobj )
                 or ( $purplegwobj eq $srcipaddrobj )
                 or ( $redgwobj eq $srcipaddrobj ) )
             {
-                $errormessage .= "$tr{'source ip bad gateway'}<BR />";
+                $errormessage .= "$tr{'source ip bad gateway'}<br />";
             }
         }
 
@@ -246,7 +243,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
             if ( $cgiparams{'SRC_IFACE'} eq $netsettings{'GREEN_DEV'} ) {
                 unless ( $subcheck{'GREEN'} eq "off" ) {
                     if ( !$greenipobj->contains($srcipaddrobj) ) {
-                        $errormessage .= "$tr{'source ip bad green'}<BR />";
+                        $errormessage .= "$tr{'source ip bad green'}<br />";
                     }
                 }
             } elsif ( ( $netsettings{'ORANGE_ADDRESS'} ne '' )
@@ -254,7 +251,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
             {
                 unless ( $subcheck{'ORANGE'} eq "off" ) {
                     if ( !$orangeipobj->contains($srcipaddrobj) ) {
-                        $errormessage .= "$tr{'source ip bad orange'}<BR />";
+                        $errormessage .= "$tr{'source ip bad orange'}<br />";
                     }
                 }
             } elsif ( ( $netsettings{'PURPLE_ADDRESS'} ne '' )
@@ -262,7 +259,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
             {
                 unless ( $subcheck{'PURPLE'} eq "off" ) {
                     if ( !$purpleipobj->contains($srcipaddrobj) ) {
-                        $errormessage .= "$tr{'source ip bad purple'}<BR />";
+                        $errormessage .= "$tr{'source ip bad purple'}<br />";
                     }
                 }
             } elsif ( ( $redip ne '' )
@@ -276,7 +273,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
                         and $purpleipobj->contains($srcipaddrobj) )
                    )
                 {
-                    $errormessage .= "$tr{'source ip bad red'}<BR />";
+                    $errormessage .= "$tr{'source ip bad red'}<br />";
                 }
             }
         }
@@ -286,17 +283,17 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
         $destipaddrobj = new NetAddr::IP "$cgiparams{'DEST_IPMAC'}";
 
         if ( $localhostipobj eq $destipaddrobj ) {
-            $errormessage .= "$tr{'destination ip bad local'}<BR />";
+            $errormessage .= "$tr{'destination ip bad local'}<br />";
         }
 
         if ( $greengwobj eq $destipaddrobj ) {
-            $errormessage .= "$tr{'destination ip bad gateway'}<BR />";
+            $errormessage .= "$tr{'destination ip bad gateway'}<br />";
         } elsif ( !( $destipaddrobj eq "" ) ) {
             if (   ( $orangegwobj eq $destipaddrobj )
                 or ( $purplegwobj eq $destipaddrobj )
                 or ( $redgwobj eq $destipaddrobj ) )
             {
-                $errormessage .= "$tr{'destination ip bad gateway'}<BR />";
+                $errormessage .= "$tr{'destination ip bad gateway'}<br />";
             }
         }
 
@@ -305,8 +302,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
             if ( $cgiparams{'DEST_IFACE'} eq $netsettings{'GREEN_DEV'} ) {
                 unless ( $subcheck{'GREEN'} eq "off" ) {
                     if ( !$greenipobj->contains($destipaddrobj) ) {
-                        $errormessage .=
-                          "$tr{'destination ip bad green'}<BR />";
+                        $errormessage .= "$tr{'destination ip bad green'}<br />";
                     }
                 }
             } elsif ( ( $netsettings{'ORANGE_ADDRESS'} ne '' )
@@ -314,8 +310,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
             {
                 unless ( $subcheck{'ORANGE'} eq "off" ) {
                     if ( !$orangeipobj->contains($destipaddrobj) ) {
-                        $errormessage .=
-                          "$tr{'destination ip bad orange'}<BR />";
+                        $errormessage .= "$tr{'destination ip bad orange'}<br />";
                     }
                 }
             } elsif ( ( $netsettings{'PURPLE_ADDRESS'} ne '' )
@@ -323,8 +318,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
             {
                 unless ( $subcheck{'PURPLE'} eq "off" ) {
                     if ( !$purpleipobj->contains($destipaddrobj) ) {
-                        $errormessage .=
-                          "$tr{'destination ip bad purple'}<BR />";
+                        $errormessage .= "$tr{'destination ip bad purple'}<br />";
                     }
                 }
             } elsif ( ( $redip ne '' )
@@ -338,7 +332,7 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
                         and $purpleipobj->contains($destipaddrobj) )
                   )
                 {
-                    $errormessage .= "$tr{'destination ip bad red'}<BR />";
+                    $errormessage .= "$tr{'destination ip bad red'}<br />";
                 }
             }
         }
@@ -475,12 +469,11 @@ if (   $cgiparams{'ACTION'} eq $tr{'add'}
         my $success = message('setportfw');
 
         unless ( defined $success ) {
-            $errormessage .= "$tr{'smoothd failure'}" . "<br />\n";
+            $errormessage .= "$tr{'smoothd failure'}<br />";
         }
 
         unless ( $success eq 'Port forwarding rules set' ) {
-            $errormessage .=
-              "Error setting portforwarding rules: " . "$success" . "<br />\n";
+            $errormessage .= "Error setting portforwarding rules: $success<br />";
 
             $cnt = 1;
             open( FILE, ">$filename" ) or die 'Unable to open config file.';
@@ -553,11 +546,11 @@ elsif ($cgiparams{'ACTION'} eq $tr{'remove'}
     }
 
     if ( $count == 0 ) {
-        $errormessage = $tr{'nothing selected'};
+        $errormessage .= "$tr{'nothing selected'}<b />";
     }
 
     if ( $count > 1 and $cgiparams{'ACTION'} eq $tr{'edit'} ) {
-        $errormessage = $tr{'you can only select one item to edit'};
+        $errormessage .= "$tr{'you can only select one item to edit'}<b />";
     }
 
     unless ($errormessage) {
@@ -640,10 +633,10 @@ elsif ($cgiparams{'ACTION'} eq $tr{'remove'}
         my $success = message('setportfw');
 
         unless ( defined $success ) {
-            $errormessage = "$tr{'smoothd failure'}";
+            $errormessage .= "$tr{'smoothd failure'}<b />";
         }
         unless ( $success eq 'Port forwarding rules set' ) {
-            $errormessage = "Error setting portforwarding rules: " . "$success";
+            $errormessage .= "Error setting portforwarding rules: $success<b />";
         }
 
     }
@@ -866,7 +859,7 @@ END
 
 ##############################################
 
-print "<form method='POST' name='FIREWALL'>\n";
+print "<form method='post' name='FIREWALL'>\n";
 print "
 <table width='100%' class='box' style='margin-top:8pt; margin-bottom:8pt'>
    <tr>
@@ -1157,7 +1150,7 @@ print "            </select>
               <option value='DROP' $selected{'TARGET'}{'DROP'}>$tr{'target drop'}</option>
               <option value='LOG' $selected{'TARGET'}{'LOG'}>$tr{'target log'}</option>
             </select></td>
-          <td class='base'>$tr{'order number'}</td>
+          <td class='base'>$tr{'order numberc'}</td>
           <td>
             <select name='ORDER_NUMBER'>
 ";
@@ -1289,9 +1282,10 @@ my %render_settings = (
     'columns' => [
         {
             column => '1',
-            title  => 'Order',
-            size   => 10,
+            title  => $tr{'order'},
+            size   => 5,
             sort   => '<=>',
+
         },
         {
             column => '2',
@@ -1356,13 +1350,6 @@ my %render_settings = (
             align  => 'center',
         },
         {
-            column => '11',
-            title  => 'Timed',
-            size   => 10,
-            tr     => 'onoff',
-            align  => 'center',
-        },
-        {
             title => "$tr{'mark'}",
             size  => 5,
             mark  => ' ',
@@ -1370,11 +1357,6 @@ my %render_settings = (
         {
             column => '12',
             title  => "$tr{'comment'}",
-            break  => 'line',
-        },
-        {
-            column => '15',
-            title  => "Time frames",
             break  => 'line',
         }
     ]

@@ -68,18 +68,18 @@ my $errormessage = '';
 if ( $cgiparams{'ACTION'} eq $tr{'add'} ) {
     unless ( &validipormask( $cgiparams{'EXT'} ) ) {
         if ( $cgiparams{'EXT'} ne '' ) {
-            $errormessage = $tr{'source ip bad'};
+            $errormessage .= "$tr{'source ip bad'}<b />";
         } else {
             $cgiparams{'EXT'} = '0.0.0.0/0';
         }
     }
 
     unless ( &validcomment( $cgiparams{'COMMENT'} ) ) {
-        $errormessage = $tr{'invalid comment'};
+        $errormessage .= "$tr{'invalid comment'}<b />";
     }
     if ( $cgiparams{'PROTOCOL'} eq "6" or $cgiparams{'PROTOCOL'} eq "17" ) {
         unless ( &validportrange( $cgiparams{'DEST_PORT'} ) ) {
-            $errormessage = $tr{'destination port numbers'};
+            $errormessage .= "$tr{'destination port numbers'}<b />";
         }
     }
     unless ( $cgiparams{'PROTOCOL'} eq "6"
@@ -87,7 +87,7 @@ if ( $cgiparams{'ACTION'} eq $tr{'add'} ) {
         or $cgiparams{'PROTOCOL'} eq "TCP & UDP" )
     {
         if ( $cgiparams{'DEST_PORT'} ) {
-            $errormessage = $tr{'ffc-port and protocol'};
+            $errormessage .= "$tr{'ffc-port and protocol'}<b />";
         }
     }
     open( FILE, $filename ) or die 'Unable to open config file.';
@@ -129,15 +129,14 @@ if ( $cgiparams{'ACTION'} eq $tr{'add'} ) {
         my $success = message('setxtaccess');
 
         unless ( defined $success ) {
-            $errormessage = $tr{'smoothd failure'};
+            $errormessage .= "$tr{'smoothd failure'}<b />";
         }
         unless ( $success eq 'External Access Rules set' ) {
-            $errormessage =
-              "Error setting external access rules: " . "$success";
+            $errormessage .= "Error setting external access rules: $success<b />";
         }
 
         if ( not defined $success ) {
-            $errormessage = $tr{'smoothd failure'};
+            $errormessage .= "$tr{'smoothd failure'}<b />";
         }
     }
 }
@@ -159,10 +158,10 @@ if (   $cgiparams{'ACTION'} eq $tr{'remove'}
         }
     }
     if ( $count == 0 ) {
-        $errormessage = $tr{'nothing selected'};
+        $errormessage .= "$tr{'nothing selected'}<b />";
     }
     if ( $count > 1 and $cgiparams{'ACTION'} eq $tr{'edit'} ) {
-        $errormessage = $tr{'you can only select one item to edit'};
+        $errormessage .= "$tr{'you can only select one item to edit'}<b />";
     }
 
     unless ($errormessage) {
@@ -201,14 +200,13 @@ if (   $cgiparams{'ACTION'} eq $tr{'remove'}
         my $success = message('setxtaccess');
 
         unless ( defined $success ) {
-            $errormessage = $tr{'smoothd failure'};
+            $errormessage .= "$tr{'smoothd failure'}<b />";
         }
         unless ( $success eq 'External Access Rules set' ) {
-            $errormessage =
-              "Error setting external access rules: " . "$success";
+            $errormessage .= "Error setting external access rules: $success<b />";
         }
         if ( not defined $success ) {
-            $errormessage = $tr{'smoothd failure'};
+            $errormessage .= "$tr{'smoothd failure'}<b />";
         }
     }
 }
