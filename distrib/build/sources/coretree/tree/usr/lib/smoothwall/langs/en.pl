@@ -577,6 +577,7 @@
 'destination iface' => 'Destination Interface',
 'destination portc' => 'New Destination port:',
 'destination port' => 'New destination port',
+'order' => 'Order',
 'order numberc' => 'Order:',
 'target accept' => 'ACCEPT',
 'target reject' => 'REJECT',
