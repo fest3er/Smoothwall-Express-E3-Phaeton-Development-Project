@@ -37,7 +37,10 @@ use NetAddr::IP;
 use Net::Netmask;
 
 my %netsettings;
+my %isdnsettings;
 &readhash( "${swroot}/ethernet/settings", \%netsettings );
+&readhash( "${swroot}/isdn/settings", \%isdnsettings );
+
 my %subcheck;
 if ( -e "${swroot}/portfw/subcheck" ) {
     &readhash( "${swroot}/portfw/subcheck", \%subcheck );
@@ -60,7 +63,11 @@ my $reddev;
 
 # Determine red interface type
 if ( $netsettings{'RED_TYPE'} eq "PPPOE" ) {
-    $reddev = "ppp0";
+  if ( $isdnsettings{'ENABLED'} eq 'on' ) {
+    $reddev = 'ippp0';
+  } else {
+    $reddev = 'ppp0';
+  }
 } else {
     $reddev = $netsettings{'RED_DEV'};
 }
