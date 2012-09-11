@@ -92,6 +92,8 @@ ERROR:
 		
 		if (not defined $success) {
 			$errormessage = $tr{'smoothd failure'}; }
+
+		message('setoutgoing');
 	}
 }
 

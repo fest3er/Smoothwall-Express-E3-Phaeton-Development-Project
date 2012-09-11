@@ -219,6 +219,8 @@ my %render_settings = (
 					tr     => {
 						'0.0.0.0/0' => 'N/A',
 					},					
+					valign => 'top',
+					maxrowspan => 2,
 				},
 				{
 					column => '3',
@@ -253,11 +255,12 @@ my %render_settings = (
 					column => '5',
 					title => "$tr{'comment'}",
 					break => 'line',
+					spanadj => -1,
 				}
 			]
 			);
 
-&displaytable( $filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
+&dispaliastab( $filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
 
 print <<END
 <table class='blank'>

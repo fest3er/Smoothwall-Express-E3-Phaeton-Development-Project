@@ -222,9 +222,14 @@ if ( $available_count > 0 ){
   foreach my $update ( sort keys %updates )
   {
     next if ( defined $updates{$update}{'installed'} );
+    my $maj = substr($updates{$update}{"name"}, 0, 1);
+    my $min = substr($updates{$update}{"name"}, 1, 2);
+    my $pnt = substr($updates{$update}{"name"}, 3, 3);
+    my $fx = substr($updates{$update}{"name"}, 6, 3);
+    my $displayName = sprintf ("%d.%d.%d.%d", $maj, $min, $pnt, $fx);
     print <<END
   <tr style='vertical-align:top'>
-    <td style='width: 10%;' ><a href='$updates{$update}{"info"}' target='_new'>$updates{$update}{"name"}</a></td>
+    <td style='width: 10%;' ><a href='$updates{$update}{"info"}' target='_new'>$displayName</a></td>
     <td onClick="toggle('update-$update');" class='expand' style='vertical-align:top'>
       <div>
         $updates{$update}{'title'}

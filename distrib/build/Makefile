@@ -129,9 +129,9 @@ rebuild: clean predownload build
 #
 media:
 	@echo -e "\nMaking ISO image..."; sleep 1
-	env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'cd build;bash make_media'"
+	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'cd build;bash make_media'"
 	@echo -e "\nMaking FLASH content..."; sleep 1
-	@sudo su -c "./make_flash"
+	@sudo su -c ./make_flash
 
 # after a successful build, this will do everything
 #
@@ -148,26 +148,33 @@ chroot:
 #
 predownload:
 	@echo -e "\nPre-downloading source tarballs..."; sleep 1
-	@(export BUILD_PHASE="PreDownload"; . ./environment;set_build_environment;cd sources; for I in `find -maxdepth 3 -mindepth 1 -type d | sort`; do \
-	  if [ "$$I" != "./CVS" ]; then \
-	    if echo $$I | egrep "^./mtools/mtools-4.0.15/scripts" >/dev/null 2>&1; then \
-	      continue; \
-	    elif echo $$I | egrep "^./cdrtools" >/dev/null 2>&1; then \
-	      NW="GMAKE_NOWARN=true "; \
-	    else \
-	      unset NW; \
-	    fi; \
-	    make $$NW -C $$I -n download >/dev/null 2>/dev/null; \
-	    if [ $$? -eq 0 ]; then \
-	      echo -n " $$I"; \
-	      make --no-print-directory -C $$I download; \
-	      if [ $$? -ne 0 ]; then \
-	        echo "Oops"; \
-	        exit; \
+	@( \
+	  export BUILD_PHASE="PreDownload"; \
+	  . ./environment; \
+	  set_build_environment; \
+	  cd sources; \
+	  for I in `find -maxdepth 3 -mindepth 1 -type d | sort`; do \
+	    if [ "$$I" != "\./\.git" ]; then \
+	      if echo $$I | egrep "^./mtools/mtools-4.0.15/scripts" >/dev/null 2>&1; then \
+	        continue; \
+	      elif echo $$I | egrep "^./cdrtools" >/dev/null 2>&1; then \
+	        NW="GMAKE_NOWARN=true "; \
+	      else \
+	        unset NW; \
+	      fi; \
+	      make $$NW -C $$I -n download >/dev/null 2>/dev/null; \
+	      if [ $$? -eq 0 ]; then \
+	        echo -n " `basename $$I`"; \
+	        make --no-print-directory -C $$I download; \
+	        if [ $$? -ne 0 ]; then \
+	          echo "Oops"; \
+	          exit; \
+	        fi \
 	      fi \
-	    fi \
-	  fi; \
-	done); echo
+	    fi; \
+	  done \
+	); \
+	echo
 
 # Save a copy of the build directory, sans downloads, for future replication
 #
@@ -291,6 +298,7 @@ clean-final-crumbs:
 	else \
 	  tput smso; echo "cleaning final crumbs"; tput rmso; \
 	  rm -f sources/*/Final*.{out,built} crumbs/Final* crumbs/resolv.conf; \
+	  rm -f sources/media-isoinstall/Media*.{out,built}; \
 	fi
 
 clean-media-crumbs:

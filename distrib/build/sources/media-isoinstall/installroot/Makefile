@@ -33,7 +33,7 @@ EXCLUDE_DRIVERS = bluetooth connector gpu infiniband mfd misc mtd parport \
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
 SWE_PKGS = udev grub pciutils bash reiserfsprogs util-linux-ng pcmciautils \
-           sysfsutils syslinux parted readline inotify-tools mtools
+	   sysfsutils syslinux parted readline inotify-tools mtools
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr
 GZIP_PKGS = gunzip
 
@@ -46,7 +46,7 @@ lib:
 	mkdir -p tmp/lib tmp/usr/lib tmp/usr/lib/klibc/lib
 	cp -aR /lib/* tmp/lib
 	cp -aR /lib/lib* tmp/lib
-	cp -aR /usr/lib/libncurses* tmp/lib/
+	cp -aR /build/buildroot/ncurses/usr/lib/* tmp/lib/
 	tar xfz /build/target/smoothwall-kernel$(SWETYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1
 	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
 	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
@@ -84,6 +84,8 @@ all: clean bin lib klibc
 	  cp -aR ../etc/install.rc etc; chmod 755 etc/install.rc; \
 	  cp -aR ../etc/flash.rc etc; chmod 755 etc/flash.rc; \
 	  cp -aR ../etc/config-install.rc etc; chmod 755 etc/config-install.rc; \
+	  cp -aR ../etc/upgrade-outgoing.pl etc; chmod 755 etc/upgrade-outgoing.pl; \
+	  cp -aR ../etc/upgrade-outgoing.sh etc; chmod 755 etc/upgrade-outgoing.sh; \
 	  sed -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' <../etc/exec-install.rc.src \
 	    >etc/exec-install.rc; \
 	  chmod 755 etc/exec-install.rc; \

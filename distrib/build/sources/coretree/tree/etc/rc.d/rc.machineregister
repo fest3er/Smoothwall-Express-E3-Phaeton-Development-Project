@@ -3,14 +3,14 @@
 if [ -e "/var/smoothwall/notregistered" ]; then
 	/usr/bin/smoothwall/machine_reg.pl
 	if [ $? -eq 0 ]; then
-		echo "Register: Done"
+		echo -e "Register: Done\r"
 		logger -t smoothwall "Registered this SmoothWall"
 		rm -f /var/smoothwall/notregistered
 	else
-		echo "Register: Failed"
+		echo -e "Register: Failed\r"
 	fi
 else
-	echo "Register: Already registered"		
+	echo -e "Register: Already registered\r"
 fi
 
 /usr/bin/smoothwall/imagerotator.pl

@@ -7,11 +7,12 @@
 include ../Makefile.conf
 
 PACKAGE = cnxadsl
-VERSION = 2.6-1.5
+VERSION = 2.6-2.7
 
-BASE_URL = http://patrick.spacesurfer.com/adsl/
+BASE_URL = http://www.zweije.nl.eu.org/~vzweije/accessrunner/release/
 
 TARBALL = CnxADSL-6.1.2.007-PIM-$(VERSION)
+DIR = $(TARBALL)
 
 EXTENSION = .tar.bz2
 

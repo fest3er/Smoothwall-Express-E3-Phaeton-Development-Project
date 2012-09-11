@@ -36,7 +36,7 @@ lib:
 	(set -x; mkdir -p tmp/lib tmp/usr/lib/klibc/lib; \
 	cp -aR /lib/* tmp/lib; \
 	cp -aR /lib/lib* tmp/lib; \
-	cp -aR /usr/lib/libncurses* tmp/lib/; \
+	cp -aR /build/buildroot/ncurses/usr/lib/* tmp/lib/; \
 	tar xfz /build/target/smoothwall-kernel$(SWETYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1)
 
 klibc:
@@ -91,6 +91,8 @@ ifdef BITS_64
 endif
 
 	@touch tmp/cdrominstall
+
+	@/build/striptree tmp
 
 	@# Build the runtime initramfs CPIO archive
 	@cd tmp; find . | cpio -o -H newc | gzip > ../../$(RUNTIME_ROOT)image.gz

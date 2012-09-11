@@ -2,22 +2,30 @@
 
 function compute_swap () {
   # swap fixed to installed RAM, but must be shrunk if RAM > .25*hdsize
+  # measure in bytes!
+
+  typeset -i memsize mem_mib disk_eighth $2
+
   set `grep MemTotal /proc/meminfo`
-  memsize=$2
-  memunit=$3
-  swapstart=bootstart+bootsize
+  # Convert size to 1MiB blocks
+  case $3 in
+    kB) memsize=$2/1024;;
+    MB) memsize=$2;;
+    GB) memsize=$2*1024;;
+    TB) memsize=$2*1024**2;;
+    *) memsize=$2/1024;;      # Assume it is kB
+  esac
 
   # If memory is > 1/8 of the disk, crowbar swap to 1/8 of the disk
-  typeset -i mem_mib disk_eighth
-  mem_mib=memsize/1024
-  disk_eighth=remainder/8/2048
-  if [ $mem_mib -lt $disk_eighth ]; then
+  disk_eighth=remainder/8
+  if [ $memsize -lt $disk_eighth ]; then
     # Base swap on memory size
-    swapsize=memsize*2
-    Mswapsize=memsize/1024
+    swapMiB=memsize
+    swapsize=swapMiB
   else
-    swapsize=disk_eighth*2048
-    Mswapsize=$disk_eighth
+    # Base swap on 1/8 disk size
+    swapMiB=disk_eighth
+    swapsize=swapMiB
   fi
 }
 
@@ -34,7 +42,7 @@ KERNEL_VER=KeRnElVeRsIoN
 
 CONFIG_ROOT=/var/smoothwall
 
-TITLE="$CLS           ${BOUL}Smoothwall Express 3 (Phaeton Development) Installation$NO"
+TITLE="$CLS           ${BOUL}Smoothwall Express 3 (Roadster Test Vehicle) Installation$NO"
 
 echo -e "$TITLE"
 echo
@@ -91,76 +99,97 @@ echo
 echo "Partitioning hard drive"
 echo "Partitioning hard drive" >/dev/tty2
 echo
-  typeset -i remainder bootsize swapsize rootsize extsize logsize memsize
-  typeset -i sRemainder bootstart swapstart rootstart extstart logstart sMemsize
-  typeset -i Mremainder Mbootsize Mswapsize Mrootsize Mextsize Mlogsize Mmemsize
-  typeset -i sTotal sPerCyl Cyls Hds PerTrk
-  hdd="/dev/harddisk"
-  set `sfdisk -g $hdd 2>&1`
-  Cyls=$2
-  Hds=$4
-  PerTrk=$6
-  sTotal=Cyls*Hds*PerTrk
-  hdsize=sTotal/2048
-  sPerCyl=$4*$6
-  sPerTrack=$6
+  typeset -i remainder bootsize swapsize rootsize logsize memsize
+  typeset -i grubMiB bootMiB swapMiB rootMiB logMiB
+  typeset -i grubstart bootstart swapstart rootstart logstart
+  typeset -i grubend bootend swapend rootend logend
+  typeset -i sTotal hw_sector_size unused unusedMiB
 
-  # boot partition fixed size
-  bootsize=100*2048
-  bootstart=PerTrk
+  # Get disk parameters
+  hdd="${hd_dev[$hd]}"
+  hw_sector_size=`cat /sys/block/$hdd/queue/hw_sector_size 2>/dev/null`
+  if [ "$hw_sector_size" -eq 0 ]; then hw_sector_size=512; fi
+  sTotal=`cat /sys/block/$hdd/size`
+  sTotal=sTotal*$hw_sector_size/1024**2
+
+  # Find out how much we're to use: all or part
+  if [ $maxMiB -eq 0 ]; then
+    remainder=$sTotal
+    unused=0
+  else
+    remainder=$maxMiB
+    unused=sTotal-remainder
+  fi
 
   # Compute partition sizes
   #
-  if [ $maxMiB -eq 0 ]; then
-    # using whole disk
-    remainder=sTotal-PerTrk          # less one track
-    compute_swap                     # swap is based on memory and disk size
-    echo "  ${hdd}1  100MiB -> /boot"
-    echo "  ${hdd}2  ${Mswapsize}MiB -> swap"
-    remainder=remainder-bootsize-swapsize
-    logsize=remainder/3
-    logstart=swapstart+swapsize+PerTrk
-    Mlogsize=logsize/2048
-    extsize=logsize+PerTrk
-    extstart=swapstart+swapsize
-    Mextsize=extsize/2048
-    echo "  ${hdd}3    ${Mextsize}MiB -> (extended)"
-    rootsize=remainder-extsize
-    rootstart=extstart+extsize
-    Mrootsize=rootsize/2048
-    echo "  ${hdd}4    ~${Mrootsize}MiB -> / (root)"
-    echo "  ${hdd}5    ${Mlogsize}MiB -> /log"
-  else
-    # using limited size
-    remainder=$hdsize*2048-PerTrk    # less one track
-    unused=remainder-maxMiB*2048
-    compute_swap                     # swap is based on memory and disk size
-    echo "  ${hdd}1    100MiB -> /boot"
-    echo "  ${hdd}2    ${Mswapsize}MiB -> swap"
-    remainder=remainder-bootsize-swapsize
-    logsize=(remainder-unused)/3
-    logstart=swapstart+swapsize+PerTrk
-    Mlogsize=logsize/2048
-    extsize=unused+logsize+PerTrk
-    extstart=swapstart+swapsize
-    Mextsize=extsize/2048
-    echo "  ${hdd}3    ${Mextsize}MiB -> (extended)"
-    rootsize=remainder-extsize
-    rootstart=extstart+extsize
-    Mrootsize=rootsize/2048
-    echo "  ${hdd}4    ~${Mrootsize}MiB -> / (root)"
-    echo "  ${hdd}5    ${Mlogsize}MiB -> /log"
-  fi
-  cat >/tmp/sfdisk.parts <<END
-$bootstart,$bootsize,83,*
-$swapstart,$swapsize,82,
-$extstart,$extsize,85,
-$rootstart,$rootsize,83,
-$logstart,$logsize,83,
+  # boot partition fixed size
+  bootMiB=200
+  bootsize=bootMiB                   # 200MiB
+  bootstart=3                        # 3 MiB
+  bootend=bootstart+bootsize-1
+  echo "  ${hdd}1  ${bootMiB}MiB -> /boot"
+
+  # swap partition fixed size
+  remainder=remainder-4            # less one MiB at each end, less 2MiB bios_grub
+  compute_swap                     # swapsize is based on memory vs. disk size
+  swapstart=bootend+1
+  swapend=swapstart+swapsize-1
+  echo "  ${hdd}2  ${swapMiB}MiB -> swap"
+
+  # log partition: 1/3 remainder
+  remainder=remainder-bootsize-swapsize
+  logMiB=remainder/3
+  #logMiB=logMiB/1024/2
+  logsize=logMiB
+  logstart=swapend+1
+  logend=logstart+logsize-1
+  echo "  ${hdd}3  ${logMiB}MiB -> /log"
+
+  # root partition: remainder
+  remainder=remainder-logsize
+  rootMiB=remainder
+  rootsize=rootMiB
+  rootstart=logend+1
+  rootend=rootstart+rootsize-1
+  echo "  ${hdd}4  ${rootMiB}MiB -> / (root)"
+
+  # grub_bios partition: before /boot
+  grubMiB=2
+  grubsize=grubMiB
+  grubstart=1
+  grubend=grubstart+grubsize-1
+  echo "  ${hdd}5  ${grubMiB}MiB -> grub_bios"
+
+  # all that's left
+  remainder=remainder-rootsize
+  unused=unused+remainder
+  unusedMiB=unused
+  echo "           ${unusedMiB}MiB -> (free space)"
+
+  # prep the input
+  cat <<END >/tmp/partitions
+unit MiB
+select /dev/$hdd
+mklabel gpt
+mkpart boot reiserfs $bootstart $bootend
+name 1 "/boot"
+mkpart swap linux-swap $swapstart $swapend
+name 2 swap
+mkpart log reiserfs $logstart $logend
+name 3 "/var/log"
+mkpart root reiserfs $rootstart $rootend
+name 4 "/"
+mkpart bios_grub $grubstart $grubend
+set 5 bios_grub on
+name 5 "bios_grub"
+print
+quit
 END
 
   echo
-  do_or_die "sfdisk -uSq --force --no-reread /dev/harddisk </tmp/sfdisk.parts"
+  do_or_die "dd if=/dev/zero of=/dev/$hdd bs=512 count=34"
+  do_or_die "parted /dev/$hdd </tmp/partitions"
 
   sleep 2
 
@@ -174,10 +203,10 @@ echo
   do_or_die "$MKFS /dev/harddisk1"
   echo "  swap"
   do_or_die "mkswap /dev/harddisk2"
+  echo "  /var/log"
+  do_or_die "$MKFS /dev/harddisk3"
   echo "  /"
   do_or_die "$MKFS /dev/harddisk4"
-  echo "  /var/log"
-  do_or_die "$MKFS /dev/harddisk5"
 
   echo
   echo "Enabling swap"
@@ -207,18 +236,25 @@ fi
 
 # Mount the restore drive if restoring anything
 if [ $restore -eq 2 -o $restore -eq 3 ]; then
-  echo "Mounting restore drive"
-  mkdir -p /restore
-  RDMNTLOG="/tmp/rdmount.log"
-  > $RDMNTLOG
-  mount /dev/${rd_dev[$rd]}1  /restore -o ro >> $RDMNTLOG 2>&1
-  if [ $? -ne 0 ]; then
-    echo "Couldn't mount restore drive:"
-    sed -e 's/^/  /' $RDMNTLOG
-    echo
-    echo "Press <ENTER> to reboot the system and try again."
-    read a
-    reboot -f
+  rm -rf /restore
+  if grep "${rd_dev[$rd]}" /proc/mounts; then
+    echo "Linking cdrom to restore"
+    # backups are on the source medium
+    ln -s /cdrom /restore
+  else
+    echo "Mounting restore drive"
+    mkdir -p /restore
+    RDMNTLOG="/tmp/rdmount.log"
+    > $RDMNTLOG
+    mount /dev/${rd_dev[$rd]}1  /restore -o ro >> $RDMNTLOG 2>&1
+    if [ $? -ne 0 ]; then
+      echo "Couldn't mount restore drive:"
+      sed -e 's/^/  /' $RDMNTLOG
+      echo
+      echo "Press <ENTER> to reboot the system and try again."
+      read a
+      reboot -f
+    fi
   fi
 fi
 
@@ -229,7 +265,7 @@ fi
   echo "Mounting /boot and /var/log"
   mkdir -p -m 755 /harddisk/boot /harddisk/var/log
   do_or_die "mount $FS /dev/harddisk1 /harddisk/boot"
-  do_or_die "mount $FS /dev/harddisk5 /harddisk/var/log"
+  do_or_die "mount $FS /dev/harddisk3 /harddisk/var/log"
 
   sleep 2
 
@@ -277,7 +313,7 @@ if [ $restore -eq 1 -o $restore -eq 2 ]; then
     echo
     echo "/dev/harddisk4  /               $FSTYPE         $ROOTOPTION           0       1"
     echo "/dev/harddisk1  /boot           $FSTYPE         $OPTION  0       2"
-    echo "/dev/harddisk5  /var/log        $FSTYPE         $OPTION  0       2"
+    echo "/dev/harddisk3  /var/log        $FSTYPE         $OPTION  0       2"
   ) >/harddisk/etc/fstab
   echo "$FTYPE" >/harddisk/etc/modules
 
@@ -299,17 +335,28 @@ END
 
   cat <<END >/harddisk/$CONFIG_ROOT/main/settings
 LANGUAGE=en
-HOSTNAME=smoothwall
-KEYMAP=/usr/share/kbd/keymaps/i386/qwerty/us.map.gz
+HOSTNAME=roadster
+KEYMAP=/usr/share/keymaps/i386/qwerty/us.map.gz
 OPENNESS=halfopen
 END
+
+  cat <<END >/harddisk/$CONFIG_ROOT/time/settings
+TIMEZONE=US/Eastern
+END
+
+  if grep ${cd_dev[$CD]} /tmp/hd.list >/dev/null 2>&1; then
+    # Installing from USB flash or other 'hard drive' (*not* a CD)?
+    #   Assume this same device will be used for backups.
+    eval `/sbin/udevadm info --path=/sys/block/${cd_dev[$CD]} --query=all | egrep "ID_BUS=|ID_SERIAL=" | sed -e 's/^E: //'`
+    echo BACKUP_ID="$ID_BUS-$ID_SERIAL" >/harddisk/$CONFIG_ROOT/backup/settings
+  fi
 
   echo "  prepping module dependencies"
   do_or_die "/bin/chroot /harddisk /sbin/depmod -a"
 
   if [ $serialport -eq 2 -o $serialport -eq 3 ]; then
     echo "  enabling getty on ttyS0"
-    sed -i -e'/^S0/ s/off/respawn/' /harddisk/etc/inittab
+    sed -i -e '/^S0/ s/off/respawn/' -e '/^S0/ s/115200/'$BAUD'/' /harddisk/etc/inittab
   fi
 
   echo "  adjusting runtime initramfs"
@@ -343,60 +390,133 @@ END
   rm -rf ${HDTMP}
 
   echo "  configuring boot loader"
-  cat > /harddisk/boot/grub/menu.lst <<END
-# Begin /boot/grub/menu.lst
+  cat > /harddisk/boot/grub/grub.conf <<END
+# Begin /boot/grub/grub.conf
 
+# Set up to output to both VGA console and serial port; grub'll
+#   use the first one to see a keypress. Or it'll time out and
+#   use the default from installation (the first one in the command).
+#   Change the order of them if you manually change between serial
+#   and vesa.
+
+serial --unit=0 --speed=$BAUD
 END
 
   if [ $serialport -eq 1 -o $serialport -eq 3 ]; then
-    cat >> /harddisk/boot/grub/menu.lst <<END
+    cat >> /harddisk/boot/grub/grub.conf <<END
+terminal --timeout=5 serial console
+
 # Boot using serial console by default
 default 1
 END
   else
-    cat >> /harddisk/boot/grub/menu.lst <<END
+    cat >> /harddisk/boot/grub/grub.conf <<END
+terminal --timeout=5 console serial
+
 # Boot using VESA console
 default 0
 END
   fi
 
-  cat >> /harddisk/boot/grub/menu.lst <<END
+  cat >> /harddisk/boot/grub/grub.conf <<END
 
 # Allow 10 seconds before booting the default.
 timeout 10
 
-# Use prettier colors.
-color green/white light-green/black
+# Use prettier colors (OR/BK, YL/BK).
+color 0x06 0x0e
 
-# The first entry is for Smoothwall.
-title Smoothwall Express 3.0 (Roadster Test Vehicle)
+# Boot using VESA console
+title AGCL/Roadster (VESA Console)
 root (hd0,0)
 kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet
 initrd /initrd-${KERNEL_VER}-roadster.gz
 
-title Smoothwall Express 3.0 (Roadster Test Vehicle) ttyS0 SERIAL CONSOLE!
+# Boot using serial console
+title AGCL/Roadster (Serial Console)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,115200
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD
 initrd /initrd-${KERNEL_VER}-roadster.gz
 
-# The second entry is for booting Smoothwall into single-user mode.
-title Smoothwall Express 3.0 (Roadster Test Vehicle) Single-User
+# Single-user using VESA console
+title AGCL/Roadster (VESA Console, Single-User)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro single
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet single
+initrd /initrd-${KERNEL_VER}-roadster.gz
+
+# Single-user using serial console
+title AGCL/Roadster (Serial Console, Single-User)
+root (hd0,0)
+kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD single
 initrd /initrd-${KERNEL_VER}-roadster.gz
 END
 
   # Restore variable data if selected. AND upgrade files as needed!
   if [ $restore -eq 2 ]; then
-    (cd /harddisk/etc; for file in passwd group shadow; do cp $file $file-FRESH; done)
-    (cd /harddisk/var/smoothwall/main; mv productdata productdata-FRESH)
-    echo "  Restoring variable data from backup"
-    do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
-    echo "  Upgrading variable data files"
-    (cd /harddisk/var/smoothwall/main; mv productdata-FRESH productdata)
+    # Save the fresh files
     (
       cd /harddisk/etc
-      for file in passwd group shadow; do cp $file $file-RESTORED; done
+      for file in passwd group shadow snort.conf; do
+        # Copy these; UNIX don't like not having them
+        cp $file $file-FRESH
+      done
+    )
+    (
+      cd /harddisk/etc/udev/rules.d
+      mv 70-Smoothwall-custom-disk.rules 70-Smoothwall-custom-disk.rules-FRESH
+      mv 70-Smoothwall-custom-NIC.rules 70-Smoothwall-custom-NIC.rules-FRESH
+    )
+    (
+      cd /harddisk/var/smoothwall/main;
+      mv productdata productdata-FRESH
+      mv settings settings-FRESH
+    )
+    (
+      cd /harddisk/var/smoothwall/outgoing
+      mv config config-FRESH
+    )
+
+    # Restore var data
+    echo "  Restoring variable data from backup"
+    do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
+
+    echo "  Upgrading variable data files"
+    # upgrade main
+    (
+      cd /harddisk/var/smoothwall/main;
+      cp productdata productdata-RESTORED
+      cp productdata-FRESH productdata
+      cp settings settings-RESTORED
+      cp settings-FRESH settings
+    )
+
+    # Upgrade udev rules
+    # We don't need to deal with initramfs, since it's all new. Just check if
+    #   the NICs have changed.
+    OPWD=${PWD}
+    cd /harddisk/etc/udev/rules.d
+    # If the MAC addrs changed, force setup to run
+    grep SUBSYSTEM /etc/udev/rules.d/70-Smoothwall-custom-NIC.rules | \
+        sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+        sort > /tmp/newNICs
+    grep SUBSYSTEM /harddisk/etc/udev/rules.d/70-Smoothwall-custom-NIC.rules | \
+        sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+        sort > /tmp/oldNICs
+    if ! diff /tmp/newNICs /tmp/oldNICs >/dev/null 2>&1; then mustRunSetup=1; fi
+    # And restore the new rules
+    mv 70-Smoothwall-custom-disk.rules-FRESH 70-Smoothwall-custom-disk.rules
+    mv 70-Smoothwall-custom-NIC.rules-FRESH 70-Smoothwall-custom-NIC.rules
+    cd ${OPWD}
+
+    # Upgrade /etc files (retain user modifications)
+    (
+      cd /harddisk/etc
+      # Save the restored files
+      for file in passwd group shadow snort.conf; do
+        cp $file $file-RESTORED
+      done
+
+      # Upgrade them
       (
         egrep "fuse|plugdev|scanner|kvm|usbmux" group-FRESH
         egrep -v "fuse|plugdev|scanner|kvm|usbmux" group-RESTORED
@@ -410,9 +530,41 @@ END
         egrep -v "usbmux" shadow-RESTORED
         egrep "usbmux" shadow-FRESH
       ) >shadow
+      cp snort.conf-FRESH snort.conf
+      echo "    /etc/snort.conf upgraded; the original has been saved to snort.conf-RESTORED."
+      echo "    If you made any local changes, you must copy them to the new file."
+      sleep 3
     )
+
+    # Upgrade .../outgoing/config
+    (
+      cd /harddisk/var/smoothwall/outgoing
+      cp config config-RESTORED
+      cp /etc/upgrade-outgoing.{pl,sh} /harddisk/tmp/
+
+      # Run the update script; chroot to get perl
+      chroot /harddisk bash /tmp/upgrade-outgoing.sh
+    )
+
+    # Update .../main/settings
+    (
+      cd /harddisk/var/smoothwall/main
+      . settings-RESTORED
+      HOSTNAMErestored=$HOSTNAME
+      . settings-FRESH
+      cat<<END > settings
+LANGUAGE=$LANGUAGE
+HOSTNAME=$HOSTNAMErestored
+KEYMAP=$KEYMAP
+OPENNESS=
+END
+    )
+
     # Sweep the detritus under the rug
     (cd /harddisk/etc; rm -f {passwd,group,shadow}-{RESTORED,FRESH})
+    (cd /harddisk/var/smoothwall/main; rm -f *-{RESTORED,FRESH})
+    (cd /harddisk/var/smoothwall/outgoing; rm -f *-{RESTORED,FRESH})
+    (cd /tmp/; rm -f upgrade-outgoing*)
     GRUB_CMD="$GRUB_CMD --recheck"
   fi
 
@@ -421,6 +573,52 @@ else
   # Performing a total restore
   echo "  Restoring complete system from backup"
   do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
+
+  # Adjust the initramfs as needed (different disk, NICs or FS, etc.)
+  KERNEL_VER=`ls -C1 /harddisk/boot/initrd* | tail -1 | sed -e 's/.*initrd-//' -e 's/-roadster.*//'`
+  echo "  adjusting runtime initramfs"
+  set -- $FS
+  FSTYPE=$2
+  if [ "$FSTYPE" == "reiserfs" ]; then
+    OPTION="notail$ATIME        "
+  else
+    OPTION="defaults$ATIME"
+  fi
+
+  OPWD=`pwd`
+  HDTMP="/harddisk/runtimeroot"
+  mkdir -p $HDTMP; cd $HDTMP
+  echo "    unpack"
+  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz | cpio -id"
+  echo "    update"
+  do_or_die "mkdir -p -m 755 ${HDTMP}/etc/udev/rules.d"
+  do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* ${HDTMP}/etc/udev/rules.d/"
+
+  echo "/dev/harddisk4	/harddisk	$FSTYPE	$OPTION		0	1" >${HDTMP}/etc/fstab
+  echo "$FSTYPE" >${HDTMP}/etc/modules
+  do_or_die "/bin/chroot ${HDTMP} /sbin/depmod -a"
+
+  echo "    re-pack"
+  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
+  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
+  cd ${OPWD}
+  rm -rf ${HDTMP}
+
+  # Also update udev rules, fstab and modules on harddisk
+  # And ensure setup is run if the NICs have changed
+  grep SUBSYSTEM /etc/udev/rules.d/*Smoothwall*NIC* | \
+      sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+      sort > /tmp/newNICs
+  grep SUBSYSTEM /harddisk/etc/udev/rules.d/*Smoothwall*NIC* | \
+      sed -e 's/.*address}=="//' -e 's/", ATTR{dev_id.*//' | \
+      sort > /tmp/oldNICs
+  if ! diff /tmp/newNICs /tmp/oldNICs >/dev/null 2>&1; then mustRunSetup=1; fi
+  do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* /harddisk/etc/udev/rules.d/"
+  sed -i -e 's=/ .*=/               '$FSTYPE' '$OPTION'         0       1=' \
+         -e 's=/boot.*=/boot           '$FSTYPE' defaults'$ATIME'         0       2=' \
+         -e 's=/var/log.*=/var/log        '$FSTYPE' defaults'$ATIME'         0       2=' \
+      /harddisk/etc/fstab
+  sed -i -e 's/reiserfs\|ext./'$FSTYPE'/' /harddisk/etc/modules
 
   # Sweep some backup crumbs under the rug
   rm -f /harddisk/boot/grub/device.map  # map might've changed

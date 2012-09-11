@@ -7,10 +7,10 @@
 include ../Makefile.conf
 
 PACKAGE = strace
-VERSION = 4.5.20
+VERSION = 4.6
 
-EXTENSION = .tar.bz2
+EXTENSION = .tar.xz
 
-BASE_URL = http://heanet.dl.sourceforge.net/sourceforge/strace/
+BASE_URL = http://hivelocity.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/$(VERSION)
 
 include ../Makefile.rules

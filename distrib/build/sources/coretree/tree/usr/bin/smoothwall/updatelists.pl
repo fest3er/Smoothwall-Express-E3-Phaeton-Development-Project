@@ -8,7 +8,6 @@ use update qw( :standard );
 
 my @this;
 my $return = &downloadlist();
-print $return;
 if ($return =~ m/^HTTP\/\d+\.\d+ 200/) {
 	unless(open(LIST, ">${swroot}/patches/available")) {
 		die "Could not open available updates file."; }

@@ -7,8 +7,8 @@
 include ../Makefile.conf
 
 PACKAGE = psmisc
-VERSION = 22.10
+VERSION = 22.16
 
-BASE_URL = http://heanet.dl.sourceforge.net/sourceforge/psmisc/
+BASE_URL = http://hivelocity.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/
 
 include ../Makefile.rules

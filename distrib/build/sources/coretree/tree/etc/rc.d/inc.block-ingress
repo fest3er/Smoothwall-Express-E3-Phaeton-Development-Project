@@ -1,0 +1,33 @@
+#! /bin/bash
+
+if [ "x$STARTSTOP" != "x" ]; then
+  echo "Loading modules for temporary ingress policers"
+  for i in sch_ingress cls_u32 act_police; do modprobe $i; done
+
+  echo -n "Blocking non-DHCP traffic on"
+  for i in "$GREEN_DEV" "$RED_DEV" "$ORANGE_DEV" "$PURPLE_DEV"; do
+    if [ "$i" != "" ]; then
+      echo -n " $i"
+
+      # Delete it silently, Justin Case
+      /usr/sbin/tc qdisc del dev $i handle ffff: ingress >/dev/null 2>&1
+
+      # Add the ingress qdisc
+      /usr/sbin/tc qdisc add dev $i handle ffff: ingress
+
+      # Allow inbound bootp/dhcp traffic to pass
+      /usr/sbin/tc filter add dev $i parent ffff: \
+        protocol ip prio 40 \
+        u32 match ip sport 67 0xffff match ip dport 68 0xffff \
+        flowid :1
+
+      # Block all other traffic
+      /usr/sbin/tc filter add dev $i parent ffff: \
+        protocol ip prio 50 \
+        u32 match ip src 0.0.0.0/0 \
+        police mtu 1 drop flowid :1
+    fi
+  done
+
+  echo
+fi

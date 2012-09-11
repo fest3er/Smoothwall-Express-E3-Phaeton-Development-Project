@@ -7,8 +7,8 @@
 include ../Makefile.conf
 
 PACKAGE = libpng
-VERSION = 1.2.23
+VERSION = 1.2.49
 
-BASE_URL = http://heanet.dl.sourceforge.net/sourceforge/libpng/
+BASE_URL = http://hivelocity.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)12/$(VERSION)/
 
 include ../Makefile.rules

@@ -6,7 +6,6 @@
     notifempty
     missingok
     postrotate
-        kill `cat /var/run/smoothd.pid`
-	/usr/sbin/smoothd
+        kill -HUP `cat /var/run/smoothd.pid`
     endscript
 }

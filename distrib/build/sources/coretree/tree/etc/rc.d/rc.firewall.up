@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Get connmark bits and flags
+. /etc/rc.d/inc.bits-flags
+
 # Disable ICMP Redirect Acceptance
 for FILE in /proc/sys/net/ipv4/conf/*/accept_redirects; do
 	echo 0 > $FILE
@@ -27,6 +30,18 @@ echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_last_ack
 echo 630 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close_wait
 echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close
 
+# IPV6: Set default policy to ACCEPT local stuff, but reject forwarding
+/usr/sbin/ip6tables -F
+/usr/sbin/ip6tables -X
+
+/usr/sbin/ip6tables -P INPUT ACCEPT
+/usr/sbin/ip6tables -P FORWARD DROP
+/usr/sbin/ip6tables -P OUTPUT ACCEPT
+
+# And reject DNS
+/usr/sbin/ip6tables -A FORWARD -p udp --destination-port 53 -j REJECT
+/usr/sbin/ip6tables -A INPUT -p udp --destination-port 53 -j REJECT
+
 /sbin/iptables -F
 /sbin/iptables -X
 
@@ -42,10 +57,22 @@ echo 360 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close
 
 # Link Local routing blocker
 /sbin/iptables -N lldrop
-/sbin/iptables -A lldrop -j LOG
+/sbin/iptables -A lldrop -j LOG --log-prefix "Denied-by-filter:lldrop "
 /sbin/iptables -A lldrop -j DROP
 /sbin/iptables -A FORWARD -s 169.254.0.0/16 -j lldrop
 /sbin/iptables -A FORWARD -d 169.254.0.0/16 -j lldrop
+
+# From RFC5737, "The blocks 192.0.2.0/24 (TEST-NET-1), 198.51.100.0/24
+# (TEST-NET-2), and 203.0.113.0/24 (TEST-NET-3) are provided for use in
+# documentation." They should not appear on any network and are not for
+# private use. So treat them as Link-Local addresses.
+for TEST_NET in 192.0.2.0/24 198.51.100.0/24 203.0.113.0/24; do
+  for CHAIN in INPUT FORWARD OUTPUT; do
+    for DIR in s d; do
+      /sbin/iptables -A ${CHAIN} -${DIR} ${TEST_NET} -j lldrop
+    done
+  done
+done
 
 # IP blocker
 /sbin/iptables -N ipblock
@@ -60,16 +87,49 @@ if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A FORWARD -i $RED_DEV -j ipblock
 fi
 
-# Setup timed access chains.
-/sbin/iptables -N timedaccess
-/sbin/iptables -N timedaction
-/sbin/iptables -A timedaction -j LOG --log-prefix Denied-by-Timed-Access:-
-/sbin/iptables -A timedaction -j REJECT
+# localhost
+/sbin/iptables -A INPUT -i lo -j ACCEPT
 
+# Setup chains for controlling outgoing conns. Place them
+# here so that setting timed access on outgoing rules can immediately
+# shut down all outgoing traffic from a source device or machine if desired
+/sbin/iptables -N tofcScreen    # FORWARD prescreen; some traffic is always allowed
+/sbin/iptables -N tofcPrxScreen # INPUT prescreen; some traffic is always allowed
+/sbin/iptables -N tofcfwd2Int   # Filter inbound packets
+/sbin/iptables -N tofcfwd2Ext   # Filter outbound packets
+/sbin/iptables -N tofcproxy     # Filter proxied outbound conns in INPUT
+/sbin/iptables -N tofcblock     # The final arbiter
 
-# Apply the time rules to deny the traffic.
-/sbin/iptables -A INPUT -j timedaccess
-/sbin/iptables -A FORWARD -j timedaccess
+# Put a default blocker in tofcblock; setoutgoing will replace it soon enough.
+/sbin/iptables -A tofcblock -j DROP
+
+# Never touch certain traffic; filter the rest
+#   Always accept outbound ICMP
+/sbin/iptables -A tofcScreen -p icmp -j ACCEPT
+#   Always accept related conns
+#     There is no way to determine which TOFC entry would apply, so we have to
+#     blindly accept them
+/sbin/iptables -A tofcScreen -m connmark --mark ${related}/${connRelMask} -j ACCEPT
+#   send packets from RED to tofcfwd2Int
+if [ "$RED_DEV" != "" ]; then
+  /sbin/iptables -A tofcScreen -i $RED_DEV -j tofcfwd2Int
+fi
+/sbin/iptables -A tofcScreen -i ppp0 -j tofcfwd2Int
+/sbin/iptables -A tofcScreen -i ippp0 -j tofcfwd2Int
+#   send the rest to tofcfwd2Ext
+/sbin/iptables -A tofcScreen -j tofcfwd2Ext
+
+# Never touch certain traffic; filter the rest
+/sbin/iptables -A tofcPrxScreen -p icmp -j ACCEPT
+#   Always accept related conns
+#     There is no way to determine which TOFC entry would apply, so we have to
+#     blindly accept them
+/sbin/iptables -A tofcPrxScreen -m connmark --mark ${related}/${connRelMask} -j ACCEPT
+/sbin/iptables -A tofcPrxScreen -j tofcproxy
+
+# Send all outbound and proxied outbound conns to the tofc chains
+/sbin/iptables -A FORWARD -m connmark --mark ${typeOutbound}/${connTypeMask} -j tofcScreen
+/sbin/iptables -A INPUT -m connmark --mark ${typeInt2FW}/${connTypeMask} -j tofcPrxScreen
 
 # For IGMP and multicast
 /sbin/iptables -N advnet
@@ -102,8 +162,7 @@ if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A INPUT -i $RED_DEV -j spoof
 fi
 
-# localhost and ethernet.
-/sbin/iptables -A INPUT -i lo -j ACCEPT
+# Ethernet
 /sbin/iptables -A INPUT -i $GREEN_DEV -j ACCEPT
 if [ "$PURPLE_DEV" != "" ]; then
 	/sbin/iptables -A INPUT -i $PURPLE_DEV -j ACCEPT
@@ -177,96 +236,36 @@ fi
 /sbin/iptables -A INPUT -j block
 
 # last rule in INPUT chain is for logging.
-/sbin/iptables -A INPUT -j LOG
+/sbin/iptables -A INPUT -j LOG --log-prefix "Denied-by-filter:INPUT "
 /sbin/iptables -A INPUT -j REJECT
 
-# Green, Orange and Purple chains for outbound, and allows for always allowed.
-/sbin/iptables -N outgreen
-/sbin/iptables -N outorange
-/sbin/iptables -N outpurple
-/sbin/iptables -N allows
+# Any 'connection' that exists is allowed
+/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-# Setup our outgoing filter stub chains.
-/sbin/iptables -N outbound
-/sbin/iptables -A outbound -p icmp -j ACCEPT
-/sbin/iptables -A outbound -j allows
-/sbin/iptables -A outbound -i $GREEN_DEV -j outgreen
-if [ "$ORANGE_DEV" != "" ]; then
-	/sbin/iptables -A outbound -i $ORANGE_DEV -j outorange
-fi
-if [ "$PURPLE_DEV" != "" ]; then
-	/sbin/iptables -A outbound -i $PURPLE_DEV -j outpurple
-fi
+# New PURPLE-to-GREEN, ORANGE-to-GREEN, and ORANGE-to-PURPLE 'connections'
+#   must pass the pinhole gauntlet.
 
-# These strange rules are to make bouncing forwards work.
-/sbin/iptables -A FORWARD -i $GREEN_DEV -o $GREEN_DEV -m state --state ESTABLISHED,RELATED -j ACCEPT
-if [ "$ORANGE_DEV" != "" ]; then
-	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $ORANGE_DEV -m state --state ESTABLISHED,RELATED -j ACCEPT
-fi
-if [ "$PURPLE_DEV" != "" ]; then
-	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $PURPLE_DEV -m state --state ESTABLISHED,RELATED -j ACCEPT
-fi
-
-# Allow packets that we know about through.
-/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -o ppp0 -j ACCEPT
-/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -i ppp0 -j ACCEPT
-/sbin/iptables -A FORWARD -m state --state NEW -o ppp0 -j outbound
-/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -o ippp0 -j ACCEPT
-/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -i ippp0 -j ACCEPT
-/sbin/iptables -A FORWARD -m state --state NEW -o ippp0 -j outbound
-if [ "$RED_DEV" != "" ]; then
-	/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -o $RED_DEV -j ACCEPT
-	/sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -i $RED_DEV -j ACCEPT
-	/sbin/iptables -A FORWARD -m state --state NEW -o $RED_DEV -j outbound
-fi
-
-# Port forwarding & Bouncing portforwards
-# /sbin/iptables -N portfwf
-# /sbin/iptables -A FORWARD -i ppp0 -j portfwf
-# /sbin/iptables -A FORWARD -i ippp0 -j portfwf
-# if [ "$RED_DEV" != "" ]; then
-# 	/sbin/iptables -A FORWARD -i $RED_DEV -j portfwf
-# fi
-# /sbin/iptables -A FORWARD -m mark --mark 1 -j portfwf
-# if [ "$ORANGE_DEV" != "" ]; then
-# 	/sbin/iptables -A FORWARD -m mark --mark 2 -j portfwf
-# fi
-# if [ "$PURPLE_DEV" != "" ]; then
-# 	/sbin/iptables -A FORWARD -m mark --mark 3 -j portfwf
-# fi
-
+# Setup dmzholes chains for internal pinholes
 /sbin/iptables -N dmzholes
 
-# Allow GREEN to talk to ORANGE.
+# ORANGE / GREEN
 if [ "$ORANGE_DEV" != "" ]; then
-	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $GREEN_DEV -m state \
-		--state ESTABLISHED,RELATED -j ACCEPT
-	/sbin/iptables -A FORWARD -i $GREEN_DEV -o $ORANGE_DEV -m state \
-		--state NEW,ESTABLISHED,RELATED -j ACCEPT
-	# dmz pinhole chain.  setdmzholes setuid prog adds rules here to allow
-	# ORANGE to talk to GREEN.
+        /sbin/iptables -A FORWARD -i $GREEN_DEV -o $ORANGE_DEV -m state \
+                --state NEW -j ACCEPT
 	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $GREEN_DEV -j dmzholes
 fi
 
-# Allow GREEN to talk to PURPLE.
+# PURPLE / GREEN.
 if [ "$PURPLE_DEV" != "" ]; then
-	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $GREEN_DEV -m state \
-		--state ESTABLISHED,RELATED -j ACCEPT
-	/sbin/iptables -A FORWARD -i $GREEN_DEV -o $PURPLE_DEV -m state \
-		--state NEW,ESTABLISHED,RELATED -j ACCEPT
-	# dmz pinhole chain.  setdmzholes setuid prog adds rules here to allow
-	# PURPLE to talk to GREEN.
+        /sbin/iptables -A FORWARD -i $GREEN_DEV -o $PURPLE_DEV -m state \
+                --state NEW -j ACCEPT
 	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $GREEN_DEV -j dmzholes
 fi
 
-# Allow PURPLE to talk to ORANGE.
+# ORANGE / PURPLE
 if [ "$PURPLE_DEV" != "" -a "$ORANGE_DEV" != "" ]; then
-	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $PURPLE_DEV -m state \
-		--state ESTABLISHED,RELATED -j ACCEPT
-	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $ORANGE_DEV -m state \
-		--state NEW,ESTABLISHED,RELATED -j ACCEPT
-	# dmz pinhole chain.  setdmzholes setuid prog adds rules here to allow
-	# ORANGE to talk to PURPLE.
+        /sbin/iptables -A FORWARD -i $PURPLE_DEV -o $ORANGE_DEV -m state \
+                --state NEW -j ACCEPT
 	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $PURPLE_DEV -j dmzholes
 fi
 
@@ -282,7 +281,7 @@ if [ "$RED_DEV" != "" ]; then
 	/sbin/iptables -A FORWARD -i $RED_DEV ! -o $RED_DEV -j MINIUPNPD
 fi
 
-/sbin/iptables -A FORWARD -j LOG
+/sbin/iptables -A FORWARD -j LOG --log-prefix "Denied-by-filter:FORWARD "
 /sbin/iptables -A FORWARD -j REJECT
 
 # NAT table
@@ -443,3 +442,4 @@ done
 
 /sbin/iptables -t mangle -A POSTROUTING -j trafficpostrouting
 
+. /etc/rc.d/rc.zoneConnMarks

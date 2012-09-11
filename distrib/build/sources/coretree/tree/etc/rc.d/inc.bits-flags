@@ -1,0 +1,34 @@
+#! /bin/bash
+
+# Source Zone ID
+# -------
+zoneInMask="0x7"
+zoneREDin="0"
+zoneGREENin="1"
+zoneORANGEin="2"
+zonePURPLEin="3"
+
+# Dest Zone ID
+# -------
+zoneOutMask="0x38"
+zoneREDout="0"
+zoneGREENout="8"
+zoneORANGEout="16"
+zonePURPLEout="24"
+
+# Connection Type
+# ---------------
+connTypeMask="0x3C0"
+typeNone="0"         # Untyped
+typeInbound="64"     # Inbound
+typeOutbound="128"   # Outbound
+typeInternal="192"   # Internal
+typeVPN="256"        # VPN
+typeInt2FW="320"     # Internal zone to F/W
+typeFW2Int="384"     # F/W to internal zone
+typeExt2FW="448"     # Internet (RED) to F/W
+typeFW2Ext="512"     # F/W to internet
+
+# Special bit indicating a RELATED conn
+connRelMask="0x400"
+related=1024

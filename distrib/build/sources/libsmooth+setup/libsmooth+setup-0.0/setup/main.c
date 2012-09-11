@@ -71,9 +71,9 @@ int main(int argc, char *argv[])
 	if (automode == 0)
 	{
 		sections[0] = ctr[TR_KEYBOARD_MAPPING];
-		sections[1] = ctr[TR_HOSTNAME];
-		sections[2] = ctr[TR_WEB_PROXY];
-		sections[3] = ctr[TR_DEFAULT_SECURITY_LEVEL];
+		sections[1] = ctr[TR_TIMEZONE];
+		sections[2] = ctr[TR_HOSTNAME];
+		sections[3] = ctr[TR_WEB_PROXY];
 		sections[4] = ctr[TR_ISDN_CONFIGURATION];
 		sections[5] = ctr[TR_ADSL_CONFIGURATION];
 		sections[6] = ctr[TR_NETWORKING];	
@@ -109,17 +109,17 @@ int main(int argc, char *argv[])
 					break;
 				
 				case 1:
-					handlehostname();
+					handletimezone();
 					break;
 
 				case 2:
+					handlehostname();
+					break;
+
+				case 3:
 					handlewebproxy();
 					break;
 					
-				case 3:
-					handledefaults();
-					break;
-
 				case 4:
 					handleisdn();
 					break;
@@ -161,9 +161,9 @@ int main(int argc, char *argv[])
 				
 		if (!(handlekeymap()))
 			goto EXIT;
-		if (!(handlehostname()))
+		if (!(handletimezone()))
 			goto EXIT;
-		if (!(handledefaults()))
+		if (!(handlehostname()))
 			goto EXIT;
 		if (!(handlenetworking()))
 			goto EXIT;

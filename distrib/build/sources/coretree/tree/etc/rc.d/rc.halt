@@ -7,7 +7,7 @@ export STARTSTOP="shutdown"
 echo "Shutting down..."
 
 # Block all inbound packets on all NICs
-. /etc/rc.d/rc.block-ingress
+. /etc/rc.d/inc.block-ingress
 
 echo "Sending all processes the TERM signal..." 
 /sbin/killall5 -15

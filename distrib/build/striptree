@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# SmoothWall Build system.
+#
+# (c) SmoothWall Ltd 2005
+#
+# This code is distributed under the terms of the GPL v2.
+
+# Don't let him accidentally strip the rootFS (though it shouldn't matter.)
+if [ "$1" == "/" ]; then
+  echo "What are you doing Dave? Stripping the root FS?"
+  echo "I'm sorry, Dave. I can't let you do that."
+  exit 1
+fi
+
+DIR=$1
+
+if [ "$DIR" = "" ]; then
+	echo "Usage: $0 <root dir>"
+	exit 1;
+fi
+
+cd $DIR
+
+>/tmp/strip-progs
+>/tmp/strip-libs+mods
+
+echo "Finding programs ..."
+  find . -type f -print | while read a; do \
+    file "$a" | grep "LSB executable, Intel 80386"; \
+    if [ $? -eq 0 ]; then echo "$a" >>/tmp/strip-progs; fi; \
+  done >/dev/null 2>&1 &
+echo "Finding libraries ..."
+  find . -type f -print | while read a; do \
+    file $a | grep "LSB shared object, Intel 80386"; \
+    if [ $? -eq 0 ]; then echo "$a" >>/tmp/strip-libs+mods; fi; \
+  done >/dev/null 2>&1 &
+echo "Finding modules ..."
+  find . -type f -print | while read a; do \
+    file $a | grep "LSB relocatable, Intel 80386"; \
+    if [ $? -eq 0 ]; then echo "$a" >>/tmp/strip-libs+mods; fi; \
+  done >/dev/null 2>&1 &
+
+wait
+
+echo "Stripping programs ..."
+test -s /tmp/strip-progs && strip @/tmp/strip-progs
+
+echo "Stripping libs and modules ..."
+test -s /tmp/strip-libs+mods && strip --strip-unneeded @/tmp/strip-libs+mods
+
+exit 0;

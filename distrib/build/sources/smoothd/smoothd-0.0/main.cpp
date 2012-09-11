@@ -68,8 +68,18 @@ extern "C" {
 		if ( sig == SIGTERM ){
 		//	syslog( LOG_ERR, "%d Received Signal %d - %d ", getpid(), sig, SIGCHLD );
 		    	abort_now = 1;
+		} else if ( sig == SIGUSR2 ) {
+		//	syslog( LOG_ERR, "%d Received Signal %d - %d ", getpid(), sig, SIGUSR2 );
+		    	dshutdown = 1;
 		} else if ( sig == SIGCHLD ) {
 			client_signal_handler( sig );
+		} else if ( sig == SIGHUP ) {
+			// close & reopen the log file (after logrotate)
+			fprintf (stderr, "HUP received; reopening log file.\n");
+			fflush (stderr);
+    			freopen("/var/log/smoothderror", "a+", stderr);
+			fprintf (stderr, "Log file reopened.\n");
+			fflush (stderr);
 		}
 	}	
 
@@ -85,12 +95,13 @@ extern "C" {
 		/* dont want child signals, want any interrupted syscalls to restart */
 //	    	act.sa_flags = SA_NOCLDSTOP|SA_RESTART;
 
-	    	sigaction(SIGINT,  &act, 0);		/* Integer error :( */
-	    	sigaction(SIGTERM, &act, 0);	        /* Termination Signal */
-	    	sigaction(SIGHUP,  &act, 0);	        /* Hangup Signal */
+	    	sigaction(SIGHUP,  &act, 0);		/* Log File Rotate (close/open) */
+	    	sigaction(SIGINT,  &act, 0);		/* Interrupt Signal */
 	    	sigaction(SIGQUIT, &act, 0); 	        /* Quit Signal */
-    		sigaction(SIGUSR1, &act, 0);	        /* Child Down Nothing */
-	    	sigaction(SIGCHLD, &act, 0);	        /* Child Down Nothing */
+	    	sigaction(SIGTERM, &act, 0);	        /* Termination Signal */
+		sigaction(SIGUSR1, &act, 0);	        /* Initial Backgrounding Failed */
+		sigaction(SIGUSR2, &act, 0);	        /* Restart Signal */
+	    	sigaction(SIGCHLD, &act, 0);	        /* Child Perished */
 
 		return;
 	}
@@ -219,7 +230,7 @@ Client::Client( fd_set & master, int & maxfd, ModuleMap & nfunctions, const char
 	
 	dshutdown = 0;
 	
-	syslog( LOG_INFO, "Starting normal operations for client %d", listenfd );
+	syslog( LOG_INFO, "Starting normal operations for client fd=%d", listenfd );
 
 }
 
@@ -260,7 +271,7 @@ int Client::process( ) {
 
 	ppid = fork();
 
-reset_signal_handlers();
+	reset_signal_handlers();
 //syslog( LOG_ERR, "Result of fork was %d", ppid );
 
 	if (ppid == -1)
@@ -291,8 +302,8 @@ reset_signal_handlers();
 
 		std::vector<std::string> arguments;
 
-		/* split the command on the seperating character into the  */
-		/* "command" proper, and it's arguments                    */
+		/* split the command on the separating character into the  */
+		/* "command" proper, and its arguments                    */
 
 		std::string command;
 
@@ -317,8 +328,8 @@ reset_signal_handlers();
 					syslog( LOG_ERR, "Unable to transmit reply to client" );
 				}
 				connection.close();
-				/* signal the parent thread to SIGHUP, which should force a reload */
-				kill( getppid(), SIGHUP );
+				/* signal the parent thread to SIGUSR2, which should force a reload */
+				kill( getppid(), SIGUSR2 );
 				exit( 0 );
 			}
 				
@@ -470,23 +481,28 @@ int main( int argc, char ** argv )
 	/* Start logging as soon as possible */
 	openlog( IDENT, LOG_NDELAY | LOG_CONS, LOG_DAEMON );
 
-	syslog( LOG_INFO, IDENT" Starting Up..." );
-
 	/* are we already running ? */
 
 	master_pid  = getpid();
 
 	int old_pid = 0;
+	int num_try = 0;
 	
-	if ( old_pid = amrunning( PID, BINARY ) ){
-		std::cerr << "Process already exists with process ID " << old_pid << "\n";
-		exit( 0 );
+	while ( old_pid = amrunning( PID, BINARY ) && num_try++ < 100 ){
+		//std::cerr << "Process already exists with process ID " << old_pid << "\n";
+		usleep ( 10000 );
+	}
+	if ( old_pid != 0 ){
+		std::cerr << "Process already exists with process ID " << old_pid << " and we have tried for ten seconds, exiting\n";
+		exit ( 0 );
 	}
 	
+	syslog( LOG_INFO, IDENT" Starting Up..." );
+
 	volatile pid_t pid;
 
 	/* register the child signal handler, we will probably register a different one later */
-
+	/* This handler is used solely for smoothd to background itself. */
 	struct sigaction sa;
 	memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = &master_signal_handler;	
@@ -498,7 +514,7 @@ int main( int argc, char ** argv )
     	/* detatch ourselves from calling process group */
 	if( ( pid = fork() ) > 0) {
 //syslog( LOG_ERR, "Setting Master GID to %d", master_pgid );
-		/* we are the parent - so exit right away */
+		/* we are the parent - so exit as soon as SIGUSR1 is received */
 		sleep ( 20 );
 		/* if we have reached this point, our children have failed to start    */
 		/* hence, we should kill them, just incase and then exit with suitable */
@@ -578,7 +594,13 @@ int main( int argc, char ** argv )
 			}
 			else if (ppid == 0)
 			{
+				/* This child process handles the timed functions. */
 //				reset_signal_handlers();
+				/* Do ignore SIGUSR2 */
+				struct sigaction sa_ign;
+				memset(&sa_ign, 0, sizeof(sa_ign));
+				sa_ign.sa_handler = SIG_IGN;
+				sigaction(SIGUSR2, &sa_ign, 0);
 
 				/* set our process group */
 //				syslog( LOG_ERR, "Setting Timed GID to %d -> %d", getpid() , master_pgid );
@@ -707,34 +729,71 @@ int main( int argc, char ** argv )
 			}
 		}	
 
-		syslog( LOG_INFO, "Performing system shutdown" );
-		syslog( LOG_INFO, "    Shutting down Timed function(s)" );
+		syslog( LOG_INFO, "Initiating smoothd shutdown" );
 
 		struct sigaction oldsa;
-		sigaction(SIGTERM, &sa, &oldsa); // ignore sigterm for us
+		memset(&sa, 0, sizeof(sa)); sa.sa_handler = SIG_IGN;
+		sigaction(SIGTERM, &sa, &oldsa); // ignore sigterm for me (this process)
       		int ret = kill( -pid, SIGTERM );
 				  	// send everyone in this process group a TERM
 					// which causes them to exit as the default action
 					// but it also seems to send itself a TERM
 					// so we ignore it
-      		sigaction(SIGTERM, &oldsa, NULL); // restore prev state			
 		int status = -1;
+		/* Reap all children as they perish; we don't want zombies */
 		pid_t child = wait3( &status, 0, NULL );
 
-		for ( std::vector<ModuleReg>::iterator rmod = modules.begin(); rmod != modules.end(); rmod++ ){
-			syslog( LOG_INFO, "    Unregistering module %s", (*rmod).name.c_str() );
-			/* there is no point closing all the handles, as we */
-			/* will run into problems if we replace a module and */
-			/* attempt a reload */
-		}
+/* Neal Murphy, 3/2012
+ * This code was an attempt to eliminate the memory leak upon receipt
+ * of SIGUSR2 (reload). But memory use continued to increase slowly
+ * anyway (by about 100kiB after 50 reloads and 175kiB after 100
+ * reloads). It's minimal, but still a leak and not acceptable.
+ * Besides, there are bigger fish to saute.
 
-		modules.clear();
-		functions.clear();
-		timedfunctions.clear();
+ * Instead, smoothd will exec itself, ensuring a clean start.
+ */
+
+/*
+ * // Start of memory leak code
+ *		syslog( LOG_INFO, "    Clearing module socket descriptors" );
+ *		module_socket_descriptors.clear();
+ *		syslog( LOG_INFO, "    Shutting down CLIENT(s)" );
+ *                {
+ *		  for ( std::vector<Client *>::iterator client = client_sockets.begin(); client != client_sockets.end(); client++ ){
+ *                    (*client)->~Client();
+ *                  }
+ *                }
+ *		client_sockets.clear();
+ *
+ *		syslog( LOG_INFO, "    Clearing function(s)" );
+ *		functions.clear();
+ *
+ *		syslog( LOG_INFO, "    Clearing timed function(s)" );
+ *		timedfunctions.clear();
+ *
+ *		syslog( LOG_INFO, "    Releasing modules(s)" );
+ *                {
+ *		  for ( std::vector<ModuleReg>::iterator rmod = modules.begin(); rmod != modules.end(); rmod++ ){
+ *                    rmod->closedl();
+ *                  }
+ *                }
+ *		modules.clear();
+ * // End of memory leak code
+ */
+
+      		sigaction(SIGTERM, &oldsa, NULL); // restore prev state
+
+		if (dshutdown) {
+		  remove_pid_file( PID );
+	          syslog( LOG_INFO, "Smoothd restarting." );
+		  execve ("/usr/sbin/smoothd", NULL, NULL);
+		  // Should go without saying that this s/b impossible.
+		  syslog( LOG_INFO, "Incontinent after exec!");
+		}
 	}
 
-	syslog( LOG_INFO, "Shutdown complete." );
 	remove_pid_file( PID );
+	syslog( LOG_INFO, "Smoothd shutdown complete." );
 
 	return 0;
 

@@ -1,4 +1,4 @@
-phaeton.lss
+roadster.lss
 You can do more than just install Phaeton/Roadster:
   linux or <ENTER>: default install
   serial: boot using the first serial port as console

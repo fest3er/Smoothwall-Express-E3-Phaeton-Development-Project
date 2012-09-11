@@ -1,5 +1,2 @@
 HTTP,80
 HTTPS,443
-Web proxy,800
-Content filter,8080
-

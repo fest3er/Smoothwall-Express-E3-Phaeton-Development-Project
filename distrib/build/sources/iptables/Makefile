@@ -29,7 +29,7 @@ PACKAGE = iptables
 VERSION =  $(IPTABLES_VER)
 
 EXTENSION = .tar.bz2
-BASE_URL = ftp://ftp.netfilter.org/pub/iptables
+BASE_URL = http://www.netfilter.org/projects/iptables/files
 
 CONFIG_OPTS = --prefix=/usr --mandir=/usr/man --docdir=/usr/doc \
 	        --enable-devel --enable-libipq

@@ -1,0 +1,376 @@
+diff -Nur grub-0.97/ChangeLog cvs/ChangeLog
+--- grub-0.97/ChangeLog	2005-05-08 04:47:02.000000000 +0200
++++ cvs/ChangeLog	2006-06-24 16:27:33.046480952 +0200
+@@ -1,3 +1,61 @@
++2006-06-24  Robert Millan  <robertmh@gnu.org>
++
++	* lib/device.c (write_to_partition): /dev/ataraid/ and /dev/rd/
++	partitions have a "p" prefix.  Add it.
++
++2006-06-24  Robert Millan  <robertmh@gnu.org>
++
++	* lib/device.c (get_i2o_disk_name): New function.
++	(init_device_map) [__linux__]: Add support for I2O devices.
++
++2006-05-02  Pavel Roskin  <proski@gnu.org>
++
++	* stage2/stage2.c (run_menu): Fix "savedefault" to save only top
++	level menu positions.  Remember current position when calling a
++	submenu.  Don't recalculate it when booting from a submenu.
++
++	* grub/main.c (main): Make sure the boot drive number doesn't
++	exceed 255.
++
++2006-05-02  Vesa Jaaskelainen  <chaac@nic.fi>
++
++	* stage2/shared.h (vbe_mode): Back ported aligment fix from GRUB 2
++	to GRUB Legacy.  Problem reported by Gerardo Richarte.
++
++2006-04-23  Robert Millan  <robertmh@gnu.org>
++
++	* grub/asmstub.c (get_diskinfo): Optimize sysctl routine.
++
++2006-04-20  Robert Millan  <robertmh@gnu.org>
++
++	Fixes for kernel of FreeBSD:
++	* grub/asmstub.c (get_diskinfo): Toggle "kern.geom.debugflags" sysctl
++	before opening a device for writing.
++	* util/grub-install.in: Devices don't have this "r" prefix anymore.
++
++2006-04-16  Yoshinori K. Okuji  <okuji@enbug.org>
++
++	* docs/multiboot.texi: Correct the offset of address
++	fields. Reported by Jeroen Dekkers.
++
++2006-03-21  Yoshinori K. Okuji  <okuji@enbug.org>
++
++	* stage2/builtins.c (setup_func): Specify the size of DEVICE to
++	grub_strncat instead of a strange number 256. Reported by Vitaly
++	Fertman <vitaly@namesys.com>.
++
++2005-09-29  Yoshinori K. Okuji  <okuji@enbug.org>
++
++	* docs/multiboot.texi: Fix a bug in the byte order of
++	boot_device. I hope this won't affect any OS image.
++	Increased the version number to 0.6.94.
++
++2005-09-28  Yoshinori K. Okuji  <okuji@enbug.org>
++
++	* stage2/boot.c (load_image): Even if an OS image is an ELF
++	object, use the a.out kludge if MULTIBOOT_AOUT_KLUDGE is
++	specified.
++
+ 2005-05-08  Yoshinori K. Okuji  <okuji@enbug.org>
+ 
+ 	* configure.ac (AC_INIT): Upgraded to 0.97.
+diff -Nur grub-0.97/docs/multiboot.texi cvs/docs/multiboot.texi
+--- grub-0.97/docs/multiboot.texi	2003-07-09 13:45:36.000000000 +0200
++++ cvs/docs/multiboot.texi	2006-04-16 19:55:49.000000000 +0200
+@@ -25,7 +25,7 @@
+ @ifinfo
+ Copyright @copyright{} 1995, 96 Bryan Ford <baford@@cs.utah.edu>
+ Copyright @copyright{} 1995, 96 Erich Stefan Boleyn <erich@@uruk.org>
+-Copyright @copyright{} 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
++Copyright @copyright{} 1999, 2000, 2001, 2002, 2005, 2006 Free Software Foundation, Inc.
+ 
+ Permission is granted to make and distribute verbatim copies of
+ this manual provided the copyright notice and this permission notice
+@@ -57,7 +57,7 @@
+ @vskip 0pt plus 1filll
+ Copyright @copyright{} 1995, 96 Bryan Ford <baford@@cs.utah.edu>
+ Copyright @copyright{} 1995, 96 Erich Stefan Boleyn <erich@@uruk.org>
+-Copyright @copyright{} 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
++Copyright @copyright{} 1999, 2000, 2001, 2002, 2005, 2006 Free Software Foundation, Inc.
+ 
+ Permission is granted to make and distribute verbatim copies of
+ this manual provided the copyright notice and this permission notice
+@@ -80,7 +80,7 @@
+ @top Multiboot Specification
+ 
+ This file documents Multiboot Specification, the proposal for the boot
+-sequence standard. This edition documents version 0.6.93.
++sequence standard. This edition documents version 0.6.94.
+ @end ifnottex
+ 
+ @menu
+@@ -426,7 +426,7 @@
+ kernel.
+ 
+ If bit 16 in the @samp{flags} word is set, then the fields at offsets
+-8-24 in the Multiboot header are valid, and the boot loader should use
++12-28 in the Multiboot header are valid, and the boot loader should use
+ them instead of the fields in the actual executable header to calculate
+ where to load the OS image. This information does not need to be
+ provided if the kernel image is in @sc{elf} format, but it @emph{must}
+@@ -677,7 +677,7 @@
+ @example
+ @group
+ +-------+-------+-------+-------+
+-| drive | part1 | part2 | part3 |
++| part3 | part2 | part1 | drive |
+ +-------+-------+-------+-------+
+ @end group
+ @end example
+@@ -1199,6 +1199,13 @@
+ @email{bug-grub@@gnu.org}, from Bryan Ford and Erich Stefan Boleyn.
+ @end itemize
+ 
++@item
++The byte order of the @samp{boot_device} in Multiboot information is
++reversed. This was a mistake.
++
++@item
++The offset of the address fields were wrong.
++
+ @item 0.6
+ @itemize @bullet
+ @item
+diff -Nur grub-0.97/grub/asmstub.c cvs/grub/asmstub.c
+--- grub-0.97/grub/asmstub.c	2005-02-16 21:45:14.000000000 +0100
++++ cvs/grub/asmstub.c	2006-04-23 12:10:52.000000000 +0200
+@@ -55,6 +55,10 @@
+ # endif /* ! BLKFLSBUF */
+ #endif /* __linux__ */
+ 
++#if defined(__FreeBSD_kernel__) || defined(__FreeBSD__)
++# include <sys/sysctl.h>
++#endif
++
+ /* We want to prevent any circularararity in our stubs, as well as
+    libc name clashes. */
+ #define WITHOUT_LIBC_STUBS 1
+@@ -777,7 +781,39 @@
+ 
+       /* Open read/write, or read-only if that failed. */
+       if (! read_only)
+-	disks[drive].flags = open (devname, O_RDWR);
++	{
++/* By default, kernel of FreeBSD does not allow overwriting MBR */
++#if defined(__FreeBSD_kernel__) || defined(__FreeBSD__)
++#define GEOM_SYSCTL	"kern.geom.debugflags"
++	  int old_flags, flags;
++	  size_t sizeof_int = sizeof (int);
++
++	  if (sysctlbyname (GEOM_SYSCTL, &old_flags, &sizeof_int, NULL, 0) != 0)
++	    grub_printf ("failed to get " GEOM_SYSCTL "sysctl: %s\n", strerror (errno));
++
++	  if ((old_flags & 0x10) == 0)
++	    {
++	      /* "allow foot shooting", see geom(4) */
++	      flags = old_flags | 0x10;
++
++	      if (sysctlbyname (GEOM_SYSCTL, NULL, NULL, &flags, sizeof (int)) != 0)
++		{
++		  flags = old_flags;
++		  grub_printf ("failed to set " GEOM_SYSCTL "sysctl: %s\n", strerror (errno));
++		}
++	    }
++	  else
++	    flags = old_flags;
++#endif
++	  disks[drive].flags = open (devname, O_RDWR);
++#if defined(__FreeBSD_kernel__) || defined(__FreeBSD__)
++	  if (flags != old_flags)
++	    {
++	      if (sysctlbyname (GEOM_SYSCTL, NULL, NULL, &old_flags, sizeof (int)) != 0)
++	        grub_printf ("failed to set " GEOM_SYSCTL "sysctl: %s\n", strerror (errno));
++	    }
++#endif
++	}
+ 
+       if (disks[drive].flags == -1)
+ 	{
+diff -Nur grub-0.97/grub/main.c cvs/grub/main.c
+--- grub-0.97/grub/main.c	2003-07-09 13:45:36.000000000 +0200
++++ cvs/grub/main.c	2006-05-05 23:43:46.000000000 +0200
+@@ -32,6 +32,7 @@
+ #define WITHOUT_LIBC_STUBS 1
+ #include <shared.h>
+ #include <term.h>
++#include <device.h>
+ 
+ char *program_name = 0;
+ int use_config_file = 1;
+@@ -192,6 +193,12 @@
+ 	      perror ("strtoul");
+ 	      exit (1);
+ 	    }
++	  if (boot_drive >= NUM_DISKS)
++	    {
++	      fprintf (stderr, "boot_drive should be from 0 to %d\n",
++		       NUM_DISKS - 1);
++	      exit (1);
++	    }
+ 	  break;
+ 
+ 	case OPT_NO_CONFIG_FILE:
+diff -Nur grub-0.97/lib/device.c cvs/lib/device.c
+--- grub-0.97/lib/device.c	2005-03-28 01:14:25.000000000 +0200
++++ cvs/lib/device.c	2006-06-24 16:20:40.972125776 +0200
+@@ -407,6 +407,12 @@
+ {
+   sprintf (name, "/dev/ataraid/d%c", unit + '0');
+ }
++
++static void
++get_i2o_disk_name (char *name, char unit)
++{
++  sprintf (name, "/dev/i2o/hd%c", unit);
++}
+ #endif
+ 
+ /* Check if DEVICE can be read. If an error occurs, return zero,
+@@ -801,6 +807,29 @@
+ 	  }
+       }
+   }
++    
++  /* This is for I2O - we have /dev/i2o/hd<logical drive><partition> */
++  {
++    int unit;
++
++    for (unit = 'a'; unit < 'f'; unit++)
++      {
++        char name[24];
++    
++        get_i2o_disk_name (name, unit);
++        if (check_device (name))
++          {
++              (*map)[num_hd + 0x80] = strdup (name);
++                  assert ((*map)[num_hd + 0x80]);
++                  
++	    /* If the device map file is opened, write the map.  */
++               if (fp)
++                     fprintf (fp, "(hd%d)\t%s\n", num_hd, name);
++                     
++	    num_hd++;
++          }
++      }
++  }
+ #endif /* __linux__ */
+   
+   /* OK, close the device map file if opened.  */
+@@ -861,6 +890,12 @@
+       if (strcmp (dev + strlen(dev) - 5, "/disc") == 0)
+ 	strcpy (dev + strlen(dev) - 5, "/part");
+     }
++  else
++    {
++      if ((strncmp (dev, "/dev/ataraid/", 13) == 0) ||
++         (strncmp (dev, "/dev/rd/", 8) == 0))
++        strcpy (dev + strlen(dev), "p");
++    }
+   sprintf (dev + strlen(dev), "%d", ((partition >> 16) & 0xFF) + 1);
+   
+   /* Open the partition.  */
+diff -Nur grub-0.97/stage2/boot.c cvs/stage2/boot.c
+--- grub-0.97/stage2/boot.c	2004-03-30 13:44:08.000000000 +0200
++++ cvs/stage2/boot.c	2005-09-28 23:47:55.000000000 +0200
+@@ -1,7 +1,7 @@
+ /* boot.c - load and bootstrap a kernel */
+ /*
+  *  GRUB  --  GRand Unified Bootloader
+- *  Copyright (C) 1999,2000,2001,2002,2003,2004  Free Software Foundation, Inc.
++ *  Copyright (C) 1999,2000,2001,2002,2003,2004,2005  Free Software Foundation, Inc.
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -96,7 +96,7 @@
+   lh = (struct linux_kernel_header *) buffer;
+   
+   /* ELF loading supported if multiboot, FreeBSD and NetBSD.  */
+-  if ((type == KERNEL_TYPE_MULTIBOOT
++  if (((type == KERNEL_TYPE_MULTIBOOT && ! (flags & MULTIBOOT_AOUT_KLUDGE))
+        || pu.elf->e_ident[EI_OSABI] == ELFOSABI_FREEBSD
+        || grub_strcmp (pu.elf->e_ident + EI_BRAND, "FreeBSD") == 0
+        || suggested_type == KERNEL_TYPE_NETBSD)
+diff -Nur grub-0.97/stage2/builtins.c cvs/stage2/builtins.c
+--- grub-0.97/stage2/builtins.c	2005-02-15 22:58:23.000000000 +0100
++++ cvs/stage2/builtins.c	2006-03-21 21:51:58.000000000 +0100
+@@ -3830,15 +3830,15 @@
+ 	{
+ 	  char tmp[16];
+ 	  grub_sprintf (tmp, ",%d", (partition >> 16) & 0xFF);
+-	  grub_strncat (device, tmp, 256);
++	  grub_strncat (device, tmp, sizeof (device));
+ 	}
+       if ((partition & 0x00FF00) != 0x00FF00)
+ 	{
+ 	  char tmp[16];
+ 	  grub_sprintf (tmp, ",%c", 'a' + ((partition >> 8) & 0xFF));
+-	  grub_strncat (device, tmp, 256);
++	  grub_strncat (device, tmp, sizeof (device));
+ 	}
+-      grub_strncat (device, ")", 256);
++      grub_strncat (device, ")", sizeof (device));
+     }
+   
+   int embed_stage1_5 (char *stage1_5, int drive, int partition)
+diff -Nur grub-0.97/stage2/shared.h cvs/stage2/shared.h
+--- grub-0.97/stage2/shared.h	2004-06-19 18:40:09.000000000 +0200
++++ cvs/stage2/shared.h	2006-05-02 22:46:24.000000000 +0200
+@@ -499,7 +499,11 @@
+   unsigned char linear_reserved_field_position;
+   unsigned long max_pixel_clock;
+ 
+-  unsigned char reserved3[189];
++  /* Reserved field to make structure to be 256 bytes long, VESA BIOS 
++     Extension 3.0 Specification says to reserve 189 bytes here but 
++     that doesn't make structure to be 256 bytes.  So additional one is 
++     added here.  */
++  unsigned char reserved3[189 + 1];
+ } __attribute__ ((packed));
+ 
+ 
+diff -Nur grub-0.97/stage2/stage2.c cvs/stage2/stage2.c
+--- grub-0.97/stage2/stage2.c	2005-03-19 18:51:57.000000000 +0100
++++ cvs/stage2/stage2.c	2006-05-06 00:06:31.000000000 +0200
+@@ -651,7 +651,10 @@
+ 		  *(new_heap++) = 0;
+ 
+ 		  if (config_entries)
+-		    run_menu (heap, NULL, new_num_entries, new_heap, 0);
++		    {
++		      current_entryno = first_entry + entryno;
++		      run_menu (heap, NULL, new_num_entries, new_heap, 0);
++		    }
+ 		  else
+ 		    {
+ 		      cls ();
+@@ -727,7 +730,8 @@
+ 	cur_entry = get_entry (config_entries, first_entry + entryno, 1);
+ 
+       /* Set CURRENT_ENTRYNO for the command "savedefault".  */
+-      current_entryno = first_entry + entryno;
++      if (config_entries)
++	current_entryno = first_entry + entryno;
+       
+       if (run_script (cur_entry, heap))
+ 	{
+diff -Nur grub-0.97/stamp-h.in cvs/stamp-h.in
+--- grub-0.97/stamp-h.in	1970-01-01 01:00:00.000000000 +0100
++++ cvs/stamp-h.in	1999-09-13 15:32:24.000000000 +0200
+@@ -0,0 +1 @@
++timestamp
+diff -Nur grub-0.97/THANKS cvs/THANKS
+--- grub-0.97/THANKS	2005-05-08 04:17:43.000000000 +0200
++++ cvs/THANKS	2006-03-21 21:51:58.000000000 +0100
+@@ -121,3 +121,4 @@
+ Yedidyah Bar-David <didi@post.tau.ac.il>
+ Yury V. Umanets <umka@namesys.com>
+ Yuri Zaporogets <yuriz@ukr.net>
++Vitaly Fertman <vitaly@namesys.com>
+diff -Nur grub-0.97/util/grub-install.in cvs/util/grub-install.in
+--- grub-0.97/util/grub-install.in	2004-07-24 20:57:31.000000000 +0200
++++ cvs/util/grub-install.in	2006-04-20 15:46:46.000000000 +0200
+@@ -112,8 +112,8 @@
+ 	tmp_disk=`echo "$1" | sed 's%\([sh]d[0-9]*\).*%\1%'`
+ 	tmp_part=`echo "$1" | sed "s%$tmp_disk%%"` ;;
+     freebsd* | kfreebsd*-gnu)
+-	tmp_disk=`echo "$1" | sed 's%r\{0,1\}\([saw]d[0-9]*\).*$%r\1%' \
+-			    | sed 's%r\{0,1\}\(da[0-9]*\).*$%r\1%'`
++	tmp_disk=`echo "$1" | sed 's%r\{0,1\}\([saw]d[0-9]*\).*$%\1%' \
++			    | sed 's%r\{0,1\}\(da[0-9]*\).*$%\1%'`
+ 	tmp_part=`echo "$1" \
+ 	    | sed "s%.*/r\{0,1\}[saw]d[0-9]\(s[0-9]*[a-h]\)%\1%" \
+        	    | sed "s%.*/r\{0,1\}da[0-9]\(s[0-9]*[a-h]\)%\1%"`

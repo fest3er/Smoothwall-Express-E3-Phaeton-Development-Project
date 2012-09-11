@@ -8,14 +8,14 @@ include ../../Makefile.versions
 include ../../Makefile
 
 default:
-	mkdir -p ../cdrom/isolinux/
-	cp /usr/share/syslinux/isolinux.bin ../cdrom/isolinux/
-	cp isolinux.cfg ../cdrom/isolinux/isolinux.cfg
-	cp dosfiles/phaeton.txt dosfiles/prhelpf2.txt dosfiles/phaeton.lss ../cdrom/isolinux/
-	cp -R /build/buildroot/kernel$(SWETYPE)/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/isolinux/vmlinuz
-	cp ../installroot/installrootimage.gz ../cdrom/isolinux/iniramfs.igz
-	echo -e "ISOLinux boot prep complete\n\n\n\n\n"
+	mkdir -p ../cdrom/boot/grub
+	cp -a /usr/share/grub/i386-pc/* ../cdrom/boot/grub
+	chown root:root grub.conf
+	cp -a grub.conf ../cdrom/boot/grub/grub.conf
+	cp -R /build/buildroot/kernel$(SWETYPE)/boot/vmlinuz-$(K_SWE_VERSION) ../cdrom/boot/vmlinuz
+	cp ../installroot/installrootimage.gz ../cdrom/boot/iniramfs.igz
+	echo -e "ISO boot prep complete\n\n\n\n\n"
 
 clean:
-	@rm -rf ../cdrom/isolinux
-	@rm -rf tmp
+	rm -rf ../cdrom/boot
+	rm -rf tmp

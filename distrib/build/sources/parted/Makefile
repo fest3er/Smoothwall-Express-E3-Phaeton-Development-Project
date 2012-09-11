@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = parted
-VERSION = 2.3
+VERSION = 3.0
 
 BASE_URL = http://ftp.gnu.org/gnu/parted/
 

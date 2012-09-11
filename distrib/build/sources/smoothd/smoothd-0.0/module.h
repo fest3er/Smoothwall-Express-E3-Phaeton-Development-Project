@@ -60,6 +60,9 @@ public:
 	ModuleReg() { name = ""; handle = NULL; }
 	ModuleReg( const char * nname, void * nhandle ){ name = nname; handle = nhandle; }
 	ModuleReg( const ModuleReg & a ){ name = a.name; handle = a.handle; }
+	// Method to close the DLL (.so); part of the experimental memory leak fix.
+	// See the comments near the end of main.cpp
+	// void closedl () { if (handle != NULL) { dlclose (handle); } }
 	std::string name;
 	void * handle;
 };

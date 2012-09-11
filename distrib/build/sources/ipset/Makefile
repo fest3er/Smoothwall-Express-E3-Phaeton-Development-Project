@@ -34,7 +34,7 @@ EXTENSION = .tar.bz2
 BASE_URL = http://ipset.netfilter.org
 
 #CONFIG_OPTS = --prefix=/usr --mandir=/usr/man --docdir=/usr/doc \
-	        --enable-devel --enable-libipq
+#	        --enable-devel --enable-libipq
 
 CONFIGURE = yes
 COMPILE = yes

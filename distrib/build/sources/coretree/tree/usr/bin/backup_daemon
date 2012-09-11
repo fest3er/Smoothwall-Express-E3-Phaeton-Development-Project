@@ -8,9 +8,8 @@
 
 # Usage statement
 usage () {
-  echo "Usage: $0 [ var | total ]"
-  echo "  - var: save only variable data in /var and /usr/etc"
-  echo "  - total: save all of /, /boot and /var/log"
+  echo "Usage: $0"
+  echo "  Perform both full and var-data backups"
   echo
   exit 1
 }
@@ -29,6 +28,28 @@ feedback () {
   fi
 }
 
+# Set the files to save based on the type of backup
+setFiles () {
+  case ${BACKUP_TYPE} in
+    var)
+      FILES_TO_SAVE="${EXCLUDES} ${HNAME}.tarhead"
+      FILES_TO_SAVE="${FILES_TO_SAVE} ./var ./usr/etc ./etc/shadow ./etc/passwd ./etc/group"
+      FILES_TO_SAVE="${FILES_TO_SAVE} ./etc/httpd/server.* ./etc/udev/rules.d/*"
+      FILES_TO_SAVE="${FILES_TO_SAVE} ./root"
+      FILES_TO_SAVE="${FILES_TO_SAVE} ${HNAME}.tarheel"
+      ;;
+
+    total)
+      FILES_TO_SAVE="${EXCLUDES} ${HNAME}.tarhead . ${HNAME}.tarheel"
+      ;;
+  esac
+}
+
+
+####
+# Begin main code
+####
+
 # How this was run determines where feedback is sent.
 if [ `basename $0` == "backup_daemon" ]; then
   if [ $PPID -ne 1 ]; then
@@ -38,7 +59,7 @@ if [ `basename $0` == "backup_daemon" ]; then
   AUTOBACK="AUTO"
 else
   case $1 in
-    "var"|"total") BACKUP_TYPE="$1";;
+    "") ;;
     *) usage; exit 1;;
   esac
   AUTOBACK="MANUAL"
@@ -59,6 +80,9 @@ fi
 REL_BACK_DIR=var/smoothwall/backup
 BACK_DIR=/${REL_BACK_DIR}
 BACK_FLAG="${BACK_DIR}/backup.flag"
+SETTINGS="${BACK_DIR}/settings"
+
+. ${SETTINGS}
 
 set ${RELEASE/-/ }
 RELTYPE=$1
@@ -70,8 +94,9 @@ TIME=`date +"%H:%M:%S"`
 
 KERNEL=`uname -r`
 
-EXCLUDES="--exclude=proc/* --exclude=dev/* --exclude=sys/*"
-EXCLUDES="$EXCLUDES --exclude=backup/* --exclude=/var/smoothwall/backup/*"
+EXCLUDES="--exclude=./proc --exclude=./dev --exclude=./sys"
+EXCLUDES="$EXCLUDES --exclude=./var/smoothwall/backup/tmp"
+EXCLUDES="$EXCLUDES --exclude=./backup"
 
 TO_BITBKT=">/dev/null 2>&1"
 
@@ -86,61 +111,52 @@ touch backup.flag
 chgrp nobody backup.flag
 chmod 660 backup.flag
 
-# Only check the flag file if running as daemon
+# Only check for 'the' drive plugged in if automatic
 if [ $AUTOBACK == "AUTO" ]; then
-  WATCH="MODIFY"
+  # Must be running backup_daemon (automatic)
+  # Wait until the correct node appears in /dev/disk/by-id
+  WATCH="CREATE"
 
-  # Wait until the file changes; ignore all other changes
-  while :; do
-    set `$INOTIFY_CMD -e $WATCH /${BACK_FLAG} 2>/dev/null`
-
-    # Get the backup type and break out of loop if it's correct
-    BACKUP_TYPE=`cat ${BACK_FLAG}`
-    if [ "$BACKUP_TYPE" == "var" -o "$BACKUP_TYPE" == "total" ]; then break; fi
-
-    # Go 'round again
-  done
+  # Watch for CREATEs in /dev of $BACKUP_ID
+  trap "" SIGHUP
+  (
+    trap SIGHUP
+    $INOTIFY_CMD -m /dev/disk/by-id 2>&- | while read a b c; do
+      if [ "$b" != "$WATCH" ]; then continue; fi
+      C="${c/-part[0-9]*/}"
+      if [ "$C" != "$BACKUP_ID" ]; then continue; fi
+      if [ "$C" == "$c" ]; then continue; fi
+      if [ -e "$a$C" -a -e "$a${C}-part1" ]; then
+        echo "${C}-part1" > ${DEV_FILE}
+        kill -HUP 0;
+      fi
+    done
+  )
+  trap SIGHUP
+  read NODE < ${DEV_FILE}
+  NODE="disk/by-id/$NODE"
 
   /usr/bin/sounds/inserted # Audible
+
+else
+  # Must be running backup_sys (manual)
+  feedback $AUTOBACK "Plug in flash drive"
+
+  # Wait until a new [0-9] node appears in /dev
+  #   This should be OK because there should be few device changes during operation
+  WATCH="CREATE"
+
+  # Watch for CREATEs in /dev of xxx[0-9]*
+  $INOTIFY_CMD -m --exclude "t[my]" /dev 2>&- | while read a b c; do
+    if [ "$b" != "$WATCH" ]; then continue; fi
+    C="${c/[0-9]*/}"
+    if [ "$c" != "$C" -a -e "$a$C" -a -e "$a${C}1" ]; then
+      echo "${C}1" > ${DEV_FILE}
+      exit;
+    fi
+  done
+  read NODE <$DEV_FILE
 fi
-
-# Now set the flag file names
-FNAME="${HOST}_${DATE}_${RELTYPE}_${RELVER}_${BACKUP_TYPE}"
-HNAME="${REL_BACK_DIR}/${FNAME}"
-touch /${HNAME}.tarhead
-touch /${HNAME}.tarheel
-
-# Set the files to save based on the type of backup
-case ${BACKUP_TYPE} in
-  var)
-    FILES_TO_SAVE="${EXCLUDES} ${HNAME}.tarhead"
-    FILES_TO_SAVE="${FILES_TO_SAVE} var usr/etc etc/shadow etc/passwd etc/group"
-    FILES_TO_SAVE="${FILES_TO_SAVE} etc/httpd/server.* etc/udev/rules.d/*"
-    FILES_TO_SAVE="${FILES_TO_SAVE} root/.ssh/*"
-    FILES_TO_SAVE="${FILES_TO_SAVE} ${HNAME}.tarheel"
-    ;;
-
-  total)
-    FILES_TO_SAVE="${EXCLUDES} ${HNAME}.tarhead . ${HNAME}.tarheel"
-    ;;
-esac
-
-feedback $AUTOBACK "Plug in flash drive"
-
-# Wait until a new [0-9] node appears in /dev
-#   This should be OK because there should be few device changes during operation
-WATCH="CREATE"
-
-# Watch for CREATEs in /dev of xxx[0-9]*
-$INOTIFY_CMD -m --exclude "t[my]" /dev | while read a b c; do
-  if [ "$b" != "$WATCH" ]; then continue; fi
-  C="${c/[0-9]*/}"
-  if [ "$c" != "$C" -a -e "$a$C" -a -e "$a${C}1" ]; then
-    echo "${C}1" > ${DEV_FILE}
-    exit;
-  fi
-done
-read NODE <$DEV_FILE
 
 # Make and mount
 MOUNT_PT=/backup
@@ -153,23 +169,40 @@ feedback $AUTOBACK "Couldn't mount the flash drive. Please verify that it is par
   /usr/bin/sounds/mount_failed.bps
 else
   /usr/bin/sounds/mount_succeeded.bps
-  # Get the file count first (for progress feedback)
-  (cd /; tar cvf /dev/null ${FILES_TO_SAVE}) > /${HNAME}.list 2>/dev/null
-  typeset -i i FILECOUNT
-  FILECOUNT=`cat ${FNAME}.list | wc -l`
-  FILECOUNT=FILECOUNT+2
-  i=0
-  if [ $AUTOBACK == "MANUAL" ]; then echo; fi
 
-  # Finally, why we're here.
-  (cd /; tar cvfz ${MOUNT_PT}/${FNAME}.tar.gz \
-      --no-recursion \
-      ${HNAME}.tarhead -T ${HNAME}.list ${HNAME}.tarheel \
-      2>/dev/null
-  ) | while read a; do
-    i=i+1
-    feedback $AUTOBACK "$i/$FILECOUNT: $a" "same"
+  rm -rf ${BACK_DIR}/tmp
+  mkdir ${BACK_DIR}/tmp
+  # Do both var and total backups every time
+  for BACKUP_TYPE in var total; do
+    # Set the flag file names
+    FNAME="${HOST}_${DATE}_${RELTYPE}_${RELVER}_${BACKUP_TYPE}"
+    HNAME="${REL_BACK_DIR}/tmp/${FNAME}"
+    touch /${HNAME}.tarhead
+    touch /${HNAME}.tarheel
+    # And set the files to back up
+    setFiles
+
+    # Get the file count first (for progress feedback)
+    (cd /; tar cvf /dev/null ${FILES_TO_SAVE}) > /${HNAME}.list 2>/dev/null
+    typeset -i i FILECOUNT
+    FILECOUNT=`cat /${HNAME}.list | wc -l`
+    FILECOUNT=FILECOUNT+2
+    i=0
+    if [ $AUTOBACK == "MANUAL" ]; then echo; fi
+
+    # Finally, why we're here.
+    (
+      cd /
+      tar cvfz ${MOUNT_PT}/${FNAME}.tar.gz \
+          --no-recursion \
+          -T ${HNAME}.list \
+          2>/dev/null
+    ) | while read a; do
+      i=i+1
+      feedback $AUTOBACK "$i/$FILECOUNT: $a" "same"
+    done
   done
+  rm -rf ${BACK_DIR}/tmp
 
   feedback $AUTOBACK "Flushing data to backup device"
 
@@ -188,15 +221,16 @@ feedback $AUTOBACK "Unplug the flash drive."
 # Wait for deletion of the node mounted
 WATCH="DELETE"
 # Watch for the node removal
-$INOTIFY_CMD -e $WATCH /dev 2>&- | while read a b c d; do
+$INOTIFY_CMD -e $WATCH /dev /dev/disk/by-id 2>&- | while read a b c d; do
   if [ $c == "${NODE}" ]; then exit; fi
 done
 
 /usr/bin/sounds/removed
 
-rm -f ${DEV_FILE} $FNAME.list
+FPRE=`echo $FNAME | sed -e 's/total\var//'`
+rm -f ${DEV_FILE} ${FPRE}{total,var}.{list,tarhead,tarheel}
 
-echo "Last backup: $AUTOBACK; date=$DATE $TIME; type=$BACKUP_TYPE" > /${BACK_FLAG}
+echo "Last backup: $AUTOBACK; date=$DATE $TIME" > /${BACK_FLAG}
 
 if [ "$AUTOBACK" == "MANUAL" ]; then
   echo "Backup complete."

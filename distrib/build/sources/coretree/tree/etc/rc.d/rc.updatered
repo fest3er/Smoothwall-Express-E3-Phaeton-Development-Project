@@ -1,4 +1,15 @@
-#!/bin/sh
+#!/bin/bash
+
+# crEcho: print stuff with <CR><NL> at EOL
+function crEcho {
+  if [ "$1" == "-n" ]; then
+    crOpts="-e -n"
+    shift
+  else
+    crOpts="-e"
+  fi
+  echo $crOpts "$*\r"
+}
 
 . /var/smoothwall/ethernet/settings
 
@@ -25,15 +36,25 @@ touch /var/smoothwall/red/active
 echo "$DNSMASQ_DNS1" >/var/smoothwall/red/dns1
 echo "$DNSMASQ_DNS2" >/var/smoothwall/red/dns2
 
+crEcho "Updating RED"
+
+crEcho "..DNSMasq"
 /usr/bin/smoothcom dnsproxyrestart $DNSMASQ_DNS1 $DNSMASQ_DNS2
 
-echo "Bringing up interface aliases (if they exist)"
+crEcho "..interface aliases (if they exist)"
 /usr/bin/smoothcom ifaliasup
-echo "Setting up full firewall rules"
+crEcho "..incoming filtering"
 /usr/bin/smoothcom setportfw
-echo "Setting up external access rules"
+crEcho "..outgoing filtering"
+/usr/bin/smoothcom setoutgoing
+if [ -f /var/smoothwall/outgoing/configErrors.log ]; then
+  tput smso;
+  sed -e 's/^/..  /' /var/smoothwall/outgoing/configErrors.log
+  tput rmso
+fi
+crEcho "..external access rules"
 /usr/bin/smoothcom setxtaccess
-/usr/bin/smoothcom setincoming
+crEcho "..snort, upnpd, TC, DDNS, VPN (as enabled)"
 /usr/bin/smoothcom snortrestart
 /usr/bin/smoothcom upnpdrestart
 /usr/bin/smoothcom trafficrestart
@@ -42,7 +63,8 @@ echo "Setting up external access rules"
 
 /etc/rc.d/rc.vpn.up
 
-echo "Looking for system updates and registering your system."
-/usr/bin/smoothwall/updatelists.pl
+#crEcho "Looking for system updates and registering your system."
+crEcho "Registering your system."
+#/usr/bin/smoothwall/updatelists.pl
 /etc/rc.d/rc.machineregister
 

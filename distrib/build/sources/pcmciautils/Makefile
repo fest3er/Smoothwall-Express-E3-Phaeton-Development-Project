@@ -12,7 +12,9 @@ EXTENSION=.tar.bz2
 
 DIR = $(PACKAGE)-$(VERSION)
 
-BASE_URL = http://www.kernel.org/pub/linux/utils/kernel/pcmcia
+#BASE_URL = http://www.kernel.org/pub/linux/utils/kernel/pcmcia
+#NOTE: As of 04/07/2012, only versions through 009 were available at the above link.
+BASE_URL = http://pkgs.fedoraproject.org/repo/pkgs/$(PACKAGE)/$(PACKAGE)-$(VERSION)$(EXTENSION)/5245af28eeba57ec0606a874d44d10f7
 
 CONFIGURE = yes
 configure: $(DIR)/

@@ -9,10 +9,10 @@ BASENAME = express-3.0
 PRODUCT_NAME = Express
 PRODUCT_VERSION = 3.0
 
-PRODUCT_EXTRA = -phaeton
+PRODUCT_EXTRA = -roadster
 
 UI_VERSION = 3.0
 FIXES_NUMBER = 0
 REVISION = polar
 
-RELEASE = Phaeton-5.0.6
+RELEASE = Roadster-2.1.0

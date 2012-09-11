@@ -39,7 +39,7 @@ if ($dhcpsettings{'BOOT_ENABLE'} eq 'on' && $dhcpsettings{'BOOT_SERVER'} &&
 	if ($dhcpsettings{'BOOT_ROOT'}) {
 		print FILE "option root-path \"$dhcpsettings{'BOOT_ROOT'}\";\n" if ($dhcpsettings{'BOOT_ROOT'} ne ''); }
 }
-print FILE "ddns-update-style ad-hoc;\n\n";
+print FILE "ddns-update-style interim;\n\n";
 
 my $subnet;
 my $id = 0;

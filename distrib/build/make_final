@@ -137,7 +137,6 @@ fi
       echo
       build sysfsutils
       build iputils
-      build traceroute
       build perl
       build Net-Netmask
       build NetAddr-IP
@@ -232,6 +231,7 @@ fi
       build libdnet
       build daq
       build rrdtool
+      build which
       build lm_sensors
       build dnsmasq
       build whois
@@ -246,8 +246,6 @@ fi
       echo -e "    Final group 5 packages already built"
     else
       echo
-      build which
-
       build ntp
       build openntpd
 
@@ -265,7 +263,7 @@ fi
       build cdrtools
       build busybox
 
-      setuids
+      build setuids
 
       build ppp
       build isdn4k-utils

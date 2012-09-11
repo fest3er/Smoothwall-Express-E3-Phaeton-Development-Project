@@ -10,5 +10,5 @@ if [ "$ENABLED" = "on" ]; then
 		modprobe hisax protocol=$PROTOCOL type=$TYPE $MODULE_PARAMS
 	fi
 else
-	echo "No ISDN enabled"
+	echo "  No ISDN enabled"
 fi

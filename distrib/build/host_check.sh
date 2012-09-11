@@ -52,9 +52,9 @@ CBASH=02050a
 VBASH=2.5.a #(/bin/sh should be a symbolic or hard link to bash) 
 
 CBINUTILS=021200
-CBINUTILSM=022001
+CBINUTILSM=022153
 VBINUTILS=2.12
-VBINUTILSM=2.20.1
+VBINUTILSM=2.21.53
 
 CFLEX=020500
 VFLEX=2.5
@@ -78,19 +78,22 @@ CGAWK=0300
 VGAWK=3.0 #(/usr/bin/awk should be a link to gawk) 
 
 CGCC=030001
-CGCCM=040405
+CGCCM=040601
 VGCC=3.0.1
 
 CGLIBC=020205
-CGLIBCM=021102 #(Versions greater than 2.11.2 are not recommended as they have not been tested) 
+#CGLIBCM=021300
 VGLIBC=2.2.5
-VGLIBCM=2.11.2
+#VGLIBCM=2.13.0
 
 CGREP=0205
 VGREP=2.5
 
 CGZIP=010204
 VGZIP=1.2.4
+
+CINOTIFY=030300
+VINOTIFY=3.3.0
 
 CKERNEL=020618
 VKERNEL=2.6.18
@@ -303,8 +306,9 @@ else
   fi
 
   # check /usr/bin/awk
-  if [ `readlink -ef /usr/bin/awk` == "/usr/bin/gawk" ]; then
-    echo "    OK: /usr/bin/awk -> /usr/bin/gawk"
+  if [ `readlink -ef /usr/bin/awk` == "/usr/bin/gawk" -o \
+       `readlink -ef /usr/bin/awk` == "/bin/gawk" ]; then
+    echo "    OK: /usr/bin/awk -> [/usr]/bin/gawk"
   else
     echo "  FAIL: /usr/bin/awk -> `readlink -f /bin/sh`"
     OK=1
@@ -329,19 +333,28 @@ else
 fi
 
 # Check glibc
-if [ ! -e /lib/libc.so.6 ]; then
-  echo "  FAIL: /lib/libc.so.6 not found. Need glibc $VGLIBC<=version<=$VGLIBCM."
-    OK=1
+if [[ ! -f /bin/bash ]]; then
+  echo "  FAIL: can't test libc: /bin/bash not found!"
+  OK=1
 else
-  WORK=`/lib/libc.so.6 --version 2>&1| head -1 | sed -e 's/.* version \([0-9.][0-9.]*\),.*/\1/'`
-  OIFS=$IFS; IFS="."; set $WORK
-  TGLIBC=`echo $*|awk '{printf("%2.2d%2.2d%2.2d\n", $1, $2, $3)}'`
-  IFS=$OIFS
-  if [[ $TGLIBC < $CGLIBC || $TGLIBC > $CGLIBCM ]]; then
-    echo "  FAIL: glibc v$WORK FAILED ($VGLIBC-$VGLIBCM)"
-    OK=1
+  set `ldd /bin/bash | grep libc.so.6`
+  GLIBC_FILE=$3
+  if [[ ! -z "$GLIBC_FILE" && -f "$GLIBC_FILE" ]]; then
+    WORK=`$GLIBC_FILE --version 2>&1 | head -1 | sed -e 's/.* version \([0-9.][0-9.]*\),.*/\1/'`
+    OIFS=$IFS; IFS="."; set $WORK
+    TGLIBC=`echo $*|awk '{printf("%2.2d%2.2d%2.2d\n", $1, $2, $3)}'`
+    IFS=$OIFS
+    #if [[ $TGLIBC < $CGLIBC || $TGLIBC > $CGLIBCM ]]; then
+    if [[ $TGLIBC < $CGLIBC ]]; then
+      echo "  FAIL: glibc v$WORK FAILED ($VGLIBC-$VGLIBCM)"
+      OK=1
+    else
+      #echo "    OK: glibc v$WORK seems OK (>=$VGLIBC, <=$VGLIBCM)"
+      echo "    OK: glibc v$WORK seems OK (>=$VGLIBC)"
+    fi
   else
-    echo "    OK: glibc v$WORK seems OK (>=$VGLIBC, <=$VGLIBCM)"
+    echo "  FAIL: libc.so.6 not found. Need glibc $VGLIBC<=version<=$VGLIBCM."
+    OK=1
   fi
 fi
 
@@ -376,6 +389,23 @@ else
     OK=1
   else
     echo "    OK: gzip v$WORK seems new enough (>=$VGZIP)"
+  fi
+fi
+
+# Check inotify
+if [ ! -e /bin/inotifywait -a ! -e /usr/bin/inotifywait ]; then
+  echo "  FAIL: not found in /bin or /usr/bin. Need inotifywait version>=$VINOTIFY."
+    OK=1
+else
+  WORK=`inotifywait --help 2>&1| head -1 | sed -e 's/[^0-9.]*\(.*\)/\1/'`
+  OIFS=$IFS; IFS="."; set $WORK
+  TINOTIFY=`echo $*|awk '{printf("%2.2d%2.2d%2.2d\n", $1, $2, $3)}'`
+  IFS=$OIFS
+  if [[ $TINOTIFY < $CINOTIFY ]]; then
+    echo "  FAIL: inotifywait v$WORK seems too old (<$VINOTIFY)"
+    OK=1
+  else
+    echo "    OK: inotifywait v$WORK seems new enough (>=$VINOTIFY)"
   fi
 fi
 

@@ -1,0 +1,37 @@
+#! /bin/bash
+
+MSG1="Installing extra packages needed to build on Debian:\n"
+
+for package in build-essential bison flex gawk inotify-tools screen; do
+  MUST_INST=0
+  # May be unknown, try this
+  dpkg -s $package >/dev/null 2>&1
+  if [ $? -ne 0 ]; then MUST_INST=1; fi
+  # Otherwise known, check it.
+  if [ $MUST_INST -eq 0 ]; then
+    set `dpkg -s $package | egrep "^Status: "`
+    if [ "$4" != "installed" ]; then
+      MUST_INST=1
+    fi
+  fi
+  if [ $MUST_INST -eq 1 ]; then
+    echo -ne $MSG1; MSG1=""
+    tput smso; echo "$package:"; tput rmso
+    apt-get -y install $package | sed -e 's/^/  /'
+    echo
+  fi
+done
+
+MSG2="Symlinking /bin/sh to /bin/bash; just say, \"No.\"\n"
+set `readlink /bin/sh`
+set `basename $1`
+LNK=$1
+if [ "$LNK" == "dash" ]; then
+  echo -ne $MSG2; MSG2=""
+  sleep 2
+  dpkg-reconfigure dash
+fi
+
+if [ "$MSG1" != "" -a "$MSG2" != "" ]; then
+  echo "Debian host already prepared"
+fi

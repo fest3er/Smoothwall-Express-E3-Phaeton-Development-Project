@@ -9,6 +9,8 @@ include ../Makefile.conf
 PACKAGE = kbd
 VERSION = 1.15.2
 
-BASE_URL = http://www.kernel.org/pub/linux/utils/kbd/
+EXTENSION = .tar.bz2
+
+BASE_URL = http://slackware.cs.utah.edu/pub/slackware/slackware_source/a/kbd/sources/
 
 include ../Makefile.rules

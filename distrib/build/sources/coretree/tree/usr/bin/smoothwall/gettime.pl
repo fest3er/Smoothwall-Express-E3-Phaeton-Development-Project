@@ -70,7 +70,7 @@ sub ntpgettime
 	{
 		&log("System clock successfully updated; using server(s) @servers.");
 		if ($timesettings{'NTP_RTC'} eq 'on') {
-			system('/sbin/hwclock', '--systohc', '--utc'); }
+			system('/sbin/hwclock', '--systohc'); }
 	}
 	else {
 		&log("Unable to update system clock; using server(s) @servers"); }
