@@ -27,11 +27,12 @@ configure: patch
 COMPILE = yes
 
 compile: configure
-	cd ../kernel-headers/linux-$(KERNEL_VER); if [ ! -h include/asm ]; then \
-	  ln -s ../arch/x86/include/asm include/asm; fi
+	cd ../linux-kvm/linux-$(KERNEL_VER); if [ ! -h include/asm ]; then \
+	  ln -s ../arch/x86/include/asm include/asm; fi; \
+	  cp arch/x86/include/generated/asm/* arch/x86/include/asm/
 	cd $(DIR); \
 	  make mrproper; \
-	  ln -sf ../../kernel-headers/linux-$(KERNEL_VER) linux; \
+	  ln -sf ../../linux-kvm/linux-$(KERNEL_VER) linux; \
 	  make $(JOBS)
 
 INSTALL = yes

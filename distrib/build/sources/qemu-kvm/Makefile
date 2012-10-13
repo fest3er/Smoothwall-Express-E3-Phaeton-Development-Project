@@ -13,6 +13,6 @@ BASE_URL = http://iweb.dl.sourceforge.net/project/kvm/$(PACKAGE)/$(VERSION)
 
 PATCH_FILE1 = configure.patch
 
-CONFIG_OPTS =
+CONFIG_OPTS = --target-list=i386-softmmu
 include ../Makefile.rules
 

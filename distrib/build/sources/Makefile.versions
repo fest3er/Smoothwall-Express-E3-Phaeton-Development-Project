@@ -6,8 +6,8 @@
 
 # The system's kernel.
 KERNEL_MAJOR = 3
-KERNEL_MMR = $(KERNEL_MAJOR).2
-KERNEL_VER = $(KERNEL_MMR).27
+KERNEL_MMR = $(KERNEL_MAJOR).0
+KERNEL_VER = $(KERNEL_MMR).41
 
 # The kernel version headers needed to build klibc-2.6.18
 # Unrelated to the system's kernel
@@ -22,7 +22,7 @@ FREESWAN_TYPE = openswan
 FREESWAN_VER = 2.6.38
 
 IPTABLES_VER = 1.4.14
-XTABLES_ADDONS_VER = 1.41
+XTABLES_ADDONS_VER = 1.45
 
 GMP_VER = 5.0.2
 MPFR_VER = 2.4.2

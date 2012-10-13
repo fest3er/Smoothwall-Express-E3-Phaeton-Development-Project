@@ -23,6 +23,8 @@ ifeq ($(BUILD_PHASE), Stage_1)
 	  make mrproper; \
 	  sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="$(KERNEL_TYPE)"/' ../../linux.config$(CFG_TYPE) > .config; \
 	  make headers_check; \
+	  ln -s ../arch/x86/include/asm include/asm; \
+	  cp arch/x86/include/generated/asm/* arch/x86/include/asm/; \
 	  make INSTALL_HDR_PATH=dest headers_install; \
 	  cp -rv dest/include/* $(TOOLS_DIR)/include
 endif
