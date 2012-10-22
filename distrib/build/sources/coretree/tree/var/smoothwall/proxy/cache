@@ -1,0 +1,20 @@
+# CACHE OPTIONS
+# ----------------------------------------------------------------------------
+cache_effective_user squid
+cache_effective_group squid
+
+cache_swap_high 100%
+cache_swap_low 80%
+
+cache_mem 8 MB
+maximum_object_size_in_memory 32 KB
+
+cache_replacement_policy heap GDSF
+memory_replacement_policy heap GDSF
+
+cache_access_log /var/log/squid/access.log
+cache_log /var/log/squid/cache.log
+cache_store_log none
+error_directory /usr/share/errors/en-us
+log_mime_hdrs off
+

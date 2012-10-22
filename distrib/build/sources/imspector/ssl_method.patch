@@ -1,0 +1,11 @@
+--- imspector-0.9/sslstate.h	2008-08-17 10:23:10.000000000 -0700
++++ imspector-0.9/sslstate.h.new	2012-07-21 16:30:40.000000000 -0700
+@@ -29,7 +29,7 @@
+ 		int sslverify;
+ 		
+ 		bool localdebugmode;
+-		SSL_METHOD *method;
++		const SSL_METHOD *method;
+ 		SSL_CTX *connectctx;
+ 		SSL_CTX *ctx;
+ 

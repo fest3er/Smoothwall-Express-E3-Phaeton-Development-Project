@@ -1,0 +1,11 @@
+--- Makefile-orig	2011-12-26 17:15:46.000000000 -0500
++++ Makefile	2011-12-26 17:27:50.000000000 -0500
+@@ -133,7 +133,7 @@
+ 
+ MAKEFILE= Makefile
+ 
+-MANDIR=$(OPENSSLDIR)/man
++MANDIR=$(INSTALLTOP)/share/man
+ MAN1=1
+ MAN3=3
+ MANSUFFIX=

@@ -1,0 +1,20 @@
+acl QUERY urlpath_regex cgi-bin \?
+no_cache deny QUERY
+
+#acl all src all
+#acl localhost src 127.0.0.1/32
+
+acl SSL_ports port 445 443 441 563
+acl Safe_ports port 80  	  	# http
+acl Safe_ports port 81  	  	# smoothwall http
+acl Safe_ports port 21  	  	# ftp 
+acl Safe_ports port 445 443 441 563	# https, snews
+acl Safe_ports port 70     		# gopher
+acl Safe_ports port 210    	   	# wais  
+acl Safe_ports port 1025-65535		# unregistered ports
+acl Safe_ports port 280       		# http-mgmt
+acl Safe_ports port 488       		# gss-http 
+acl Safe_ports port 591       		# filemaker
+acl Safe_ports port 777       		# multiling http
+acl CONNECT method CONNECT
+
