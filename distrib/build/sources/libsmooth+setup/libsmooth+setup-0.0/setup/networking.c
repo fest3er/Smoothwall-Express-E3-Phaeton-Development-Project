@@ -412,6 +412,7 @@ int changedrivers(void)
 
 	strcpy(displaydriver, "");
 	strcpy(currentdriver, "");
+	strcpy(currentdriveroptions, "");
 		
 	abort = 0;
 	driverc = 0;

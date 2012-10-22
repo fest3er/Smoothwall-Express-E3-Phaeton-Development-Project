@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = httpd
-VERSION = 2.2.19
+VERSION = 2.2.22
 
 LICENCE_FILE = $(DIR)/COPYING
 
@@ -21,7 +21,7 @@ CONFIGURE = yes
 INSTALL = yes
 
 configure: patch
-	@(cd $(DIR); ./configure $(CONFIG_OPTS) --prefix=/usr/apache2)
+	@(cd $(DIR); ./configure $(CONFIG_OPTS) --prefix=$(PKG_DIR))
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

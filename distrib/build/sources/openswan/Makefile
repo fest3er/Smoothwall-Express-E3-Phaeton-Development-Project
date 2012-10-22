@@ -18,6 +18,9 @@ TARBALL = $(FREESWAN_TYPE)-$(VERSION)
 PATCH_FILE1 = makefile.patch
 PATCH_FILE2 = setup.in.patch
 
+KNL_SRC = $(SOURCES_DIR)/linux$(KERNEL_TYPE)/linux
+MOD_DEST = /lib/modules/$(K_RAW_VERSION)$(KERNEL_TYPE)/kernel/net/ipsec
+
 unpack: $(DIR)/
 	@true
 
@@ -33,13 +36,9 @@ configure: patch
 	
 CFLAGS:=$(CFLAGS) -fno-strict-aliasing
 compile: configure
-	#@make -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin programs
 	@make $(JOBS) -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin KERNELSRC=$(KNL_SRC) programs
 	@make $(JOBS) -C $(COMPILE_DIR) USERCOMPILE='$(CFLAGS)' INC_USRLOCAL=$(PKG_DIR) FINALCONFDIR=$(PKG_DIR)/etc FINALRCDIR=$(PKG_DIR)/bin KERNELSRC=$(KNL_SRC) module
 
-
-KNL_SRC = $(SOURCES_DIR)/kernel$(SWETYPE)/linux
-MOD_DEST = /lib/modules/$(K_RAW_VERSION)$(SWETYPE)/kernel/net/ipsec
 
 install: compile
 ifeq ($(BUILD_PHASE), Final)

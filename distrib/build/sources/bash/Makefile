@@ -11,8 +11,9 @@ VERSION = 4.1
 
 BASE_URL = ftp://ftp.gnu.org/gnu/bash/
 
-ifeq ($(ARCH), i686)
-BUILD = --build=i686-pc-linux-gnu
+ifeq ($(mARCH), i686)
+#BUILD = --build=i686-pc-linux-gnu
+BUILD = --build=$(AGCL_TGT)
 endif
 
 ifeq ($(BUILD_PHASE), Stage_3)

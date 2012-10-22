@@ -71,7 +71,7 @@ if [ "$CONFIG_TYPE" == "2" -o "$CONFIG_TYPE" == "3" -o "$CONFIG_TYPE" == "6" -o 
       /sbin/ip addr add $RED_ADDRESS/$RED_NETMASK dev $RED_DEV
       nicsToUp="$nicsToUp $RED_DEV"
       if [ "$DEFAULT_GATEWAY" != "" ]; then
-	nicsToUp="$nicsToUp $DEFAULT_GATEWAY"
+        nicsToUp="$nicsToUp $DEFAULT_GATEWAY"
       fi
 
     else

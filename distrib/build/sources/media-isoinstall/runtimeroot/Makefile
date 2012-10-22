@@ -23,26 +23,27 @@ BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
 	  true tty umount uname uniq unzip usleep vi wc wget which yes zcat
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-SWE_PKGS = udev udev-config grub pciutils bash reiserfsprogs
-ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr
+AGCL_PKGS = udev kmod grub pciutils bash reiserfsprogs
+ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 
 bin:
-	(set -x; mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin; \
+	@(mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin; \
 	cp -aR /sbin/* tmp/bin)
 	#cp -aRv /build/target/install tmp/bin/install
 	#strip tmp/bin/*
 
 lib:
-	(set -x; mkdir -p tmp/lib tmp/usr/lib/klibc/lib; \
+	@(mkdir -p tmp/lib tmp/usr/lib/klibc/lib; \
 	cp -aR /lib/* tmp/lib; \
 	cp -aR /lib/lib* tmp/lib; \
-	cp -aR /build/buildroot/ncurses/usr/lib/* tmp/lib/; \
-	tar xfz /build/target/smoothwall-kernel$(SWETYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1)
+	cp -aR /usr/lib/libncurses.so* tmp/lib/; \
+	cp -aR /usr/lib/libtinfo.so* tmp/lib/; \
+	tar xfz /build/target/smoothwall-linux$(KERNEL_TYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1)
 
 klibc:
-	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
-	cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
-	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
+	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
+	@cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
+	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
 
 
 all: clean bin lib klibc
@@ -72,19 +73,21 @@ all: clean bin lib klibc
 	  gawk -f ../../etc/fill-pci-ids.awk < /usr/share/pci.ids > filled.pci.ids;\
 	) > /dev/null 2>&1
 	@(cd tmp; \
-	  for i in $(SWE_PKGS); do \
+	  for i in $(AGCL_PKGS); do \
 	    tar xfz /build/target/smoothwall-$$i.tar.gz; \
 	  done; \
 	  touch etc/ld.so.conf; \
 	  /sbin/ldconfig -r .; \
 	  mkdir dev/ida dev/rd; \
-	  install -d lib/firmware; \
+	  install -d lib/{firmware,udev/devices/{pts,shm}}; \
+	  ln -sv /lib/firmware usr/lib/firmware; \
+	  mknod -m0666 lib/udev/devices/null c 1 3; \
+	  ln -sf proc/kcore /lib/udev/devices/core; \
+	  ln -sf proc/self/fd /lib/udev/devices/fd; \
+	  ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
+	  ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
+	  ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
 	) > /dev/null 2>&1
-	  #ln -sf proc/self/fd /lib/udev/devices/fd; \
-	  #ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
-	  #ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
-	  #ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
-	  #ln -sf proc/kcore /lib/udev/devices/core; \
 
 ifdef BITS_64
 	@(cd tmp; ln -s lib lib64)
@@ -98,9 +101,9 @@ endif
 	@cd tmp; find . | cpio -o -H newc | gzip > ../../$(RUNTIME_ROOT)image.gz
 
 	@echo -e "runtimeroot build for $(MEDIA) complete\n\n"
-	
+
 clean:
-	rm -rf $(RUNTIME_ROOT) tmp/
-	rm -f ../$(RUNTIME_ROOT)image.gz
-	rm -f $(RUNTIME_ROOT)image.gz
-	rm -rf runtimeroot/
+	@rm -rf $(RUNTIME_ROOT) tmp/
+	@rm -f ../$(RUNTIME_ROOT)image.gz
+	@rm -f $(RUNTIME_ROOT)image.gz
+	@rm -rf runtimeroot/

@@ -15,8 +15,8 @@ our @_validation_items;
 @EXPORT       = qw();
 @EXPORT_OK    = qw( $language $version $webuirevision $viewsize @menu $swroot $thisscript showhttpheaders showmenu showsection openpage closepage openbigbox closebigbox openbox closebox alertbox pageinfo readvalue writevalue writehash readhash getcgihash log pipeopen age validip validmask validipormask validipandmask validport validportrange validmac validhostname validcomment basename connectedstate %tr @_validation_items getsystemid outputfile $major $minor $point $fix $relname $relnum $longversion );
 %EXPORT_TAGS  = (
-		standard   => [@EXPORT_OK],
-		);
+                standard   => [@EXPORT_OK],
+                );
 
 
 $|=1; # line buffering

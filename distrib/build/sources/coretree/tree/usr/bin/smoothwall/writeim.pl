@@ -46,7 +46,7 @@ ssl_ca_key=/etc/httpd/server.key
 ssl_ca_cert=/etc/httpd/server.crt
 ssl_cert_dir=/var/lib/imspector
 
-ssl_verify_dir=/usr/ssl/certs
+ssl_verify_dir=/usr/certs
 ssl_verify=selfsigned
 
 icq_ssl=on

@@ -29,7 +29,7 @@ COMPILE_DIR = $(DIR)-compile
 #
 ifeq ($(BUILD_PHASE), Stage_1)
 
-CONFIG_OPTS = --target=$(SWE_TGT) --prefix=$(TOOLS_DIR) \
+CONFIG_OPTS = --target=$(AGCL_TGT) --prefix=$(TOOLS_DIR) \
 	      --disable-nls --disable-werror
 
 COMPILE = yes
@@ -50,8 +50,8 @@ endif # Stage 1
 # Tool Chain Build Stage_2
 #
 ifeq ($(BUILD_PHASE), Stage_2)
-PRE_CONFIGURE = CC="$(SWE_TGT)-gcc -B$(TOOLS_DIR)/lib" \
-	        AR=$(SWE_TGT)-ar RANLIB=$(SWE_TGT)-ranlib
+PRE_CONFIGURE = CC="$(AGCL_TGT)-gcc -B$(TOOLS_DIR)/lib" \
+	        AR=$(AGCL_TGT)-ar RANLIB=$(AGCL_TGT)-ranlib
 
 CONFIG_OPTS = --prefix=$(TOOLS_DIR) --disable-nls \
 	      --with-lib-path=$(TOOLS_DIR)/lib
@@ -72,7 +72,7 @@ install: compile
 endif # Stage 2
 
 
-# SWE Final Build Stage
+# AGCL Final Build Stage
 #
 ifeq ($(BUILD_PHASE), Final)
 #CONFIG_OPTS = --prefix=$(PKG_ROOT)$(PKG_DIR) --enable-shared

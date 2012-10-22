@@ -8,8 +8,10 @@ include ../Makefile.conf
 
 PACKAGE = rrdtool
 
-VERSION = 1.2.19
+VERSION = 1.4.5
 
 BASE_URL = http://oss.oetiker.ch/rrdtool/pub/
+
+CONFIG_OPTS = --disable-tcl --disable-python
 
 include ../Makefile.rules

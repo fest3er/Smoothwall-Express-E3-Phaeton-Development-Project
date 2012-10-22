@@ -8,7 +8,6 @@ echo
 #
 . ./environment
 set_build_environment
-set -x
 
 # Initialize STATUS
 #
@@ -18,19 +17,19 @@ STATUS=0
 
 # Make sure gcc's libgcc has a path
 #
-GCC_LIBNAM=`${SWE_TGT}-gcc -print-libgcc-file-name`
+GCC_LIBNAM=`${AGCL_TGT}-gcc -print-libgcc-file-name`
 GCC_LIBNAMDIR=`dirname ${GCC_LIBNAM}`
 if [ "${GCC_LIBNAMDIR}" == "" ]; then
-  echo "'${SWE_TGT}-gcc -print-libgcc-file-name' doesn't have a path name!"
+  echo "'${AGCL_TGT}-gcc -print-libgcc-file-name' doesn't have a path name!"
   exit -10
 fi
 
 # Tweak gcc specs
 #
-${SWE_TGT}-gcc -dumpspecs | sed \
+${AGCL_TGT}-gcc -dumpspecs | sed \
         -e 's@/lib\(64\)\?/ld@'${TOOLS_DIR}'&@g' \
         -e "/^\*cpp:$/{n;s,$, -isystem ${TOOLS_DIR}/include,}" \
-        > `dirname $(${SWE_TGT}-gcc -print-libgcc-file-name)`/specs
+        > `dirname $(${AGCL_TGT}-gcc -print-libgcc-file-name)`/specs
 
 #################
 
@@ -42,7 +41,7 @@ ${SWE_TGT}-gcc -dumpspecs | sed \
 # compile an empty program
 #
 echo 'main(){}' > dummy.c
-${SWE_TGT}-gcc -B/tools/lib dummy.c > dummy.log
+${AGCL_TGT}-gcc -B/tools/lib dummy.c > dummy.log
 
 # Right program interpreter?
 #
@@ -65,7 +64,7 @@ if [ $STATUS -eq 1 ]; then
   echo "Errors found! Reversing adjustment..."
   echo
 
-  rm -fv `dirname $(${SWE_TGT}-gcc --print-libgcc-file-name)`/specs
+  rm -fv `dirname $(${AGCL_TGT}-gcc --print-libgcc-file-name)`/specs
 
   exit 1
 

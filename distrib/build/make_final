@@ -87,9 +87,10 @@ fi
   else
     echo
     if [ -e crumbs/Final.grp1.compiled ]; then
-      echo -e "    Final group 1 packages already built"
+      echo -e "  Final group 1 packages (basic) already built"
     else
       echo
+      echo -e "  Final group 1 packages (basic)"
       build kernel-headers
       build glibc
       other_cmd "crumbs/$BUILD_PHASE.toolchain.adjusted" \
@@ -97,6 +98,10 @@ fi
                 "bash final_tc_adjustment" \
                 "crumbs/$BUILD_PHASE.adjusting.out"
       build binutils
+      build gmp
+      #build mpfr
+      #build mpc
+      build zlib
       build gcc
       other_cmd "crumbs/$BUILD_PHASE.toolchain.verified" \
                 "final toolchain verification" \
@@ -104,7 +109,7 @@ fi
                 "crumbs/$BUILD_PHASE.verification.out"
       build gcc libgcc
       build coreutils
-      build zlib
+      build gdbm
       build mktemp
       build iana-etc
       build findutils
@@ -115,9 +120,7 @@ fi
       build m4
       build bison
       build less
-      JOBS=$JOBS_UP
       build groff
-      JOBS=$JOBS_MP
       build man
       build man-pages
       build sed
@@ -132,18 +135,13 @@ fi
     fi
 
     if [ -e crumbs/Final.grp2.compiled ]; then
-      echo -e "    Final group 2 packages already built"
+      echo -e "  Final group 2 packages (essential) already built"
     else
       echo
+      echo -e "  Final group 2 packages (essential)"
       build sysfsutils
       build iputils
       build perl
-      build Net-Netmask
-      build NetAddr-IP
-      build HTML-Parser
-      build HTML-Tagset
-      build URI
-      build libwww-perl
       build texinfo
       build autoconf
       build automake
@@ -164,106 +162,138 @@ fi
       build pkg-config
       build procinfo
       build procps
+      build which
+      build GeoIP
+      build Python
+      JOBS=$JOBS_UP
+      build dev86
+      build acpica
+      JOBS=$JOBS_MP
+      build nasm
       touch crumbs/Final.grp2.compiled
     fi
 
     if [ -e crumbs/Final.grp3.compiled ]; then
-      echo -e "    Final group 3 packages already built"
+      echo -e "  Final group 3 packages (system) already built"
     else
       echo
+      echo -e "  Final group 3 packages (system)"
       build psmisc
       build shadow
       build sysklogd
       build sysvinit
       build tar
-      build util-linux-ng
+      build util-linux
       build joe
-      JOBS=$JOBS_UP
       build openssl
-      JOBS=$JOBS_MP
+      build libmnl
+      build db
+      build openldap
       build wget
       build sudo
-      build kernel-roadster
+      #build linux-dom0
+      #build linux-domU
+      build linux-kvm
       build iptables
       build ipset
       build xtables-addons
       build ipbatch
       build klibc
-      build listtables
+      build kmod
       build udev
-      build udev-config
-      build pciutils
-      build bin86
-      build nasm
-      build strace
+      #build udev-config
+      #build xen
       build linux-atm
-      build libcap
-      build hdparm
-      build hddtemp
-      build iproute2
       touch crumbs/Final.grp3.compiled
     fi
 
     if [ -e crumbs/Final.grp4.compiled ]; then
-      echo -e "    Final group 4 packages already built"
+      echo -e "  Final group 4 packages (libs) already built"
     else
       echo
-      build gmp
+      echo -e "  Final group 4 packages (libs)"
+      build strace
+      build attr
+      build libcap
+      build libcap-ng
       build pcre
-      build beep2
       build libpcap
-      build tcpdump
-
-      build dosfstools
-      build syslinux
-      build openssh
       build expat
-      build httpd
-      build smoothd
-      build cron
-      JOBS=$JOBS_UP
-      build at
-      JOBS=$JOBS_MP
+
+      build libusb
       build cgilib
       build freetype
+      build fontconfig
       build libart_lgpl
       build libpng
       build libdnet
       build daq
-      build rrdtool
-      build which
-      build lm_sensors
-      build dnsmasq
-      build whois
+      build libxml2
+      build pixman
+      build libffi
+      build glib
+      build freefont
+      build cairo
+      build pango
+      build neon
+      build libosip2
+      build libnet
+exit
+      build libnfnetlink
+      build libnetfilter_queue
+      JOBS=$JOBS_UP
+      build slang
+      JOBS=$JOBS_MP
       build popt
-      build logrotate
-      build ethtool
-      build iftop
+      build newt
+
+      build usbutils
+      build pciutils
+      build bridge-utils
+      build hdparm
+      build hddtemp
+      build iproute2
+      build beep2
+      build tcpdump
+      build dosfstools
+
+      build rrdtool
+      build perl-mods
+
       touch crumbs/Final.grp4.compiled
     fi
 
     if [ -e crumbs/Final.grp5.compiled ]; then
-      echo -e "    Final group 5 packages already built"
+      echo -e "  Final group 5 packages (core) already built"
     else
       echo
+      echo -e "  Final group 5 packages (core)"
+      build httpd
+      build cron
+      JOBS=$JOBS_UP
+      build at
+      JOBS=$JOBS_MP
+      build which
+      build lm_sensors
+      build dnsmasq
+      build whois
+      build logrotate
+      build ethtool
+      build iftop
+
+      build listtables
+      build smoothd
+      build libsmooth+setup
+      build trafficstats
+      build setuids
+      build coretree
+
+      build openssh
       build ntp
       build openntpd
 
-      build slang
-      build newt
-
       build squid
       build gd
-
-      build libsmooth+setup
-
-      build trafficstats
-
-      build mtools
-      build cdrtools
-      build busybox
-
-      build setuids
 
       build ppp
       build isdn4k-utils
@@ -273,22 +303,22 @@ fi
       build eciadsl-synch_bin
       build eciadsl-usermode
       build cnxadsl
-
-      build dhcp
-      JOBS=$JOBS_UP
-      build snort
-      JOBS=$JOBS_MP
-      build coretree
-      build oinkmaster
-      build openswan
       touch crumbs/Final.grp5.compiled
     fi
 
     if [ -e crumbs/Final.grp6.compiled ]; then
-      echo -e "    Final group 6 packages already built"
+      echo -e "  Final group 6 packages (last utils) already built"
     else
       echo
+      echo -e "  Final group 6 packages (last utils)"
+      build mtools
+      build cdrtools
+      build busybox
 
+      build dhcp
+      build snort
+      build oinkmaster
+      build openswan
       build wireless_tools
 
       build noip
@@ -300,14 +330,13 @@ fi
       build p3scan
 
       build tcl
-      build neon
       build git
       build screen
       build gdb
       build lynx
-      #build install
+      build rsync
+      build samba
 
-      build libosip2
       build siproxd
 
       build miniupnpd
@@ -318,12 +347,14 @@ fi
       build parted
       build pcmciautils
       build yaml
-      build libnet
-      build libnfnetlink
-      build libnetfilter_queue
-      #build libcap-ng  # needs Python; it can wait
       build suricata
       build smartmontools
+      build sqlite
+      build squidguard
+      build subversion
+      build qemu-kvm
+      build ntop
+      build iperf
 
       touch crumbs/Final.grp6.compiled
     fi

@@ -1,14 +1,8 @@
 #!/bin/sh
 
-# Re-run udevd
-/sbin/udevd --daemon
-/sbin/udevadm trigger
-/sbin/udevadm settle
-/sbin/udevadm trigger --subsystem-match=block
-/sbin/udevadm trigger --attr-match=modalias
-/sbin/udevadm settle
-
 . /var/smoothwall/main/settings
+
+. /var/smoothwall/ethernet/settings
 
 export STARTSTOP="startup"
 
@@ -54,6 +48,15 @@ fi
 
 echo "Mounting root read/write"
 mount -n -o remount,rw /
+
+# Re-run udevd
+/sbin/udevd --daemon
+/sbin/udevadm trigger
+/sbin/udevadm settle
+/sbin/udevadm trigger --subsystem-match=block
+/sbin/udevadm trigger --attr-match=modalias
+/sbin/udevadm settle
+
 echo "Clearing and refilling mtab"
 >/etc/mtab
 mount -f /
@@ -121,40 +124,41 @@ fi
 echo "Setting the clock"
 /sbin/hwclock --hctosys
 
-#if [ ! -e /usr/etc/ssh_host_key ]; then
-#	echo "Generating SSH RSA1 key.  This may take several minutes."
-#	/usr/bin/ssh-keygen -t rsa1 -f /usr/etc/ssh_host_key -N ""
-#fi
+if [ ! -e /usr/etc/pango/pango.modules ]; then
+	echo "Collecting pango modules"
+        /usr/bin/pango-querymodules > /usr/etc/pango/pango.modules
+fi
+
 echo "Generating keys/certs..."
 if [ ! -e /usr/etc/ssh_host_rsa_key ]; then
-	echo "  SSH RSA key.  This may take several minutes."
-	/usr/bin/ssh-keygen -t rsa -f /usr/etc/ssh_host_rsa_key -N ""
+        echo "  SSH RSA key.  This may take several minutes."
+        /usr/bin/ssh-keygen -t rsa -f /usr/etc/ssh_host_rsa_key -N ""
 fi
 if [ ! -e /usr/etc/ssh_host_dsa_key ]; then
-	echo "  SSH DSA key.  This may take several minutes."
-	/usr/bin/ssh-keygen -t dsa -f /usr/etc/ssh_host_dsa_key -N "" 
+        echo "  SSH DSA key.  This may take several minutes."
+        /usr/bin/ssh-keygen -t dsa -f /usr/etc/ssh_host_dsa_key -N "" 
 fi
 if [ ! -e /usr/etc/ssh_host_ecdsa_key ]; then
-	echo "  SSH ECDSA key.  This may take several minutes."
-	/usr/bin/ssh-keygen -t ecdsa -f /usr/etc/ssh_host_ecdsa_key -N "" 
+        echo "  SSH ECDSA key.  This may take several minutes."
+        /usr/bin/ssh-keygen -t ecdsa -f /usr/etc/ssh_host_ecdsa_key -N "" 
 fi
 
 if [ ! -e /etc/httpd/server.key ]; then
-	echo "  https server key."
-	/usr/ssl/bin/openssl genrsa -rand \
-		/boot/vmlinuz-`uname -r`:/var/smoothwall/ethernet/settings:/var/log/dmesg -out \
-		/etc/httpd/server.key 1024
-	echo "  CSR"
-	cat /etc/certparams | /usr/ssl/bin/openssl \
-		req -new -key /etc/httpd/server.key -out /etc/httpd/server.csr
-	echo "  Signing certificate"
-	/usr/ssl/bin/openssl x509 -req -days 999999 -in \
+        echo "  https server key."
+        /usr/bin/openssl genrsa -rand \
+                /boot/vmlinuz-`uname -r`:/var/smoothwall/ethernet/settings:/var/log/dmesg -out \
+                /etc/httpd/server.key 1024
+        echo "  CSR"
+        cat /etc/certparams | /usr/bin/openssl \
+                req -new -key /etc/httpd/server.key -out /etc/httpd/server.csr
+        echo "  Signing certificate"
+	/usr/bin/openssl x509 -req -days 999999 -in \
 		/etc/httpd/server.csr -signkey /etc/httpd/server.key -out \
 		/etc/httpd/server.crt
 fi	
 
 echo "Hashing CA certs"
-/usr/ssl/bin/c_rehash >/dev/null
+/usr/bin/c_rehash >/dev/null
 
 echo "Generating UPNP UUID"
 /usr/bin/uuidgen >/etc/miniupnpd.uuid
@@ -186,8 +190,8 @@ echo "  cron"
 rm -f /var/run/crond.reboot
 /usr/sbin/cron
 echo "  httpd"
-#/usr/apache2/sbin/httpd -DSSL -DDEFLATE
-/usr/apache2/sbin/httpd -DSSL
+#/usr/sbin/httpd -DSSL -DDEFLATE
+/usr/sbin/httpd -DSSL
 echo "  sshd (if enabled)"
 /usr/bin/smoothcom sshdrestart
 echo "  time service (if enabled)"
@@ -202,6 +206,8 @@ echo "  Clam Anti-Virus (if enabled)"
 /usr/bin/smoothcom clamavrestart
 echo "  POP3 scanner (if enabled)"
 /usr/bin/smoothcom p3scanrestart
+echo "  Guardian (if enabled)"
+/usr/bin/smoothcom guardianrestart
 
 echo
 echo "Finishing startup"
@@ -219,6 +225,9 @@ echo "1 4 1 7" >/proc/sys/kernel/printk
 # Services here depend on the IFs being up.
 echo "  dhcpd (if enabled)"
 /usr/bin/smoothcom dhcpdrestart
+
+echo "  ntop"
+/usr/bin/ntop -w 8080 -i eth0 -a /usr/var/ntop/access_log -m "$GREEN_NETWORK/$GREEN_NETMASK" -n 2 --w3c -d -L --skip-version-check --known-networks=$RED_NETWORK/$RED_NETMASK
 
 # Final startup steps.
 echo "  Saving dmesg buffer to /var/log/dmesg"

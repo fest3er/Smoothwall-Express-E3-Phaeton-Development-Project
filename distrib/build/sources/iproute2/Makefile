@@ -14,6 +14,8 @@ VERSION = 2.6.39
 BASE_URL = http://devresources.linuxfoundation.org/dev/iproute2/download
 EXTENSION=.tar.gz
 
+PATCH_FILE1 = m_xt.c.patch
+
 CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes

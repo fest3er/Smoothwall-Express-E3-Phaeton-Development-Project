@@ -11,16 +11,18 @@ export IPT_LIB_DIR = $(IPT_LIBEXEC)
 
 OBJS=
 LIB_OBJS = module.o UDSocket.o pid.o setuid.o config.o ipbatch.o ipbatchc.o \
-	$(IPTABLES_SRC_DIR)/iptables.o $(IPTABLES_SRC_DIR)/xshared.o
+        $(IPTABLES_SRC_DIR)/iptables/xtables_multi-iptables.o \
+        $(IPTABLES_SRC_DIR)/iptables/xshared.o
+
 
 MAIN = main.cpp
 LIBS = -L. -ldl -lsmoothd -lxtables -liptc
 BIN = smoothd
 
 MODULES = sysshutdown sysinstall sysim sysp3scan sysalcatel sysdhcpd \
-	sysdnsproxy sysntpd syssnort syssquid syssshd sysupnpd sysadvnet \
-	sysipblock sysfullfirewall sysupdown sysipsec systimeset \
-	sysiptables systraffic syssip sysclamav syssmoothinfo
+        sysdnsproxy sysntpd syssnort syssquid syssshd sysupnpd sysadvnet \
+        sysipblock sysfullfirewall sysupdown sysipsec systimeset sysiptables \
+        systraffic syssip sysclamav syssmoothinfo
 
 MODULEFLAGS = $(CXXFLAGS) -shared -Wl,-soname,$@.so -o $@.so $@.cpp $(LIBS)
 

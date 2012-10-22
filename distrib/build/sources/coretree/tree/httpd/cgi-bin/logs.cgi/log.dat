@@ -57,7 +57,7 @@ if ($ENV{'QUERY_STRING'} && $cgiparams{'ACTION'} ne $tr{'update'})
 
 if (!($cgiparams{'MONTH'} =~ /^(0|1|2|3|4|5|6|7|8|9|10|11)$/) ||
         !($cgiparams{'DAY'} =~ /^(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)$/) ||
-	!($cgiparams{'SECTION'} =~ /^(smoothwall|ppp|isdn|dhcp|ssh|auth|kernel|portfwd|outgoing|ipsec|installpackage|ntp|im|sip|miniupnpd|squid|smoothd|av)$/))
+        !($cgiparams{'SECTION'} =~ /^(smoothwall|ppp|isdn|dhcp|ssh|auth|kernel|portfwd|outgoing|ipsec|installpackage|ntp|im|sip|miniupnpd|squid|smoothd|av)$/))
 {
         $cgiparams{'DAY'} = $now[3];
         $cgiparams{'MONTH'} = $now[4];

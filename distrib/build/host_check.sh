@@ -52,9 +52,9 @@ CBASH=02050a
 VBASH=2.5.a #(/bin/sh should be a symbolic or hard link to bash) 
 
 CBINUTILS=021200
-CBINUTILSM=022153
+CBINUTILSM=022200
 VBINUTILS=2.12
-VBINUTILSM=2.21.53
+VBINUTILSM=2.22.00
 
 CFLEX=020500
 VFLEX=2.5
@@ -324,7 +324,7 @@ else
   OIFS=$IFS; IFS="."; set $WORK
   TGCC=`echo $*|awk '{printf("%2.2d%2.2d%2.2d\n", $1, $2, $3)}'`
   IFS=$OIFS
-  if [[ $TGCC < $CGCC || $TGCC > $CGCCM ]]; then
+  if [[ $TGCC < $CGCC ]]; then
     echo "  FAIL: gcc v$WORK seems too old (<$VGCC)"
     OK=1
   else

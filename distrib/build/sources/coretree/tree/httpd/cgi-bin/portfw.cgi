@@ -1856,7 +1856,7 @@ my %render_settings =
       title  => $tr{'interface'},
       size   => 15,
       sort   => 'cmp',
-      tr	=> \%{$ifcolorsmap},
+      tr        => \%{$ifcolorsmap},
       valign => 'top',
       maxrowspan => 2,
     },

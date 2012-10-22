@@ -32,6 +32,7 @@ function compute_swap () {
 # sed changes this to the currently used kernel version
 #
 KERNEL_VER=KeRnElVeRsIoN
+KERNEL_TYPE=KeRnElTyPe
 
 # set ATIME first thing
   case $noatime in
@@ -62,6 +63,7 @@ echo "Tweaking udev" >/dev/tty2
     
   ) > /etc/udev/rules.d/70-Smoothwall-custom-disk.rules
 
+  if [ 1 -lt 0 ]; then
   echo "    Persistent custom NIC names"
   (
     echo "# Phaeton/Roadster persistent custom NIC names"
@@ -71,8 +73,6 @@ echo "Tweaking udev" >/dev/tty2
     echo "# Persistent NIC names"
     # not doing custom NIC names for now
     #
-    cat /etc/udev/rules.d/70-persistent-net.rules
-    if [ 1 -lt 0 ]; then
     typeset -i i
     i=1
     while [ $i -lt $nic_cnt ]; do
@@ -83,8 +83,9 @@ echo "Tweaking udev" >/dev/tty2
       fi
       i=i+1
     done
-    fi # skip NIC names
   ) > /etc/udev/rules.d/70-Smoothwall-custom-NIC.rules
+  fi # skip NIC names
+  mv /etc/udev/rules.d/70-persistent-net.rules /etc/udev/rules.d/70-Smoothwall-custom-NIC.rules
 
   echo "  Triggering udev and waiting for it to settle"
   do_or_die "/sbin/udevadm trigger --subsystem-match=net"
@@ -335,7 +336,7 @@ END
 
   cat <<END >/harddisk/$CONFIG_ROOT/main/settings
 LANGUAGE=en
-HOSTNAME=roadster
+HOSTNAME=agcl-fw
 KEYMAP=/usr/share/keymaps/i386/qwerty/us.map.gz
 OPENNESS=halfopen
 END
@@ -372,7 +373,7 @@ END
   HDTMP="/harddisk/runtimeroot"
   mkdir -p $HDTMP; cd $HDTMP
   echo "    unpack"
-  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz | cpio -id"
+  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz | cpio -id"
   echo "    update"
   do_or_die "mkdir -p -m 755 ${HDTMP}/etc/udev/rules.d"
   do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* ${HDTMP}/etc/udev/rules.d/"
@@ -384,8 +385,8 @@ END
   do_or_die "/bin/chroot ${HDTMP} /sbin/depmod -a"
 
   echo "    re-pack"
-  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
-  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
+  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz"
+  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz"
   cd ${OPWD}
   rm -rf ${HDTMP}
 
@@ -429,26 +430,26 @@ color 0x06 0x0e
 # Boot using VESA console
 title AGCL/Roadster (VESA Console)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet
-initrd /initrd-${KERNEL_VER}-roadster.gz
+kernel /vmlinuz-${KERNEL_VER}${KERNEL_TYPE} root=/dev/harddisk4 ro quiet
+initrd /initrd-${KERNEL_VER}${KERNEL_TYPE}.gz
 
 # Boot using serial console
 title AGCL/Roadster (Serial Console)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD
-initrd /initrd-${KERNEL_VER}-roadster.gz
+kernel /vmlinuz-${KERNEL_VER}${KERNEL_TYPE} root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD
+initrd /initrd-${KERNEL_VER}${KERNEL_TYPE}.gz
 
 # Single-user using VESA console
 title AGCL/Roadster (VESA Console, Single-User)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet single
-initrd /initrd-${KERNEL_VER}-roadster.gz
+kernel /vmlinuz-${KERNEL_VER}${KERNEL_TYPE} root=/dev/harddisk4 ro quiet single
+initrd /initrd-${KERNEL_VER}${KERNEL_TYPE}.gz
 
 # Single-user using serial console
 title AGCL/Roadster (Serial Console, Single-User)
 root (hd0,0)
-kernel /vmlinuz-${KERNEL_VER}-roadster root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD single
-initrd /initrd-${KERNEL_VER}-roadster.gz
+kernel /vmlinuz-${KERNEL_VER}${KERNEL_TYPE} root=/dev/harddisk4 ro quiet console=ttyS0,$BAUD single
+initrd /initrd-${KERNEL_VER}${KERNEL_TYPE}.gz
 END
 
   # Restore variable data if selected. AND upgrade files as needed!
@@ -575,7 +576,7 @@ else
   do_or_die "tar -C /harddisk -zxvf /restore/${archive_id[$archive]}"
 
   # Adjust the initramfs as needed (different disk, NICs or FS, etc.)
-  KERNEL_VER=`ls -C1 /harddisk/boot/initrd* | tail -1 | sed -e 's/.*initrd-//' -e 's/-roadster.*//'`
+  KERNEL_VER=`ls -C1 /harddisk/boot/initrd* | tail -1 | sed -e 's/.*initrd-//' -e 's/'${KERNEL_TYPE}'.*//'`
   echo "  adjusting runtime initramfs"
   set -- $FS
   FSTYPE=$2
@@ -589,18 +590,18 @@ else
   HDTMP="/harddisk/runtimeroot"
   mkdir -p $HDTMP; cd $HDTMP
   echo "    unpack"
-  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz | cpio -id"
+  do_or_die "gunzip -c /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz | cpio -id"
   echo "    update"
   do_or_die "mkdir -p -m 755 ${HDTMP}/etc/udev/rules.d"
   do_or_die "cp -v /etc/udev/rules.d/*Smoothwall* ${HDTMP}/etc/udev/rules.d/"
 
-  echo "/dev/harddisk4	/harddisk	$FSTYPE	$OPTION		0	1" >${HDTMP}/etc/fstab
+  echo "/dev/harddisk4  /harddisk       $FSTYPE $OPTION         0       1" >${HDTMP}/etc/fstab
   echo "$FSTYPE" >${HDTMP}/etc/modules
   do_or_die "/bin/chroot ${HDTMP} /sbin/depmod -a"
 
   echo "    re-pack"
-  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
-  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}-roadster.gz"
+  do_or_die "cd ${HDTMP}; find . | /bin/cpio -o -H newc | /usr/bin/gzip > /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz"
+  do_or_die "chmod 444 /harddisk/boot/initrd-${KERNEL_VER}${KERNEL_TYPE}.gz"
   cd ${OPWD}
   rm -rf ${HDTMP}
 
@@ -631,9 +632,9 @@ fi
 # Always install the boot loader whether installing, restoring var or
 #   doing a total restore
 echo "  installing boot loader"
-do_or_die "mount --bind /proc /harddisk/proc"
-do_or_die "mount --bind /sys /harddisk/sys"
-do_or_die "mount --bind /dev /harddisk/dev"
+do_or_die "mount --rbind /proc /harddisk/proc"
+do_or_die "mount --rbind /sys /harddisk/sys"
+do_or_die "mount --rbind /dev /harddisk/dev"
 cat<<END >/harddisk/tmp/grub.cmds
 device (hd0) /dev/harddisk
 root (hd0,0) 

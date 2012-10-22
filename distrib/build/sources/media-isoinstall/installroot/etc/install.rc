@@ -81,6 +81,8 @@ function undo_alot {
   umount /cdrom >/dev/null 2>&1
   umount /restore >/dev/null 2>&1
 
+  rm -f /etc/udev/rules.d/*
+
   swapoff -a >/dev/null 2>&1
 
   echo "0 0 0 0" > /proc/sys/kernel/printk
@@ -89,10 +91,7 @@ function undo_alot {
 
 function kill_udev() {
   # Stop udevd, we may miss a few events while we run init, but we'll catch up
-  for proc in /proc/[0-9]*; do
-    [ -x $proc/exe ] || continue
-    [ "$(/usr/lib/klibc/bin/readlink $proc/exe)" == /bin/udevd ] && kill ${proc#/proc/}
-  done
+  udevadm control --exit
 }
 
 

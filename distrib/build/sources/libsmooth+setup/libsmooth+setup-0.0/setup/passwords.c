@@ -71,7 +71,7 @@ int handleadminpassword(void)
 		return 0;
 	
 	snprintf(commandstring, STRING_SIZE,
-		"/usr/apache2/sbin/htpasswd -m -c -b " CONFIG_ROOT "auth/users admin '%s'", password);
+		"/usr/sbin/htpasswd -m -c -b " CONFIG_ROOT "auth/users admin '%s'", password);
 	if (runcommandwithstatusnolog(commandstring, ctr[TR_SETTING_ADMIN_PASSWORD]))
 	{
 		errorbox(ctr[TR_PROBLEM_SETTING_ADMIN_PASSWORD]);

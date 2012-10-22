@@ -25,7 +25,7 @@ BASE_URL = ftp://alpha.gnu.org/gnu/grub/
 
 COMPILE_DIR = $(PACKAGE)-$(VERSION)-compile
 
-PATCH_FILE1 = grub-fedora-16.patch
+PATCH_FILE1 = grub-fedora-17.patch
 #PATCH_FILE1 = cvs-sync.patch
 #PATCH_FILE2 = grub-special_device_names.diff
 #PATCH_FILE3 = raid_cciss.diff
@@ -34,6 +34,8 @@ PATCH_FILE1 = grub-fedora-16.patch
 
 
 CONFIG_OPTS = --prefix=$(PKG_DIR)
+
+CFLAGS := $(CFLAGS) -march=i686 -Wall -fno-reorder-functions
 
 reconf: patch
 	cd $(DIR); autoreconf --force

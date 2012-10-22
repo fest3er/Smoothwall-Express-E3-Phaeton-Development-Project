@@ -16,7 +16,7 @@ DIR = $(PACKAGE)-$(VERSION)
 TARBALL = $(PACKAGE)_$(VERSION).orig
 HDTEMPDB = hddtemp.db
 
-#PATCH_FILE1 = hddtemp_0.3-beta12-6.diff.gz
+PATCH_FILE1 = REG_EIP.patch
 #PATCH_FILE2 = smoothwall-locale-fix.patch
 
 INSTALL = yes

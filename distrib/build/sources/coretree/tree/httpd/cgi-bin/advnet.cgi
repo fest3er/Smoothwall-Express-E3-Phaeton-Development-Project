@@ -31,17 +31,17 @@ if ($advnetsettings{'ACTION'} eq $tr{'save'})
 	my $success = message('setadvnet');
 	
 	if (not defined $success) {
-		$errormessage = $tr{'smoothd failure'}; }	
+		$errormessage .= $tr{'smoothd failure'}."<br />"; }	
 	
 	my $success = message('upnpdrestart');
-		
-	if (not defined $success) {
-		$errormessage = $tr{'smoothd failure'}; }
+                
+        if (not defined $success) {
+                $errormessage .= $tr{'smoothd failure'}."<br />"; }
 
-	$success = message('setoutgoing');
-		
-	if (not defined $success) {
-		$errormessage = $tr{'smoothd failure'}; }
+        $success = message('setoutgoing');
+                
+        if (not defined $success) {
+                $errormessage .= $tr{'smoothd failure'}."<br />"; }
 }
 
 &readhash("${swroot}/advnet/settings", \%advnetsettings);

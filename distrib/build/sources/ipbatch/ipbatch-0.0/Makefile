@@ -31,7 +31,9 @@ ipbatch.o: ipbatch.c $(IPTABLES_SRC_DIR)/include/iptables.h
 ip6batch.o: ipbatch.c $(IPTABLES_SRC_DIR)/include/iptables.h
 	$(CC) -c $(CFLAGS) -DIP6T -DXTABLES_LIBDIR=\"$(XTABLES_LIBDIR)\" ipbatch.c -o ip6batch.o
 
-ipbatch: ipbatch.o $(IPTABLES_SRC_DIR)/iptables.o $(IPTABLES_SRC_DIR)/xshared.o
+ipbatch: ipbatch.o $(IPTABLES_SRC_DIR)/iptables/xtables_multi-iptables.o \
+                   $(IPTABLES_SRC_DIR)/iptables/xtables_multi-xshared.o
 	$(CC) $(LDLIBS) $(LDFLAGS) $(CFLAGS) -o $@  $^
-ip6batch: ip6batch.o $(IPTABLES_SRC_DIR)/ip6tables.o $(IPTABLES_SRC_DIR)/xshared.o
+ip6batch: ip6batch.o $(IPTABLES_SRC_DIR)/iptables/xtables_multi-ip6tables.o \
+                     $(IPTABLES_SRC_DIR)/iptables/xtables_multi-xshared.o
 	$(CC) $(CFLAGS) -DIPT_LIB_DIR=\"$(IPT_LIB_DIR)\" $(LDFLAGS) -o $@ $^ $(LDLIBS)

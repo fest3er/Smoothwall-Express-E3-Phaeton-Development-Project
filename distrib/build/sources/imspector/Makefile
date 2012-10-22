@@ -15,8 +15,13 @@ CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
-OPTS = PREFIX=$(PKG_ROOT)$(PKG_DIR) SSL_DIR=/usr/ssl
+OPTS = PREFIX=$(PKG_ROOT)$(PKG_DIR)
 DIR = imspector-$(VERSION)
+
+PATCH_FILE1 = ssl_method.patch
+# use the patch fest3er used since mine seems
+# to have stopped working.
+#PATCH_FILE1 = ssl-state.cpp.patch
 
 configure: patch
 	@true

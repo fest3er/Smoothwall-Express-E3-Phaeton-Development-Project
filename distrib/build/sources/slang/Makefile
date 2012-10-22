@@ -8,10 +8,10 @@ include ../Makefile.conf
 
 PACKAGE = slang
 #VERSION = 1.4.9
-MAJORVERSION = 2.0
-VERSION = $(MAJORVERSION).7
+VER_MM = 2.2
+VERSION = $(VER_MM).4
 
-BASE_URL = ftp://space.mit.edu/pub/davis/slang/v$(MAJORVERSION)/
+BASE_URL = ftp://space.mit.edu/pub/davis/slang/v$(VER_MM)/
 
 INSTALL = yes
 

@@ -7,10 +7,10 @@
 include ../Makefile.conf
 
 PACKAGE = neon
-VERSION = 0.25.5
+VERSION = 0.29.6
 
 BASE_URL = http://www.webdav.org/neon/
 
-CONFIG_OPTS = --with-ssl=openssl --with-libs=/usr/ssl
+CONFIG_OPTS = --enable-shared --with-ssl=openssl --with-libs=/usr/ssl
 
 include ../Makefile.rules

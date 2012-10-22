@@ -25,27 +25,29 @@ include ../Makefile.conf
 include ../Makefile.versions
 include ../Makefile
 
-export KNL_DIR:="$(SOURCES_DIR)/kernel$(PRODUCT_EXTRA)/linux"
+export KNL_DIR:="$(SOURCES_DIR)/linux$(KERNEL_TYPE)/linux"
 
 PACKAGE = ipset
-VERSION = 4.4
+VERSION = 4.5
+VERSION = 6.13
 
 EXTENSION = .tar.bz2
 BASE_URL = http://ipset.netfilter.org
 
-#CONFIG_OPTS = --prefix=/usr --mandir=/usr/man --docdir=/usr/doc \
-#	        --enable-devel --enable-libipq
+CONFIG_OPTS = --prefix=/usr --mandir=/usr/man --docdir=/usr/doc \
+	        --with-kbuild=$(SOURCES_DIR)/linux$(KERNEL_TYPE)/linux
 
-CONFIGURE = yes
+#CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
 
-configure: $(DIR)/ patch
-	true
+#configure: $(DIR)/ patch
+#	true
 
 compile: configure
-	KERNEL_DIR=$(KNL_DIR) make $(JOBS) -C $(COMPILE_DIR)
+	make $(JOBS) -C $(COMPILE_DIR) NO_EXTRA_WARN_FLAGS=yes
+
 
 
 install: compile

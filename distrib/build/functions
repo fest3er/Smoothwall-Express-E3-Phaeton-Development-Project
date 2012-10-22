@@ -35,6 +35,7 @@ function adjust()
 
 function build()
 {
+  #set -x
   export PKG_ROOT="$PKG_ROOT_PATH/$1"
   if [ -n "$2" ]; then
     TGT="-$2"
@@ -55,6 +56,7 @@ function build()
       exit 1
     fi
   fi
+  #set +x
 }
 
 
@@ -140,7 +142,7 @@ function build_tc_stage_3() {
   buildenv sed 1
   buildenv tar 1
   buildenv texinfo 1
-  buildenv util-linux-ng 1
+  buildenv util-linux 1
   buildenv wget 1
 }
 
@@ -172,10 +174,14 @@ function check()
 function cpu_count() {
   typeset -i phy_max cor_max cores cpus
 
-  phy_max=`egrep -i "^physical id" /proc/cpuinfo|sed -e 's/.*: //'|sort|tail -1`+1
-  cor_max=`egrep -i "^core id" /proc/cpuinfo|sed -e 's/.*: //'|sort|tail -1`+1
-  cpus=`egrep -i "^processor" /proc/cpuinfo|sed -e 's/.*: //'|sort|tail -1`+1
-  cores=cor_max*phy_max
+  if egrep -i "^physical id" /proc/cpuinfo; then
+    phy_max=`egrep -i "^physical id" /proc/cpuinfo|sed -e 's/.*: //'|sort|tail -1`+1
+    cor_max=`egrep -i "^core id" /proc/cpuinfo|sed -e 's/.*: //'|sort|tail -1`+1
+    cpus=`egrep -i "^processor" /proc/cpuinfo|sed -e 's/.*: //'|sort|tail -1`+1
+    cores=cor_max*phy_max
+  else
+    cores=`grep processor /proc/cpuinfo|wc -l`
+  fi
 
   JOBS_MP="-j $cores"
 
@@ -186,24 +192,26 @@ function cpu_count() {
 # function do_command()
 
 function docommand() {
+  #set -x
   echo "= Running: $1 ======================================"
   $2;
   status=$?
   if [ $status != 0 ]; then
-    echo "Failed:">/dev/tty
+    echo "Failed:">/proc/self/fd/0
     echo "Failed:"
     if [ -f "sources/$1/$BUILD_PHASE.out" ]; then
       (
         tail sources/$1/$BUILD_PHASE.out | sed -e 's/^/      /'
-      ) >/dev/tty
+      ) >/proc/self/fd/0
     fi
-    echo "$1 FAILED" >/dev/tty
+    echo "$1 FAILED" >/proc/self/fd/0
     echo "$1 FAILED"
     exit $status
   else
     echo "$1 success"
   fi
   echo
+  #set +x
 }
 
 

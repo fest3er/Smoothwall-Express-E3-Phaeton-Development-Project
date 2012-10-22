@@ -30,9 +30,19 @@
 #     then running 'make build'.
 
 export SHELL = bash
-SWE_TGT = i686-swe-linux-gnu
-TOOLCHAIN_ENV = env -i SWE_TGT=$(SWE_TGT) HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ '
+export mARCH = $(shell uname -m)
+CUSTOM_ENV = SHELL=BASH mARCH=$(mARCH) AGCL_TGT=$(mARCH)-agcl-linux-gnu \
+	     HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ '
+
 SRC_TGZ = ../../smoothsrc.tar.gz
+
+ifndef ktype
+ktype = kvm
+CUSTOM_ENV += KERNEL_TYPE=-kvm
+else
+CUSTOM_ENV += KERNEL_TYPE=-$(ktype)
+endif
+export finalENV := $(CUSTOM_ENV)
 
 # Default target, display help
 #
@@ -63,7 +73,26 @@ default:
 	@echo "  clean:            Clean everything in preparation for a fresh build from scratch."
 	@echo
 	@echo "Please view Makefile for other targets."
-
+	@echo
+	@echo "Predownload/download helpers"
+	@echo "  Options to control downloads:"
+	@echo "    CONTINUE_DL=    if you have a slow conection, this will continue"
+	@echo "                    a previous, interrupted download instead of creating"
+	@echo "                    tarball.[1-n]"
+	@echo "    NO_CERT_CHECK=  do not check the veracity of SSL certs"
+	@echo "    PASV=           use 'passive' FTP"
+	@echo "    MIRROR_UNO=hostA and/or MIRROR_DOS=hostB"
+	@echo "                    use hostA and/or hostB as sources for source packages."
+	@echo "                    hostA defaults to \"\", and hostB defaults to"
+	@echo "                    \"roadster.agcl.us/downloads\". This helps when you"
+	@echo "                    have a local web site containing the source tarballs"
+	@echo "  or want to verify the URLs in the pkg makefiles."
+	@echo "  Example showing all of them:"
+	@echo "    CONTINUE_DL= NO_CHECK_CERT= PASV= MIRROR_UNO=downloads \\"
+	@echo "      MIRROR_DOS=\"\" make build"
+	@echo "    Continue a previously started DL, don't check SSL certs, use FTP's"
+	@echo "    PASSIVE facility, use the local 'downloads' web host, and do not"
+	@echo "    use the roadster.agcl.us collection (skip right to internet sources)."
 
 # Host check
 #
@@ -75,29 +104,29 @@ crumbs/host.checked:
 # build preparation
 #
 crumbs/tc_prep.built:
-	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain PREP
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc ./make_toolchain PREP
 	@touch crumbs/tc_prep.built
 
 # build stage 1
 #
 crumbs/tc_stage_1.built: crumbs/tc_prep.built
-	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 1
-	@$(TOOLCHAIN_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 1
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc ./make_toolchain 1
+	@env -i $(CUSTOM_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 1
 	@rm -f dummy.c a.out
 	@touch crumbs/tc_stage_1.built
 
 # build stage 2
 #
 crumbs/tc_stage_2.built: crumbs/tc_stage_1.built
-	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 2
-	@$(TOOLCHAIN_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 2
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc ./make_toolchain 2
+	@env -i $(CUSTOM_ENV) PATH=/tools/bin:$$PATH /bin/bash tc_check 2
 	@rm -f dummy.c a.out
 	@touch crumbs/tc_stage_2.built
 
 # build stage 3
 #
 crumbs/tc_stage_3.built: crumbs/tc_stage_2.built
-	@$(TOOLCHAIN_ENV) /bin/bash --noprofile --norc ./make_toolchain 3
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc ./make_toolchain 3
 	@touch crumbs/tc_stage_3.built
 
 
@@ -105,7 +134,7 @@ crumbs/tc_stage_3.built: crumbs/tc_stage_2.built
 #
 crumbs/Final.prep.built: crumbs/tc_stage_3.built
 	@tput smso; echo -e "\nPreparing Final Build tree"; tput rmso
-	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'source /build/functions; prepare_final_tree >/build/crumbs/Final-prep.out 2>&1'"
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'source /build/functions; prepare_final_tree >/build/crumbs/Final-prep.out 2>&1'"
 	@touch crumbs/Final.prep.built
 
 # must have resolv.conf in chroot jail
@@ -118,7 +147,7 @@ crumbs/resolv.conf:
 #
 crumbs/Final.built: crumbs/resolv.conf crumbs/Final.prep.built
 	@tput smso; echo -e "\nFinal Build"; tput rmso
-	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c /build/make_final"
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc as_chroot "$(CUSTOM_ENV) /tools/bin/bash -l -c /build/make_final"
 	@touch crumbs/Final.built
 
 build: crumbs/host.checked crumbs/Final.built
@@ -128,10 +157,10 @@ rebuild: clean predownload build
 # prepare the installation media
 #
 media:
-	@echo -e "\nMaking ISO image..."; sleep 1
-	@env -i HOME=$$HOME TERM=$$TERM PS1='\u:\w\$$ ' /bin/bash --noprofile --norc as_chroot "/tools/bin/bash -l -c 'cd build;bash make_media'"
+	@echo -e "\nMaking ISO image with linux-$(ktype)..."; sleep 1
+	@env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc as_chroot "$(CUSTOM_ENV) /bin/bash -l -c /build/make_media"
 	@echo -e "\nMaking FLASH content..."; sleep 1
-	@sudo su -c ./make_flash
+	@sudo su -c "./make_flash"
 
 # after a successful build, this will do everything
 #
@@ -157,6 +186,12 @@ predownload:
 	    if [ "$$I" != "\./\.git" ]; then \
 	      if echo $$I | egrep "^./mtools/mtools-4.0.15/scripts" >/dev/null 2>&1; then \
 	        continue; \
+	      elif echo $$I | egrep "^./xen$$" >/dev/null 2>&1; then \
+	        make --no-print-directory -C $$I download_ipxe; \
+	        if [ $$? -ne 0 ]; then \
+	          echo "Xen ipxe DL oops!"; \
+	          exit; \
+	        fi; \
 	      elif echo $$I | egrep "^./cdrtools" >/dev/null 2>&1; then \
 	        NW="GMAKE_NOWARN=true "; \
 	      else \
@@ -183,12 +218,17 @@ savesources:
 	@tar cfz $(SRC_TGZ) -C .. --exclude build/downloads .
 
 packageinfos.html:
-	@echo "<ul>" >/tmp/packageinfo.html
-	-(cd sources; for I in `find -maxdepth 1 -mindepth 1 -type d`; do \
+	@if [ `id -u` -ne 0 ]; then \
+	  sudo su -c "make packageinfos.html"; \
+	else \
+	  rm -rf /tmp/downloads; mkdir /tmp/downloads; \
+	  echo "<ul>" >/tmp/packageinfo.html; \
+	  (cd sources; for I in `find -maxdepth 1 -mindepth 1 -type d`; do \
 		if [ "$$I" != "CVS" ]; then \
-			make -C $$I packageinfo.html; \
+			ROOT=$$PWD/../.. make --no-print-directory -C $$I packageinfo.html; \
 		fi \
-	done);
+	  done); \
+	fi
 	-make -C sources/modules packageinfos.html
 	@echo "</ul>" >>/tmp/packageinfo.html
 
@@ -298,7 +338,6 @@ clean-final-crumbs:
 	else \
 	  tput smso; echo "cleaning final crumbs"; tput rmso; \
 	  rm -f sources/*/Final*.{out,built} crumbs/Final* crumbs/resolv.conf; \
-	  rm -f sources/media-isoinstall/Media*.{out,built}; \
 	fi
 
 clean-media-crumbs:
