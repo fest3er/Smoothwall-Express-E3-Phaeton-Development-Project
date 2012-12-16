@@ -1,0 +1,40 @@
+ifeq ($(GLOBALDEBUG), ON)
+export OPT_FLAGS = -g -O0
+else
+export OPT_FLAGS = -O2
+endif
+
+# There are some contortions here. But the ARCH must be set early so the build
+#   environment is correctly set and passed to all subprocedures.
+
+export mARCH = i686
+export mARCH = $(shell uname -m | sed -e 's/i.86/i686/')
+
+# Only 586, 686 and 64-bit hosts are supported
+# 32-bit is i686
+ifeq ($(mARCH), i686)
+export mARCH = i686
+endif
+
+ifeq ($(mARCH), x86_64)
+export ARCH_OK = yes
+export BITS_64 = yes
+export mINST = 64
+export SWE_TGT = $(mARCH)-swe-linux-gnu
+#export CFLAGS = $(OPT_FLAGS) -m$(mINST) -Wall -fPIC
+export CFLAGS = $(OPT_FLAGS) -fPIC
+endif
+
+ifeq ($(mARCH), i686)
+export ARCH_OK = yes
+export BITS_32 = yes
+export mINST = 32
+export SWE_TGT = $(mARCH)-swe-linux-gnu
+#export CFLAGS = $(OPT_FLAGS) -m$(mINST) -march=$(mARCH) -Wall
+export CFLAGS = $(OPT_FLAGS)
+endif
+
+ifndef ARCH_OK
+# SWE3 no longer builds on i386 or i486.
+$(error Unsupported architecture $(ARCH))
+endif

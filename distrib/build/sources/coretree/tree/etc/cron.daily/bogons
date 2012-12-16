@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Update the bogons list for IP Block
+/usr/bin/perl /root/scripts/bogons.pl
+

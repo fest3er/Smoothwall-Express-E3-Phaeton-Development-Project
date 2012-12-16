@@ -1,0 +1,13 @@
+#! /bin/bash
+
+  finalENV=`env | egrep -v "^PWD|^_|XTERM" |while read a; do echo -n "$a "; done`
+  finalENV="${finalENV}PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin:/build ROOT=\"\""
+
+  if [ "$1" == "" ]; then
+    CMD="/tools/bin/bash -l +h"
+  else
+    CMD="$1"
+  fi
+
+  if [ `id -u` -eq 0 ]; then BCMD="bash"; else BCMD="sudo su"; fi
+  ${BCMD} -c "chroot \"..\" /tools/bin/env -i $finalENV  ${CMD}"

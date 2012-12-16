@@ -1,0 +1,83 @@
+#! /tools/bin/bash
+#
+# SmoothWall Build system.
+#
+# Parts (c) SmoothWall Ltd 2005
+# Parts (c) Neal P. Murphy, 2009
+#
+# This code is distributed under the terms of the GPL v2.
+
+
+# First, look for /build. If it ain't found, this probably is not a chroot
+#   jail, it was probably run manually, so die.
+#
+if [ ! -d "/build" ]; then
+  exit 1
+fi
+
+# At this point, we must assume we are in a chroot jail.
+finalENV=`env | egrep -v "^PWD|^_" |while read a; do echo -n "$a "; done`
+finalENV="${finalENV}PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin:/build ROOT=\"\""
+
+# Now trap on exit, to be sure proc is unmounted. Note that this does not change
+#   the exit status of the shell (only an explicit exit would do that).
+#   This is needed so the host OS doesn't complain when shutting down.
+#
+trap "echo; echo \"Unmounting /proc\"; umount /proc" EXIT
+
+
+# If an argument specified, build only that item. Otherwise, build everything.
+#
+if [ "$#" -eq 2 ]; then
+  TO_BUILD="$1"
+  THE_TARGET="$2"
+elif [ "$#" -eq 1 ]; then
+  TO_BUILD="$1"
+  THE_TARGET=""
+else
+  TO_BUILD=""
+  THE_TARGET=""
+fi
+
+# The right place, the right phase
+#
+cd /build
+export BUILD_PHASE="Media"
+
+# Get our functions
+#
+source toolcrib/environment
+source toolcrib/functions
+
+set_build_environment
+
+# Be sure /proc is mounted
+#
+if grep proc /etc/mtab; then umount /proc >/dev/null 2>&1; fi
+mount -t proc proc /proc
+
+# Set up parallel make
+#
+export JOBS_UP="-j 1"
+export JOBS_MP
+cpu_count
+
+
+if [ "$TO_BUILD" != "" ]; then
+
+  # Build only the specified package
+  JOBS=$JOBS_MP
+  build $TO_BUILD $THE_TARGET
+  exit
+
+else
+
+  # Build all of it
+  # The ISOs must be created in non-parallel mode
+  JOBS=$JOBS_UP
+  other_cmd "sources/media-isoinstall/$BUILD_PHASE.agclISO.built" \
+            "Silver Cloud ISO" \
+            "env -i ${finalENV} make -C sources/media-isoinstall TYPE=-devel" \
+            "sources/media-isoinstall/$BUILD_PHASE.agclISO.out" \
+            ""
+fi

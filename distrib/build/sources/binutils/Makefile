@@ -8,10 +8,10 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = binutils
-VERSION = 2.21.1
+VERSION = 2.22
 
 BASE_URL = http://ftp.gnu.org/gnu/binutils
-TARBALL = $(PACKAGE)-$(VERSION)a
+TARBALL = $(PACKAGE)-$(VERSION)
 EXTENSION = .tar.bz2
 
 BASE_GMP = ftp://ftp.gnu.org/gnu/gmp
@@ -22,57 +22,70 @@ TAR_MPFR = mpfr-$(MPFR_VER).tar.bz2
 
 COMPILE_DIR = $(DIR)-compile
 
-#PATCH_FILE1 = binutils-2.18-configure-1.patch
-#PATCH_FILE2 = binutils-2.18-GCC43-1.patch
+ifeq ($(BITS_64), yes)
+	BITS = 64
+endif
 
 # Tool Chain Build Stage_1
 #
 ifeq ($(BUILD_PHASE), Stage_1)
 
-CONFIG_OPTS = --target=$(AGCL_TGT) --prefix=$(TOOLS_DIR) \
-	      --disable-nls --disable-werror
+PATCH_FILE1 = binutils-2.22-build_fix-1.patch
+
+CONFIG_OPTS = \
+	      --prefix=$(TOOLS_DIR)      \
+	      --with-sysroot=$(ROOT)     \
+	      --with-lib-path=$(TOOLS_DIR)/lib \
+	      --target=$(SWE_TGT)        \
+	      --disable-nls              \
+	      --disable-werror
 
 COMPILE = yes
 compile: configure
-	make $(JOBS) -C $(COMPILE_DIR)
+	set
+	$(MAKE) $(JOBS) -C $(COMPILE_DIR)
 
 INSTALL = yes
 install: compile
-ifdef BITS_64
-	@mkdir -p $(TOOLS_DIR)/lib
-	@cd $(TOOLS_DIR); ln -s lib lib64
+	mkdir -pv $(TOOLS_DIR)/lib
+ifeq ($(BITS_64), yes)
+	ln -sv lib $(TOOLS_DIR)/lib64
 endif
-	make -C $(COMPILE_DIR) install
-	
+	$(MAKE) -C $(COMPILE_DIR) install
 endif # Stage 1
 
 
 # Tool Chain Build Stage_2
 #
 ifeq ($(BUILD_PHASE), Stage_2)
-PRE_CONFIGURE = CC="$(AGCL_TGT)-gcc -B$(TOOLS_DIR)/lib" \
-	        AR=$(AGCL_TGT)-ar RANLIB=$(AGCL_TGT)-ranlib
 
-CONFIG_OPTS = --prefix=$(TOOLS_DIR) --disable-nls \
+PATCH_FILE1 = binutils-2.22-build_fix-1.patch
+
+PRE_CONFIGURE = CC=$(SWE_TGT)-gcc \
+	        AR=$(SWE_TGT)-ar RANLIB=$(SWE_TGT)-ranlib
+
+CONFIG_OPTS = \
+	      --prefix=$(TOOLS_DIR) \
+	      --disable-nls \
 	      --with-lib-path=$(TOOLS_DIR)/lib
 
 COMPILE = yes
 compile: configure
-#	@make $(JOBS) -C $(COMPILE_DIR)
-	make -C $(COMPILE_DIR)
+	set
+	$(MAKE) $(JOBS) -C $(COMPILE_DIR)
 
 INSTALL = yes
 install: compile
-	make -C $(COMPILE_DIR) install
+	$(MAKE) -C $(COMPILE_DIR) install
 	
 	@ # Get ready for second adjusting
-	make -C $(COMPILE_DIR)/ld clean
-	make $(JOBS) -C $(COMPILE_DIR)/ld LIB_PATH=/usr/lib:/lib
+	$(MAKE) -C $(COMPILE_DIR)/ld clean
+	$(MAKE) $(JOBS) -C $(COMPILE_DIR)/ld LIB_PATH=/usr/lib:/lib
 	cp -v  $(COMPILE_DIR)/ld/ld-new $(TOOLS_DIR)/bin
 endif # Stage 2
 
 
-# AGCL Final Build Stage
+# Final Build Stage
 #
 ifeq ($(BUILD_PHASE), Final)
 #CONFIG_OPTS = --prefix=$(PKG_ROOT)$(PKG_DIR) --enable-shared

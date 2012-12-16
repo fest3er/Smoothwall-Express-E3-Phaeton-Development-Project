@@ -18,3 +18,28 @@ HOME=/
 
 # Make some nice graphs
 */5 * * * * root /usr/bin/smoothwall/rrdtool.pl >/dev/null
+
+# parse DHCP leases to keep /etc/hosts up to date
+* * * * * root /root/scripts/parse-dhcp.pl > /dev/null 2>&1
+
+# generate SARG reports
+00 08-18/1 * * * root /usr/bin/sarg-reports.sh today
+00 00      * * * root /usr/bin/sarg-reports.sh daily
+00 01      * * 1 root /usr/bin/sarg-reports.sh weekly
+30 02      1 * * root /usr/bin/sarg-reports.sh monthly
+
+# generate memory and cpu load graphs
+3-58/5 * * * * root /usr/bin/smoothwall/rrdtool_perf.pl >/dev/null
+4-59/5 * * * * root /usr/bin/smoothwall/rrdtool_conntrack.pl >/dev/null
+0-55/5 * * * * root /usr/bin/smoothwall/rrdtool_firewall.pl >/dev/null
+1-56/5 * * * * root /usr/bin/smoothwall/rrdtool_hddtemp.pl >/dev/null
+2-57/5 * * * * root /usr/bin/smoothwall/rrdtool_squid.pl >/dev/null
+2-57/5 * * * * root /usr/bin/smoothwall/rrdtool_squidx.pl >/dev/null
+2-57/5 * * * * root /usr/bin/smoothwall/rrdtool_voltage.pl >/dev/null
+2-57/5 * * * * root /usr/bin/smoothwall/rrdtool_temperature.pl >/dev/null
+3-58/5 * * * * root /usr/bin/smoothwall/rrdtool_memoryx.pl >/dev/null
+1-56/5 * * * * root /usr/bin/smoothwall/rrdtool_disk.pl >/dev/null
+1-56/5 * * * * root /usr/bin/smoothwall/rrdtool_diskx.pl >/dev/null
+4-59/5 * * * * root /usr/bin/smoothwall/rrdtool_uptime.pl >/dev/null
+2-57/5 * * * * root /usr/bin/smoothwall/rrdtool_ping.pl >/dev/null
+3-58/5 * * * * root /usr/bin/smoothwall/rrdtool_diskused.pl >/dev/null

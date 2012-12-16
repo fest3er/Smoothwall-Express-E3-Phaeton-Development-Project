@@ -26,7 +26,7 @@ clean :
 ######
 
 OBJS=main.o hostname.o passwords.o networking.o misc.o \
-        webproxy.o keymap.o isdn.o adsl.o dhcp.o timezone.o
+	webproxy.o keymap.o isdn.o adsl.o dhcp.o timezone.o
 
 setup: $(OBJS)
 	$(LINK) $(OBJS) -o $@ $(LIBS)

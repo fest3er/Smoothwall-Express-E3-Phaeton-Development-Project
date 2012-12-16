@@ -211,13 +211,13 @@ int handledhcp(void)
 					replacekeyvalue(dhcpkv, "ENABLE", "off");
 					unlink(CONFIG_ROOT "dhcp/enable");
 				}
-                                replacekeyvalue(dhcpkv, "VALID", "yes");
-                                writekeyvalues(dhcpkv, CONFIG_ROOT "dhcp/settings-green");
-                                
-                                mysystem("/usr/bin/smoothwall/writedhcp.pl");
+				replacekeyvalue(dhcpkv, "VALID", "yes");
+				writekeyvalues(dhcpkv, CONFIG_ROOT "dhcp/settings-green");
+				
+				mysystem("/usr/bin/smoothwall/writedhcp.pl");
 
-                                file = fopen(CONFIG_ROOT "dhcp/green", "w");
-                                fprintf(file, "%s", greendev);
+				file = fopen(CONFIG_ROOT "dhcp/green", "w");
+				fprintf(file, "%s", greendev);
 				fclose(file);
 				
 				if (automode == 0)

@@ -7,32 +7,32 @@
 
 ifndef DOWNLOAD
 download:
-	@$(DL_CMD) $(BASE_URL)/$(TARBALL)$(EXTENSION) $(MD5)
+	$(DL_CMD) $(BASE_URL)/$(TARBALL)$(EXTENSION) $(MD5)
 ifdef PATCH_URL1
-	@$(DL_CMD) $(PATCH_URL1) $(PATCH_MD51)
+	$(DL_CMD) $(PATCH_URL1) $(PATCH_MD51)
 endif
 ifdef PATCH_URL2
-	@$(DL_CMD) $(PATCH_URL2) $(PATCH_MD52)
+	$(DL_CMD) $(PATCH_URL2) $(PATCH_MD52)
 endif
 ifdef PATCH_URL3
-	@$(DL_CMD) $(PATCH_URL3) $(PATCH_MD53)
+	$(DL_CMD) $(PATCH_URL3) $(PATCH_MD53)
 endif
 ifdef PATCH_URL4
-	@$(DL_CMD) $(PATCH_URL4) $(PATCH_MD54)
+	$(DL_CMD) $(PATCH_URL4) $(PATCH_MD54)
 endif
 ifdef PATCH_URL5
-	@$(DL_CMD) $(PATCH_URL5) $(PATCH_MD55)
+	$(DL_CMD) $(PATCH_URL5) $(PATCH_MD55)
 endif
 endif
 
 ifndef PREPARE
 $(DIR)/: download
-	@tar -xvf $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
+	tar -xvf $(DOWNLOADS_DIR)/$(TARBALL)$(EXTENSION)
 endif
 
 ifndef PATCH
 patch: $(DIR)/
-	@for PATCH in $(PATCH_URL1) $(PATCH_URL2) $(PATCH_URL3) $(PATCH_URL4) $(PATCH_URL5); do \
+	for PATCH in $(PATCH_URL1) $(PATCH_URL2) $(PATCH_URL3) $(PATCH_URL4) $(PATCH_URL5); do \
 	  FILENAME=$(DOWNLOADS_DIR)/`basename $$PATCH`; \
 	  cp $$FILENAME ./; \
 	done; \
@@ -61,24 +61,24 @@ endif
 
 ifndef COMPILE
 compile: configure
-	@make ${JOBS} -C $(COMPILE_DIR)
+	+$(MAKE) ${JOBS} -C $(COMPILE_DIR)
 endif
 
 ifndef RECOMPILE
 recompile: 
-	@make ${JOBS} -C $(COMPILE_DIR)
+	+$(MAKE) ${JOBS} -C $(COMPILE_DIR)
 endif
 
 ifndef INSTALL
 install: compile
-	@mkdir -p $(PKG_ROOT)
-	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
+	mkdir -p $(PKG_ROOT)
+	+$(MAKE) -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 endif
 
 ifndef BUILDTARBALL
 $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz: install
-	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) .
-	@tar -zxvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /
+	tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) .
+	tar -zxvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /
 endif
 
 ifndef CLEAN

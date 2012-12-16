@@ -159,13 +159,13 @@ fi
 /sbin/iptables -A INPUT -i ppp0 -j spoof
 /sbin/iptables -A INPUT -i ippp0 -j spoof
 if [ "$RED_DEV" != "" ]; then
-        /sbin/iptables -A INPUT -i $RED_DEV -j spoof
+	/sbin/iptables -A INPUT -i $RED_DEV -j spoof
 fi
 
 # Ethernet
 /sbin/iptables -A INPUT -i $GREEN_DEV -j ACCEPT
 if [ "$PURPLE_DEV" != "" ]; then
-        /sbin/iptables -A INPUT -i $PURPLE_DEV -j ACCEPT
+	/sbin/iptables -A INPUT -i $PURPLE_DEV -j ACCEPT
 fi
 
 # IPSEC
@@ -252,21 +252,21 @@ fi
 if [ "$ORANGE_DEV" != "" ]; then
         /sbin/iptables -A FORWARD -i $GREEN_DEV -o $ORANGE_DEV -m state \
                 --state NEW -j ACCEPT
-        /sbin/iptables -A FORWARD -i $ORANGE_DEV -o $GREEN_DEV -j dmzholes
+	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $GREEN_DEV -j dmzholes
 fi
 
 # PURPLE / GREEN.
 if [ "$PURPLE_DEV" != "" ]; then
         /sbin/iptables -A FORWARD -i $GREEN_DEV -o $PURPLE_DEV -m state \
                 --state NEW -j ACCEPT
-        /sbin/iptables -A FORWARD -i $PURPLE_DEV -o $GREEN_DEV -j dmzholes
+	/sbin/iptables -A FORWARD -i $PURPLE_DEV -o $GREEN_DEV -j dmzholes
 fi
 
 # ORANGE / PURPLE
 if [ "$PURPLE_DEV" != "" -a "$ORANGE_DEV" != "" ]; then
         /sbin/iptables -A FORWARD -i $PURPLE_DEV -o $ORANGE_DEV -m state \
                 --state NEW -j ACCEPT
-        /sbin/iptables -A FORWARD -i $ORANGE_DEV -o $PURPLE_DEV -j dmzholes
+	/sbin/iptables -A FORWARD -i $ORANGE_DEV -o $PURPLE_DEV -j dmzholes
 fi
 
 # VPN
@@ -278,7 +278,7 @@ fi
 /sbin/iptables -A FORWARD -i ppp0 ! -o ppp0 -j MINIUPNPD
 /sbin/iptables -A FORWARD -i ippp0 ! -o ippp0 -j MINIUPNPD
 if [ "$RED_DEV" != "" ]; then
-        /sbin/iptables -A FORWARD -i $RED_DEV ! -o $RED_DEV -j MINIUPNPD
+	/sbin/iptables -A FORWARD -i $RED_DEV ! -o $RED_DEV -j MINIUPNPD
 fi
 
 /sbin/iptables -A FORWARD -j LOG --log-prefix "Denied-by-filter:FORWARD "

@@ -36,8 +36,8 @@ if ($dhcpsettings{'BOOT_ENABLE'} eq 'on' && $dhcpsettings{'BOOT_SERVER'} &&
 		print FILE "next-server $dhcpsettings{'BOOT_SERVER'};\n" if ($dhcpsettings{'BOOT_SERVER'} ne ''); }
 	if ($dhcpsettings{'BOOT_FILE'}) {
 		print FILE "filename \"$dhcpsettings{'BOOT_FILE'}\";\n" if ($dhcpsettings{'BOOT_FILE'} ne ''); }
-        if ($dhcpsettings{'BOOT_ROOT'}) {
-                print FILE "option root-path \"$dhcpsettings{'BOOT_ROOT'}\";\n" if ($dhcpsettings{'BOOT_ROOT'} ne ''); }
+	if ($dhcpsettings{'BOOT_ROOT'}) {
+		print FILE "option root-path \"$dhcpsettings{'BOOT_ROOT'}\";\n" if ($dhcpsettings{'BOOT_ROOT'} ne ''); }
 }
 print FILE "ddns-update-style interim;\n\n";
 

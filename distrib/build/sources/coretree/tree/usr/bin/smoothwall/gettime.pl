@@ -67,13 +67,13 @@ sub ntpgettime
 	@command = ('/usr/sbin/ntpdate', '-su', @servers);
 
 	if (system(@command) == 0)
-        {
-                &log("System clock successfully updated; using server(s) @servers.");
-                if ($timesettings{'NTP_RTC'} eq 'on') {
-                        system('/sbin/hwclock', '--systohc'); }
-        }
-        else {
-                &log("Unable to update system clock; using server(s) @servers"); }
+	{
+		&log("System clock successfully updated; using server(s) @servers.");
+		if ($timesettings{'NTP_RTC'} eq 'on') {
+			system('/sbin/hwclock', '--systohc'); }
+	}
+	else {
+		&log("Unable to update system clock; using server(s) @servers"); }
 }
 
 sub inccount

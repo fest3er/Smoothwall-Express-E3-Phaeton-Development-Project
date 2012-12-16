@@ -16,7 +16,7 @@ LIB_OBJS = module.o UDSocket.o pid.o setuid.o config.o ipbatch.o ipbatchc.o \
 
 
 MAIN = main.cpp
-LIBS = -L. -ldl -lsmoothd -lxtables -liptc
+LIBS = -L. -ldl -lsmoothd -lxtables -lip4tc
 BIN = smoothd
 
 MODULES = sysshutdown sysinstall sysim sysp3scan sysalcatel sysdhcpd \

@@ -16,8 +16,6 @@ EXTENSION = .tar.bz2
 
 CONFIG_OPTS = --prefix=$(PKG_DIR) \
 	      --enable-thread-safe \
-	      --docdir=/usr/share/doc/mpfr-3.1.0
-
-PATCH_FILE1 = mpfr-3.1.0-fixes-1.patch
+	      --docdir=/usr/share/doc/mpfr-3.1.1
 
 include ../Makefile.rules

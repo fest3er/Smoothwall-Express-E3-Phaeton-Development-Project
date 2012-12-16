@@ -4,7 +4,7 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
-KERNEL_DIR = $(SOURCES_DIR)/linux$(KERNEL_TYPE)/linux
+export KERNEL_DIR = $(SOURCES_DIR)/linux$(KERNEL_TYPE)/linux
 
 PACKAGE = linux$(KERNEL_TYPE)
 

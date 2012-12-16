@@ -13,6 +13,7 @@
 #include <string>
 #include <iostream>
 #include <time.h>
+#include <unistd.h>
 #include "traffic_config.hpp"
 #include "trafstats_core.hpp"
 #include </usr/include/linux/types.h>

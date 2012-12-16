@@ -1,0 +1,71 @@
+#! /bin/bash
+
+echo
+echo "Stage 1 toolchain adjustment"
+echo
+
+# Get environs
+#
+. toolcrib/environment
+set_build_environment
+
+# Initialize STATUS
+#
+STATUS=0
+
+#################
+
+# Make sure gcc's libgcc has a path
+#
+GCC_LIBNAM=`${SWE_TGT}-gcc -print-libgcc-file-name`
+GCC_LIBNAMDIR=`dirname ${GCC_LIBNAM}`
+if [ "${GCC_LIBNAMDIR}" == "" ]; then
+  echo "'${SWE_TGT}-gcc -print-libgcc-file-name' doesn't have a path name!"
+  exit -10
+fi
+
+#################
+
+# Now check for gcc environs problems. These must all be correct
+#   before proceeding to finish the final build!
+
+# Verify that the final build environment is correct.
+
+# compile an empty program
+#
+echo 'main(){}' > dummy.c
+${SWE_TGT}-gcc dummy.c > dummy.log
+
+# Right program interpreter?
+#
+readelf -l a.out | grep ": ${TOOLS_DIR}" >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "gcc uses wrong program interpreter!"
+  STATUS=1
+fi
+
+
+#################
+
+# Now clean up and finish up
+
+# Inform if errors are found
+#
+if [ $STATUS -eq 1 ]; then
+  echo
+  echo
+  echo "Errors found! Reversing adjustment..."
+  echo
+
+  rm -fv `dirname $(${SWE_TGT}-gcc --print-libgcc-file-name)`/specs
+
+  exit 1
+
+else
+
+  # All is well; it is safe to proceed!
+  #
+  rm -f dummy.c dummy.log a.out
+  exit 0
+
+fi

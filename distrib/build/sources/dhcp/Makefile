@@ -11,11 +11,13 @@ VERSION = 4.1.2
 
 BASE_URL = ftp://ftp.isc.org/isc/dhcp/
 
+PRE_CONFIGURE = CFLAGS="-Wno-error"
+
 CONFIGURE = yes
 INSTALL = yes
 
 configure: $(DIR)/
-	@(cd $(COMPILE_DIR); ./configure);
+	@(cd $(COMPILE_DIR); $(PRE_CONFIGURE) ./configure);
 	@echo >>$(COMPILE_DIR)/includes/site.h "#define _PATH_DHCPD_DB \"/usr/etc/dhcpd.leases\""
 	@echo >>$(COMPILE_DIR)/includes/site.h "#define _PATH_DHCPD_CONF \"/usr/etc/dhcpd.conf\""
 

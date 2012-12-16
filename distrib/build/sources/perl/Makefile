@@ -44,7 +44,7 @@ ifeq ($(BUILD_PHASE),Final)
 CONFIGURE = yes
 configure: patch
 	@(cd $(COMPILE_DIR); \
-	./configure.gnu --prefix=/$(PKG_DIR) -Dpager="/bin/less -isR");
+	./configure.gnu --prefix=/$(PKG_DIR) -Dpager="/bin/less -isR" -Dusethreads);
 endif
 
 

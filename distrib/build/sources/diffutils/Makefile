@@ -7,8 +7,14 @@
 include ../Makefile.conf
 
 PACKAGE = diffutils
-VERSION = 3.0
+VERSION = 3.2
 
 BASE_URL = ftp://ftp.gnu.org/gnu/diffutils/
+
+CONFIGURE = yes
+
+configure: patch
+	cd $(DIR); sed -i -e '/gets is a/d' lib/stdio.in.h
+	cd $(DIR); ./configure --prefix=$(PKG_DIR)
 
 include ../Makefile.rules

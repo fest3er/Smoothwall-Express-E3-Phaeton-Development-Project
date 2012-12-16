@@ -91,8 +91,8 @@ int start_squid(std::vector<std::string> & parameters, std::string & response)
 	
 	if (settings["ENABLE"] == "on")
 	{ 
-		simplesecuresysteml("/usr/sbin/squid", "-D", "-z", "-f", "/var/smoothwall/proxy/squid.conf", NULL);
-		simplesecuresysteml("/usr/sbin/squid", "-D", "-f", "/var/smoothwall/proxy/squid.conf", NULL);
+		simplesecuresysteml("/usr/sbin/squid", "-z", "-f", "/var/smoothwall/proxy/squid.conf", NULL);
+		simplesecuresysteml("/usr/sbin/squid", "-f", "/var/smoothwall/proxy/squid.conf", NULL);
 
 		if (settings["TRANSPARENT"] == "on")
 			ipb.push_back("iptables -t nat -A squid -p tcp --dport 80 -j REDIRECT --to-ports 800");

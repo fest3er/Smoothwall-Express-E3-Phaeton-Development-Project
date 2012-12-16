@@ -484,14 +484,14 @@ my %render_settings =
 	[
 		{ 
 			column => '1',
-                        title  => 'Red interface',
-                        size   => 15,
-                        sort   => 'cmp',
-                        valign => 'top',
-                        maxrowspan => 2,
-                        tr      => \%{$ifcolorsmap},
-                },
-                {
+			title  => 'Red interface',
+			size   => 15,
+			sort   => 'cmp',
+			valign => 'top',
+			maxrowspan => 2,
+			tr	=> \%{$ifcolorsmap},
+		},
+		{
 			column => '3',
 			title  => "$tr{'source'}",
 			size   => 40,
@@ -524,12 +524,12 @@ my %render_settings =
 			mark   => ' ',
 		},
 		{
-                        title  => "$tr{'comment'}",
-                        break  => 'line',
-                        column => '6',
-                        spanadj => '-1',
-                },
-        ]
+			title  => "$tr{'comment'}",
+			break  => 'line',
+			column => '6',
+			spanadj => '-1',
+		},
+	]
 );
 
 &dispaliastab($filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );

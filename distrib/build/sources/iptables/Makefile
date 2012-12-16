@@ -15,8 +15,6 @@
 # Of course, this should also mean that iptables and the kernel should
 # always be built and rebuilt in this manner.
 
-export GLOBALDEBUG = ON
-
 DEFAULT = yes
 default: all
 

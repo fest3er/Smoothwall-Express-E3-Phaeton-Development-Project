@@ -133,7 +133,7 @@ $tr{'x3 reg info'}
 !;
   }
 } else {
-        print <<END
+	print <<END
 <table class='centered'>
 	<tr>
 		<td>

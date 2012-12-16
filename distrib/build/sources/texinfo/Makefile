@@ -13,4 +13,8 @@ TARVERSIONDIR = 4.13
 BASE_URL = ftp://ftp.gnu.org/gnu/texinfo
 DIR = $(PACKAGE)-$(TARVERSIONDIR)
 
+ifeq ($(BUILD_PHASE), Final)
+PRE_CONFIGURE = LIBS=-ltinfo
+endif
+
 include ../Makefile.rules

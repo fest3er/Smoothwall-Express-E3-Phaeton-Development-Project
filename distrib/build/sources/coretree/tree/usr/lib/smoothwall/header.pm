@@ -372,13 +372,13 @@ sub closepage
 	<tr>
 		<td>
 		    	<strong>SmoothWall Express $version</strong><br/>
-                        SmoothWall&trade; is a trademark of <a href='http://www.smoothwall.net/'>SmoothWall Limited</a>.
-                </td>
-                <td style='text-align: right;'>
-                        &copy; 2000 - 2012 <a href='http://smoothwall.org/about/team/'>The SmoothWall Team</a><br/>
-                        <a href='/cgi-bin/register.cgi'>$tr{'credits'}</a> - Portions &copy; <a href='http://smoothwall.org/get/sources/'>original authors</a>
-                </td>
-        </tr>
+			SmoothWall&trade; is a trademark of <a href='http://www.smoothwall.net/'>SmoothWall Limited</a>.
+		</td>
+		<td style='text-align: right;'>
+		    	&copy; 2000 - 2012 <a href='http://smoothwall.org/about/team/'>The SmoothWall Team</a><br/>
+			<a href='/cgi-bin/register.cgi'>$tr{'credits'}</a> - Portions &copy; <a href='http://smoothwall.org/get/sources/'>original authors</a>
+		</td>
+	</tr>
 	</table>
 	</td>
 </tr> 

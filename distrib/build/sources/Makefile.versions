@@ -6,15 +6,15 @@
 
 # The system's kernel.
 KERNEL_MAJOR = 3
-KERNEL_MMR = $(KERNEL_MAJOR).0
-KERNEL_VER = $(KERNEL_MMR).41
+KERNEL_MMR = $(KERNEL_MAJOR).4
+KERNEL_VER = $(KERNEL_MMR).23
 
 # The kernel version headers needed to build klibc-2.6.18
 # Unrelated to the system's kernel
 KLIBKERNVER = $(KERNEL_VER)
 
 K_RAW_VERSION = $(KERNEL_VER)
-K_AGCL_VERSION = $(KERNEL_VER)$(KERNEL_TYPE)
+K_SWE_VERSION = $(KERNEL_VER)$(KERNEL_TYPE)
 
 KERNEL_URL = http://www.kernel.org/pub/linux/kernel/v$(KERNEL_MAJOR).x/linux-$(K_RAW_VERSION).tar.xz
 
@@ -24,8 +24,8 @@ FREESWAN_VER = 2.6.38
 IPTABLES_VER = 1.4.14
 XTABLES_ADDONS_VER = 1.45
 
-GMP_VER = 5.0.2
-MPFR_VER = 2.4.2
-MPC_VER = 0.9
+GMP_VER = 5.0.5
+MPFR_VER = 3.1.1
+MPC_VER = 1.0.1
 
 TCL_VER = 8.5.11

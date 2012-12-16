@@ -1,0 +1,92 @@
+#! /bin/bash
+
+function monbuild ()
+{
+  if [ $# -eq 0 -o `basename "$PWD"` != "build" ]; then
+    echo "Usage: monbuild [ -1 | -2 | -3 | -f -m ] package"
+    echo "  View the build output file in stage 1, 2, 3, the final stage or media."
+    echo "  '-f' is the default."
+    echo "  'package' is the name of the package being built."
+    echo
+    echo " You must be in the build dir."
+    return
+  fi
+
+  stage="Final"
+  case $1 in
+    -1) stage="Stage_1"; shift;;
+    -2) stage="Stage_2"; shift;;
+    -3) stage="Stage_3"; shift;;
+    -f) stage="Final"; shift;;
+    -m) stage="Media.*"; shift;;
+  esac
+  (
+    trap "echo; exit" INT
+    tail -f -s .1 sources/$1/$stage.out
+  )
+}
+
+function monloop ()
+{
+  if [ $# -ne 0 -o `basename "$PWD"` != "build" ]; then
+    echo "Usage: monloop"
+    echo "  At the prompt, enter monbuild's arg(s) ([stage] package)."
+    echo "  'stage' can be one of -1, -2, -3, -f, or -m}"
+    echo "  One <CTRL/C> terminates the monbuild and displays the prompt."
+    echo "  A second <CTRL/C> terminates monloop."
+    echo
+    echo " You must be in the build dir."
+    return
+  fi
+
+  while :; do
+    echo -n "[-stage] Package: "
+    read a b c;
+    monbuild $a $b
+  done
+}
+
+function redo () 
+{
+  death=0
+  if [ `basename $PWD` != 'build' ]; then
+      # If you'd listened to your mother, you'd be in the build dir
+      tput smso; echo "Can't redo; you must be in the build directory"; tput rmso
+      death=1;
+  fi;
+  if [ $# -eq 0 -o `basename $PWD` != "build" ]; then
+    # And, of course, the required args
+    echo "Usage: redo package [ package ... ]"
+    echo "  Example: redo whois noip"
+    echo "You must be in the build directory to redo."
+    death=1
+  fi
+
+  if [ $death -ne 0 ]; then
+    # Die, you gravy-sucking pig!
+    return 1
+  fi
+
+  # Get on with it already!
+  while [ $# -gt 0 ]; do
+    # escape the package name (mostly for libsmooth+setup)
+    pkg=${1/+/\\+}
+    # Remove the package crumb
+    rm -f sources/${1}/Final.built
+    egrep -i "build ${pkg} |build ${pkg}$|-e.*grp" make_final | while read a b c d e; do
+      if [ "$a" == "if" ]; then
+        GRP=`echo $d | sed -e 's/.*grp//' -e 's/\.compiled.*//'`
+      else
+        # Remove the group crumb
+        rm -f crumbs/Final.grp${GRP}.compiled
+        break
+      fi
+    done
+    shift
+  done
+  # Remove the stage crumbs
+  rm -f crumbs/Final.compiled crumbs/Final.built
+
+  # And build
+  make build
+}

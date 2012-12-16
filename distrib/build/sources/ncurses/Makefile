@@ -15,7 +15,7 @@ ifeq ($(BUILD_PHASE), Stage_3)
 CONFIG_OPTS = --with-shared \
     --without-debug --without-ada --enable-overwrite
 else
-CONFIG_OPTS = --with-shared  --without-debug --with-termlib
+CONFIG_OPTS = --with-shared --without-debug --with-termlib
 endif
 
 include ../Makefile.rules

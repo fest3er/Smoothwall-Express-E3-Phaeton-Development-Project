@@ -11,10 +11,7 @@ VERSION = 4.1
 
 BASE_URL = ftp://ftp.gnu.org/gnu/bash/
 
-ifeq ($(mARCH), i686)
-#BUILD = --build=i686-pc-linux-gnu
-BUILD = --build=$(AGCL_TGT)
-endif
+BUILD = --build=$(SWE_TGT)
 
 ifeq ($(BUILD_PHASE), Stage_3)
 CONFIG_OPTS = --prefix=${TOOLS_DIR} --without-bash-malloc

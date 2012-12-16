@@ -1,0 +1,34 @@
+Submitted By:            Matt Burgess <matthew_at_linuxfromscratch_dot_org>
+Date:                    2012-03-27
+Initial Package Version: 2.22
+Upstream Status:         From Upstream
+Origin:                  http://lists.gnu.org/archive/html/bug-binutils/2011-10/msg00241.html
+Description:             Fixes a build failure when using -O3 compiler flag
+
+diff -Naur binutils-2.22.orig/opcodes/ChangeLog binutils-2.22/opcodes/ChangeLog
+--- binutils-2.22.orig/opcodes/ChangeLog	2011-11-21 09:29:39.000000000 +0000
++++ binutils-2.22/opcodes/ChangeLog	2012-03-27 19:49:36.299866714 +0000
+@@ -5,6 +5,11 @@
+ 	diexq, diexq.>: Use FRT, FRA, FRB and FRBp repsectively on DFP quad
+ 	instructions.
+ 
++2011-10-26  Nick Clifton  <nickc@redhat.com>
++
++	PR binutils/13348
++	* i386-dis.c (print_insn): Fix testing of array subscript.
++
+ 2011-10-25  Alan Modra  <amodra@gmail.com>
+ 
+ 	Apply mainline patches
+diff -Naur binutils-2.22.orig/opcodes/i386-dis.c binutils-2.22/opcodes/i386-dis.c
+--- binutils-2.22.orig/opcodes/i386-dis.c	2011-08-02 19:58:06.000000000 +0000
++++ binutils-2.22/opcodes/i386-dis.c	2012-03-27 19:48:28.447812481 +0000
+@@ -11331,7 +11331,7 @@
+     {
+       /* Too many prefixes or unused REX prefixes.  */
+       for (i = 0;
+-	   all_prefixes[i] && i < (int) ARRAY_SIZE (all_prefixes);
++	   i < (int) ARRAY_SIZE (all_prefixes) && all_prefixes[i];
+ 	   i++)
+ 	(*info->fprintf_func) (info->stream, "%s",
+ 			       prefix_name (all_prefixes[i], sizeflag));

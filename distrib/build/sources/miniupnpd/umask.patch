@@ -1,11 +1,11 @@
 --- miniupnpd-20070605/daemonize.c	2007-02-07 22:16:38.000000000 +0000
 +++ miniupnpd-20070605.new/daemonize.c	2007-06-06 15:28:58.000000000 +0100
-@@ -45,7 +45,7 @@
+@@ -48,7 +48,7 @@
  		dup(i); /* stdout */
  		dup(i); /* stderr */
  
 -		umask(027);
 +		umask(022);
- 		chdir("/"); /* chdir to /tmp ? */			
+ 		chdir("/"); /* chdir to /tmp ? */
  
  		return pid;

@@ -7,23 +7,33 @@
 include ../Makefile.conf
 
 PACKAGE = vim
-VERSION = 7.3
+MAJ = 7
+MIN = 3
+VERSION = $(MAJ).$(MIN)
+
+BASE_URL = ftp://ftp.vim.org/pub/vim/unix/
+EXTENSION = .tar.bz2
 
 EXTENSION = .tar.bz2
 
-BASE_URL = ftp://ftp.vim.org/pub/vim/unix/
+DIR = $(PACKAGE)$(MAJ)$(MIN)
 
-DIR = $(PACKAGE)73
+CONFIG_OPTS = --prefix=/usr --with-tlib=tinfo
 
 INSTALL = yes
 
 install: compile
-	@mkdir -p $(PKG_ROOT)
-	@(cd $(DIR); \
-	install -s -D src/vim $(PKG_ROOT)$(PKG_DIR)/bin/vim; \
-	install -d runtime/ $(PKG_ROOT)$(PKG_DIR)/share/vim; \
-	cp -R runtime/* $(PKG_ROOT)$(PKG_DIR)/share/vim; \
-	install runtime/vimrc_example.vim $(PKG_ROOT)$(PKG_DIR)/share/vim/vimrc; )
-	@(cd $(PKG_ROOT)$(PKG_DIR)/bin; ln -s vim vi);
+	mkdir -p $(PKG_ROOT)
+	+cd $(DIR); \
+	  $(MAKE) DESTDIR=$(PKG_ROOT) install; \
+	cd $(PKG_ROOT)/usr/bin; ln -s vim vi;
+	cd $(PKG_ROOT)/usr/share/man; \
+	  for L in {,*/}/man1/vim.1; do \
+	    ln -sv vim.1 `dirname $$L`/vi.1; \
+	  done
+	cd $(PKG_ROOT)/usr/share; \
+	  mkdir doc; \
+	  cd doc; \
+	  ln -sv ../vim/vim73/doc vim-$(MAJ).$(MIN)
 
 include ../Makefile.rules

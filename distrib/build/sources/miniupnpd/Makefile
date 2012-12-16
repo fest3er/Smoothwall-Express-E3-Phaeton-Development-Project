@@ -8,7 +8,7 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = miniupnpd
-VERSION = 1.6
+VERSION = 1.7
 
 BASE_URL = http://miniupnp.free.fr/files/
 
@@ -26,7 +26,7 @@ compile: configure
 	@make $(JOBS) -C $(DIR) -f Makefile.linux \
 	  CFLAGS="-DIPTABLES_143 -DUSE_NETFILTER \
 	    -I../../iptables/iptables-$(IPTABLES_VER)/include" \
-	  LDFLAGS="-L$(IPT_LIBEXEC) -liptc"
+	  LDFLAGS="-L$(IPT_LIBEXEC) -lip4tc -lip6tc"
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

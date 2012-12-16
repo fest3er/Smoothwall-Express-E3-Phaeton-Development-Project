@@ -1,8 +1,7 @@
 include ../Makefile.conf
 include ../Makefile.versions
 
-export GLOBALDEBUG = ON
-export CFLAGS = -g -I /usr/include
+#export CFLAGS = -g -I /usr/include
 
 PACKAGE = smoothd
 VERSION = 0.0

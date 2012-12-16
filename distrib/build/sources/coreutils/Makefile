@@ -7,17 +7,12 @@
 include ../Makefile.conf
 
 PACKAGE = coreutils
-VERSION = 8.5
+VERSION = 8.19
 
 BASE_URL = ftp://ftp.gnu.org/gnu/coreutils/
+EXTENSION = .tar.xz
 
 CONFIGURE = yes
-
-#PATCH_URL1 = http://www.linuxfromscratch.org/patches/lfs/6.4/coreutils-6.12-uname-1.patch
-#PATCH_URL2 = http://www.linuxfromscratch.org/patches/lfs/6.4/coreutils-6.12-old_build_kernel-1.patch
-#PATCH_URL3 = http://www.linuxfromscratch.org/patches/lfs/6.4/coreutils-6.12-i18n-2.patch
-#
-#PATCH_FILE1 = coreutils-6.12-old_build_kernel-1.patch
 
 configure: patch
 	@cd $(COMPILE_DIR); \
@@ -25,9 +20,7 @@ configure: patch
 
 ifeq ($(BUILD_PHASE), Final)
 
-#PATCH_FILE1 = coreutils-6.12-uname-1.patch
-#PATCH_FILE2 = coreutils-6.12-old_build_kernel-1.patch
-#PATCH_FILE3 = coreutils-6.12-i18n-2.patch
+PATCH_FILE3 = coreutils-8.19-i18n-1.patch
 
 INSTALL = yes
 install: compile

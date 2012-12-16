@@ -632,9 +632,9 @@ fi
 # Always install the boot loader whether installing, restoring var or
 #   doing a total restore
 echo "  installing boot loader"
-do_or_die "mount --bind /proc /harddisk/proc"
-do_or_die "mount --bind /sys /harddisk/sys"
-do_or_die "mount --bind /dev /harddisk/dev"
+do_or_die "mount --rbind /proc /harddisk/proc"
+do_or_die "mount --rbind /sys /harddisk/sys"
+do_or_die "mount --rbind /dev /harddisk/dev"
 cat<<END >/harddisk/tmp/grub.cmds
 device (hd0) /dev/harddisk
 root (hd0,0) 

@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = gzip
-VERSION = 1.4
+VERSION = 1.5
 
 BASE_URL = ftp://ftp.gnu.org/gnu/gzip/
 

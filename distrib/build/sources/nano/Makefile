@@ -11,6 +11,8 @@ VERSION = 2.2.3
 
 BASE_URL = http://www.nano-editor.org/dist/v2.2/
 
+PRE_CONFIGURE = LIBS=-ltinfo
+
 INSTALL = yes
 
 install: compile

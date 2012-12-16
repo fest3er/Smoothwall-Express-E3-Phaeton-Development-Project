@@ -159,14 +159,14 @@ my %render_settings =
 	'columns' => 
 	[
 		{ 
-                        column => '1',
-                        title  => "$tr{'ip address'}",
-                        size   => 15,
-                        valign => 'top',
-                        maxrowspan => 2,
-                        sort   => 'cmp',
-                },
-                {
+			column => '1',
+			title  => "$tr{'ip address'}",
+			size   => 15,
+			valign => 'top',
+			maxrowspan => 2,
+			sort   => 'cmp',
+		},
+		{
 			column => '2',
 			title  => "$tr{'hostname'}",
 			size   => 20,
@@ -185,13 +185,13 @@ my %render_settings =
 			mark   => ' ',
 		},
 		{ 
-                        column => '4',
-                        title => "$tr{'comment'}",
-                        break => 'line',
-                        spanadj => -1,
-                },
+			column => '4',
+			title => "$tr{'comment'}",
+			break => 'line',
+			spanadj => -1,
+		},
 
-        ]
+	]
 );
 
 &dispaliastab($filename, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );

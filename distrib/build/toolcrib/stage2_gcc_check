@@ -1,0 +1,54 @@
+#! /bin/bash
+
+echo
+echo "Stage 2 GCC check"
+echo
+
+# Get environs
+#
+. toolcrib/environment
+set_build_environment
+
+# Initialize STATUS
+#
+STATUS=0
+
+#################
+
+# Verify that GCC, Stage 2, is correct
+
+# compile an empty program
+#
+echo 'main(){}' > dummy.c || STATUS=1
+cc dummy.c > dummy.log || STATUS=1
+
+# Right program interpreter?
+#
+readelf -l a.out | grep ": ${TOOLS_DIR}/lib" >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "gcc uses wrong program interpreter!"
+  readelf -l a.out | grep "Requesting program interpreter" | sed -e 's/^/    /'
+  STATUS=1
+fi
+
+#################
+
+# Now clean up and finish up
+
+# Inform if errors were found
+#
+if [ $STATUS -eq 1 ]; then
+  echo
+  echo
+  echo "Errors found!"
+  echo
+  exit 1
+
+else
+
+  # All is well; it is safe to proceed!
+  #
+  rm -f dummy.c dummy.log a.out
+  exit 0
+
+fi

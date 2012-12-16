@@ -89,12 +89,12 @@ ERROR:
 			push(@args, '--clearcache'); }
         	
 		my $success = message(@args);
-                
-                if (not defined $success) {
-                        $errormessage = $tr{'smoothd failure'}; }
+		
+		if (not defined $success) {
+			$errormessage = $tr{'smoothd failure'}; }
 
-                message('setoutgoing');
-        }
+		message('setoutgoing');
+	}
 }
 
 &readhash("${swroot}/proxy/settings", \%proxysettings);

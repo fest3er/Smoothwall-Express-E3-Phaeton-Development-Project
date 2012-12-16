@@ -20,7 +20,7 @@ TARBALL = $(PACKAGE)$(VERSION)-src
 
 DIR = $(PACKAGE)$(VERSION)
 
-ifdef BITS_64
+ifeq ($(BITS_64), yes)
 CONFIG_OPTS = --enable-64bit
 endif
 

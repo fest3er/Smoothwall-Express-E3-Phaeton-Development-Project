@@ -95,7 +95,7 @@ endif
 
 	@touch tmp/cdrominstall
 
-	@/build/striptree tmp
+	@/build/toolcrib/striptree tmp
 
 	@# Build the runtime initramfs CPIO archive
 	@cd tmp; find . | cpio -o -H newc | gzip > ../../$(RUNTIME_ROOT)image.gz

@@ -10,8 +10,8 @@ PACKAGE = daq
 
 # Deal with snort: get the latest version number dynamically. :)
 #
-VERSION := $(shell ../../get-snort-ver.sh -v $(PACKAGE))
-URL := $(shell ../../get-snort-ver.sh -u $(PACKAGE))
+VERSION := $(shell ../../toolcrib/get-snort-ver.sh -v $(PACKAGE))
+URL := $(shell ../../toolcrib/get-snort-ver.sh -u $(PACKAGE))
 
 BASE_URL = http://www.snort.org
 

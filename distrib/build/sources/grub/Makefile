@@ -33,9 +33,10 @@ PATCH_FILE1 = grub-fedora-17.patch
 #PATCH_FILE5 = grub-0.97-gpt.diff
 
 
+PRE_CONFIGURE = CFLAGS="$(CFLAGS) -march=i686 -Os -Wall -fno-reorder-functions"
 CONFIG_OPTS = --prefix=$(PKG_DIR)
 
-CFLAGS := $(CFLAGS) -march=i686 -Wall -fno-reorder-functions
+#CFLAGS := $(CFLAGS) -march=i686 -Wall -fno-reorder-functions
 
 reconf: patch
 	cd $(DIR); autoreconf --force

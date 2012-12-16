@@ -21,7 +21,7 @@ configure: $(DIR)/
 	@true
 	
 compile: configure
-	@make $(JOBS) -C $(COMPILE_DIR) LDLIBS=-lncurses
+	@make $(JOBS) -C $(COMPILE_DIR) LDLIBS=-ltinfo
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

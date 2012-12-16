@@ -11,6 +11,8 @@ VERSION = 0.9
 
 BASE_URL = http://www.imspector.org/downloads/
 
+PRE_CONFIGURE = LIBS=-lcrypto
+
 CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
@@ -18,9 +20,13 @@ INSTALL = yes
 OPTS = PREFIX=$(PKG_ROOT)$(PKG_DIR)
 DIR = imspector-$(VERSION)
 
-PATCH_FILE1 = ssl-state.cpp.patch
+PATCH_FILE1 = ssl_method.patch
+# use the patch fest3er used since mine seems
+# to have stopped working.
+#PATCH_FILE1 = ssl-state.cpp.patch
 
 configure: patch
+	cd $(DIR); sed -i -e 's/LIBS = -ldl/& -lcrypto/' Makefile
 	@true
 
 compile: configure

@@ -22,7 +22,7 @@ OBJS= trafstats_core.o trafstats_iptables.o traffic_config.o
 
 # LDFLAGS      = -lsmoothwall -L$(IPROUTE_LIB_DIR) -rdynamic
 LDFLAGS      = -lsmoothd -L$(IPROUTE_LIB_DIR) -rdynamic
-LDLIBS       = -lxt_ACCOUNT_cl -lcurses -lnetlink -ldl -lnsl -lxtables -lipq -liptc
+LDLIBS       = -lxt_ACCOUNT_cl -lncurses -ltinfo -lnetlink -ldl -lnsl -lxtables -lipq -lip4tc
 
 
 

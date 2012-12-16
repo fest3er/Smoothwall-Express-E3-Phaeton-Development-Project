@@ -15,8 +15,6 @@
 # Of course, this should also mean that iptables and the kernel should
 # always be built and rebuilt in this manner.
 
-export GLOBALDEBUG = ON
-
 DEFAULT = yes
 default: all
 
@@ -25,33 +23,27 @@ include ../Makefile.conf
 include ../Makefile.versions
 include ../Makefile
 
-export KNL_DIR:="$(SOURCES_DIR)/linux$(KERNEL_TYPE)/linux"
-
 PACKAGE = ipset
-VERSION = 4.5
-VERSION = 6.13
+VERSION = 6.15
 
 EXTENSION = .tar.bz2
 BASE_URL = http://ipset.netfilter.org
 
+KERNEL_DIR = $(SOURCES_DIR)/linux$(KERNEL_TYPE)/linux
 CONFIG_OPTS = --prefix=/usr --mandir=/usr/man --docdir=/usr/doc \
-	        --with-kbuild=$(SOURCES_DIR)/linux$(KERNEL_TYPE)/linux
+	      --with-kbuild=$(KERNEL_DIR) --with-ksource=$(KERNEL_DIR)
 
-#CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
 
-#configure: $(DIR)/ patch
-#	true
-
 compile: configure
-	make $(JOBS) -C $(COMPILE_DIR) NO_EXTRA_WARN_FLAGS=yes
+	$(MAKE) $(JOBS) -C $(COMPILE_DIR) NO_EXTRA_WARN_FLAGS=yes
 
 
 
 install: compile
-	@mkdir -p $(PKG_ROOT)
-	KERNEL_DIR=$(KNL_DIR) make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) PREFIX=$(PKG_DIR) install
+	mkdir -p $(PKG_ROOT)
+	+KERNEL_DIR=$(KERNEL_DIR) $(MAKE) $(JOBS) -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) PREFIX=$(PKG_DIR) install
 
 include ../Makefile.rules

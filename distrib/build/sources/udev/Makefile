@@ -7,10 +7,12 @@
 include ../Makefile.conf
 
 PACKAGE = udev
+#VERSION = 190
 VERSION = 182
 TARBALL = $(PACKAGE)-$(VERSION)
 
 BASE_URL = http://www.us.kernel.org/pub/linux/utils/kernel/hotplug/
+BASE_URL = https://bitbucket.org/braindamaged/udev/downloads/
 
 #PATCH_URL1=http://www.linuxfromscratch.org/patches/downloads/udev/udev-130-security_fixes-1.patch
 
@@ -22,12 +24,22 @@ CONFIG_OPTS = --prefix=/usr           \
               --sysconfdir=/etc       \
               --libexecdir=/lib       \
               --enable-rule_generator \
+              --disable-manpages      \
+              --disable-gudev         \
               --disable-introspection \
               --disable-keymap        \
-              --disable-gudev         \
+              --disable-doc           \
+              --disable-man           \
+              --disable-rtf           \
+              --disable-xml           \
+              --disable-chm           \
+              --disable-chi           \
+              --disable-html          \
+              --disable-ps            \
+              --disable-pdf           \
               --with-usb-ids-path=no  \
-              --with-pci-ids-path=no  \
-              --with-systemdsystemunitdir=no
+              --with-pci-ids-path=no  
+
 
 COMPILE = yes
 INSTALL = yes

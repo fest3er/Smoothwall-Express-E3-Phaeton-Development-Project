@@ -14,6 +14,7 @@
 #include <syslog.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 ModuleFunction::ModuleFunction()
 {

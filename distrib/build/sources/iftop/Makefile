@@ -11,4 +11,5 @@ VERSION = 0.17
 
 BASE_URL = http://www.ex-parrot.com/~pdw/iftop/download/
 
+PRE_CONFIGURE = LIBS=-ltinfo
 include ../Makefile.rules

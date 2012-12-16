@@ -11,4 +11,6 @@ VERSION = 4.0.2
 
 BASE_URL = ftp://ftp.gnu.org/gnu/screen/
 
+PRE_CONFIGURE = LIBS=-ltinfo
+
 include ../Makefile.rules

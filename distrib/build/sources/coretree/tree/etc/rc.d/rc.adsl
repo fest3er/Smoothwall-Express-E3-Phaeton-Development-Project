@@ -35,5 +35,5 @@ if [ "$ENABLED" = "on" ]; then
 		sleep 30
 	fi
 else
-	echo "No USB ADSL enabled"
+	echo "  No USB ADSL enabled"
 fi

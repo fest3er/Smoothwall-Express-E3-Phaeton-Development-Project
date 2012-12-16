@@ -20,7 +20,7 @@ INSTALL = yes
 
 install: compile
 	@mkdir -p $(PKG_ROOT)
-ifdef BITS_64
+ifeq ($(BITS_64), yes)
 	@make -C $(COMPILE_DIR) prefix=$(PKG_ROOT)$(PKG_DIR) libdir=$(PKG_ROOT)$(PKG_DIR)/lib64 install
 	@(cd $(PKG_ROOT)$(PKG_DIR)/lib64; ln -s libfl.a libl.a)
 else

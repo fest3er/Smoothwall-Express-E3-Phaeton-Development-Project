@@ -44,9 +44,9 @@
 extern "C" {
 	int load(std::vector<CommandFunctionPair> & );
 	int set_outgoing(std::vector<std::string> & parameters, std::string & response);
-        int set_internal(std::vector<std::string> & parameters, std::string & response);
-        int rmdupes(std::vector<std::string>              & parameters, const std::string & newparm);
-        int errrpt(const std::string                      & parameter);
+	int set_internal(std::vector<std::string> & parameters, std::string & response);
+   	int rmdupes(std::vector<std::string>              & parameters, const std::string & newparm);
+   	int errrpt(const std::string                      & parameter);
 }
 
 std::map<std::string, std::vector<std::string>, eqstr> portlist;

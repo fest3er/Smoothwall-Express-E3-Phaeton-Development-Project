@@ -15,11 +15,12 @@ CONFIGURE = yes
 INSTALL = yes
 
 configure: $(DIR)/
-	@true
+	cd $(DIR); sed -i -e 's/-lncurses/& -ltinfo/' Makefile
+	#@true
 
 install: compile
-	@mkdir -p $(PKG_ROOT)
-	@make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
-	@rm -f $(PKG_ROOT)/lib/libproc.so
+	mkdir -p $(PKG_ROOT)
+	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
+	rm -f $(PKG_ROOT)/lib/libproc.so
 		
 include ../Makefile.rules

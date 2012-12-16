@@ -1,0 +1,18 @@
+#! /bin/bash
+
+# This script prepares the distrib root for the final build. It may be run once only.
+#   To re-do the setup, the final files must first be cleaned out. Then this script
+#   can be run again.
+
+# This script should not be 'chomod +x' and should only be run from make. But it
+#   probably isn't worth rigorously inforcing these restrictions.
+
+
+# First, get our environment
+#
+source toolcrib/environment
+source toolcrib/functions
+
+# Prepare the directory tree for the final build
+#
+toolcrib/prepare_final_tree

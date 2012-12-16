@@ -565,14 +565,14 @@ my %render_settings =
 	'columns' => 
 	[
 		{ 
-                        column => '1',
-                        title  => "$tr{'hostname'}",
-                        size   => 25,
-                        valign => 'top',
-                        maxrowspan => 2,
-                        sort   => 'cmp',
-                },
-                {
+			column => '1',
+			title  => "$tr{'hostname'}",
+			size   => 25,
+			valign => 'top',
+			maxrowspan => 2,
+			sort   => 'cmp',
+		},
+		{
 			column => '3',
 			title  => "$tr{'ip address'}",
 			size   => 25,
@@ -597,12 +597,12 @@ my %render_settings =
 			mark   => ' ',
 		},
 		{ 
-                        column => '4',
-                        title => "$tr{'description'}",
-                        break => 'line',
-                        spanadj => -1,
-                }
-        ]
+			column => '4',
+			title => "$tr{'description'}",
+			break => 'line',
+			spanadj => -1,
+		}
+	]
 );
 
 &dispaliastab( "${swroot}/dhcp/staticconfig-$dhcpsettings{'SUBNET'}", \%render_settings, $dhcpsettings{'ORDER'}, $dhcpsettings{'COLUMN'} );

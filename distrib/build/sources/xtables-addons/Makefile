@@ -17,7 +17,7 @@ BASE_URL = http://downloads.sourceforge.net/project/xtables-addons/Xtables-addon
 
 CONFIG_OPTS = --with-gnu-ld \
 	      --with-kbuild=/build/sources/linux$(KERNEL_TYPE)/linux/ \
-	      --with-ksource=/lib/modules/$(K_AGCL_VERSION)$(KERNEL_TYPE)/source
+	      --with-ksource=/lib/modules/$(K_SWE_VERSION)$(KERNEL_TYPE)/source
 
 
 include ../Makefile.rules

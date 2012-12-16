@@ -19,9 +19,7 @@ INST_PKGS = glibc libsmooth+setup libgcc freetype libart_lgpl libpng libdnet \
 	    daq libnet libnetfilter_queue libnfnetlink attr libcap-ng \
 	    libcap fontconfig glib cairo libffi readline libmnl libpcap \
 	    libosip2 libpcap pango zlib slang pixman libxml2 libusb \
-	    kmod gmp popt yaml \
-	    HTML-Parser HTML-Tagset URI libwww-perl \
-	    Net-Netmask NetAddr-IP \
+	    kmod gmp popt yaml perl-mods \
 	    newt binutils coreutils iana-etc mktemp file findutils gawk \
 	    ncurses vim less sed flex gettext net-tools inetutils iputils \
 	    whois perl bash bzip2 kbd e2fsprogs grep gzip module-init-tools \
@@ -120,9 +118,9 @@ cdrom/smoothwall.tgz:
 	done
 	
 	@echo "        strip symbols" >/proc/self/fd/0
-	/build/striptree distrib
-	/build/striptree distrib-dev
-	/build/striptree distrib-doc
+	/build/toolcrib/striptree distrib
+	/build/toolcrib/striptree distrib-dev
+	/build/toolcrib/striptree distrib-doc
 	
 	@echo -e "\nProduct info:"
 	@( \
@@ -237,7 +235,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  /sbin/mkisofs -o $${ISONAME} \
 	    -b boot/grub/stage2_eltorito -J -R \
 	    -no-emul-boot -boot-load-size 4 -boot-info-table \
-	    -V $(BASENAME) --publisher "AGCL/Roadster" cdrom; \
+	    -V $(BASENAME) --publisher "Smoothwall Express" cdrom; \
 	  echo "$${ISONAME} build complete"; \
 	)
 	@echo "      build offRoad ISO ..." >/proc/self/fd/0
@@ -248,7 +246,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	  /sbin/mkisofs -o $${ISONAME} \
 	    -b boot/grub/stage2_eltorito -J -R \
 	    -no-emul-boot -boot-load-size 4 -boot-info-table \
-	    -V $(BASENAME) --publisher "AGCL/Roadster (OffRoad)" offroad; \
+	    -V $(BASENAME) --publisher "Smoothwall Express (OffRoad)" offroad; \
 	  echo "$${ISONAME} build complete"; \
 	)
 

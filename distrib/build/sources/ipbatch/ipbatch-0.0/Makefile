@@ -15,7 +15,9 @@ COPT_FLAGS:=$(CFLAGS) -g -DDEBUG
 CFLAGS:=$(COPT_FLAGS) -DIPTABLES_VERSION=\"$(IPTABLES_VER)\" -Wall -Wunused -I$(IPTABLES_SRC_DIR)/include/ -I.
 
 LDFLAGS      = -rdynamic
-LDLIBS       = -ldl -lnsl -lxtables -liptc
+LDLIBS       = -ldl -lnsl -lxtables
+LD4LIBS      = -lip4tc
+LD6LIBS      = -lip6tc
 
 PROGS = ipbatch ip6batch
 
@@ -33,7 +35,7 @@ ip6batch.o: ipbatch.c $(IPTABLES_SRC_DIR)/include/iptables.h
 
 ipbatch: ipbatch.o $(IPTABLES_SRC_DIR)/iptables/xtables_multi-iptables.o \
                    $(IPTABLES_SRC_DIR)/iptables/xtables_multi-xshared.o
-	$(CC) $(LDLIBS) $(LDFLAGS) $(CFLAGS) -o $@  $^
+	$(CC) $(LDLIBS) $(LD4LIBS) $(LDFLAGS) $(CFLAGS) -o $@  $^
 ip6batch: ip6batch.o $(IPTABLES_SRC_DIR)/iptables/xtables_multi-ip6tables.o \
                      $(IPTABLES_SRC_DIR)/iptables/xtables_multi-xshared.o
-	$(CC) $(CFLAGS) -DIPT_LIB_DIR=\"$(IPT_LIB_DIR)\" $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) $(CFLAGS) -DIPT_LIB_DIR=\"$(IPT_LIB_DIR)\" $(LDFLAGS) -o $@ $^ $(LDLIBS) $(LD6LIBS)

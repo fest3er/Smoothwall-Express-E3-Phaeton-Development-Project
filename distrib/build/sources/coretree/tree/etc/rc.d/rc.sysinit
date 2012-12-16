@@ -2,6 +2,8 @@
 
 . /var/smoothwall/main/settings
 
+. /var/smoothwall/ethernet/settings
+
 export STARTSTOP="startup"
 
 umask 022
@@ -204,6 +206,8 @@ echo "  Clam Anti-Virus (if enabled)"
 /usr/bin/smoothcom clamavrestart
 echo "  POP3 scanner (if enabled)"
 /usr/bin/smoothcom p3scanrestart
+echo "  Guardian (if enabled)"
+/usr/bin/smoothcom guardianrestart
 
 echo
 echo "Finishing startup"
@@ -221,6 +225,9 @@ echo "1 4 1 7" >/proc/sys/kernel/printk
 # Services here depend on the IFs being up.
 echo "  dhcpd (if enabled)"
 /usr/bin/smoothcom dhcpdrestart
+
+echo "  ntop"
+/usr/bin/ntop -w 8080 -i eth0 -a /usr/var/ntop/access_log -m "$GREEN_NETWORK/$GREEN_NETMASK" -n 2 --w3c -d -L --skip-version-check --known-networks=$RED_NETWORK/$RED_NETMASK
 
 # Final startup steps.
 echo "  Saving dmesg buffer to /var/log/dmesg"

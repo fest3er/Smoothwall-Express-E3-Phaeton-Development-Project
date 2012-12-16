@@ -34,7 +34,8 @@ endif
 
 ifeq ($(BUILD_PHASE), Final)
 
-CONFIG_OPTS = --enable-arch --enable-partx --enable-write
+PRE_CONFIGURE = LDFLAGS=-ltinfo
+CONFIG_OPTS = --enable-arch --enable-partx --enable-write --with-ncurses
 
 endif
 

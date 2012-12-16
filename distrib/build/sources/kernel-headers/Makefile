@@ -19,7 +19,7 @@ download:
 install: download
 	@tar -xvf $(DOWNLOADS_DIR)/linux-$(KERNEL_VER).tar.xz
 ifeq ($(BUILD_PHASE), Stage_1)
-	cd linux-$(KERNEL_VER); \
+	+cd linux-$(KERNEL_VER); \
 	  make mrproper; \
 	  sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="$(KERNEL_TYPE)"/' ../../linux.config$(CFG_TYPE) > .config; \
 	  make headers_check; \
@@ -29,7 +29,7 @@ ifeq ($(BUILD_PHASE), Stage_1)
 	  cp -rv dest/include/* $(TOOLS_DIR)/include
 endif
 ifeq ($(BUILD_PHASE), Final)
-	mkdir -p $(PKG_ROOT); \
+	+mkdir -p $(PKG_ROOT); \
 	cd linux-$(KERNEL_VER); \
 	  make mrproper
 	cd linux-$(KERNEL_VER); \

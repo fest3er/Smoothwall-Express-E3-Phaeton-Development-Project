@@ -1,0 +1,11 @@
+--- db-5.3.21/dist/Makefile.in-ORIG	2012-08-14 22:53:39.000000000 -0400
++++ db-5.3.21/dist/Makefile.in	2012-08-14 22:54:50.000000000 -0400
+@@ -17,7 +17,7 @@
+ bindir=	@bindir@
+ includedir=@includedir@
+ libdir=	@libdir@
+-docdir=	$(prefix)/docs
++docdir=	@datarootdir@/doc/berkeley-db
+ 
+ dmode=	755
+ emode=	555
