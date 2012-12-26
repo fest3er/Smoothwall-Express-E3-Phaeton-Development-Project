@@ -7,14 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = udev
-#VERSION = 190
-VERSION = 182
+VERSION = 195
+
 TARBALL = $(PACKAGE)-$(VERSION)
 
-BASE_URL = http://www.us.kernel.org/pub/linux/utils/kernel/hotplug/
-BASE_URL = https://bitbucket.org/braindamaged/udev/downloads/
-
-#PATCH_URL1=http://www.linuxfromscratch.org/patches/downloads/udev/udev-130-security_fixes-1.patch
+BASE_URL = https://bitbucket.org/braindamaged/udev/downloads
 
 PKG_DIR = 
 
@@ -51,16 +48,16 @@ compile: configure
 install: compile
 	@mkdir -p $(PKG_ROOT)
 	@# Remove and create needed links and targets
-	-mkdir -p $(PKG_ROOT)$(PKG_DIR)/sbin
-	-mkdir -p $(PKG_ROOT)$(PKG_DIR)/run
-	-x; cd $(PKG_ROOT)$(PKG_DIR); \
-	rm -rf lib/firmware lib/udev; \
-	install -dv lib/firmware; \
-	install -dv lib/udev/devices/pts; \
-	install -dv lib/udev/devices/shm; \
-	install -dv usr/share/doc/; \
-	ln -sv /lib/udev/udevd sbin/udevd; \
-	ln -sv /usr/bin/udevadn sbin/udevadm;
+	#-mkdir -p $(PKG_ROOT)$(PKG_DIR)/sbin
+	#-mkdir -p $(PKG_ROOT)$(PKG_DIR)/run
+	#-x; cd $(PKG_ROOT)$(PKG_DIR); \
+	#rm -rf lib/firmware lib/udev; \
+	#install -dv lib/firmware; \
+	#install -dv lib/udev/devices/pts; \
+	#install -dv lib/udev/devices/shm; \
+	#install -dv usr/share/doc/; \
+	#ln -sv /lib/udev/udevd sbin/udevd; \
+	#ln -sv /usr/bin/udevadm sbin/udevadm;
 
 	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 

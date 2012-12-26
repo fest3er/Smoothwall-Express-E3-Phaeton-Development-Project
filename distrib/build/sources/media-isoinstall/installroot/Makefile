@@ -39,7 +39,7 @@ GZIP_PKGS = gunzip
 bin:
 	@mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin
 	@cp -aR /sbin/* tmp/bin
-	@cp -aR /build/buildroot/udev/lib/udev/udev* tmp/bin
+	#@cp -aR /build/buildroot/udev/lib/udev/udev* tmp/bin
 	#cp -aR /build/target/install tmp/bin/install
 
 lib:
