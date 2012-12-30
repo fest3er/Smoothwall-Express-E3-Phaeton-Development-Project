@@ -21,6 +21,5 @@ clean:
 	@echo -n " $(PACKAGE)"
 	@rm -rf $(DIR)
 	@rm -rf $(COMPILE_DIR)
-	@rm -rf $(PKG_ROOT); mkdir $(PKG_ROOT)
 
 include ../../../Makefile.rules

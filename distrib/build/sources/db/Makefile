@@ -20,11 +20,20 @@ DIR = $(PACKAGE)-$(VERSION)/build_unix
 
 PATCH = yes
 CONFIGURE = yes
+CLEAN = yes
 
 patch: $(DIR)/
 	@(cd $(DIR)/..; cat $(PATCH_FILE1) | patch -p1)
 
 configure: patch
 	cd $(DIR); ../dist/configure $(CONFIG_OPTS)
+
+clean:
+	@echo -n " $(PACKAGE)"
+	@rm -rf $(PACKAGE)-$(VERSION)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT); mkdir $(PKG_ROOT)
+	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
+endif
 
 include ../Makefile.rules

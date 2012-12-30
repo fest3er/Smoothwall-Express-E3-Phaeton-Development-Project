@@ -205,8 +205,10 @@ fi
       build ipbatch
       build klibc
       build kmod
+      build gperf
       JOBS=$JOBS_UP
-      build udev
+      JOBS=$JOBS_MP
+      build eudev
       JOBS=$JOBS_MP
       #build udev-config
       #build xen

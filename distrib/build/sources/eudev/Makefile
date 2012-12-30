@@ -6,15 +6,12 @@
 
 include ../Makefile.conf
 
-PACKAGE = udev
-#VERSION = 182
-VERSION = 195
+PACKAGE = eudev
+VERSION = 9e4b735b05
 TARBALL = $(PACKAGE)-$(VERSION)
 
-BASE_URL = http://www.us.kernel.org/pub/linux/utils/kernel/hotplug
-BASE_URL = https://bitbucket.org/braindamaged/udev/downloads
-
-#PATCH_URL1=http://www.linuxfromscratch.org/patches/downloads/udev/udev-130-security_fixes-1.patch
+gitURL = http://www.us.kernel.org/pub/linux/utils/kernel/hotplug
+gitBranch = master
 
 PKG_DIR = 
 
@@ -28,21 +25,22 @@ CONFIG_OPTS = --prefix=/usr           \
               --disable-gudev         \
               --disable-introspection \
               --disable-keymap        \
-              --disable-doc           \
-              --disable-man           \
-              --disable-rtf           \
-              --disable-xml           \
-              --disable-chm           \
-              --disable-chi           \
-              --disable-html          \
-              --disable-ps            \
-              --disable-pdf           \
+              --disable-gtk-doc       \
+              --disable-gtk-doc-html  \
+              --disable-gtk-doc-pdf   \
               --with-usb-ids-path=no  \
               --with-pci-ids-path=no  
 
 
+CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
+
+configure: patch
+	cd $(COMPILE_DIR); bash autogen.sh
+	cd $(COMPILE_DIR); $(PRE_CONFIGURE) ../$(DIR)/configure --prefix=$(PKG_DIR) $(CONFIG_OPTS)
+
+	
 
 compile: configure
 	@# Compile

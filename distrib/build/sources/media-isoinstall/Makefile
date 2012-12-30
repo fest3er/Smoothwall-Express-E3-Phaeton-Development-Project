@@ -12,7 +12,7 @@ PACKAGE = media-isoinstall
 
 # Document these pkgs, don't install
 TOOLCHAIN_PKGS = expect
-OTHER_PKGS = updates jam sqlite udev-config 
+OTHER_PKGS = updates jam sqlite udev udev-config 
 
 TARGET_DIR = /build/target/
 INST_PKGS = glibc libsmooth+setup libgcc freetype libart_lgpl libpng libdnet \
@@ -34,7 +34,7 @@ INST_PKGS = glibc libsmooth+setup libgcc freetype libart_lgpl libpng libdnet \
 	    p3scan siproxd which miniupnpd ez-ipupdate noip cdrtools \
 	    suricata smartmontools at dosfstools e2fsprogs grub linux-atm \
 	    mtools nano reiserfsprogs parted xtables-addons cpio Python \
-	    udev lm_sensors xz pcmciautils qemu-kvm sysfsutils \
+	    eudev lm_sensors xz pcmciautils qemu-kvm sysfsutils \
 	    coretree
 # 'coretree' *MUST* be last
 

@@ -23,7 +23,7 @@ BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
 	  true tty umount uname uniq unzip usleep vi wc wget which yes zcat
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-AGCL_PKGS = udev kmod grub pciutils bash reiserfsprogs
+AGCL_PKGS = eudev kmod grub pciutils bash reiserfsprogs
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 
 bin:
