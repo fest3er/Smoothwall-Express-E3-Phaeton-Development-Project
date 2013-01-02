@@ -31,45 +31,45 @@ EXCLUDE_DRIVERS = bluetooth connector gpu infiniband mfd misc mtd parport \
 	  memstick mmc
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-AGCL_PKGS = eudev kmod grub pciutils bash reiserfsprogs util-linux pcmciautils \
+SWE_PKGS = udev kmod grub pciutils bash reiserfsprogs util-linux pcmciautils \
 	   sysfsutils parted readline inotify-tools mtools
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 GZIP_PKGS = gunzip
 
 bin:
-	@mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin
-	@cp -aR /sbin/* tmp/bin
-	#@cp -aR /build/buildroot/udev/lib/udev/udev* tmp/bin
+	mkdir -pv tmp/bin tmp/lib tmp/usr/lib/klibc/bin
+	ln -sv /bin tmp/sbin
+	cp -avR /sbin/* tmp/bin
+	cp -avR /build/buildroot/udev/sbin/* tmp/bin/
 	#cp -aR /build/target/install tmp/bin/install
 
 lib:
-	@mkdir -p tmp/lib tmp/usr/lib tmp/usr/lib/klibc/lib
-	@cp -aR /lib/* tmp/lib
-	@cp -aR /lib/lib* tmp/lib
-	@cp -aR /usr/lib/libncurses.so* tmp/lib/
-	@cp -aR /usr/lib/libtinfo.so* tmp/lib/
-	@tar xfz /build/target/smoothwall-linux$(KERNEL_TYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1
-	#cd tmp/lib/modules/$(K_AGCL_VERSION)/kernel; rm -rf sound
-	#cd tmp/lib/modules/$(K_AGCL_VERSION)/kernel/drivers; \
+	mkdir -pv tmp/lib tmp/usr/lib tmp/usr/lib/klibc/lib
+	cp -avR /lib/* tmp/lib
+	cp -avR /lib/lib* tmp/lib
+	cp -avR /usr/lib/libncurses.so* tmp/lib/
+	cp -avR /usr/lib/libtinfo.so* tmp/lib/
+	tar xfz /build/target/smoothwall-linux$(KERNEL_TYPE).tar.gz -C tmp ./lib/modules > /dev/null 2>&1
+	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel; rm -rf sound
+	#cd tmp/lib/modules/$(K_SWE_VERSION)/kernel/drivers; \
 	#  rm -rf $(EXCLUDE_DRIVERS)
 
 klibc:
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
-	@rm -f tmp/usr/lib/klibc/bin/{cpio,gzip}
-	@cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib/klibc-*.so tmp/lib
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/bin tmp/usr/lib/klibc/
+	rm -f tmp/usr/lib/klibc/bin/{cpio,gzip}
+	cp -aR /build/buildroot/klibc/usr/lib/klibc/lib tmp/usr/lib/klibc/
 
 all: clean bin lib klibc
-	@mkdir -p tmp/sys
-	@for i in $(ROOTDIRS); do mkdir -p tmp/$$i; done
-	@ln -s bin tmp/sbin
-	@cp -aR $(BB)/bin/busybox tmp/bin
-	@cd tmp/bin; for FILE in $(BBPROGS); do ln -s busybox $$FILE; done
-	@for i in cpio gzip; do \
+	mkdir -p tmp/sys
+	for i in $(ROOTDIRS); do mkdir -p tmp/$$i; done
+	cp -aR $(BB)/bin/busybox tmp/bin
+	cd tmp/bin; for FILE in $(BBPROGS); do ln -s busybox $$FILE; done
+	for i in cpio gzip; do \
 	  tar xvfz /build/target/smoothwall-$$i.tar.gz -C tmp/; \
 	done
 
-	@(cd tmp; \
+	(cd tmp; \
 	  cp -aR ../../../coretree/tree/etc/passwd etc; \
 	  cp -aR ../../../coretree/tree/etc/group etc; \
 	  install -D /usr/share/terminfo/l/linux usr/share/terminfo/l/linux; \
@@ -101,43 +101,44 @@ all: clean bin lib klibc
 	  cp -a ../../../../buildroot/glibc/usr/lib/gconv/gconv-modules usr/lib/gconv/; \
 	  cp -a ../../../../buildroot/glibc/usr/lib/gconv/IBM850.so usr/lib/gconv/; \
 	)
-	@(cd tmp; \
+	(cd tmp; \
 	  rm -rf /etc/udev/rules.d/*; \
-	  ln -s /sbin/init init; \
+	  ln -s /bin/init init; \
 	)
-	@(cd tmp/etc; \
+	(cd tmp/etc; \
 	  gawk -f ../../etc/fill-pci-ids.awk < /usr/share/pci.ids > filled.pci.ids;\
 	) > /dev/null 2>&1
-	@(cd tmp; \
-	  for i in $(AGCL_PKGS); do \
+	(cd tmp; \
+	  for i in $(SWE_PKGS); do \
 	    tar xfz /build/target/smoothwall-$$i.tar.gz; \
 	  done; \
 	  touch etc/ld.so.conf; \
 	  /sbin/ldconfig -r .; \
 	  mkdir dev/ida dev/rd; \
 	  install -d lib/{firmware,udev/devices/{pts,shm}}; \
-	  mknod -m0666 lib/udev/devices/null c 1 3; \
-	  ln -sf proc/kcore /lib/udev/devices/core; \
-	  ln -sf proc/self/fd /lib/udev/devices/fd; \
-	  ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
-	  ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
-	  ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
-	) > /dev/null 2>&1
-	@(cd tmp; mkdir -p local; cd local; \
+	) #> /dev/null 2>&1
+	  #mknod -m0666 lib/udev/devices/null c 1 3; \
+	  #ln -sf proc/kcore /lib/udev/devices/core; \
+	  #ln -sf proc/self/fd /lib/udev/devices/fd; \
+	  #ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
+	  #ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
+	  #ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
+	
+	(cd tmp; mkdir -p local; cd local; \
 	  tar xfz /build/target/smoothwall-gzip.tar.gz)
 
 ifdef BITS_64
-	@(cd tmp; ln -s lib lib64)
+	(cd tmp; ln -s lib lib64)
 endif
 
-	@touch tmp/cdrominstall
+	touch tmp/cdrominstall
 
-	@/build/toolcrib/striptree tmp
+	/build/toolcrib/striptree tmp
 
 	# Build the installer initramfs CPIO archive
-	@cd tmp; find . | cpio -o -H newc | gzip > ../../$(INSTALL_ROOT)image.gz
+	cd tmp; find . | cpio -o -H newc | gzip > ../../$(INSTALL_ROOT)image.gz
 
-	@echo -e "installroot build for $(MEDIA) complete\n\n"
+	echo -e "installroot build for $(KERNEL_TYPE) complete\n\n"
 	
 clean:
 	@rm -rf $(INSTALL_ROOT) tmp/

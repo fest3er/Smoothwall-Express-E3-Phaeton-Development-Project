@@ -23,7 +23,7 @@ BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
 	  true tty umount uname uniq unzip usleep vi wc wget which yes zcat
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-AGCL_PKGS = eudev kmod grub pciutils bash reiserfsprogs
+AGCL_PKGS = udev kmod grub pciutils bash reiserfsprogs
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 
 bin:
@@ -81,13 +81,14 @@ all: clean bin lib klibc
 	  mkdir dev/ida dev/rd; \
 	  install -d lib/{firmware,udev/devices/{pts,shm}}; \
 	  ln -sv /lib/firmware usr/lib/firmware; \
-	  mknod -m0666 lib/udev/devices/null c 1 3; \
-	  ln -sf proc/kcore /lib/udev/devices/core; \
-	  ln -sf proc/self/fd /lib/udev/devices/fd; \
-	  ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
-	  ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
-	  ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
 	) > /dev/null 2>&1
+	  #mknod -m0666 lib/udev/devices/null c 1 3; \
+	  #ln -sf proc/kcore /lib/udev/devices/core; \
+	  #ln -sf proc/self/fd /lib/udev/devices/fd; \
+	  #ln -sf proc/self/fd/0 /lib/udev/devices/stdin; \
+	  #ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
+	  #ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
+	
 
 ifdef BITS_64
 	@(cd tmp; ln -s lib lib64)
@@ -100,7 +101,7 @@ endif
 	@# Build the runtime initramfs CPIO archive
 	@cd tmp; find . | cpio -o -H newc | gzip > ../../$(RUNTIME_ROOT)image.gz
 
-	@echo -e "runtimeroot build for $(MEDIA) complete\n\n"
+	@echo -e "runtimeroot build for $(KERNEL_TYPE) complete\n\n"
 
 clean:
 	@rm -rf $(RUNTIME_ROOT) tmp/

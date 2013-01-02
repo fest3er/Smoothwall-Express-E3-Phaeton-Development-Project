@@ -44,28 +44,28 @@ DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu gcc \
 	   libtool nasm acpica
 
 cdrom:
-	@mkdir cdrom
-	@echo "      runtimeroot" >/proc/self/fd/0
-	@make -C runtimeroot KERNEL_TYPE=$(KERNEL_TYPE) 
-	@echo "      installroot" >/proc/self/fd/0
-	@make -C installroot KERNEL_TYPE=$(KERNEL_TYPE) 
-	@echo "      cdromboot" >/proc/self/fd/0
-	@make -C cdromboot KERNEL_TYPE=$(KERNEL_TYPE) 
+	mkdir cdrom
+	echo "      runtimeroot" >/proc/self/fd/0
+	make -C runtimeroot KERNEL_TYPE=$(KERNEL_TYPE) 
+	echo "      installroot" >/proc/self/fd/0
+	make -C installroot KERNEL_TYPE=$(KERNEL_TYPE) 
+	echo "      cdromboot" >/proc/self/fd/0
+	make -C cdromboot KERNEL_TYPE=$(KERNEL_TYPE) 
 
 cdrom/smoothwall.tgz:
-	@echo "      prepare cdrom tree" >/proc/self/fd/0
-	@mkdir -p distrib distrib/sys distrib-dev distrib-doc/usr/share/
+	echo "      prepare cdrom tree" >/proc/self/fd/0
+	mkdir -p distrib distrib/sys distrib-dev distrib-doc/usr/share/
 	
-	@install -D runtimerootimage.gz distrib/boot/initrd-$(K_RAW_VERSION)$(KERNEL_TYPE).gz
+	install -D runtimerootimage.gz distrib/boot/initrd-$(K_SWE_VERSION).gz
 	
-	@echo "        unpack dev packages" >/proc/self/fd/0
-	@echo "Unpacking dev packages:"
-	@(for I in $(DEV_PKGS); do \
+	echo "        unpack dev packages" >/proc/self/fd/0
+	echo "Unpacking dev packages:"
+	(for I in $(DEV_PKGS); do \
 	    if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
-	      make -C ../$$I clean all; \
-	      if [ $$? -ne 0 ]; then \
+	      make -C ../$$I clean all; retCode=$$?; \
+	      if [ $$retCode -ne 0 ]; then \
 	        echo "$$I FAILED"; \
-	        exit 0; \
+	        exit $$retCode; \
 	      fi; \
 	    fi; \
 	    echo -n "    $$I"; \
@@ -76,13 +76,13 @@ cdrom/smoothwall.tgz:
 	
 	@echo "        copy dev shared libs to distrib" >/proc/self/fd/0
 	@echo "Copying dev shared libs to distrib:"
-	@(cd distrib-dev; \
+	(cd distrib-dev; \
 	  find . -name \*.so\* -print | cpio -pd ../distrib \
 	)
 	
 	@echo "        unpack main packages" >/proc/self/fd/0
 	@echo "Unpacking main packages:"
-	@(for I in $(INST_PKGS); do \
+	(for I in $(INST_PKGS); do \
 	    if [ ! -e /$(TARGET_DIR)/smoothwall-$$I.tar.gz ]; then \
 	      make -C ../$$I clean all; retCode=$$?; \
 	      if [ $$retCode -ne 0 ]; then \
@@ -97,21 +97,21 @@ cdrom/smoothwall.tgz:
 	);
 	@echo "        move includes to distrib-dev" >/proc/self/fd/0
 	@echo "Moving includes to distrib-dev:"
-	@if [ -d distrib/usr/include ]; then \
+	if [ -d distrib/usr/include ]; then \
 	  mkdir -p distrib-dev/usr/include; \
 	  cp -a distrib/usr/include distrib-dev/usr/; \
 	  rm -rf distrib/usr/include/*; fi
 	
 	@echo "        move static libs to distrib-dev" >/proc/self/fd/0
 	@echo "Moving static libs to distrib-dev:"
-	@cd distrib; find . -name \*.a -o -name \*.la | while read a; do \
+	cd distrib; find . -name \*.a -o -name \*.la | while read a; do \
 	  mkdir -p ../distrib-dev/`dirname $$a`; \
 	  mv $$a ../distrib-dev/$$a; \
 	done
 	
 	@echo "        move docs to distrib-doc" >/proc/self/fd/0
 	@echo "Moving docs to distrib-doc:"
-	@for I in man info share/man share/info share/doc examples; do \
+	for I in man info share/man share/info share/doc examples; do \
 	  if [ -d distrib/usr/$$I ]; then \
 	    mkdir -p distrib-doc/usr/$$I; \
 	    mv distrib/usr/$$I/* distrib-doc/usr/$$I/; fi; \
@@ -173,11 +173,6 @@ cdrom/smoothwall.tgz:
 	/sbin/ldconfig -r distrib; \
 	) | sed -u -e 's/^/  /'
 	
-	@# Temporary, 7/2012
-ifeq ($(KERNEL_TYPE), dom0)
-	@cd distrib/lib/modules/$(K_RAW_VERSION)-domU; cp -av * ../$(K_RAW_VERSION)$(KERNEL_TYPE)
-endif
-
 	@echo "        tidy ..." >/proc/self/fd/0
 	@echo -e "\nTidying ..."
 	@#rm -f distrib/etc/resolv.conf

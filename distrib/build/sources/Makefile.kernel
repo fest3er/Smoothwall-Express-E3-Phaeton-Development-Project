@@ -42,9 +42,9 @@ package-kernel: compile-kernel
 	(cd $(PKG_ROOT); \
 	make -C $(KERNEL_DIR) CC=$(COMPILER) INSTALL_MOD_PATH=$(PKG_ROOT) modules_install; \
 	mkdir -p boot; \
-	cp $(KERNEL_DIR)/arch/x86/boot/bzImage boot/vmlinuz-$(K_AGCL_VERSION); \
-	cp $(KERNEL_DIR)/System.map boot/System.map-$(K_AGCL_VERSION); \
-	rm -f lib/modules/$(K_AGCL_VERSION)/build; \
+	cp $(KERNEL_DIR)/arch/x86/boot/bzImage boot/vmlinuz-$(K_SWE_VERSION); \
+	cp $(KERNEL_DIR)/System.map boot/System.map-$(K_SWE_VERSION); \
+	rm -f lib/modules/$(K_SWE_VERSION)/build; \
 	cp $(KERNEL_DIR)/.config $(SOURCES_DIR)/linux.config$(KERNEL_TYPE)-$(mARCH).new)
 
 

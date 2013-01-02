@@ -196,8 +196,6 @@ fi
       build openldap
       build wget
       build sudo
-      #build linux-dom0
-      #build linux-domU
       build linux-kvm
       build iptables
       build ipset
@@ -206,12 +204,7 @@ fi
       build klibc
       build kmod
       build gperf
-      JOBS=$JOBS_UP
-      JOBS=$JOBS_MP
       build eudev
-      JOBS=$JOBS_MP
-      #build udev-config
-      #build xen
       build linux-atm
       touch crumbs/Final.grp3.compiled
     fi

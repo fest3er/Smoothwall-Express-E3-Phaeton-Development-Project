@@ -1,0 +1,10 @@
+--- eudev/rules/Makefile.am-ORIG	2012-12-31 00:05:08.000000000 -0500
++++ eudev/rules/Makefile.am	2012-12-31 00:05:39.000000000 -0500
+@@ -13,6 +13,7 @@
+ 	61-accelerometer.rules \
+ 	64-btrfs.rules \
+ 	75-net-description.rules \
++	75-persistent-net-generator.rules \
+ 	75-probe_mtd.rules \
+ 	75-tty-description.rules \
+ 	78-sound-card.rules \
