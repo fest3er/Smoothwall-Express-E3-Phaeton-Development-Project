@@ -6,14 +6,56 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
+# With git semi-integrated, dlverify now needs PACKAGE, gitURL, gitBranch and
+#   gitCommitID exported to it IFF the original internet source is git.
+
+# Function git2tgz
+#   Fetch from git instead of tarball repo
+function git2tgz () {
+
+  # Nicer names from make() in ENV
+  #   pkgName=$(PACKAGE)
+  #   gitURL=$(gitURL)
+  #   gitBranch=$(gitBranch)
+  #   gitCommitID=$(VERSION)
+
+  # Prep the dir
+  rm -rf ${pkgName}-${gitCommitID}
+  mkdir ${pkgName}-${gitCommitID}
+
+  # Go 'n' git
+  cd ${pkgName}-${gitCommitID}
+  echo "git from ${gitURL}"
+  git init -q || exit 101
+  git pull "${gitURL}" "${gitBranch}" || exit 102
+  echo "git checkout ${gitCommitID}"
+  git checkout -q ${gitCommitID} || exit 103
+
+  # tar it
+  cd ..
+  echo "tar"
+  tar cfz "${DIRECTORY}/${pkgName}-${gitCommitID}.tar.gz" \
+      --exclude=".git*" ${pkgName}-${gitCommitID} || exit 104
+
+  # remove the dir
+  rm -rf ${pkgName}-${gitCommitID} || exit 105
+}
+
+
 # Function try_DL
 #   Minimize replicated code. A function to attempt a download
 
 function try_DL () {
   if [ "$1" != "" ]; then
-    # Try this source
-    wget ${PASV}${CONTINUE_DL}${NO_CHECK_CERT}--directory $DIRECTORY $2
-    return $?
+    if [ "$1" != "$2" -o "$1" == "$2" -a "${gitURL}" == "" ]; then
+      # It's a normal HTTP URL; try this source
+      wget ${PASV}${CONTINUE_DL}${NO_CHECK_CERT}--directory $DIRECTORY $2
+      return $?
+    else
+      # Internet source is git
+      git2tgz
+      return $?
+    fi
   fi
 
   # Or indicate 'not successful'
@@ -64,6 +106,7 @@ FILENAME=`basename $URL`
 if [ ! -e "$DIRECTORY/$FILENAME.done" ]; then
 
   # Try first mirror, second mirror, or URL
+  # URL can be via wget or git.
   try_DL "$MIRROR_UNO" "$MIRROR_UNO/$FILENAME" \
   || try_DL "$MIRROR_DOS" "$MIRROR_DOS/$FILENAME" \
   || try_DL "$URL" "$URL"

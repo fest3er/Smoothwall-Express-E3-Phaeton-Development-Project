@@ -7,11 +7,18 @@
 include ../Makefile.conf
 
 PACKAGE = eudev
-VERSION = 9e4b735b05
+VERSION = 74852a5aeb
 TARBALL = $(PACKAGE)-$(VERSION)
+# Stated explicitly: dlverify uses only gzip to make the tarball
+EXTENSION = .tar.gz
 
-gitURL = http://www.us.kernel.org/pub/linux/utils/kernel/hotplug
-gitBranch = master
+# There's no tarball; fetch via git
+# Caveat: dlverify looks in MIRROR_UNO and MIRROR_DOS for the mfred
+#   tarball; if not found there, it fetches via git
+PRE_DL += pkgName=$(PACKAGE) gitCommitID=$(VERSION)
+PRE_DL += gitURL=git://github.com/gentoo/eudev.git
+PRE_DL += gitBranch=master
+
 
 PATCH_FILE1 = rules-makefile.am.patch
 

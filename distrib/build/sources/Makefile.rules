@@ -7,7 +7,7 @@
 
 ifndef DOWNLOAD
 download:
-	@$(DL_CMD) $(BASE_URL)/$(TARBALL)$(EXTENSION) $(MD5)
+	@$(PRE_DL) $(DL_CMD) $(BASE_URL)/$(TARBALL)$(EXTENSION) $(MD5)
 ifdef PATCH_URL1
 	@$(DL_CMD) $(PATCH_URL1) $(PATCH_MD51)
 endif
