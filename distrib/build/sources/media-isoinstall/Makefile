@@ -10,12 +10,16 @@ include ../Makefile
 
 PACKAGE = media-isoinstall
 
+# Make it easy to switch between the two
+export UDEV = udev
+export UDEVunused = eudev
+
 # Document these pkgs, don't install
 TOOLCHAIN_PKGS = expect
-OTHER_PKGS = updates jam sqlite udev udev-config 
+OTHER_PKGS = updates jam sqlite $(UDEVunused) udev-config libart_lgpl 
 
 TARGET_DIR = /build/target/
-INST_PKGS = glibc libsmooth+setup libgcc freetype libart_lgpl libpng libdnet \
+INST_PKGS = glibc libsmooth+setup libgcc freetype libpng libdnet \
 	    daq libnet libnetfilter_queue libnfnetlink attr libcap-ng \
 	    libcap fontconfig glib cairo libffi readline libmnl libpcap \
 	    libosip2 libpcap pango zlib slang pixman libxml2 libusb \
@@ -34,7 +38,7 @@ INST_PKGS = glibc libsmooth+setup libgcc freetype libart_lgpl libpng libdnet \
 	    p3scan siproxd which miniupnpd ez-ipupdate noip cdrtools \
 	    suricata smartmontools at dosfstools e2fsprogs grub linux-atm \
 	    mtools nano reiserfsprogs parted xtables-addons cpio Python \
-	    eudev lm_sensors xz pcmciautils qemu-kvm sysfsutils \
+	    $(UDEV) lm_sensors xz pcmciautils qemu-kvm sysfsutils \
 	    coretree
 # 'coretree' *MUST* be last
 
@@ -150,9 +154,9 @@ cdrom/smoothwall.tgz:
 	@echo -e "\nSecuring tree ..."
 	@( \
 	  mkdir -p distrib/tmp; \
-	  /build/securetree distrib; \
-	  /build/securetree distrib-dev; \
-	  bash -x /build/securetree distrib-doc; \
+	  /build/toolcrib/securetree distrib; \
+	  /build/toolcrib/securetree distrib-dev; \
+	  /build/toolcrib/securetree distrib-doc; \
 	  chmod u+s distrib/usr/bin/ping; \
 	  chmod u+s distrib/usr/sbin/listtables; \
 	  chown root:nobody distrib/usr/bin/setuids/*; \

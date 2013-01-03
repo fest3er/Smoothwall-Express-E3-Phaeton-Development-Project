@@ -7,11 +7,12 @@
 include ../Makefile.conf
 
 PACKAGE = qemu-kvm
-VERSION = 1.1.1
+#VERSION = 1.1.1
+VERSION = 1.2.0
 
 BASE_URL = http://iweb.dl.sourceforge.net/project/kvm/$(PACKAGE)/$(VERSION)
 
-PATCH_FILE1 = configure.patch
+#PATCH_FILE1 = configure.patch
 
 CONFIG_OPTS = --target-list=i386-softmmu
 include ../Makefile.rules

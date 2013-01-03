@@ -73,7 +73,8 @@ PATCH_FILE4 = glibc-2.14-reinstall-nis-rpc-headers.patch
 
 
 CONFIG_OPTS = --prefix=/usr --disable-profile --enable-add-ons \
-    --enable-kernel-2.6.25 --libexecdir=/usr/lib/glibc
+	      --enable-kernel-2.6.25 --libexecdir=/usr/lib/glibc \
+	      --enable-obsolete-rpc
 
 DOWNLOAD = yes
 download:

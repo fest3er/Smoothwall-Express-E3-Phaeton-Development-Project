@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = tcpdump
-VERSION = 4.1.1
+VERSION = 4.3.0
 
 BASE_URL = http://www.tcpdump.org/release/
 

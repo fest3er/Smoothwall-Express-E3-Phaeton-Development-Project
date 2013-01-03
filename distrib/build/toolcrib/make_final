@@ -204,6 +204,7 @@ fi
       build klibc
       build kmod
       build gperf
+      build udev
       build eudev
       build linux-atm
       touch crumbs/Final.grp3.compiled
@@ -226,7 +227,7 @@ fi
       build cgilib
       build freetype
       build fontconfig
-      build libart_lgpl
+      #build libart_lgpl  # 1/2/2012: no longer needed?
       build libpng
       build libdnet
       build daq

@@ -1,0 +1,12 @@
+--- eudev-74852a5aeb/src/udev/Makefile.am-orig	2013-01-02 08:40:34.000000000 -0500
++++ eudev-74852a5aeb/src/udev/Makefile.am	2013-01-02 08:40:50.000000000 -0500
+@@ -19,7 +19,8 @@
+ 	udevd.c
+ 
+ udevd_LDADD = \
+-	libudev-core.la
++	libudev-core.la \
++	-lrt
+ 
+ udevadm_SOURCES = \
+ 	udevadm.c \

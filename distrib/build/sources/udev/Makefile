@@ -51,6 +51,9 @@ install: compile
 	cd $(PKG_ROOT); install -dv lib/firmware;
 	cd $(PKG_ROOT); install -dv lib/udev/devices/pts;
 	cd $(PKG_ROOT); install -dv lib/udev/devices/shm;
+	cd $(PKG_ROOT)/lib/udev/rules.d; \
+	    sed -i -e 's/\(^ENV{MATCHADDR}=="52:54:00:.*generator_end"\)/#\1/' \
+	       75-persistent-net-generator.rules
 
 
 include ../Makefile.rules

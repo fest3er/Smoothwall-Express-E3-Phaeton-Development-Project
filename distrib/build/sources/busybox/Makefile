@@ -14,10 +14,12 @@ EXTENSION = .tar.bz2
 
 PKG_DIR = /opt/busybox
 
+PATCH_FILE1 = libbb.h.patch
+
 CONFIGURE = yes
 INSTALL = yes
 
-configure: $(DIR)/
+configure: patch
 	@cp -avR config $(COMPILE_DIR)/.config
 
 install: compile

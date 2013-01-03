@@ -31,7 +31,7 @@ EXCLUDE_DRIVERS = bluetooth connector gpu infiniband mfd misc mtd parport \
 	  memstick mmc
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-SWE_PKGS = udev kmod grub pciutils bash reiserfsprogs util-linux pcmciautils \
+SWE_PKGS = $(UDEV) kmod grub pciutils bash reiserfsprogs util-linux pcmciautils \
 	   sysfsutils parted readline inotify-tools mtools
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 GZIP_PKGS = gunzip
@@ -40,7 +40,7 @@ bin:
 	mkdir -pv tmp/bin tmp/lib tmp/usr/lib/klibc/bin
 	ln -sv /bin tmp/sbin
 	cp -avR /sbin/* tmp/bin
-	cp -avR /build/buildroot/udev/sbin/* tmp/bin/
+	cp -avR /build/buildroot/$(UDEV)/sbin/* tmp/bin/
 	#cp -aR /build/target/install tmp/bin/install
 
 lib:
