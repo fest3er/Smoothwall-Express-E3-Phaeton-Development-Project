@@ -13,25 +13,26 @@ TARBALL = $(PACKAGE)-$(VERSION)
 BASE_URL = https://bitbucket.org/braindamaged/udev/downloads
 
 CONFIG_OPTS = --prefix=/usr           \
-              --bindir=/sbin          \
-              --sysconfdir=/etc       \
-              --libexecdir=/lib       \
-              --enable-rule_generator \
-              --disable-manpages      \
-              --disable-gudev         \
-              --disable-introspection \
-              --disable-keymap        \
-              --disable-doc           \
-              --disable-man           \
-              --disable-rtf           \
-              --disable-xml           \
-              --disable-chm           \
-              --disable-chi           \
-              --disable-html          \
-              --disable-ps            \
-              --disable-pdf           \
-              --with-usb-ids-path=no  \
-              --with-pci-ids-path=no  
+	      --bindir=/sbin          \
+	      --sysconfdir=/etc       \
+	      --libexecdir=/lib       \
+	      --enable-rule_generator \
+	      --disable-manpages      \
+	      --disable-gudev         \
+	      --disable-introspection \
+	      --disable-keymap        \
+	      --disable-doc           \
+	      --disable-man           \
+	      --disable-rtf           \
+	      --disable-xml           \
+	      --disable-chm           \
+	      --disable-chi           \
+	      --disable-html          \
+	      --disable-ps            \
+	      --disable-pdf           \
+	      --with-usb-ids-path=no  \
+	      --with-pci-ids-path=no  \
+	      --with-firmware-path=/lib/firmware/updates:/lib/firmware
 
 
 COMPILE = yes
