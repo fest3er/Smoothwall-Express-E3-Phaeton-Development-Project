@@ -26,12 +26,7 @@ BASE_URL = ftp://alpha.gnu.org/gnu/grub/
 COMPILE_DIR = $(PACKAGE)-$(VERSION)-compile
 
 PATCH_FILE1 = grub-fedora-17.patch
-#PATCH_FILE1 = cvs-sync.patch
-#PATCH_FILE2 = grub-special_device_names.diff
-#PATCH_FILE3 = raid_cciss.diff
-#PATCH_FILE4 = grub-ext4-patch.diff
-#PATCH_FILE5 = grub-0.97-gpt.diff
-
+PATCH_FILE2 = serial.c.patch
 
 PRE_CONFIGURE = CFLAGS="$(CFLAGS) -march=i686 -Os -Wall -fno-reorder-functions"
 CONFIG_OPTS = --prefix=$(PKG_DIR)

@@ -1,0 +1,24 @@
+--- grub-0.97/stage2/serial.c-orig	2013-01-09 03:16:17.000000000 -0500
++++ grub-0.97/stage2/serial.c	2013-01-09 03:22:26.000000000 -0500
+@@ -138,6 +138,12 @@
+   unsigned short div = 0;
+   unsigned char status = 0;
+   
++  /* First things first. If port is zero, it doesn't exist. */
++  if (port == 0) {
++    /* Serial port not found, so don't bother doing anything else. */
++    return 0;
++  }
++
+   /* Turn off the interrupt.  */
+   outb (port + UART_IER, 0);
+ 
+@@ -183,8 +189,6 @@
+ 	break;
+       }
+ 
+-  /* FIXME: should check if the serial terminal was found.  */
+-  
+   return 1;
+ }
+ #endif /* ! defined (GRUB_UTIL) && ! defined (PLATFORM_EFI) */
