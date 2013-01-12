@@ -22,11 +22,12 @@ HDs="ide:m-disk|scsi:t-0x00"
 PCI_IDS="/etc/filled.pci.ids"
 
 # Uber title
-TITLE="$CLS            ${BOUL}AGCL/Roadster Installation$NO"
+BACKTITLE="Smoothwall Express 3.1 Installation"
+TITLE="${CLS}            ${BOUL}$BACKTITLE${NO}"
 
-echo -e $TITLE; echo
+echo -e "$TITLE"; echo
 #echo "Preparing lists of CDROM and hard drives and NICs"
-echo "Preparing lists of CDROM and hard drives"
+echo "Preparing lists of CDROMs and hard drives"
 OPWD=$PWD
 cd /sys/block
 
@@ -165,10 +166,10 @@ fi
 
 while [ 1 -eq 1 ]; do
   # Hard Drive selection
-  echo -en "$TITLE"
-  echo
-  echo
-  echo -e "${BO}Target Disk Drive Selection$NO"
+  menuMsg="Choose the drive upon which SWE3.1 will be installed. Note"
+  menuMsg="$menuMsg that this drive will be repartitioned; \\Zball\\ZB data will be lost."
+  dlgCmd="--backtitle '$BACKTITLE' --title 'Target Disk Drive Selection'"
+  dlgCmd="$dlgCmd --default-item '1.' --menu '$menuMsg' 0 0 0"
 
   unset b
   typeset -i i b h
@@ -179,17 +180,14 @@ while [ 1 -eq 1 ]; do
     hd_size[$i]=$b
     hd_model[$i]=$c
     hd_id[$i]=$d
-    echo -n "  $i. $a - ${hd_size[$i]}MiB (${hd_id[$i]})"
-    if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
+    dlgCmd="$dlgCmd $i. '$a - ${hd_size[$i]}MiB (${hd_id[$i]})'"
     i=i+1
   done < /tmp/hd.list
   HD_CNT=$i
-  echo
 
-  echo -n "[1]        Selection: "
-  read hd #</dev/tty
-  if [ x$hd == "x" ]; then hd=1; fi
-  if [ $hd -lt $i ]; then driveMiB="${hd_size[$hd]}"; break; fi
+  rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+  hd=${rsp/\./}
+  if [ x$hd != "x" ]; then driveMiB="${hd_size[$hd]}"; break; fi
 done
 
 # Get the by-id name
@@ -201,10 +199,9 @@ hd_dev=$1
 
 while [ 1 -eq 1 ]; do
   # CD/DVD Drive selection
-  echo -en "$TITLE"
-  echo
-  echo
-  echo -e "${BO}Source Medium Selection${NO}"
+  menuMsg="Choose the drive that contains the Smoothwall distribution."
+  dlgCmd="--backtitle '$BACKTITLE' --title 'Source Medium Selection'"
+  dlgCmd="$dlgCmd --default-item '1.' --menu '$menuMsg' 0 0 0"
 
   i=1
   while read a b c d; do
@@ -212,8 +209,7 @@ while [ 1 -eq 1 ]; do
     cd_size[$i]=$b
     cd_model[$i]=$c
     cd_id[$i]=$d
-    echo -n "  $i. $a - ${cd_size[$i]}MiB (${cd_model[$i]})"
-    if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
+    dlgCmd="$dlgCmd $i. '$a - ${cd_size[$i]}MiB (${cd_model[$i]})'"
     i=i+1
   done < /tmp/cd.list
   OPTI_CNT=$i
@@ -226,38 +222,33 @@ while [ 1 -eq 1 ]; do
         cd_size[$i]=$b
         cd_model[$i]=$c
         cd_id[$i]=$d
-        echo -n "  $i. $a - ${cd_size[$i]}MiB ${cd_model[$i]} (${cd_id[$i]})"
-        if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
+        dlgCmd="$dlgCmd $i. '$a - ${cd_size[$i]}MiB ${cd_model[$i]} (${cd_id[$i]})'"
         i=i+1
       fi
       h=h+1
     done < /tmp/hd.list
   fi
-  echo
 
-  echo -n "[1]        Selection: "
-  read CD #</dev/tty
-  if [ x$CD == "x" ]; then CD=1; fi
-  if [ x${cd_dev[$CD]} == x ]; then continue; fi
-  if [ $CD -lt $i ]; then break; fi
+  rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+  CD=${rsp/\./}
+  if [ x$CD != "x" ]; then break; fi
 done
 
 while [ 1 -eq 1 ]; do
   # restore selection
-  echo -en "$TITLE"
-  echo
-  echo
-  echo -e "${BO}Install or restore${NO}"
+  menuMsg="Choose to perform a fresh, clean install or to perform a config or"
+  menuMsg="$menuMsg a complete, full restore.\n\nIf restoring, be sure the backup"
+  menuMsg="$menuMsg medium is already connected (it can be the install medium.)"
+  dlgCmd="--backtitle '$BACKTITLE' --title 'Install or Restore'"
+  dlgCmd="$dlgCmd --default-item '1.' --menu '$menuMsg' 0 0 0"
 
-  i=1; echo -e "  $i. Fresh install ${BO}ONLY${NO} (default)"
-  i=2; echo -e "  $i. Restore ${BO}variable${NO} data only"
-  i=3; echo -e "  $i. ${BO}Complete${NO} restoration"
-  echo
+  dlgCmd="$dlgCmd 1. 'Fresh install \\ZbONLY\\ZB'"
+  dlgCmd="$dlgCmd 2. 'Restore \\Zbvariable\\ZB data'"
+  dlgCmd="$dlgCmd 3. '\\ZbComplete\\ZB restoration'"
 
-  echo -n "[1]        Selection: "
-  read restore #</dev/tty
-  if [ x$restore == x ]; then restore="1"; fi
-  if [ $restore -lt 4 ]; then break; fi
+  rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+  restore=${rsp/\./}
+  if [ x$restore != "x" ]; then break; fi
 done
 
 # Get the medium and tarball only if restoring
@@ -265,8 +256,8 @@ if [ $restore -gt 1 ]; then
   # Get the drive
   while [ 1 -eq 1 ]; do
     # Select the disk to restore from
-    echo
-    echo -e "${SC}${BO}Restore Medium Selection${NO}"
+    dlgCmd="--backtitle '$BACKTITLE' --title 'Select restore medium'"
+    dlgCmd="$dlgCmd --default-item '1.' --menu '' 0 0 0"
 
     unset b
     typeset -i i b h
@@ -278,19 +269,15 @@ if [ $restore -gt 1 ]; then
         rd_size[$i]=$b
         rd_model[$i]=$c
         rd_id[$i]=$d
-        echo -n "  $i. $a - ${rd_size[$i]}MiB (${rd_id[$i]})"
-        if [ $i -eq 1 ]; then echo " (default)"; else echo; fi
+        dlgCmd="$dlgCmd $i. '$a - ${rd_size[$i]}MiB (${rd_id[$i]})'"
         i=i+1
       fi
     done < /tmp/hd.list
     RD_CNT=$i
-    echo
 
-    echo -n "[1]        Selection: "
-    read rd #</dev/tty
-    if [ x$rd == "x" ]; then rd=1; fi
-    if [ $rd -lt $RD_CNT ]; then break; fi
-    echo -e "${RC}${CE}"
+    rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+    rd=${rsp/\./}
+    if [ x$rd != "x" ]; then break; fi
   done
   # Get the list of tarballs
   if [ "${rd_dev[$rd]}" == "$cd_dev[$CD]}" ]; then
@@ -307,8 +294,9 @@ if [ $restore -gt 1 ]; then
   fi
   while [ 1 -eq 1 ]; do
     # Select the disk to restore from
-    echo
-    echo -e "${SC}${BO}Archive Selection (5 latest)${NO}"
+    menuMsg="Choose the archive to restore from."
+    dlgCmd="--backtitle '$BACKTITLE' --title 'Archive selection (5 latest)'"
+    dlgCmd="$dlgCmd --default-item '1.' --menu '$menuMsg' 0 0 0"
 
     if [ $restore -eq 2 ]; then
       backupType="var"
@@ -321,121 +309,115 @@ if [ $restore -gt 1 ]; then
     grep "_${backupType}.tar.gz" /tmp/archive.list | tail -5 >/tmp/temp.list
     while read a; do
         archive_id[$i]=$a
-        echo "  $i. $a"
+        dlgCmd="$dlgCmd $i. '$a'"
         i=i+1
     done < /tmp/temp.list
     ARCHIVE_CNT=$i
-    echo
 
-    echo -n "           Selection: "
-    read archive #</dev/tty
-    if [ x$archive == "x" ]; then archive=0; fi
-    if [ $archive -gt 0 -a $archive -lt $ARCHIVE_CNT ]; then break; fi
-    echo -e "${RC}${CE}"
+    rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+    archive=${rsp/\./}
+    if [ x$archive != "x" ]; then break; fi
   done
 fi
 
 while [ 1 -eq 1 ]; do
-# Dev Pkgs
-  echo -en "$TITLE"
-  echo
-  echo
-  echo -e "${BO}Development Packages${NO}"
+  # Dev Pkgs
+  menuMsg="Choose whether or not to install the development and documentation"
+  menuMsg="$menuMsg archives."
+  dlgCmd="--backtitle '$BACKTITLE' --title 'Development packages'"
+  dlgCmd="$dlgCmd --default-item '1.' --menu '$menuMsg' 0 0 0"
 
-  i=1; echo -e "  $i. ${UL}Do not${NO} install (default)"
-  i=2; echo "  $i. Install dev. pkgs."
-  echo
+  dlgCmd="$dlgCmd 1. 'Do \\Zbnot\\ZB install'"
+  dlgCmd="$dlgCmd 2. '\\ZbInstall\\ZB development packages'"
 
-  echo -n "[1]        Selection: "
-  read dev #</dev/tty
-  if [ x$dev == "x" ]; then dev=1; fi
-  if [ $dev -eq 1 ]; then break; fi
-  if [ $dev -eq 2 ]; then break; fi
+  rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+  dev=${rsp/\./}
+  if [ x$dev != "x" ]; then break; fi
 done
 
 while [ 1 -eq 1 ]; do
   # Disk Partitioning
-  echo -en "$TITLE"
-  echo
-  echo
-  echo -e "${BO}Disk Utilization${NO}"
 
   typeset -i hd_size[$hd]  driveMiB  maxMiB
   minMiB=4000
+  menuMsg=""
   if [ $driveMiB -le $minMiB ]; then
-    echo "      The selected disk is very small (${driveMiB}MiB) and is too small to build"
-    echo "      AGCL/Roadster. Press <ENTER> to use the entire disk."
-  else
-    if [ $driveMiB -lt 12000 ]; then
-      echo "      The selected disk is too small (${driveMiB}MiB) to build AGCL/Roadster."
-    fi
-    echo "      Press <ENTER> to use the entire disk or enter a number between"
-    echo "      $minMiB and $driveMiB to limit disk usage to that many MiB."
-    echo "      Unused space will be available for extended partitions."
-    echo
-  fi
+    menuMsg="The selected disk is very small (${driveMiB}MiB) and is too small to build"
+    menuMsg="$menuMsg Smoothwall Express.\n\nPress <ENTER> to use the entire disk."
+    dlgCmd="--backtitle '$BACKTITLE' --title 'Disk Utilization'"
+    dlgCmd="$dlgCmd --msgbox '$menuMsg' 0 0"
+    rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+    maxMiB=$driveMiB
+    # Always done.
+    break;
 
-  echo -en "[whole disk]        Selection: "
-  read maxMiB #</dev/tty
-  if [ x$maxMiB == x ]; then maxMiB="0"; fi
-  if [ $driveMiB -lt $minMib -a $maxMiB -ne 0 ]; then continue; fi
-  if [ $maxMiB -eq 0 ]; then break; fi
-  if [ $maxMiB -ge $minMiB -a $maxMiB -le $driveMiB ]; then break; fi
+  else
+
+    if [ $driveMiB -lt 24000 ]; then
+      menuMsg="The selected disk is too small (${driveMiB}MiB) to \\Zbbuild\\ZB Smoothwall Express.\n\n"
+      menuMsg="${menuMsg}Press <ENTER> to use the entire disk or enter a number between"
+      menuMsg="$menuMsg $minMiB and $driveMiB to limit disk usage to that many MiB.\n\n"
+      seed=${driveMiB}
+    else
+      menuMsg="Press <ENTER> to use 24000MiB or enter another number between"
+      menuMsg="$menuMsg $minMiB and $driveMiB to limit disk usage to that many MiB.\n\n"
+      seed=24000
+    fi
+    menuMsg="${menuMsg}Any unused space will be available for later use."
+    menuMsg="${menuMsg}\n\n\\Z1Initial disk space to use (in MiB):\\Z0"
+    dlgCmd="--backtitle '$BACKTITLE' --title 'Disk Utilization'"
+    dlgCmd="$dlgCmd --inputbox '$menuMsg' 0 0 ${seed}"
+    rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+    maxMiB=${rsp}
+
+    # Within range? Done.
+    if [ $maxMiB -le $driveMiB -a $maxMiB -ge $minMiB ]; then break; fi
+    # Eval's to zero? Use seed. Done.
+    if [ $maxMiB -eq 0 ]; then maxMiB=$seed; break; fi
+
+  fi
 done
 
 while [ 1 -eq 1 ]; do
   # Filesystem
-  echo -en "$TITLE"
-  echo
-  echo
-  echo -e "${BO}Filesystem${NO}"
+  menuMsg="Choose the filesystem to use."
+  dlgCmd="--backtitle '$BACKTITLE' --title 'Filesystem'"
+  dlgCmd="$dlgCmd --default-item '1.' --menu '$menuMsg' 0 0 0"
+  dlgCmd="$dlgCmd 1. EXT4"
+  dlgCmd="$dlgCmd 2. ReiserFS"
 
-  i=1; echo "  $i. EXT3 (default)"
-  i=2; echo "  $i. ReiserFS"
-  echo
+  rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+  filesys=${rsp/\./}
 
-  echo -n "[1]        Selection: "
-  read filesys #</dev/tty
-  if [ x$filesys == x ]; then filesys="1"; fi
-  if [ $filesys -lt 3 ]; then break; fi
+  if [ x$filesys != x ]; then break; fi
 done
 
 while [ 1 -eq 1 ]; do
   # Activate serial port for booting and/or getty
-  echo -en "$TITLE"
-  echo
-  echo
-  echo -e "${BO}Serial Port Use${NO}"
-
-  i=1; echo "  $i. Boot"
-  i=2; echo "  $i. Login"
-  i=3; echo "  $i. Boot & Login"
-  i=4; echo "  $i. Neither (default)"
-  echo
-
-  echo -n "[4]        Selection: "
-  read serialport #</dev/tty
-  if [ x$serialport == x ]; then serialport="4"; fi
-  if [ $serialport -lt 5 ]; then break; fi
+  menuMsg="Choose how the system will use the serial console."
+  dlgCmd="--backtitle '$BACKTITLE' --title 'Serial Console Use'"
+  dlgCmd="$dlgCmd --default-item '4.' --menu '$menuMsg' 0 0 0"
+  dlgCmd="$dlgCmd 1. Boot"
+  dlgCmd="$dlgCmd 2. Login"
+  dlgCmd="$dlgCmd 3. 'Boot & Login'"
+  dlgCmd="$dlgCmd 4. 'Do Not Use'"
+  rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+  serialport=${rsp/\./}
+  if [ x$serialport != x ]; then break; fi
 done
 
 if [ $serialport -ne 4 ]; then
   while [ 1 -eq 1 ]; do
     # Choose baud rate
-    echo -en "$TITLE"
-    echo
-    echo
-    echo -e "${BO}Serial Port Baud Rate${NO}"
-
-    i=1; echo "  $i. 115200 (default)"
-    i=2; echo "  $i. 19200"
-    i=3; echo "  $i. 9600"
-    echo
-
-    echo -n "[1]        Selection: "
-    read serialbaud #</dev/tty
-    if [ x$serialbaud == x ]; then serialbaud="1"; fi
-    if [ $serialbaud -lt 4 ]; then break; fi
+    menuMsg="Choose the desired baud rate."
+    dlgCmd="--backtitle '$BACKTITLE' --title 'Serial Port Baud Rate'"
+    dlgCmd="$dlgCmd --default-item '1.' --menu '$menuMsg' 0 0 0"
+    dlgCmd="$dlgCmd 1. 115200"
+    dlgCmd="$dlgCmd 2. 19200"
+    dlgCmd="$dlgCmd 3. 9600"
+    rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
+    serialbaud=${rsp/\./}
+    if [ x$serialbaud != x ]; then break; fi
   done
 fi
 
@@ -443,25 +425,11 @@ fi
 #
 loader=2
 
-while [ 1 -eq 1 ]; do
-  # noatime
-  echo -en "$TITLE"
-  echo
-  echo
-  echo -e "${BO}Record File Access Times${NO}"
+# Never record file access times. Working OK on SWE3.0 Update 9 without
+# complaints. Amen.
+#
+noatime=2
 
-  i=1; echo "  $i. Yes (default)"
-  i=2; echo "  $i. No (enable 'noatime' for /, /boot and /var/log)"
-  echo
-  echo "Select (1) if installing to rotating drive."
-  echo "Select (2) if installing to flash drive."
-  echo
-
-  echo -n "[1]        Selection: "
-  read noatime #</dev/tty
-  if [ x$noatime == x ]; then noatime="1"; fi
-  if [ $noatime -lt 3 ]; then break; fi
-done
 
 # setup is limited to eth[0-3]; so skip NIC renaming for now.
 #
@@ -558,11 +526,7 @@ while [ 1 == 1 ]; do
     4) echo -e "  ${BO}Not using${NO} serial port"
   esac
   echo -e "  Installing ${BO}GRUB${NO} boot loader"
-  if [ $noatime == "1" ]; then
-    echo -e "  Recording file access time"
-  else
-    echo -e "  ${BO}NOT${NO} recording file access times"
-  fi
+  echo -e "  ${BO}NOT${NO} recording file access times"
   echo
 
   # Skip NIC renaming for now
