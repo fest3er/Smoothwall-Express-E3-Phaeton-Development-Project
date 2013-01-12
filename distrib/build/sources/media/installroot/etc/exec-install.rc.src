@@ -43,7 +43,7 @@ KERNEL_TYPE=KeRnElTyPe
 
 CONFIG_ROOT=/var/smoothwall
 
-TITLE="$CLS           ${BOUL}Smoothwall Express 3 (Roadster Test Vehicle) Installation$NO"
+TITLE="$CLS           ${BOUL}Smoothwall Express 3.1 Installation$NO"
 
 echo -e "$TITLE"
 echo
