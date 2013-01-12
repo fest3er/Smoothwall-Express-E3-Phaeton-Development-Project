@@ -53,7 +53,10 @@ foreach $mline (@echo) {
 
 	my ($mdev, $mtotal, $mused, $mfree, $mshared, $mbuffers, $mcached) = split(/\s+/, $mline);
 
-	$mperc = int((($mused/$mtotal)*100));
+	my $mperc = 0;
+	if ($mtotal) {
+		$mperc = int((($mused/$mtotal)*100));
+	}
 	if ($mperc > $graphalertcritical) {
 		$graphbgcolour = $graphcriticalcolour;
 	} elsif ($mperc > $graphalertwarning) {

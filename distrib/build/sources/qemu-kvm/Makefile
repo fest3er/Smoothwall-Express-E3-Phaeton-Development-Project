@@ -7,7 +7,6 @@
 include ../Makefile.conf
 
 PACKAGE = qemu-kvm
-#VERSION = 1.1.1
 VERSION = 1.2.0
 
 BASE_URL = http://iweb.dl.sourceforge.net/project/kvm/$(PACKAGE)/$(VERSION)

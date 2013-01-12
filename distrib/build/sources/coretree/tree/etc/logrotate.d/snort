@@ -15,7 +15,7 @@
     missingok
 # hup snort
     postrotate
-      /usr/bin/find /var/log/snort -name "[0-9]*" -mtime +7 | xargs /bin/rm -rf
+      /usr/bin/find /var/log/snort -name "snort.log.[0-9]*" -mtime +7 | xargs /bin/rm -rf
       /usr/bin/smoothcom snortrestart
     endscript
 }

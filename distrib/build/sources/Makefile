@@ -4,15 +4,13 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
-BASENAME = agcl
+BASENAME = Express-3.1
 
-PRODUCT_NAME = Silver Cloud
-PRODUCT_VERSION = 0.0
+PRODUCT_NAME = Express
+PRODUCT_VERSION = 3.1
 
-PRODUCT_EXTRA =
+PRODUCT_EXTRA = -beth
 
-UI_VERSION = 0.1
+UI_VERSION = 3.1
 FIXES_NUMBER = 0
-REVISION = 
-
-RELEASE = $(BASENAME)-$(PRODUCT_VERSION).$(FIXES_NUMBER)
+REVISION = orca

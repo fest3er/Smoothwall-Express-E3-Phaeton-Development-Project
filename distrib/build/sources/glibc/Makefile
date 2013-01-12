@@ -15,13 +15,6 @@ BASE_URL =  ftp://ftp.gnu.org/gnu/glibc
 
 COMPILE_DIR = $(DIR)-compile
 
-#ifeq ($(mARCH), i586)
-#CFLAGSPLUS = -m32 -march=i486 -mtune=native
-#endif
-#ifeq ($(mARCH), x86_64)
-#CFLAGSPLUS = -m64
-#endif
-
 # Phase 1 compile
 #
 ifeq ($(BUILD_PHASE), Stage_1)
@@ -31,7 +24,7 @@ PATCH_FILE2 = glibc-2.14.1-cpuid-1.patch
 
 CONFIG_OPTS = --prefix=$(TOOLS_DIR) \
 	      --host=$(SWE_TGT) \
-	      --build=$$(../$(PACAKGE)-$(VERSION)/scripts/config.guess) \
+	      --build=$$(../$(PACKAGE)-$(VERSION)/scripts/config.guess) \
 	      --disable-profile \
 	      --enable-add-ons \
 	      --enable-kernel=2.6.25  \
@@ -45,6 +38,13 @@ PREPARE = yes
 $(DIR)/: download
 	tar -xvf $(DOWNLOADS_DIR)/$(DIR)$(EXTENSION)
 	mkdir -p $(COMPILE_DIR)
+ifeq ($(mARCH), i686)
+	echo "-m32 -march=i586 -mtune=generic" > $(COMPILE_DIR)/configparms
+endif
+ifeq ($(mARCH), x86_64)
+	echo "-m64 -march=x86_64" > $(COMPILE_DIR)/configparms
+endif
+
 
 COMPILE = yes
 INSTALL = yes
