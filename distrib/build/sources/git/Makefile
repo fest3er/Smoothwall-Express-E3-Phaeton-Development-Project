@@ -13,7 +13,7 @@ EXTENSION = .tar.gz
 
 BASE_URL = http://git-core.googlecode.com/files/
 
-CONFIG_OPTS = --with-openssl=/usr/ssl --without-curl --without-tcltk --without-python
+CONFIG_OPTS = --with-openssl --without-curl --without-tcltk --without-python
 
 COMPILE = yes
 INSTALL = yes

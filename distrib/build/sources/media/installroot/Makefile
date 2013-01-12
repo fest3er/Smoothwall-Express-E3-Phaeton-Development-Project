@@ -38,6 +38,7 @@ GZIP_PKGS = gunzip
 
 bin:
 	mkdir -pv tmp/bin tmp/lib tmp/usr/lib/klibc/bin
+	cp -av ../../../buildroot/dialog/usr/bin/dialog tmp/bin
 	ln -sv /bin tmp/sbin
 	cp -avR /sbin/* tmp/bin
 	cp -avR /build/buildroot/$(UDEV)/sbin/* tmp/bin/

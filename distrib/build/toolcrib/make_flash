@@ -36,9 +36,9 @@ function countdown {
 
 # Stuff you need to know
 echo
-echo "                 PHAETON/ROADSTER ISO TO FLASH CONVERTER"
+echo "                   Smoothwall Express ISO TO FLASH CONVERTER"
 echo
-echo "$0 is a script that copies a Phaeton/Roadster install ISO image"
+echo "$0 is a script that copies a Smoothwall Express 3.1 install ISO image"
 echo "to a flash/thumb drive such that it can be booted. There are a few items"
 echo "to be aware of."
 echo "  1. The flash device must have at least one partition. The first"

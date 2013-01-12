@@ -75,9 +75,9 @@ else
   # Build all of it
   # The ISOs must be created in non-parallel mode
   JOBS=$JOBS_UP
-  other_cmd "sources/media-isoinstall/$BUILD_PHASE.agclISO.built" \
-            "Silver Cloud ISO" \
-            "env -i ${finalENV} make -C sources/media-isoinstall TYPE=-devel" \
-            "sources/media-isoinstall/$BUILD_PHASE.agclISO.out" \
+  other_cmd "sources/media/$BUILD_PHASE.mediaISO.built" \
+            "Smoothwall Express ISO" \
+            "env -i ${finalENV} make -C sources/media TYPE=-devel" \
+            "sources/media/$BUILD_PHASE.mediaISO.out" \
             ""
 fi

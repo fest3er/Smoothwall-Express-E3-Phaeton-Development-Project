@@ -246,6 +246,7 @@ fi
       build slang
       JOBS=$JOBS_MP
       build popt
+      build dialog
       build newt
 
       build usbutils

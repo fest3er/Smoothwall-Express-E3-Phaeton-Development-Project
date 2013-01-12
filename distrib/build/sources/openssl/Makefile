@@ -17,11 +17,11 @@ CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
-PKG_DIR = usr
+PKG_DIR = /usr
 
 configure: $(DIR)/
 	@(cd $(DIR); \
-	./config shared --install_prefix=/build/buildroot/$(PACKAGE) --prefix=/$(PKG_DIR) --openssldir=/$(PKG_DIR)/lib/ssl; \
+	./config shared --install_prefix=/build/buildroot/$(PACKAGE) --prefix=$(PKG_DIR) --openssldir=/$(PKG_DIR)/lib/ssl; \
 	patch < ../Makefile-MANDIR.patch);
 
 compile: configure

@@ -6,13 +6,13 @@
 
 include ../Makefile.conf
 
-PACKAGE = openldap
-VERSION = 2.4.32
-
+PACKAGE = dialog
+VERSION = 1.2-20121230
 EXTENSION = .tgz
 
-BASE_URL = ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/
+BASE_URL = ftp://invisible-island.net/$(PACKAGE)
 
-CONFIG_OPTS = --with-tls=openssl
+PRECONFIGURE = LDFLAGS=-ltinfo
+CONFIG_OPTS = --with-ncurses=tinfo
 
 include ../Makefile.rules

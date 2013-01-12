@@ -17,7 +17,7 @@ CONFIG_OPTS = --without-ssl
 endif
 
 ifeq ($(BUILD_PHASE), Final)
-CONFIG_OPTS = --with-ssl=openssl --with-libssl-prefix=/usr/ssl
+CONFIG_OPTS = --with-ssl=openssl
 endif
 
 COMPILE = yes

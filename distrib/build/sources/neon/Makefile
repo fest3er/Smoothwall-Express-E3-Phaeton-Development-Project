@@ -11,6 +11,6 @@ VERSION = 0.29.6
 
 BASE_URL = http://www.webdav.org/neon/
 
-CONFIG_OPTS = --enable-shared --with-ssl=openssl --with-libs=/usr/ssl
+CONFIG_OPTS = --enable-shared --with-ssl=openssl --with-libs=/usr
 
 include ../Makefile.rules
