@@ -226,7 +226,7 @@ extracontent:
 all: cdrom cdrom/smoothwall.tgz extracontent
 	@echo "      build full ISO ..." >/proc/self/fd/0
 	@( \
-	  RELEASE=$(PRODUCT_NAME)-$(PRODUCT_VERSION)$(PRODUCT_EXTRA)-$(ARCH); \
+	  RELEASE=$(PRODUCT_NAME)-$(PRODUCT_VERSION)$(PRODUCT_EXTRA)-$(mARCH); \
 	  ISONAME=$(TARGET_DIR)/isos/$${RELEASE}.iso; \
 	  /sbin/mkisofs -o $${ISONAME} \
 	    -b boot/grub/stage2_eltorito -J -R \
@@ -236,7 +236,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	)
 	@echo "      build offRoad ISO ..." >/proc/self/fd/0
 	@( \
-	  RELEASE=$(PRODUCT_NAME)-$(PRODUCT_VERSION)$(PRODUCT_EXTRA)-$(ARCH); \
+	  RELEASE=$(PRODUCT_NAME)-$(PRODUCT_VERSION)$(PRODUCT_EXTRA)-$(mARCH); \
 	  ISONAME=$(TARGET_DIR)/isos/$${RELEASE}-offroad.iso; \
 	  /sbin/mkisofs -o $${ISONAME} \
 	    -b boot/grub/stage2_eltorito -J -R \
