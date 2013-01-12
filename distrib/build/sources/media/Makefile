@@ -130,7 +130,6 @@ cdrom/smoothwall.tgz:
 	@( \
 	echo "  PRODUCT='$(PRODUCT_NAME)$(PRODUCT_EXTRA)'"; \
 	echo "  VERSION='$(PRODUCT_VERSION)'"; \
-	echo "  RELEASE='$(RELEASE)'" ; \
 	echo "  REVISION='$(REVISION)'"; \
 	echo "  UI_VERSION='$(UI_VERSION)'"; \
 	echo "  FIXES='$(FIXES_NUMBER)'"; \
@@ -141,7 +140,6 @@ cdrom/smoothwall.tgz:
 	@( \
 	  echo "PRODUCT='$(PRODUCT_NAME)$(PRODUCT_EXTRA)'" ; \
 	  echo "VERSION='$(PRODUCT_VERSION)'" ; \
-	  echo "RELEASE='$(RELEASE)'" ; \
 	  echo "REVISION='$(REVISION)'" ; \
 	  echo "UI_VERSION='$(UI_VERSION)'" ; \
 	  echo "FIXES='$(FIXES_NUMBER)'" ; \
@@ -228,7 +226,7 @@ extracontent:
 all: cdrom cdrom/smoothwall.tgz extracontent
 	@echo "      build full ISO ..." >/proc/self/fd/0
 	@( \
-	  RELEASE=$(PRODUCT)-$(VERSION)-$(ARCH); \
+	  RELEASE=$(PRODUCT_NAME)-$(PRODUCT_VERSION)$(PRODUCT_EXTRA)-$(ARCH); \
 	  ISONAME=$(TARGET_DIR)/isos/$(RELEASE).iso; \
 	  /sbin/mkisofs -o $${ISONAME} \
 	    -b boot/grub/stage2_eltorito -J -R \
@@ -238,7 +236,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 	)
 	@echo "      build offRoad ISO ..." >/proc/self/fd/0
 	@( \
-	  RELEASE=$(PRODUCT)-$(VERSION)-$(ARCH); \
+	  RELEASE=$(PRODUCT_NAME)-$(PRODUCT_VERSION)$(PRODUCT_EXTRA)-$(ARCH); \
 	  ISONAME=$(TARGET_DIR)/isos/$(RELEASE)-offroad.iso; \
 	  /sbin/mkisofs -o $${ISONAME} \
 	    -b boot/grub/stage2_eltorito -J -R \
