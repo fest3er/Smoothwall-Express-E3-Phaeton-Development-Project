@@ -176,7 +176,7 @@ media:
 	@echo -e "\nMaking ISO image with linux-$(ktype)..."; sleep 1
 	@+env -i $(CUSTOM_ENV) /bin/bash --noprofile --norc toolcrib/as_chroot "$(CUSTOM_ENV) /bin/bash -l -c /build/toolcrib/make_media"
 	@echo -e "\nMaking FLASH content..."; sleep 1
-	@+sudo su -c "toolcrib/make_flash"
+	@+sudo su -c "toolcrib/make_flash >>sources/media/Media.mediaISO.out 2>&1"
 
 # after a successful build, this will do everything
 #
