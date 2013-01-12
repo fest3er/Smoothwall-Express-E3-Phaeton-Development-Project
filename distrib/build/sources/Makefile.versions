@@ -7,7 +7,7 @@
 # The system's kernel.
 KERNEL_MAJOR = 3
 KERNEL_MMR = $(KERNEL_MAJOR).4
-KERNEL_VER = $(KERNEL_MMR).24
+KERNEL_VER = $(KERNEL_MMR).25
 
 # The kernel version headers needed to build klibc-2.6.18
 # Unrelated to the system's kernel
