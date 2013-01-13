@@ -34,7 +34,7 @@ instructions.
 
 
 SmoothWall %PRODUCT_NAME% 
-(c) Copyright 2001 - 2007 SmoothWall Team (www.smoothwall.org)
+(c) Copyright 2001 - 2013 SmoothWall Team (www.smoothwall.org)
 Portions (c) Copyright Original Authors.
 
 SmoothWall (tm) is a trademark of SmoothWall Ltd. (www.smoothwall.net)

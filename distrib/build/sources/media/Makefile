@@ -186,7 +186,7 @@ cdrom/smoothwall.tgz:
 	@mkdir -p offroad
 	@cd cdrom; cp -av . ../offroad
 	@sed -i \
-	     -e '/Install Roadster/,+4d' \
+	     -e '/Install SmoothWall/,+4d' \
              -e '/Convert ISO/,+9d' \
 	     -e '$d' \
 	     offroad/boot/grub/grub.conf
