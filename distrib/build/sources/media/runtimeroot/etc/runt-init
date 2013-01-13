@@ -34,11 +34,6 @@ echo "Mounting devtmpfs"
 /sbin/udevadm trigger
 /sbin/udevadm settle
 
-if [ -d /proc/bus/usb ]; then
-  echo "Mounting proc/bus/usb"
-  /bin/mount -t usbfs usbfs /proc/bus/usb
-fi
-
 # Load any modules explicitly required
 test -e /etc/modules && egrep -v "^$|^#" /etc/modules | while read a; do modprobe $a; done
 
@@ -50,9 +45,6 @@ udevadm control --exit
 
 echo "1 4 1 7" >/proc/sys/kernel/printk
 
-if [ -d /proc/bus/usb ]; then
-  /bin/umount /proc/bus/usb
-fi
 /bin/mount -n -o move /dev /harddisk/dev
 /bin/mkdir -p /harddisk/dev/pts
 /bin/mount -t devpts devpts /harddisk/dev/pts
@@ -62,8 +54,5 @@ fi
 
 /bin/mount -n -o move /sys /harddisk/sys
 /bin/mount -n -o move /proc /harddisk/proc
-if [ -d /harddisk/proc/bus/usb ]; then
-  /bin/mount -t usbfs usbfs /harddisk/proc/bus/usb
-fi
 
 exec /usr/lib/klibc/bin/run-init /harddisk /sbin/init </harddisk/dev/console >/harddisk/dev/console 2>&1

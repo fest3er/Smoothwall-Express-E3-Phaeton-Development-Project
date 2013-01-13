@@ -170,7 +170,6 @@ case $restore in
         mount -n -o move /dev/pts /harddisk/dev/pts
         mount -n -o move /sys /harddisk/sys
         mount -n -o move /proc /harddisk/proc
-        [ -d /proc/bus/usb ] && mount -n -o move /proc/bus/usb /harddisk/proc/bus/usb
 
         cd /harddisk
         echo $(getarg console) | \

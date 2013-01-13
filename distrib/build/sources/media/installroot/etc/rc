@@ -31,10 +31,6 @@ first_dev() {
   /sbin/modprobe ohci-hcd
   /sbin/modprobe uhci-hcd
   /sbin/modprobe usbhid
-
-  echo "Mounting proc/bus/usb"
-  while [ ! /proc/bus/usb ]; do sleep .25; done
-  /bin/mount -t usbfs usbfs /proc/bus/usb
 }
 
 # Prep initial sys FSen
