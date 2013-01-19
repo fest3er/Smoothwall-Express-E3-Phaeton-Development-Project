@@ -3,15 +3,14 @@
 . /var/smoothwall/ethernet/settings
 
 # Take the IPSEC VPN down first, then kill the traffiClogger
+# Note, add conditional hooks to take down other VPNs (OpenVPN, SSH, et alia).
 /etc/rc.d/rc.vpn.down
 /usr/bin/killall trafficlogger
 
 # Take GREEN down, if allowed.
 if [ "$1" != "NOTGREEN" ]; then
   (
-    # First kill DHCPD, then down the link
-    [ -e "/var/run/dhcpcd-$GREEN_DEV.pid" ] &&
-      kill `cat /var/run/dhcpcd-$GREEN_DEV.pid`
+    # Down the link and give it to Thomas
     /sbin/ip link set dev $GREEN_DEV down
     /sbin/ip addr flush dev $GREEN_DEV
   ) >/dev/null 2>&1
@@ -20,12 +19,15 @@ fi
 # Take the others down, if defined
 for i in $ORANGE_DEV $PURPLE_DEV $RED_DEV; do
   (
-    # First kill DHCPD, then down the link
-    [ -e "/var/run/dhcpcd-$i.pid" ] &&
-      kill `cat /var/run/dhcpcd-$i.pid`
+    # Down the link and give it to Thomas
     /sbin/ip link set dev $i down
     /sbin/ip addr flush dev $i
   ) >/dev/null 2>&1
+done
+
+# Kill RED's DHCP client daemon and any others that might (still) be running
+for i in /var/run/dhcpcd-*.pid; do
+  kill `cat $i` >/dev/null 2>&1
 done
 
 rm -f /var/smoothwall/red/*
